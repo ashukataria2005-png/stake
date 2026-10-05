@@ -6,9 +6,12 @@ interface GameContextType {
   balance: number;
   currency: string;
   isSidebarOpen: boolean;
+  isChatOpen: boolean;
   isMounted: boolean;
   toggleSidebar: () => void;
   setSidebarOpen: (open: boolean) => void;
+  toggleChat: () => void;
+  setChatOpen: (open: boolean) => void;
   setCurrency: (currency: string) => void;
   updateBalance: (amount: number) => boolean;
   resetBalance: () => void;
@@ -25,6 +28,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [balance, setBalance] = useState<number>(DEFAULT_BALANCE);
   const [currency, setCurrencyState] = useState<string>("USDT");
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
+  const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
   const [isMounted, setIsMounted] = useState<boolean>(false);
 
   // Hydrate state from localStorage safely on client
@@ -88,6 +92,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     setIsSidebarOpen(open);
   };
 
+  const toggleChat = () => {
+    setIsChatOpen((prev) => !prev);
+  };
+
+  const setChatOpen = (open: boolean) => {
+    setIsChatOpen(open);
+  };
+
   const formatBalance = (val?: number): string => {
     const target = val !== undefined ? val : balance;
     return target.toLocaleString("en-US", {
@@ -102,9 +114,12 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         balance,
         currency,
         isSidebarOpen,
+        isChatOpen,
         isMounted,
         toggleSidebar,
         setSidebarOpen,
+        toggleChat,
+        setChatOpen,
         setCurrency,
         updateBalance,
         resetBalance,

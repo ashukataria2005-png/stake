@@ -4,17 +4,20 @@ import React, { useState } from "react";
 import Link from "next/link";
 import {
   Menu,
-  X,
   Wallet,
   Bell,
   MessageSquare,
   User,
   ChevronDown,
   RotateCcw,
-  Plus,
   Check,
+  Award,
+  Sparkles,
+  ShieldCheck,
+  Gift,
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
+import WalletModal from "@/components/WalletModal";
 
 export default function Navbar() {
   const {
@@ -22,16 +25,18 @@ export default function Navbar() {
     currency,
     setCurrency,
     formatBalance,
-    updateBalance,
     resetBalance,
     toggleSidebar,
     isSidebarOpen,
+    toggleChat,
+    isChatOpen,
     isMounted,
   } = useGame();
 
   const [isCurrencyDropdownOpen, setIsCurrencyDropdownOpen] = useState(false);
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [notificationActive, setNotificationActive] = useState(true);
+  const [showVipPopover, setShowVipPopover] = useState(false);
 
   const currencies = [
     { code: "USDT", symbol: "$", name: "Tether USD" },
@@ -39,11 +44,6 @@ export default function Navbar() {
     { code: "BTC", symbol: "₿", name: "Bitcoin" },
     { code: "ETH", symbol: "Ξ", name: "Ethereum" },
   ];
-
-  const handleDeposit = (amount: number) => {
-    updateBalance(amount);
-    setIsWalletModalOpen(false);
-  };
 
   return (
     <>
@@ -55,11 +55,7 @@ export default function Navbar() {
             aria-label="Toggle Navigation Sidebar"
             className="flex h-10 w-10 items-center justify-center rounded-lg text-[#b1bad3] transition-colors hover:bg-[#213743] hover:text-white"
           >
-            {isSidebarOpen ? (
-              <Menu className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
+            <Menu className="h-5 w-5" />
           </button>
 
           <Link href="/" className="flex items-center gap-2 group">
@@ -88,7 +84,7 @@ export default function Navbar() {
                 className="flex cursor-pointer items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold text-[#b1bad3] transition-colors hover:bg-[#213743] hover:text-white sm:text-sm"
               >
                 <span className="font-bold text-[#00e701] text-sm sm:text-base">$</span>
-                <span className="font-mono text-white tracking-wide">
+                <span className="font-mono text-white tracking-wide tabular-nums">
                   {isMounted ? formatBalance(balance) : "1,000.00"}
                 </span>
                 <span className="text-[11px] font-medium text-[#b1bad3] hidden sm:inline">
@@ -168,7 +164,7 @@ export default function Navbar() {
           </button>
         </div>
 
-        {/* Right Section: Desktop Action Icons (Bell, Chat, Profile) */}
+        {/* Right Section: Desktop Action Icons (Bell, Chat, VIP Pill) */}
         <div className="hidden items-center gap-2 md:flex">
           {/* Notifications */}
           <button
@@ -182,101 +178,102 @@ export default function Navbar() {
             )}
           </button>
 
-          {/* Live Chat */}
+          {/* Live Community Chat Trigger */}
           <button
-            title="Community Chat"
-            className="flex h-10 w-10 items-center justify-center rounded-lg text-[#b1bad3] transition-colors hover:bg-[#213743] hover:text-white"
+            onClick={toggleChat}
+            title="Toggle Community Chat"
+            className={`relative flex h-10 w-10 items-center justify-center rounded-lg transition-colors ${
+              isChatOpen
+                ? "bg-[#213743] text-[#00e701]"
+                : "text-[#b1bad3] hover:bg-[#213743] hover:text-white"
+            }`}
           >
             <MessageSquare className="h-5 w-5" />
+            <span className="absolute top-2 right-2 flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00e701] opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00e701]" />
+            </span>
           </button>
 
-          {/* User Profile Pill */}
-          <div className="ml-1 flex items-center gap-2 rounded-lg border border-[#213743] bg-[#0f212e] px-2.5 py-1.5 transition-colors hover:border-[#2f4553] cursor-pointer">
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-tr from-[#1475e1] to-[#00e701] text-xs font-black text-white">
-              <User className="h-4 w-4 text-white" />
+          {/* VIP Progress Pill with Hover Popover */}
+          <div
+            className="relative"
+            onMouseEnter={() => setShowVipPopover(true)}
+            onMouseLeave={() => setShowVipPopover(false)}
+          >
+            <div className="ml-1 flex items-center gap-2.5 rounded-xl border border-[#213743] bg-[#0f212e] px-3 py-1.5 hover:border-[#2f4553] cursor-pointer">
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-tr from-slate-500 to-slate-300 text-xs font-black text-[#0f212e] shadow-sm">
+                🥈
+              </div>
+              <div className="flex flex-col text-left">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-black text-white">Silver II</span>
+                  <span className="text-[10px] font-bold text-[#00e701] font-mono">68%</span>
+                </div>
+                {/* Micro Progress Bar */}
+                <div className="w-20 h-1.5 rounded-full bg-[#213743] overflow-hidden mt-0.5">
+                  <div className="h-full bg-[#00e701] rounded-full" style={{ width: "68%" }} />
+                </div>
+              </div>
             </div>
-            <div className="flex flex-col text-left">
-              <span className="text-xs font-bold leading-none text-white">VIP Player</span>
-              <span className="text-[10px] font-semibold text-[#00e701]">Bronze IV</span>
-            </div>
+
+            {/* VIP Popover */}
+            {showVipPopover && (
+              <div className="absolute right-0 top-full mt-2 w-72 rounded-2xl border border-[#213743] bg-[#1a2c38] p-4 shadow-2xl z-50 space-y-3 animate-in fade-in duration-150">
+                <div className="flex items-center justify-between border-b border-[#213743] pb-2.5">
+                  <div>
+                    <div className="text-xs font-black text-white">VIP Club Progress</div>
+                    <div className="text-[10px] text-[#b1bad3]">Tier: Silver II</div>
+                  </div>
+                  <span className="rounded-md bg-[#00e701]/15 px-2 py-0.5 text-[10px] font-bold text-[#00e701] border border-[#00e701]/30">
+                    68.4%
+                  </span>
+                </div>
+
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[10px] text-[#b1bad3] font-bold">
+                    <span>Wagered to Silver III</span>
+                    <span className="text-white font-mono">$3,420 / $5,000</span>
+                  </div>
+                  <div className="w-full h-2 rounded-full bg-[#0f212e] overflow-hidden border border-[#213743]">
+                    <div className="h-full bg-gradient-to-r from-[#00e701] to-[#38bdf8] rounded-full" style={{ width: "68.4%" }} />
+                  </div>
+                </div>
+
+                <div className="space-y-2 pt-1">
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-[#b1bad3]">
+                    Active Tier Perks
+                  </div>
+                  <div className="space-y-1.5 text-xs">
+                    <div className="flex items-center gap-2 text-white">
+                      <span className="text-[#00e701]">⚡</span>
+                      <span>10% Instant Rakeback (Active)</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-white">
+                      <span className="text-amber-400">🎁</span>
+                      <span>Weekly Boost Bonus</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-white">
+                      <span className="text-blue-400">🏆</span>
+                      <span>Monthly VIP Bonus</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-[#b1bad3]">
+                      <span>🔒</span>
+                      <span>Dedicated VIP Host (Platinum)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </header>
 
-      {/* Wallet / Demo Top-up Modal */}
-      {isWalletModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="w-full max-w-md rounded-xl border border-[#213743] bg-[#1a2c38] p-6 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-[#213743] pb-4">
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#1475e1]/20 text-[#1475e1]">
-                  <Wallet className="h-5 w-5" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-white">Demo Wallet</h3>
-                  <p className="text-xs text-[#b1bad3]">Instant demo credit for testing games</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setIsWalletModalOpen(false)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-[#b1bad3] hover:bg-[#213743] hover:text-white"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            <div className="my-5 rounded-lg border border-[#213743] bg-[#0f212e] p-4 text-center">
-              <div className="text-xs font-semibold text-[#b1bad3] uppercase tracking-wider">
-                Current Available Balance
-              </div>
-              <div className="mt-1 flex items-center justify-center gap-1">
-                <span className="text-xl font-bold text-[#00e701]">$</span>
-                <span className="text-3xl font-black text-white font-mono">
-                  {formatBalance(balance)}
-                </span>
-                <span className="text-sm font-semibold text-[#b1bad3]">{currency}</span>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <div className="text-xs font-bold uppercase tracking-wider text-[#b1bad3]">
-                Quick Demo Deposit
-              </div>
-              <div className="grid grid-cols-3 gap-2.5">
-                {[100, 500, 1000].map((amt) => (
-                  <button
-                    key={amt}
-                    onClick={() => handleDeposit(amt)}
-                    className="flex flex-col items-center justify-center rounded-lg border border-[#213743] bg-[#0f212e] py-3 font-semibold text-white transition-all hover:border-[#00e701] hover:bg-[#213743]"
-                  >
-                    <span className="text-xs text-[#00e701] font-bold">+{amt}</span>
-                    <span className="text-sm font-bold">${amt} {currency}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-6 flex gap-3 border-t border-[#213743] pt-4">
-              <button
-                onClick={() => {
-                  resetBalance();
-                  setIsWalletModalOpen(false);
-                }}
-                className="flex-1 rounded-lg border border-[#213743] bg-[#213743] py-2.5 text-xs font-bold text-[#b1bad3] transition-colors hover:bg-[#2f4553] hover:text-white"
-              >
-                Reset to $1,000.00
-              </button>
-              <button
-                onClick={() => handleDeposit(500)}
-                className="flex-1 rounded-lg bg-[#00e701] py-2.5 text-xs font-bold text-[#0f212e] transition-colors hover:bg-[#00c701] shadow-sm flex items-center justify-center gap-1.5"
-              >
-                <Plus className="h-4 w-4" />
-                Add $500.00
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Upgraded Crypto Deposit & Withdrawal Wallet Modal */}
+      <WalletModal
+        isOpen={isWalletModalOpen}
+        onClose={() => setIsWalletModalOpen(false)}
+      />
     </>
   );
 }

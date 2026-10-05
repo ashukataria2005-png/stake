@@ -1,17 +1,14 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { GameProvider } from "@/context/GameContext";
 import MainLayoutShell from "@/components/MainLayoutShell";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -28,9 +25,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased dark`}
+      className={`${inter.variable} h-full antialiased dark`}
     >
-      <body className="min-h-full bg-[#0f212e] text-white">
+      <body className="min-h-full bg-[#0f212e] text-white font-sans selection:bg-[#00e701] selection:text-[#0f212e]">
         <GameProvider>
           <MainLayoutShell>{children}</MainLayoutShell>
         </GameProvider>
