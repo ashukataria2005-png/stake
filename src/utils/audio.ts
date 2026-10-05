@@ -174,6 +174,50 @@ class SoundManager {
   playCrash() {
     this.playMine();
   }
+
+  // Crisp subtle peg tap / click for Plinko peg bounce
+  playPeg() {
+    if (!this.enabled) return;
+    try {
+      const ctx = this.initCtx();
+      if (!ctx) return;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      const freq = 650 + Math.random() * 200;
+      osc.frequency.setValueAtTime(freq, ctx.currentTime);
+      gain.gain.setValueAtTime(0.04, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.02);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.02);
+    } catch {
+      // ignore
+    }
+  }
+
+  // Harmonic chime when ball lands in multiplier bucket
+  playBucket(multiplier: number) {
+    if (!this.enabled) return;
+    try {
+      const ctx = this.initCtx();
+      if (!ctx) return;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "triangle";
+      const freq = Math.min(1400, 320 + Math.log2(Math.max(1, multiplier)) * 120);
+      osc.frequency.setValueAtTime(freq, ctx.currentTime);
+      gain.gain.setValueAtTime(Math.min(0.22, 0.08 + Math.log10(Math.max(1, multiplier)) * 0.06), ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.22);
+    } catch {
+      // ignore
+    }
+  }
 }
 
 export const sounds = new SoundManager();
