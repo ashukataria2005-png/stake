@@ -1,26 +1,137 @@
 @import "tailwindcss";
 
+@theme {
+  --color-stake-dark: #0f212e;
+  --color-stake-card: #1a2c38;
+  --color-stake-sidebar: #1a2c38;
+  --color-stake-border: #213743;
+  --color-stake-hover: #2f4553;
+  --color-stake-green: #00e701;
+  --color-stake-green-hover: #00c701;
+  --color-stake-muted: #b1bad3;
+  --color-stake-blue: #1475e1;
+  --color-stake-blue-hover: #0f5cbd;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --stake-dark: #0f212e;
+  --stake-card: #1a2c38;
+  --stake-sidebar: #1a2c38;
+  --stake-border: #213743;
+  --stake-hover: #2f4553;
+  --stake-green: #00e701;
+  --stake-green-hover: #00c701;
+  --stake-muted: #b1bad3;
+  --stake-white: #ffffff;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+* {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Custom Thin Scrollbar with Stake Colors */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f212e;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #213743;
+  border-radius: 9999px;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #2f4553;
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #213743 #0f212e;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #0f212e;
+  color: #ffffff;
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  overflow-x: hidden;
+  user-select: none;
+}
+
+/* Custom glow and accent helpers */
+.stake-glow-green {
+  box-shadow: 0 0 15px rgba(0, 231, 1, 0.25);
+}
+
+.stake-glow-green-sm {
+  box-shadow: 0 0 8px rgba(0, 231, 1, 0.35);
+}
+
+/* Animation helpers */
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes gem-pop {
+  0% {
+    transform: scale(0.3) rotate(-10deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.18) rotate(4deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.animate-gem-pop {
+  animation: gem-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes bomb-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px) rotate(-4deg); }
+  40% { transform: translateX(6px) rotate(4deg); }
+  60% { transform: translateX(-4px) rotate(-2deg); }
+  80% { transform: translateX(4px) rotate(2deg); }
+}
+
+.animate-bomb-shake {
+  animation: bomb-shake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes float-up {
+  0% {
+    transform: translateY(0) scale(0.8);
+    opacity: 1;
+  }
+  60% {
+    transform: translateY(-20px) scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-32px) scale(0.95);
+    opacity: 0;
+  }
+}
+
+.animate-float-up {
+  animation: float-up 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
