@@ -1,28 +1,26 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Menu,
   Wallet,
   Bell,
   MessageSquare,
-  User,
   ChevronDown,
   RotateCcw,
-  Check,
-  LogOut,
-  Sparkles,
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import WalletModal from "@/components/WalletModal";
+import WalletSettingsModal from "@/components/WalletSettingsModal";
+import CurrencyDropdown from "@/components/CurrencyDropdown";
+import UserProfileMenu from "@/components/UserProfileMenu";
+import CryptoIcon from "@/components/CryptoIcon";
 
 export default function Navbar() {
   const {
     balance,
     currency,
-    setCurrency,
-    formatBalance,
     resetBalance,
     toggleSidebar,
     isSidebarOpen,
@@ -31,22 +29,35 @@ export default function Navbar() {
     isMounted,
     isAuthenticated,
     user,
-    logout,
     openOneTap,
+    isWalletModalOpen,
+    openWalletModal,
+    closeWalletModal,
+    isWalletSettingsOpen,
+    closeWalletSettings,
+    formatDisplayBalance,
   } = useGame();
 
   const [isCurrencyDropdownOpen, setIsCurrencyDropdownOpen] = useState(false);
-  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [notificationActive, setNotificationActive] = useState(true);
   const [showVipPopover, setShowVipPopover] = useState(false);
 
-  const currencies = [
-    { code: "USDT", symbol: "$", name: "Tether USD" },
-    { code: "USD", symbol: "$", name: "US Dollar" },
-    { code: "BTC", symbol: "₿", name: "Bitcoin" },
-    { code: "ETH", symbol: "Ξ", name: "Ethereum" },
-  ];
+  // Close dropdowns on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsCurrencyDropdownOpen(false);
+        setIsProfileMenuOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  const displayInfo = isMounted
+    ? formatDisplayBalance()
+    : { amount: "1,000.00", symbol: "$", code: "USDT", isFiat: false };
 
   return (
     <>
@@ -56,34 +67,37 @@ export default function Navbar() {
           <button
             onClick={toggleSidebar}
             aria-label="Toggle Navigation Sidebar"
-            className="flex h-10 w-10 items-center justify-center rounded-lg text-[#b1bad3] transition-colors hover:bg-[#213743] hover:text-white"
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-[#b1bad3] transition-colors hover:bg-[#213743] hover:text-white cursor-pointer"
           >
             <Menu className="h-5 w-5" />
           </button>
 
-          <Link href="/" className="flex items-center gap-2 group">
-            {/* Authentic Stake Cursive Logo SVG */}
-            <div className="flex items-center">
-              <svg
-                viewBox="0 0 114 43"
-                className="h-7 sm:h-8 w-auto text-white fill-current transition-transform duration-200 group-hover:scale-105"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M19.387 18.067c-1.89-.472-3.64-.756-5.253-.85.663-1.23 1.516-2.036 2.559-2.415 1.042-.379 2.226-.379 3.55 0l1.09-3.884c-1.893-.568-3.884-.71-5.576-.202-1.692.508-3.138 1.587-4.337 3.237-.616-.853-1.421-1.564-2.415-2.132-.995-.569-2.18-.948-3.554-1.137-1.374-.19-2.892-.19-4.551 0L0 14.123c1.42-.19 2.557-.237 3.41-.142.853.095 1.516.355 1.99.853.474.497.71 1.184.71 2.06 0 .664-.19 1.564-.568 2.702-.853 2.463-1.682 4.263-2.487 5.399-.806 1.137-1.8 1.99-2.843 2.416l1.8 3.884c1.8-.758 3.27-1.942 4.406-3.553 1.137-1.611 2.108-3.673 2.913-6.183 1.327.094 2.701.284 4.122.568 1.42.284 2.653.616 3.695.995-.284.948-.663 1.942-1.137 2.984-.474 1.043-1.09 2.18-1.848 3.411-.758 1.232-1.705 2.416-2.842 3.553l3.032 2.842c1.516-1.516 2.795-3.126 3.837-4.832 1.042-1.705 1.848-3.41 2.416-5.116.568-1.705.852-3.316.852-4.831-.047-.616-.142-1.09-.284-1.422zm15.922 2.37l-1.09 3.884c.71.19 1.374.426 1.99.71.616.284 1.137.64 1.563 1.066.427.427.735.948.924 1.564.19.615.19 1.326 0 2.131-.426 1.516-1.137 2.7-2.132 3.553-.995.853-2.226 1.326-3.695 1.42-1.468.095-3.079-.142-4.831-.71l-1.09 3.885c2.132.663 4.193.971 6.183.923 1.99-.047 3.742-.616 5.258-1.705 1.516-1.089 2.676-2.629 3.482-4.619.568-1.421.758-2.89.568-4.405-.189-1.516-.805-2.818-1.848-3.908-1.042-1.09-2.77-1.942-5.282-2.984zm14.593-.853c-1.516 0-2.913.332-4.192.995-1.28.663-2.345 1.611-3.198 2.842-.616-1.231-1.469-2.179-2.558-2.842-1.09-.663-2.345-.995-3.766-.995-1.658 0-3.22.474-4.689 1.421l1.61 3.411c.995-.616 1.99-.924 2.985-.924.947 0 1.681.308 2.203.924.52.616.781 1.492.781 2.629v8.81h4.264v-8.526c0-1.042.284-1.824.853-2.345.568-.521 1.326-.782 2.274-.782.947 0 1.752.284 2.415.853.664.568 1.09 1.374 1.28 2.416.19 1.042.19 2.226 0 3.552l-1.137 4.832h4.264l1.137-4.832c.284-1.61.355-3.078.213-4.405-.142-1.326-.64-2.463-1.492-3.41-.853-.948-1.966-1.516-3.34-1.705-1.374-.19-2.913-.19-4.619 0zm19.8 0c-1.516 0-2.913.332-4.192.995-1.28.663-2.345 1.611-3.198 2.842-.616-1.231-1.469-2.179-2.558-2.842-1.09-.663-2.345-.995-3.766-.995-1.658 0-3.22.474-4.689 1.421l1.61 3.411c.995-.616 1.99-.924 2.985-.924.947 0 1.681.308 2.203.924.52.616.781 1.492.781 2.629v8.81h4.264v-8.526c0-1.042.284-1.824.853-2.345.568-.521 1.326-.782 2.274-.782.947 0 1.752.284 2.415.853.664.568 1.09 1.374 1.28 2.416.19 1.042.19 2.226 0 3.552l-1.137 4.832h4.264l1.137-4.832c.284-1.61.355-3.078.213-4.405-.142-1.326-.64-2.463-1.492-3.41-.853-.948-1.966-1.516-3.34-1.705-1.374-.19-2.913-.19-4.619 0z" />
-              </svg>
-            </div>
-            <span className="font-bold tracking-tight text-xl text-white italic select-none">
-              stake
-            </span>
+          <Link
+            href="/"
+            className="flex items-center gap-1.5 focus:outline-none"
+            aria-label="Stake Home"
+          >
+            <svg
+              className="h-7 w-auto fill-white hover:opacity-90 transition-opacity"
+              viewBox="0 0 109 40"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M17.408 19.336c2.432-1.048 4.296-2.568 5.6-4.568 1.304-2 1.952-4.4 1.952-7.2 0-2.48-.568-4.6-1.704-6.36C22.12.968 20.512 0 18.424 0c-.88 0-1.68.216-2.4.648s-1.32 1.056-1.8 1.872l-1.488 2.544C11.664 6.944 9.8 8.04 7.144 8.352v-2.88c0-1.552-.408-2.768-1.224-3.648C5.104.944 4.016.504 2.656.504c-.816 0-1.504.288-2.064.864C.032 1.944-.144 2.68.048 3.576l3.52 16.512c.384 1.76 1.168 3.2 2.352 4.32 1.184 1.12 2.688 1.68 4.512 1.68h.864c3.424-.48 5.92-1.92 7.488-4.32.48-.736.88-1.544 1.2-2.424l-2.576-.008zm5.728 10.368c-1.28 1.84-3.08 3.248-5.4 4.224-2.32.976-5.04 1.464-8.16 1.464-2.848 0-5.184-.52-7.008-1.56-1.824-1.04-2.736-2.488-2.736-4.344 0-1.2.392-2.2 1.176-3 .784-.8 1.832-1.2 3.144-1.2.704 0 1.344.152 1.92.456.576.304 1.056.768 1.44 1.392.512.832 1.152 1.488 1.92 1.968.768.48 1.76.72 2.976.72 1.472 0 2.624-.312 3.456-.936.832-.624 1.248-1.448 1.248-2.472 0-.896-.344-1.632-1.032-2.208-.688-.576-1.872-1.096-3.552-1.56l-2.784-.768c-3.136-.864-5.344-2.008-6.624-3.432-1.28-1.424-1.92-3.32-1.92-5.688 0-2.368.808-4.352 2.424-5.952C9.176 1.048 11.4.248 14.288.248c2.4 0 4.416.48 6.048 1.44 1.632.96 2.448 2.272 2.448 3.936 0 1.056-.368 1.952-1.104 2.688-.736.736-1.712 1.104-2.928 1.104-.64 0-1.216-.144-1.728-.432-.512-.288-.952-.72-1.32-1.296-.448-.672-1.04-1.192-1.776-1.56-.736-.368-1.632-.552-2.688-.552-1.216 0-2.16.272-2.832.816-.672.544-1.008 1.288-1.008 2.232 0 .864.336 1.56 1.008 2.088.672.528 1.808 1.008 3.408 1.44l2.784.768c3.296.928 5.616 2.152 6.96 3.672 1.344 1.52 2.016 3.472 2.016 5.856.008 2.656-.84 4.888-2.544 6.696z"
+                fill="currentColor"
+              />
+            </svg>
           </Link>
         </div>
 
-        {/* Guest View: Sign In & Register Buttons */}
+        {/* Right Section: Guest vs Authenticated State */}
         {!isAuthenticated ? (
+          /* Guest View: Sign In & Register Buttons */
           <div className="flex items-center gap-2 sm:gap-3">
             <button
               onClick={openOneTap}
-              className="text-[#b1bad3] hover:text-white font-semibold text-sm px-4 py-2 transition-colors cursor-pointer"
+              className="text-[#b1bad3] hover:text-white font-semibold text-sm px-3.5 py-2 transition-colors cursor-pointer"
             >
               Sign In
             </button>
@@ -97,19 +111,19 @@ export default function Navbar() {
         ) : (
           /* Authenticated View: Balance Pill, Wallet Button & Action Icons */
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Balance Pill */}
+            {/* Balance Pill with Active Crypto Icon */}
             <div className="relative">
               <div className="flex items-center rounded-lg border border-[#213743] bg-[#0f212e] p-1 shadow-inner">
                 <div
                   onClick={() => setIsCurrencyDropdownOpen(!isCurrencyDropdownOpen)}
-                  className="flex cursor-pointer items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold text-[#b1bad3] transition-colors hover:bg-[#213743] hover:text-white sm:text-sm"
+                  className="flex cursor-pointer items-center gap-2 rounded-md px-2.5 py-1 text-xs font-semibold text-[#b1bad3] transition-colors hover:bg-[#213743] hover:text-white sm:text-sm"
                 >
-                  <span className="font-bold text-[#00e701] text-sm sm:text-base">$</span>
-                  <span className="font-mono text-white tracking-wide tabular-nums">
-                    {isMounted ? formatBalance(balance) : "1,000.00"}
+                  <CryptoIcon symbol={currency} size={18} className="w-4.5 h-4.5 shrink-0" />
+                  <span className="font-mono text-white tracking-wide tabular-nums font-bold">
+                    {displayInfo.symbol} {displayInfo.amount}
                   </span>
-                  <span className="text-[11px] font-medium text-[#b1bad3] hidden sm:inline">
-                    {currency}
+                  <span className="text-[11px] font-semibold text-[#b1bad3] hidden sm:inline uppercase">
+                    {displayInfo.code}
                   </span>
                   <ChevronDown
                     className={`h-3.5 w-3.5 text-[#b1bad3] transition-transform duration-200 ${
@@ -122,63 +136,23 @@ export default function Navbar() {
                 <button
                   onClick={resetBalance}
                   title="Reset Demo Balance to $1,000"
-                  className="flex h-7 w-7 items-center justify-center rounded-md text-[#b1bad3] transition-colors hover:bg-[#213743] hover:text-[#00e701]"
+                  className="flex h-7 w-7 items-center justify-center rounded-md text-[#b1bad3] transition-colors hover:bg-[#213743] hover:text-[#00e701] cursor-pointer"
                 >
                   <RotateCcw className="h-3.5 w-3.5" />
                 </button>
               </div>
 
-              {/* Currency Dropdown Menu */}
-              {isCurrencyDropdownOpen && (
-                <>
-                  <div
-                    className="fixed inset-0 z-30"
-                    onClick={() => setIsCurrencyDropdownOpen(false)}
-                  />
-                  <div className="absolute right-0 top-full mt-2 z-40 w-48 rounded-lg border border-[#213743] bg-[#1a2c38] py-1 shadow-xl">
-                    <div className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-[#b1bad3] border-b border-[#213743]">
-                      Display Currency
-                    </div>
-                    {currencies.map((c) => (
-                      <button
-                        key={c.code}
-                        onClick={() => {
-                          setCurrency(c.code);
-                          setIsCurrencyDropdownOpen(false);
-                        }}
-                        className="flex w-full items-center justify-between px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-[#213743]"
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="text-[#00e701] font-bold">{c.symbol}</span>
-                          <span>{c.code}</span>
-                          <span className="text-[#b1bad3] text-[10px]">({c.name})</span>
-                        </div>
-                        {currency === c.code && (
-                          <Check className="h-3.5 w-3.5 text-[#00e701]" />
-                        )}
-                      </button>
-                    ))}
-                    <div className="border-t border-[#213743] mt-1 pt-1">
-                      <button
-                        onClick={() => {
-                          resetBalance();
-                          setIsCurrencyDropdownOpen(false);
-                        }}
-                        className="flex w-full items-center gap-2 px-3 py-2 text-xs font-semibold text-[#00e701] transition-colors hover:bg-[#213743]"
-                      >
-                        <RotateCcw className="h-3.5 w-3.5" />
-                        Reset to $1,000.00
-                      </button>
-                    </div>
-                  </div>
-                </>
-              )}
+              {/* Currency Dropdown Floating Menu */}
+              <CurrencyDropdown
+                isOpen={isCurrencyDropdownOpen}
+                onClose={() => setIsCurrencyDropdownOpen(false)}
+              />
             </div>
 
             {/* Wallet CTA Button */}
             <button
-              onClick={() => setIsWalletModalOpen(true)}
-              className="flex items-center gap-1.5 rounded-lg bg-[#1475e1] px-3 py-2 text-xs font-bold text-white shadow-md transition-all hover:bg-[#0f5cbd] active:scale-95 sm:px-4 sm:text-sm"
+              onClick={openWalletModal}
+              className="flex items-center gap-1.5 rounded-lg bg-[#1475e1] px-3 py-2 text-xs font-bold text-white shadow-md transition-all hover:bg-[#0f5cbd] active:scale-95 sm:px-4 sm:text-sm cursor-pointer"
             >
               <Wallet className="h-4 w-4" />
               <span>Wallet</span>
@@ -190,11 +164,11 @@ export default function Navbar() {
               <button
                 onClick={() => setNotificationActive(false)}
                 title="Notifications"
-                className="relative flex h-10 w-10 items-center justify-center rounded-lg text-[#b1bad3] transition-colors hover:bg-[#213743] hover:text-white"
+                className="relative flex h-10 w-10 items-center justify-center rounded-lg text-[#b1bad3] transition-colors hover:bg-[#213743] hover:text-white cursor-pointer"
               >
                 <Bell className="h-5 w-5" />
                 {notificationActive && (
-                  <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-[#00e701] ring-2 ring-[#1a2c38]" />
+                  <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-[#00e701]" />
                 )}
               </button>
 
@@ -202,7 +176,7 @@ export default function Navbar() {
               <button
                 onClick={toggleChat}
                 title="Toggle Community Chat"
-                className={`relative flex h-10 w-10 items-center justify-center rounded-lg transition-colors ${
+                className={`relative flex h-10 w-10 items-center justify-center rounded-lg transition-colors cursor-pointer ${
                   isChatOpen
                     ? "bg-[#213743] text-[#00e701]"
                     : "text-[#b1bad3] hover:bg-[#213743] hover:text-white"
@@ -283,54 +257,26 @@ export default function Navbar() {
                 )}
               </div>
 
-              {/* User Avatar Menu */}
+              {/* User Avatar Menu Dropdown */}
               <div className="relative">
                 <button
-                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center gap-2 p-1 rounded-xl hover:bg-[#213743] transition-colors"
+                  onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                  className="flex items-center gap-2 p-1 rounded-xl hover:bg-[#213743] transition-colors cursor-pointer"
                 >
                   <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center font-bold text-sm text-white shadow-md">
                     {user?.name?.[0] || "U"}
                   </div>
-                  <ChevronDown className="h-3.5 w-3.5 text-[#b1bad3]" />
+                  <ChevronDown
+                    className={`h-3.5 w-3.5 text-[#b1bad3] transition-transform duration-200 ${
+                      isProfileMenuOpen ? "rotate-180" : ""
+                    }`}
+                  />
                 </button>
 
-                {isUserMenuOpen && (
-                  <>
-                    <div
-                      className="fixed inset-0 z-30"
-                      onClick={() => setIsUserMenuOpen(false)}
-                    />
-                    <div className="absolute right-0 top-full mt-2 z-40 w-56 rounded-xl border border-[#213743] bg-[#1a2c38] p-2 shadow-2xl space-y-1">
-                      <div className="px-3 py-2 border-b border-[#213743]">
-                        <p className="text-xs font-bold text-white truncate">{user?.name || "Player"}</p>
-                        <p className="text-[11px] text-[#b1bad3] truncate">{user?.email || "demo@stake.com"}</p>
-                      </div>
-
-                      <button
-                        onClick={() => {
-                          resetBalance();
-                          setIsUserMenuOpen(false);
-                        }}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-[#b1bad3] hover:text-white hover:bg-[#213743] rounded-lg transition-colors"
-                      >
-                        <RotateCcw className="w-3.5 h-3.5 text-[#00e701]" />
-                        <span>Reset Balance ($1,000)</span>
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          logout();
-                          setIsUserMenuOpen(false);
-                        }}
-                        className="w-full flex items-center gap-2 px-3 py-2 text-xs font-medium text-red-400 hover:text-red-300 hover:bg-[#213743] rounded-lg transition-colors"
-                      >
-                        <LogOut className="w-3.5 h-3.5" />
-                        <span>Sign Out</span>
-                      </button>
-                    </div>
-                  </>
-                )}
+                <UserProfileMenu
+                  isOpen={isProfileMenuOpen}
+                  onClose={() => setIsProfileMenuOpen(false)}
+                />
               </div>
             </div>
           </div>
@@ -340,7 +286,13 @@ export default function Navbar() {
       {/* Crypto Deposit & Withdrawal Wallet Modal */}
       <WalletModal
         isOpen={isWalletModalOpen}
-        onClose={() => setIsWalletModalOpen(false)}
+        onClose={closeWalletModal}
+      />
+
+      {/* Wallet Display & Fiat Settings Modal */}
+      <WalletSettingsModal
+        isOpen={isWalletSettingsOpen}
+        onClose={closeWalletSettings}
       />
     </>
   );
