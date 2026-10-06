@@ -79,6 +79,9 @@ export const GAME_THUMBNAILS: Record<string, string> = {
   tongue: "https://slotcatalog.com/userfiles/image/games/Stake/tongue_stake.jpg",
   "toon-sailor": "https://slotcatalog.com/userfiles/image/games/Stake/toonsailor_stake.jpg",
   "zombie-academy": "https://slotcatalog.com/userfiles/image/games/Iron-Dog-Studio/zombieacademy_s.jpg",
+  "dracs-stacks": "https://mediumrare.imgix.net/3b470acf1e794ecb437a535c35a20f12e8f7caf1a1153b6601dab4a2d34607e4?w=180&h=236&fit=min&auto=format",
+  "skyscraper-crash": "https://mediumrare.imgix.net/fbf4038ed2862c3503a5d39263d1321e8d9361d730eacfbb2403fd1e5894525c?w=180&h=236&fit=min&auto=format",
+  "nuukd": "https://mediumrare.imgix.net/8c1768b783a43931a4ebc8784ce64085e39139d262e6bb50da242b9f3fda70da?w=180&h=236&fit=min&auto=format",
 
   // ==========================================
   // LIVE CASINO & GAME SHOWS

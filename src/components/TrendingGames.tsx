@@ -6,6 +6,8 @@ import { TrendingUp, Play } from "lucide-react";
 import StakeGameArtwork from "@/components/casino/StakeGameArtwork";
 import { getGameThumbnail } from "@/data/gameThumbnails";
 
+import { useGame } from "@/context/GameContext";
+
 interface TrendingGameItem {
   id: string;
   title: string;
@@ -22,9 +24,16 @@ interface TrendingGameItem {
 
 interface TrendingGamesProps {
   onSelectGame?: (game: { id: string; title: string; provider: string; rtp: string; symbols?: string[] }) => void;
+  title?: string;
+  categoryHref?: string;
 }
 
-export default function TrendingGames({ onSelectGame }: TrendingGamesProps) {
+export default function TrendingGames({
+  onSelectGame,
+  title = "Slots",
+  categoryHref = "/casino/group/slots",
+}: TrendingGamesProps) {
+  const { addRecentlyPlayedGame } = useGame();
   const [visibleCount, setVisibleCount] = useState<number>(6);
 
   const initialGames: TrendingGameItem[] = [
@@ -122,6 +131,13 @@ export default function TrendingGames({ onSelectGame }: TrendingGamesProps) {
   const displayedGames = initialGames.slice(0, visibleCount);
 
   const handleClick = (game: TrendingGameItem) => {
+    addRecentlyPlayedGame({
+      id: game.id,
+      title: game.title,
+      image: getGameThumbnail(game.id, game.image),
+      href: game.href || `/casino/group/slots`,
+      playersCount: game.playersCount,
+    });
     if (onSelectGame) {
       onSelectGame({
         id: game.id,
@@ -138,18 +154,24 @@ export default function TrendingGames({ onSelectGame }: TrendingGamesProps) {
       {/* Title with Trending Chart Icon + Link */}
       <div className="flex items-center justify-between">
         <Link
-          href="/casino/group/stake-originals"
+          href={categoryHref}
           className="flex items-center gap-2 group cursor-pointer"
         >
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#00e701]/15 text-[#00e701]">
             <TrendingUp className="h-4 w-4" />
           </div>
           <h2 className="text-lg sm:text-xl font-black text-white group-hover:text-[#00e701] transition-colors flex items-center gap-1.5">
-            <span>Trending Games</span>
+            <span>{title}</span>
             <span className="text-base text-[#b1bad3] group-hover:translate-x-1 transition-transform">
               &gt;
             </span>
           </h2>
+        </Link>
+        <Link
+          href={categoryHref}
+          className="text-xs font-bold text-[#00e701] hover:underline"
+        >
+          View All &gt;
         </Link>
       </div>
 

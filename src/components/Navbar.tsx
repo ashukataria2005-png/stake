@@ -62,9 +62,9 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-[#213743] bg-[#1a2c38] px-3 sm:px-5 select-none">
+      <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-[#213743] bg-[#1a2c38] px-2.5 sm:px-5 select-none">
         {/* Left Section: Sidebar Toggle & Authentic Stake Cursive Logo */}
-        <div className="flex items-center gap-2.5 sm:gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button
             onClick={toggleSidebar}
             aria-label="Toggle Navigation Sidebar"
@@ -78,7 +78,12 @@ export default function Navbar() {
             className="flex items-center gap-1.5 focus:outline-none"
             aria-label="Stake Home"
           >
-            <StakeLogo className="h-7 w-auto text-white hover:opacity-90 transition-opacity" />
+            {/* Mobile cursive 'S' logo */}
+            <svg viewBox="0 0 25 40" className="h-7 w-auto text-white fill-current sm:hidden">
+              <path d="M17.408 19.336c2.432-1.048 4.296-2.568 5.6-4.568 1.304-2 1.952-4.4 1.952-7.2 0-2.48-.568-4.6-1.704-6.36C22.12.968 20.512 0 18.424 0c-.88 0-1.68.216-2.4.648s-1.32 1.056-1.8 1.872l-1.488 2.544C11.664 6.944 9.8 8.04 7.144 8.352v-2.88c0-1.552-.408-2.768-1.224-3.648C5.104.944 4.016.504 2.656.504c-.816 0-1.504.288-2.064.864C.032 1.944-.144 2.68.048 3.576l3.52 16.512c.384 1.76 1.168 3.2 2.352 4.32 1.184 1.12 2.688 1.68 4.512 1.68h.864c3.424-.48 5.92-1.92 7.488-4.32.48-.736.88-1.544 1.2-2.424l-2.576-.008zm5.728 10.368c-1.28 1.84-3.08 3.248-5.4 4.224-2.32.976-5.04 1.464-8.16 1.464-2.848 0-5.184-.52-7.008-1.56-1.824-1.04-2.736-2.488-2.736-4.344 0-1.2.392-2.2 1.176-3 .784-.8 1.832-1.2 3.144-1.2.704 0 1.344.152 1.92.456.576.304 1.056.768 1.44 1.392.512.832 1.152 1.488 1.92 1.968.768.48 1.76.72 2.976.72 1.472 0 2.624-.312 3.456-.936.832-.624 1.248-1.448 1.248-2.472 0-.896-.344-1.632-1.032-2.208-.688-.576-1.872-1.096-3.552-1.56l-2.784-.768c-3.136-.864-5.344-2.008-6.624-3.432-1.28-1.424-1.92-3.32-1.92-5.688 0-2.368.808-4.352 2.424-5.952C9.176 1.048 11.4.248 14.288.248c2.4 0 4.416.48 6.048 1.44 1.632.96 2.448 2.272 2.448 3.936 0 1.056-.368 1.952-1.104 2.688-.736.736-1.712 1.104-2.928 1.104-.64 0-1.216-.144-1.728-.432-.512-.288-.952-.72-1.32-1.296-.448-.672-1.04-1.192-1.776-1.56-.736-.368-1.632-.552-2.688-.552-1.216 0-2.16.272-2.832.816-.672.544-1.008 1.288-1.008 2.232 0 .864.336 1.56 1.008 2.088.672.528 1.808 1.008 3.408 1.44l2.784.768c3.296.928 5.616 2.152 6.96 3.672 1.344 1.52 2.016 3.472 2.016 5.856.008 2.656-.84 4.888-2.544 6.696z" />
+            </svg>
+            {/* Desktop full cursive Stake logo */}
+            <StakeLogo className="h-7 w-auto text-white hover:opacity-90 transition-opacity hidden sm:block" />
           </Link>
         </div>
 
@@ -88,89 +93,93 @@ export default function Navbar() {
           <div className="flex items-center gap-2 sm:gap-3">
             <button
               onClick={openOneTap}
-              className="text-[#b1bad3] hover:text-white font-semibold text-sm px-3.5 py-2 transition-colors cursor-pointer"
+              className="text-[#b1bad3] hover:text-white font-semibold text-xs sm:text-sm px-3 py-1.5 transition-colors cursor-pointer"
             >
               Sign In
             </button>
             <button
               onClick={openOneTap}
-              className="bg-[#1475e1] hover:bg-[#1268c7] text-white font-bold text-sm px-4 py-2 rounded-md shadow-sm transition-all cursor-pointer"
+              className="bg-[#1475e1] hover:bg-[#1268c7] text-white font-bold text-xs sm:text-sm px-3.5 py-1.5 rounded-md shadow-sm transition-all cursor-pointer"
             >
               Register
             </button>
           </div>
         ) : (
-          /* Authenticated View: Balance Pill, Wallet Button & Action Icons */
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Balance Pill with Dynamic Crypto or Fiat Symbol */}
-            <div className="relative">
-              <div className="flex items-center rounded-lg border border-[#213743] bg-[#0f212e] p-1 shadow-inner">
-                <div
-                  onClick={() => setIsCurrencyDropdownOpen(!isCurrencyDropdownOpen)}
-                  className="flex cursor-pointer items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold text-[#b1bad3] transition-colors hover:bg-[#213743] hover:text-white sm:text-sm"
-                >
-                  {displayInfo.isFiat ? (
-                    <span className="font-bold text-white text-sm sm:text-base leading-none mr-0.5">
-                      {displayInfo.symbol}
+          /* Authenticated View: Balance Pill, Attached Wallet Button, Bell & Profile Avatar */
+          <div className="flex items-center gap-1.5 sm:gap-2.5">
+            {/* Balance Pill & Attached Vibrant Blue Wallet Button */}
+            <div className="flex items-center">
+              {/* Balance Container */}
+              <div className="relative">
+                <div className="flex items-center rounded-l-lg border border-r-0 border-[#213743] bg-[#0f212e] py-1 px-2 sm:px-2.5 shadow-inner">
+                  <div
+                    onClick={() => setIsCurrencyDropdownOpen(!isCurrencyDropdownOpen)}
+                    className="flex cursor-pointer items-center gap-1.5 text-xs font-semibold text-[#b1bad3] transition-colors hover:text-white sm:text-sm"
+                  >
+                    {displayInfo.isFiat ? (
+                      <span className="font-bold text-white text-xs sm:text-sm leading-none mr-0.5">
+                        {displayInfo.symbol}
+                      </span>
+                    ) : (
+                      <CryptoIcon symbol={currency} size={16} className="w-4 h-4 shrink-0" />
+                    )}
+                    <span className="font-mono text-white tracking-wide tabular-nums font-bold text-xs sm:text-sm">
+                      {displayInfo.isFiat ? displayInfo.amount : `${displayInfo.symbol} ${displayInfo.amount}`}
                     </span>
-                  ) : (
-                    <CryptoIcon symbol={currency} size={18} className="w-4.5 h-4.5 shrink-0" />
-                  )}
-                  <span className="font-mono text-white tracking-wide tabular-nums font-bold">
-                    {displayInfo.isFiat ? displayInfo.amount : `${displayInfo.symbol} ${displayInfo.amount}`}
-                  </span>
-                  {!displayInfo.isFiat && (
-                    <span className="text-[11px] font-semibold text-[#b1bad3] hidden sm:inline uppercase">
-                      {displayInfo.code}
-                    </span>
-                  )}
-                  <ChevronDown
-                    className={`h-3.5 w-3.5 text-[#b1bad3] transition-transform duration-200 ${
-                      isCurrencyDropdownOpen ? "rotate-180" : ""
-                    }`}
-                  />
+                    {!displayInfo.isFiat && (
+                      <span className="text-[10px] font-semibold text-[#b1bad3] hidden md:inline uppercase">
+                        {displayInfo.code}
+                      </span>
+                    )}
+                    <ChevronDown
+                      className={`h-3 w-3 text-[#b1bad3] transition-transform duration-200 ${
+                        isCurrencyDropdownOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </div>
+
+                  {/* Quick Reset Demo Balance Button (desktop) */}
+                  <button
+                    onClick={resetBalance}
+                    title="Reset Demo Balance to $1,000"
+                    className="hidden sm:flex h-6 w-6 ml-1 items-center justify-center rounded text-[#b1bad3] transition-colors hover:bg-[#213743] hover:text-[#00e701] cursor-pointer"
+                  >
+                    <RotateCcw className="h-3 w-3" />
+                  </button>
                 </div>
 
-                {/* Quick Reset Demo Balance Button */}
-                <button
-                  onClick={resetBalance}
-                  title="Reset Demo Balance to $1,000"
-                  className="flex h-7 w-7 items-center justify-center rounded-md text-[#b1bad3] transition-colors hover:bg-[#213743] hover:text-[#00e701] cursor-pointer"
-                >
-                  <RotateCcw className="h-3.5 w-3.5" />
-                </button>
+                {/* Currency Dropdown Floating Menu */}
+                <CurrencyDropdown
+                  isOpen={isCurrencyDropdownOpen}
+                  onClose={() => setIsCurrencyDropdownOpen(false)}
+                />
               </div>
 
-              {/* Currency Dropdown Floating Menu */}
-              <CurrencyDropdown
-                isOpen={isCurrencyDropdownOpen}
-                onClose={() => setIsCurrencyDropdownOpen(false)}
-              />
+              {/* Vibrant Blue Wallet Button Attached Directly */}
+              <button
+                onClick={openWalletModal}
+                className="flex items-center gap-1 sm:gap-1.5 rounded-r-lg bg-[#1475e1] hover:bg-[#1268c7] px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-xs font-bold text-white shadow-md transition-all active:scale-95 cursor-pointer border border-[#1475e1]"
+                title="Wallet"
+              >
+                <Wallet className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Wallet</span>
+              </button>
             </div>
 
-            {/* Wallet CTA Button */}
+            {/* Notification Bell (Visible on Both Mobile & Desktop) */}
             <button
-              onClick={openWalletModal}
-              className="flex items-center gap-1.5 rounded-lg bg-[#1475e1] px-3 py-2 text-xs font-bold text-white shadow-md transition-all hover:bg-[#0f5cbd] active:scale-95 sm:px-4 sm:text-sm cursor-pointer"
+              onClick={() => setNotificationActive(false)}
+              title="Notifications"
+              className="relative flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-lg text-[#b1bad3] transition-colors hover:bg-[#213743] hover:text-white cursor-pointer"
             >
-              <Wallet className="h-4 w-4" />
-              <span>Wallet</span>
+              <Bell className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
+              {notificationActive && (
+                <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-[#00e701] ring-2 ring-[#1a2c38]" />
+              )}
             </button>
 
-            {/* Desktop Action Icons (Bell, Chat, VIP, User Menu) */}
-            <div className="hidden items-center gap-2 md:flex">
-              {/* Notifications */}
-              <button
-                onClick={() => setNotificationActive(false)}
-                title="Notifications"
-                className="relative flex h-10 w-10 items-center justify-center rounded-lg text-[#b1bad3] transition-colors hover:bg-[#213743] hover:text-white cursor-pointer"
-              >
-                <Bell className="h-5 w-5" />
-                {notificationActive && (
-                  <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-[#00e701]" />
-                )}
-              </button>
-
+            {/* Desktop Only Actions (Community Chat, VIP popover) */}
+            <div className="hidden md:flex items-center gap-2">
               {/* Live Community Chat Trigger */}
               <button
                 onClick={toggleChat}
@@ -194,7 +203,7 @@ export default function Navbar() {
                 onMouseEnter={() => setShowVipPopover(true)}
                 onMouseLeave={() => setShowVipPopover(false)}
               >
-                <div className="ml-1 flex items-center gap-2.5 rounded-xl border border-[#213743] bg-[#0f212e] px-3 py-1.5 hover:border-[#2f4553] cursor-pointer">
+                <div className="flex items-center gap-2.5 rounded-xl border border-[#213743] bg-[#0f212e] px-3 py-1.5 hover:border-[#2f4553] cursor-pointer">
                   <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-tr from-slate-500 to-slate-300 text-xs font-black text-[#0f212e] shadow-sm">
                     🥈
                   </div>
@@ -255,28 +264,29 @@ export default function Navbar() {
                   </div>
                 )}
               </div>
+            </div>
 
-              {/* User Avatar Menu Dropdown */}
-              <div className="relative">
-                <button
-                  onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                  className="flex items-center gap-2 p-1 rounded-xl hover:bg-[#213743] transition-colors cursor-pointer"
-                >
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center font-bold text-sm text-white shadow-md">
-                    {user?.name?.[0] || "U"}
-                  </div>
-                  <ChevronDown
-                    className={`h-3.5 w-3.5 text-[#b1bad3] transition-transform duration-200 ${
-                      isProfileMenuOpen ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-
-                <UserProfileMenu
-                  isOpen={isProfileMenuOpen}
-                  onClose={() => setIsProfileMenuOpen(false)}
+            {/* User Profile Avatar Icon (Visible on Both Mobile & Desktop) */}
+            <div className="relative">
+              <button
+                onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                className="flex items-center gap-1.5 p-1 rounded-xl hover:bg-[#213743] transition-colors cursor-pointer"
+                aria-label="User Profile Menu"
+              >
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center font-bold text-xs sm:text-sm text-white shadow-md">
+                  {user?.name?.[0] || "A"}
+                </div>
+                <ChevronDown
+                  className={`hidden sm:block h-3.5 w-3.5 text-[#b1bad3] transition-transform duration-200 ${
+                    isProfileMenuOpen ? "rotate-180" : ""
+                  }`}
                 />
-              </div>
+              </button>
+
+              <UserProfileMenu
+                isOpen={isProfileMenuOpen}
+                onClose={() => setIsProfileMenuOpen(false)}
+              />
             </div>
           </div>
         )}

@@ -1,93 +1,52 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import {
-  Bomb,
-  TrendingUp,
-  CircleDot,
-  Dice5,
-  Gamepad2,
-  Sparkles,
   Flame,
-  Trophy,
-  ChevronRight,
-  Play,
-  Search,
-  Layers,
-  ArrowUpRight,
-  ShieldCheck,
-  Zap,
   Activity,
-  Award,
-  Gift,
-  Crown,
-  ChevronLeft,
+  Play,
+  ChevronRight,
+  Search,
   X,
-  Volume2,
-  VolumeX,
+  Sparkles,
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
 import confetti from "canvas-confetti";
-import GuestHero from "@/components/GuestHero";
+import CasinoSportsHeroBanner from "@/components/CasinoSportsHeroBanner";
 import LiveStatusAndSearch from "@/components/LiveStatusAndSearch";
+import VIPProgressCard from "@/components/VIPProgressCard";
+import ContinuePlayingSlider from "@/components/ContinuePlayingSlider";
+import GamesForYou from "@/components/GamesForYou";
 import TrendingGames from "@/components/TrendingGames";
 import TrendingSports from "@/components/TrendingSports";
-import PromotionsSection from "@/components/PromotionsSection";
+import RacesAndRafflesWidget from "@/components/RacesAndRafflesWidget";
 import LiveBetsFeed from "@/components/LiveBetsFeed";
 import StakeGameArtwork from "@/components/casino/StakeGameArtwork";
 import { getGameThumbnail } from "@/data/gameThumbnails";
+import { STAKE_ORIGINALS, LIVE_CASINO_GAMES, GameItem } from "@/data/stakeGames";
 
-interface BetRecord {
-  id: string;
-  game: string;
-  user: string;
-  time: string;
-  betAmount: number;
-  multiplier: number;
-  payout: number;
-  isWin: boolean;
-  category: "all" | "high" | "lucky";
-}
-
-interface GameCard {
+interface SlotModalGame {
   id: string;
   title: string;
   provider: string;
-  href?: string;
-  category: "Originals" | "Slots" | "Live";
-  badge: string;
-  badgeColor: string;
-  rtp: string;
-  accent: string;
-  desc: string;
-  iconBg: string;
+  rtp?: string;
   symbols?: string[];
-  themeColor: string;
-  image?: string;
-  playersCount?: number;
 }
 
 export default function HomePage() {
-  const { balance, updateBalance, currency, formatBalance, isAuthenticated } = useGame();
+  const { balance, updateBalance, currency, addRecentlyPlayedGame } = useGame();
 
-  // Navigation states
-  const [topTab, setTopTab] = useState<"casino" | "sports">("casino");
-  const [selectedCategory, setSelectedCategory] = useState<string>("Lobby");
+  // Search state
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [selectedProvider, setSelectedProvider] = useState<string>("All");
 
-  // Hero carousel state
-  const [activeSlide, setActiveSlide] = useState<number>(0);
-
-  // Live Bets Table state
-  const [activeBetsTab, setActiveBetsTab] = useState<"all" | "high" | "lucky" | "my">("all");
-  const [isLivePaused, setIsLivePaused] = useState<boolean>(false);
-  const [myBets, setMyBets] = useState<BetRecord[]>([]);
+  // Visible counts for Load More
+  const [visibleOriginalsCount, setVisibleOriginalsCount] = useState<number>(6);
+  const [visibleLiveCount, setVisibleLiveCount] = useState<number>(6);
 
   // Slot Demo Player Modal state
-  const [activeSlotModal, setActiveSlotModal] = useState<GameCard | null>(null);
+  const [activeSlotModal, setActiveSlotModal] = useState<SlotModalGame | null>(null);
   const [slotBet, setSlotBet] = useState<number>(10);
   const [slotReels, setSlotReels] = useState<string[][]>([
     ["⚡", "👑", "💎", "⭐", "🏺"],
@@ -97,496 +56,17 @@ export default function HomePage() {
   const [isSpinningSlot, setIsSpinningSlot] = useState<boolean>(false);
   const [slotLastWin, setSlotLastWin] = useState<number | null>(null);
 
-  // Hero Carousel Slides
-  const slides = [
-    {
-      id: "slide-1",
-      badge: "$100,000 DAILY RACE",
-      badgeColor: "bg-[#00e701]/20 text-[#00e701] border-[#00e701]/30",
-      title: "Compete in the $100,000 Daily Race",
-      subtitle:
-        "Every bet placed on Casino or Sports climbs the leaderboard. Top 5,000 racers share $100,000 daily!",
-      ctaText: "Race Now",
-      ctaLink: "/games/crash",
-      timer: "12h 42m 18s",
-      bgGradient: "from-emerald-950/80 via-[#1a2c38] to-[#0f212e]",
-      racers: [
-        { rank: 1, name: "WhaleKing", prize: "$25,000", wagered: "$1.4M" },
-        { rank: 2, name: "CryptoValkyrie", prize: "$12,500", wagered: "$980K" },
-        { rank: 3, name: "ApexRoll", prize: "$7,500", wagered: "$650K" },
-      ],
-    },
-    {
-      id: "slide-2",
-      badge: "STAKE WEEKLY RAFFLE",
-      badgeColor: "bg-amber-500/20 text-amber-400 border-amber-500/30",
-      title: "Win Your Share of $75,000 Each Week",
-      subtitle:
-        "Earn 1 ticket for every $1,000 wagered. Live stream draw every Saturday with Eddie!",
-      ctaText: "Get Tickets",
-      ctaLink: "/games/plinko",
-      timer: "3d 14h 05m",
-      bgGradient: "from-amber-950/80 via-[#1a2c38] to-[#0f212e]",
-      racers: [
-        { rank: 1, name: "LuckyTicket#482", prize: "$10,000", wagered: "Ticket Drawn" },
-        { rank: 2, name: "Satoshi_99", prize: "$5,000", wagered: "Ticket Drawn" },
-        { rank: 3, name: "NeonRider", prize: "$5,000", wagered: "Ticket Drawn" },
-      ],
-    },
-    {
-      id: "slide-3",
-      badge: "VIP LEVEL UP",
-      badgeColor: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-      title: "Unlock Instant Rakeback & Weekly Bonuses",
-      subtitle:
-        "Experience the highest VIP rewards in gaming. Custom bonus hosts, level up cash, and zero turnover.",
-      ctaText: "View VIP Club",
-      ctaLink: "#vip",
-      timer: "Always Active",
-      bgGradient: "from-blue-950/80 via-[#1a2c38] to-[#0f212e]",
-      racers: [
-        { rank: 1, name: "Bronze IV", prize: "Active", wagered: "10% Rakeback" },
-        { rank: 2, name: "Silver II", prize: "Next Tier", wagered: "$150 Bonus" },
-        { rank: 3, name: "Platinum I", prize: "VIP Host", wagered: "Dedicated Host" },
-      ],
-    },
-  ];
-
-  // Auto rotate hero carousel every 6s
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveSlide((prev) => (prev + 1) % slides.length);
-    }, 6000);
-    return () => clearInterval(timer);
-  }, [slides.length]);
-
-  // Initial live bets feed
-  const [bets, setBets] = useState<BetRecord[]>([
-    {
-      id: "b1",
-      game: "Crash",
-      user: "Hidden",
-      time: "Just now",
-      betAmount: 120.0,
-      multiplier: 3.45,
-      payout: 414.0,
-      isWin: true,
-      category: "all",
-    },
-    {
-      id: "b2",
-      game: "Gates of Olympus",
-      user: "CryptoWhale",
-      time: "1s ago",
-      betAmount: 500.0,
-      multiplier: 12.8,
-      payout: 6400.0,
-      isWin: true,
-      category: "high",
-    },
-    {
-      id: "b3",
-      game: "Mines",
-      user: "ApexPredator",
-      time: "2s ago",
-      betAmount: 50.0,
-      multiplier: 18.4,
-      payout: 920.0,
-      isWin: true,
-      category: "lucky",
-    },
-    {
-      id: "b4",
-      game: "Plinko",
-      user: "LuckyStrike",
-      time: "3s ago",
-      betAmount: 20.0,
-      multiplier: 0.2,
-      payout: 4.0,
-      isWin: false,
-      category: "all",
-    },
-    {
-      id: "b5",
-      game: "Sweet Bonanza",
-      user: "SugarLover",
-      time: "5s ago",
-      betAmount: 100.0,
-      multiplier: 48.0,
-      payout: 4800.0,
-      isWin: true,
-      category: "lucky",
-    },
-    {
-      id: "b6",
-      game: "Dice",
-      user: "AcesHigh",
-      time: "6s ago",
-      betAmount: 250.0,
-      multiplier: 1.98,
-      payout: 495.0,
-      isWin: true,
-      category: "all",
-    },
-    {
-      id: "b7",
-      game: "Crazy Time",
-      user: "Valkyrie",
-      time: "8s ago",
-      betAmount: 1500.0,
-      multiplier: 10.0,
-      payout: 15000.0,
-      isWin: true,
-      category: "high",
-    },
-  ]);
-
-  // Live streaming bet ticker every 1.5 seconds
-  useEffect(() => {
-    if (isLivePaused) return;
-
-    const gameNames = [
-      "Crash",
-      "Mines",
-      "Plinko",
-      "Dice",
-      "Gates of Olympus",
-      "Sweet Bonanza",
-      "Sugar Rush 1000",
-      "Wanted Dead or a Wild",
-      "Limbo",
-      "Crazy Time",
-      "Blackjack",
-      "Lightning Roulette",
-    ];
-
-    const users = [
-      "Hidden",
-      "Satoshi_88",
-      "GoldRush99",
-      "CryptoKing",
-      "NeonViper",
-      "DiamondHands",
-      "AlphaWolf",
-      "Valkyrie_X",
-      "ShadowNinja",
-      "ZeusMaster",
-      "LuckyCat",
-    ];
-
-    const interval = setInterval(() => {
-      const g = gameNames[Math.floor(Math.random() * gameNames.length)];
-      const u = users[Math.floor(Math.random() * users.length)];
-      const isHigh = Math.random() > 0.8;
-      const betAmt = isHigh
-        ? parseFloat((Math.random() * 2500 + 500).toFixed(2))
-        : parseFloat((Math.random() * 80 + 5).toFixed(2));
-
-      const isWin = Math.random() > 0.45;
-      const isLucky = isWin && Math.random() > 0.7;
-      const mult = isWin
-        ? isLucky
-          ? parseFloat((Math.random() * 150 + 10).toFixed(2))
-          : parseFloat((Math.random() * 4.5 + 1.1).toFixed(2))
-        : 0;
-
-      const payout = isWin ? parseFloat((betAmt * mult).toFixed(2)) : 0;
-      const cat = isLucky ? "lucky" : isHigh ? "high" : "all";
-
-      const newBet: BetRecord = {
-        id: `bet-${Date.now()}-${Math.random()}`,
-        game: g,
-        user: u,
-        time: "Just now",
-        betAmount: betAmt,
-        multiplier: mult,
-        payout,
-        isWin,
-        category: cat,
-      };
-
-      setBets((prev) => [newBet, ...prev.slice(0, 19)]);
-    }, 1500);
-
-    return () => clearInterval(interval);
-  }, [isLivePaused]);
-
-  // Comprehensive Game Catalog
-  const stakeOriginals: GameCard[] = [
-    {
-      id: "mines",
-      title: "Mines",
-      provider: "Stake Originals",
-      href: "/games/mines",
-      category: "Originals",
-      badge: "POPULAR",
-      badgeColor: "bg-[#00e701]/20 text-[#00e701] border-[#00e701]/30",
-      rtp: "99.00% RTP",
-      accent: "from-emerald-500/20 to-green-950/40",
-      desc: "Uncover gems, dodge hidden explosives",
-      iconBg: "bg-emerald-500/10 text-[#00e701]",
-      themeColor: "#00e701",
-    },
-    {
-      id: "crash",
-      title: "Crash",
-      provider: "Stake Originals",
-      href: "/games/crash",
-      category: "Originals",
-      badge: "HOT",
-      badgeColor: "bg-red-500/20 text-red-400 border-red-500/30",
-      rtp: "99.00% RTP",
-      accent: "from-amber-500/20 to-orange-950/40",
-      desc: "Cash out before the multiplier rocket crashes",
-      iconBg: "bg-amber-500/10 text-amber-400",
-      themeColor: "#f59e0b",
-    },
-    {
-      id: "plinko",
-      title: "Plinko",
-      provider: "Stake Originals",
-      href: "/games/plinko",
-      category: "Originals",
-      badge: "ORIGINAL",
-      badgeColor: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-      rtp: "99.00% RTP",
-      accent: "from-blue-500/20 to-indigo-950/40",
-      desc: "Drop balls through pegs for up to 1000x",
-      iconBg: "bg-blue-500/10 text-blue-400",
-      themeColor: "#3b82f6",
-    },
-    {
-      id: "dice",
-      title: "Dice",
-      provider: "Stake Originals",
-      href: "/games/dice",
-      category: "Originals",
-      badge: "CLASSIC",
-      badgeColor: "bg-purple-500/20 text-purple-400 border-purple-500/30",
-      rtp: "99.00% RTP",
-      accent: "from-purple-500/20 to-fuchsia-950/40",
-      desc: "Roll over or under with custom win chances",
-      iconBg: "bg-purple-500/10 text-purple-400",
-      themeColor: "#a855f7",
-    },
-    {
-      id: "limbo",
-      title: "Limbo",
-      provider: "Stake Originals",
-      href: "/games/limbo",
-      category: "Originals",
-      badge: "FAST",
-      badgeColor: "bg-amber-500/20 text-amber-400 border-amber-500/30",
-      rtp: "99.00% RTP",
-      accent: "from-yellow-500/20 to-amber-950/40",
-      desc: "Target multipliers up to 1,000,000x",
-      iconBg: "bg-yellow-500/10 text-yellow-400",
-      themeColor: "#eab308",
-    },
-    {
-      id: "keno",
-      title: "Keno",
-      provider: "Stake Originals",
-      href: "/games/keno",
-      category: "Originals",
-      badge: "CASUAL",
-      badgeColor: "bg-pink-500/20 text-pink-400 border-pink-500/30",
-      rtp: "99.00% RTP",
-      accent: "from-pink-500/20 to-rose-950/40",
-      desc: "Pick 1 to 10 numbers from 40",
-      iconBg: "bg-pink-500/10 text-pink-400",
-      themeColor: "#ec4899",
-    },
-    {
-      id: "wheel",
-      title: "Wheel",
-      provider: "Stake Originals",
-      href: "/games/wheel",
-      category: "Originals",
-      badge: "SPIN",
-      badgeColor: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30",
-      rtp: "99.00% RTP",
-      accent: "from-cyan-500/20 to-teal-950/40",
-      desc: "Colored segment prize wheel",
-      iconBg: "bg-cyan-500/10 text-cyan-400",
-      themeColor: "#06b6d4",
-    },
-    {
-      id: "blackjack",
-      title: "Blackjack",
-      provider: "Stake Originals",
-      href: "/games/blackjack",
-      category: "Originals",
-      badge: "TABLE",
-      badgeColor: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-      rtp: "99.50% RTP",
-      accent: "from-emerald-500/20 to-slate-950/40",
-      desc: "Beat the dealer to 21 with 3:2 blackjack payout",
-      iconBg: "bg-emerald-500/10 text-emerald-400",
-      themeColor: "#10b981",
-    },
-    {
-      id: "roulette",
-      title: "Roulette",
-      provider: "Stake Originals",
-      href: "/games/roulette",
-      category: "Originals",
-      badge: "CLASSIC",
-      badgeColor: "bg-red-500/20 text-red-400 border-red-500/30",
-      rtp: "97.30% RTP",
-      accent: "from-red-500/20 to-slate-950/40",
-      desc: "Single zero European wheel with inside & outside bets",
-      iconBg: "bg-red-500/10 text-red-400",
-      themeColor: "#ef4444",
-    },
-  ];
-
-  const popularSlots: GameCard[] = [
-    {
-      id: "gates-of-olympus",
-      title: "Gates of Olympus",
-      provider: "Pragmatic Play",
-      category: "Slots",
-      badge: "TOP SLOT",
-      badgeColor: "bg-amber-500/20 text-amber-400 border-amber-500/30",
-      rtp: "96.50% RTP",
-      accent: "from-amber-500/25 to-yellow-950/50",
-      desc: "Zeus tumble spins with up to 500x multiplier orbs",
-      iconBg: "bg-amber-500/10 text-amber-400",
-      symbols: ["⚡", "👑", "💎", "⭐", "🏺"],
-      themeColor: "#f59e0b",
-    },
-    {
-      id: "sweet-bonanza",
-      title: "Sweet Bonanza",
-      provider: "Pragmatic Play",
-      category: "Slots",
-      badge: "HOT",
-      badgeColor: "bg-pink-500/20 text-pink-400 border-pink-500/30",
-      rtp: "96.51% RTP",
-      accent: "from-pink-500/25 to-rose-950/50",
-      desc: "Candy tumble cluster pays with 100x candy bombs",
-      iconBg: "bg-pink-500/10 text-pink-400",
-      symbols: ["🍭", "🍬", "🍇", "🍉", "🍏"],
-      themeColor: "#ec4899",
-    },
-    {
-      id: "wanted-dead-or-wild",
-      title: "Wanted Dead or a Wild",
-      provider: "Hacksaw Gaming",
-      category: "Slots",
-      badge: "VS DUEL",
-      badgeColor: "bg-orange-500/20 text-orange-400 border-orange-500/30",
-      rtp: "96.38% RTP",
-      accent: "from-orange-500/25 to-stone-950/50",
-      desc: "VS duel multipliers up to 100x on full screen wilds",
-      iconBg: "bg-orange-500/10 text-orange-400",
-      symbols: ["🤠", "💀", "💰", "🥃", "🌵"],
-      themeColor: "#f97316",
-    },
-    {
-      id: "sugar-rush-1000",
-      title: "Sugar Rush 1000",
-      provider: "Pragmatic Play",
-      category: "Slots",
-      badge: "1000X",
-      badgeColor: "bg-purple-500/20 text-purple-400 border-purple-500/30",
-      rtp: "97.50% RTP",
-      accent: "from-purple-500/25 to-fuchsia-950/50",
-      desc: "Multiplier spots that multiply up to 1,024x",
-      iconBg: "bg-purple-500/10 text-purple-400",
-      symbols: ["🐻", "🌟", "🍬", "🍩", "🧁"],
-      themeColor: "#a855f7",
-    },
-    {
-      id: "rip-city",
-      title: "RIP City",
-      provider: "Hacksaw Gaming",
-      category: "Slots",
-      badge: "FEATURE",
-      badgeColor: "bg-slate-500/20 text-slate-300 border-slate-500/30",
-      rtp: "96.22% RTP",
-      accent: "from-slate-500/25 to-zinc-950/50",
-      desc: "Wild Cat jaw drops expanding with up to 200x multipliers",
-      iconBg: "bg-slate-500/10 text-slate-300",
-      symbols: ["🐱", "🐭", "🧀", "🍌", "💣"],
-      themeColor: "#64748b",
-    },
-  ];
-
-  const liveShows: GameCard[] = [
-    {
-      id: "crazy-time",
-      title: "Crazy Time",
-      provider: "Evolution Live",
-      category: "Live",
-      badge: "LIVE SHOW",
-      badgeColor: "bg-red-500/20 text-red-400 border-red-500/30",
-      rtp: "96.08% RTP",
-      accent: "from-red-500/25 to-rose-950/50",
-      desc: "Top Money wheel with Cash Hunt, Pachinko & Coin Flip",
-      iconBg: "bg-red-500/10 text-red-400",
-      themeColor: "#ef4444",
-    },
-    {
-      id: "lightning-roulette",
-      title: "Lightning Roulette",
-      provider: "Evolution Live",
-      category: "Live",
-      badge: "500X STRIKES",
-      badgeColor: "bg-amber-500/20 text-amber-400 border-amber-500/30",
-      rtp: "97.30% RTP",
-      accent: "from-amber-500/25 to-yellow-950/50",
-      desc: "Lucky numbers struck by lightning for multipliers up to 500x",
-      iconBg: "bg-amber-500/10 text-amber-400",
-      themeColor: "#f59e0b",
-    },
-    {
-      id: "stake-exclusive-blackjack",
-      title: "Stake Exclusive Blackjack",
-      provider: "Stake Live",
-      category: "Live",
-      badge: "VIP EXCLUSIVE",
-      badgeColor: "bg-[#00e701]/20 text-[#00e701] border-[#00e701]/30",
-      rtp: "99.28% RTP",
-      accent: "from-emerald-500/25 to-green-950/50",
-      desc: "Private 7-seat live dealers tailored for Stake VIP players",
-      iconBg: "bg-[#00e701]/10 text-[#00e701]",
-      themeColor: "#00e701",
-    },
-  ];
-
-  // Category filter
-  const categories = [
-    "Lobby",
-    "Stake Originals",
-    "Slots",
-    "Live Casino",
-    "Game Shows",
-    "Feature Buy-in",
-    "Table Games",
-  ];
-
-  // Filter games based on search and selected category
-  const allGames = [...stakeOriginals, ...popularSlots, ...liveShows];
-  const filteredGames = allGames.filter((g) => {
-    const matchesSearch =
-      g.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      g.provider.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesProvider =
-      selectedProvider === "All" || g.provider.toLowerCase().includes(selectedProvider.toLowerCase());
-    const matchesCategory =
-      selectedCategory === "Lobby" ||
-      (selectedCategory === "Stake Originals" && g.category === "Originals") ||
-      (selectedCategory === "Slots" && g.category === "Slots") ||
-      (selectedCategory === "Live Casino" && g.category === "Live") ||
-      (selectedCategory === "Game Shows" && g.category === "Live");
-
-    return matchesSearch && matchesProvider && matchesCategory;
-  });
+  // Filter games when user types in global search
+  const isSearching = searchQuery.trim().length > 0;
+  const searchResults: GameItem[] = isSearching
+    ? [...STAKE_ORIGINALS, ...LIVE_CASINO_GAMES].filter((g) =>
+        g.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        g.provider.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : [];
 
   // Slot Demo Spin Handler
-  const spinSlotDemo = (game: GameCard) => {
+  const spinSlotDemo = (game: SlotModalGame) => {
     if (isSpinningSlot) return;
     if (slotBet > balance) {
       alert("Insufficient demo balance! Please top up via the Wallet button.");
@@ -601,7 +81,7 @@ export default function HomePage() {
 
     const pool = game.symbols || ["💎", "⚡", "👑", "⭐", "🏺"];
 
-    // 400ms tumble animation
+    // 750ms tumble animation
     const startTime = performance.now();
     const interval = setInterval(() => {
       setSlotReels([
@@ -623,20 +103,6 @@ export default function HomePage() {
           updateBalance(payout);
           sounds.playDiceWin();
 
-          // Add to my bets
-          const newBet: BetRecord = {
-            id: `my-${Date.now()}`,
-            game: game.title,
-            user: "You",
-            time: "Just now",
-            betAmount: slotBet,
-            multiplier: mult,
-            payout,
-            isWin: true,
-            category: "all",
-          };
-          setMyBets((prev) => [newBet, ...prev.slice(0, 10)]);
-
           if (mult >= 5) {
             try {
               confetti({ particleCount: 70, spread: 70, origin: { y: 0.6 } });
@@ -645,209 +111,106 @@ export default function HomePage() {
         } else {
           setSlotLastWin(0);
           sounds.playDiceLoss();
-          const newBet: BetRecord = {
-            id: `my-${Date.now()}`,
-            game: game.title,
-            user: "You",
-            time: "Just now",
-            betAmount: slotBet,
-            multiplier: 0,
-            payout: 0,
-            isWin: false,
-            category: "all",
-          };
-          setMyBets((prev) => [newBet, ...prev.slice(0, 10)]);
         }
       }
     }, 60);
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 space-y-8 select-none">
-      {/* 1. TOP CASINO / SPORTS SWITCHER & SUB-NAV BAR */}
-      <section className="space-y-4">
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-          {/* Casino / Sports Toggle Pill */}
-          <div className="flex rounded-xl bg-[#1a2c38] p-1 border border-[#213743] self-start">
+    <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 space-y-6 select-none">
+      {/* 1. CASINO / SPORTS HERO BANNER (Dual 2-column cards) */}
+      <CasinoSportsHeroBanner />
+
+      {/* 2. LIVE STATUS & GLOBAL SEARCH BAR (showPills={false}) */}
+      <LiveStatusAndSearch
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        showPills={false}
+      />
+
+      {/* Search Results Overlay (If user is actively typing in search) */}
+      {isSearching && (
+        <section className="space-y-3 bg-[#14232d] p-4 rounded-2xl border border-[#213743]">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-bold text-white flex items-center gap-2">
+              <Search className="h-4 w-4 text-[#00e701]" />
+              <span>Search Results for &quot;{searchQuery}&quot; ({searchResults.length})</span>
+            </h2>
             <button
-              onClick={() => setTopTab("casino")}
-              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-black transition-all ${
-                topTab === "casino"
-                  ? "bg-[#213743] text-[#00e701] shadow-sm border border-[#00e701]/30"
-                  : "text-[#b1bad3] hover:text-white"
-              }`}
+              onClick={() => setSearchQuery("")}
+              className="text-xs text-[#b1bad3] hover:text-white"
             >
-              <Gamepad2 className="h-4 w-4" />
-              <span>Casino</span>
-            </button>
-            <button
-              onClick={() => setTopTab("sports")}
-              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-black transition-all ${
-                topTab === "sports"
-                  ? "bg-[#213743] text-[#00e701] shadow-sm border border-[#00e701]/30"
-                  : "text-[#b1bad3] hover:text-white"
-              }`}
-            >
-              <Trophy className="h-4 w-4" />
-              <span>Sports</span>
+              Clear
             </button>
           </div>
 
-          {/* Providers Filter */}
-          <div className="flex items-center gap-2.5 self-start sm:self-auto sm:ml-auto">
-            <select
-              value={selectedProvider}
-              onChange={(e) => setSelectedProvider(e.target.value)}
-              className="rounded-xl border border-[#213743] bg-[#1a2c38] px-3.5 py-2 text-xs font-bold text-white focus:border-[#00e701] focus:outline-none cursor-pointer"
-            >
-              <option value="All">All Providers</option>
-              <option value="Stake Originals">Stake Originals</option>
-              <option value="Pragmatic Play">Pragmatic Play</option>
-              <option value="Hacksaw Gaming">Hacksaw Gaming</option>
-              <option value="Evolution">Evolution Live</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Horizontal Category Pill Bar */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-          {categories.map((cat) => {
-            const isSelected = selectedCategory === cat;
-            return (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`shrink-0 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
-                  isSelected
-                    ? "bg-[#213743] text-[#00e701] border border-[#00e701]/40 shadow-sm"
-                    : "bg-[#1a2c38] text-[#b1bad3] border border-[#213743] hover:text-white hover:bg-[#213743]"
-                }`}
-              >
-                {cat}
-              </button>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* 2. HERO SECTION: GUEST HERO LANDING OR PROMOTIONAL CAROUSEL */}
-      {!isAuthenticated ? (
-        <GuestHero />
-      ) : (
-        <section className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-          {/* Main Rotating Carousel Banner (8 Cols on Desktop) */}
-          <div className="lg:col-span-8 relative overflow-hidden rounded-2xl border border-[#213743] bg-[#1a2c38] p-6 sm:p-8 flex flex-col justify-between min-h-[300px] shadow-xl">
-            <div
-              className={`absolute inset-0 bg-gradient-to-r ${slides[activeSlide].bgGradient} opacity-90 transition-all duration-700 pointer-events-none`}
-            />
-
-            <div className="relative z-10 space-y-3 max-w-xl">
-              <div className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-black uppercase tracking-wider backdrop-blur-sm ${slides[activeSlide].badgeColor}">
-                <Flame className="h-3.5 w-3.5 fill-current" />
-                <span>{slides[activeSlide].badge}</span>
-              </div>
-
-              <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight">
-                {slides[activeSlide].title}
-              </h1>
-
-              <p className="text-xs sm:text-sm text-[#b1bad3] leading-relaxed">
-                {slides[activeSlide].subtitle}
-              </p>
-
-              <div className="pt-2 flex items-center gap-3">
-                <Link
-                  href={slides[activeSlide].ctaLink}
-                  className="flex items-center gap-2 rounded-xl bg-[#00e701] px-5 py-3 text-xs sm:text-sm font-black text-[#0f212e] shadow-lg shadow-[#00e701]/25 transition-all hover:bg-[#00c701] active:scale-95"
-                >
-                  <Play className="h-4 w-4 fill-current" />
-                  <span>{slides[activeSlide].ctaText}</span>
-                </Link>
-                <div className="rounded-xl border border-[#213743] bg-[#0f212e]/70 px-3.5 py-2.5 text-xs font-mono font-bold text-white">
-                  <span className="text-[#b1bad3] text-[10px] block uppercase">Time Left:</span>
-                  <span>{slides[activeSlide].timer}</span>
-                </div>
-              </div>
+          {searchResults.length === 0 ? (
+            <div className="py-8 text-center text-xs text-[#b1bad3]">
+              No games found matching your search.
             </div>
-
-            {/* Carousel Slide Indicators */}
-            <div className="relative z-10 flex items-center gap-2 pt-4">
-              {slides.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setActiveSlide(idx)}
-                  className={`h-1.5 rounded-full transition-all ${
-                    activeSlide === idx ? "w-8 bg-[#00e701]" : "w-2 bg-[#213743]"
-                  }`}
-                />
-              ))}
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5">
+              {searchResults.slice(0, 12).map((game) => {
+                const thumb = getGameThumbnail(game.slug || game.id, game.image);
+                const gameHref = game.href || `/games/${game.slug || game.id}`;
+                return (
+                  <Link
+                    key={game.id}
+                    href={gameHref}
+                    onClick={() => {
+                      addRecentlyPlayedGame({
+                        id: game.id,
+                        slug: game.slug,
+                        title: game.title,
+                        href: gameHref,
+                        image: thumb,
+                        playersCount: game.playersCount,
+                      });
+                    }}
+                    className="group relative flex flex-col select-none cursor-pointer"
+                  >
+                    <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-[#1a2c38] border border-[#213743] hover:border-[#2f4553] transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg">
+                      {thumb ? (
+                        <img
+                          src={thumb}
+                          alt={game.title}
+                          className="w-full h-full object-cover rounded-xl"
+                          loading="lazy"
+                          onError={(e) => {
+                            (e.currentTarget as HTMLElement).style.display = "none";
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center p-3">
+                          <StakeGameArtwork gameId={game.slug || game.id} />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#00e701] text-[#0f212e] shadow-lg shadow-[#00e701]/50 transform scale-75 group-hover:scale-100 transition-transform">
+                          <Play className="h-4 w-4 fill-current ml-0.5" />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 mt-1.5 px-1 text-[11px] font-semibold text-[#b1bad3]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] animate-pulse" />
+                      <span>{(game.playersCount || 2450).toLocaleString("en-US")} playing</span>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
-          </div>
-
-          {/* 2 Spotlight Cards (4 Cols on Desktop) */}
-          <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-4">
-          {/* Spotlight Card 1: Casino */}
-          <Link
-            href="/casino/home"
-            className="flex-1 rounded-2xl border border-[#213743] bg-gradient-to-br from-[#1a2c38] to-[#0f212e] p-5 flex flex-col justify-between hover:border-[#00e701]/40 transition-all group shadow-lg"
-          >
-            <div className="flex items-center justify-between">
-              <span className="rounded-md bg-[#00e701]/15 px-2 py-0.5 text-[10px] font-bold text-[#00e701] border border-[#00e701]/30">
-                74,219 PLAYING
-              </span>
-              <Gamepad2 className="h-5 w-5 text-[#00e701]" />
-            </div>
-            <div className="my-3">
-              <h3 className="text-xl font-black text-white group-hover:text-[#00e701] transition-colors">
-                Stake Casino
-              </h3>
-              <p className="text-xs text-[#b1bad3]">
-                Play Mines, Plinko, Crash & 3,000+ top verified slots
-              </p>
-            </div>
-            <div className="flex items-center gap-1 text-xs font-black text-[#00e701]">
-              <span>Enter Casino</span>
-              <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </div>
-          </Link>
-
-          {/* Spotlight Card 2: Sports */}
-          <div className="flex-1 rounded-2xl border border-[#213743] bg-gradient-to-br from-[#1a2c38] to-[#0f212e] p-5 flex flex-col justify-between shadow-lg">
-            <div className="flex items-center justify-between">
-              <span className="rounded-md bg-blue-500/15 px-2 py-0.5 text-[10px] font-bold text-blue-400 border border-blue-500/30">
-                25,840 BETTING
-              </span>
-              <Trophy className="h-5 w-5 text-blue-400" />
-            </div>
-            <div className="my-3">
-              <h3 className="text-xl font-black text-white">Stake Sportsbook</h3>
-              <p className="text-xs text-[#b1bad3]">
-                Live odds on UEFA Champions League, NBA, Premier League & UFC
-              </p>
-            </div>
-            <div className="flex items-center gap-1 text-xs font-black text-blue-400">
-              <span>View Sports Odds</span>
-              <ChevronRight className="h-4 w-4" />
-            </div>
-          </div>
-        </div>
-      </section>
+          )}
+        </section>
       )}
 
-      {/* 3. LIVE STATUS PILLS & CTRL+K GLOBAL SEARCH */}
-      <LiveStatusAndSearch searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+      {/* 3. VIP PROGRESS CARD ("VIP Progress >", username, progress bar, Unranked -> Bronze) */}
+      <VIPProgressCard />
 
-      {/* 4. TRENDING GAMES SECTION */}
-      <TrendingGames onSelectGame={(g) => setActiveSlotModal(g as any)} />
+      {/* 4. CONTINUE PLAYING SLIDER (Strictly rendered ONLY if recentlyPlayedGames has at least 1 game) */}
+      <ContinuePlayingSlider />
 
-      {/* 5. TRENDING SPORTS SECTION */}
-      <TrendingSports />
-
-      {/* 6. PROMOTIONS SECTION */}
-      <PromotionsSection />
-
-      {/* 7. GAMES CATALOG: SECTION 1: STAKE ORIGINALS */}
-      <section className="space-y-4">
+      {/* 5. STAKE ORIGINALS > (Mines, Dice, Plinko, Limbo, etc. with "Load More" button) */}
+      <section className="space-y-3.5">
         <div className="flex items-center justify-between">
           <Link
             href="/casino/group/stake-originals"
@@ -856,11 +219,9 @@ export default function HomePage() {
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#00e701]/15 text-[#00e701]">
               <Flame className="h-4 w-4 fill-current" />
             </div>
-            <h2 className="text-lg sm:text-xl font-black text-white group-hover:text-[#00e701] transition-colors flex items-center gap-1.5">
+            <h2 className="text-base sm:text-xl font-black text-white group-hover:text-[#00e701] transition-colors flex items-center gap-1.5">
               <span>Stake Originals</span>
-              <span className="text-[#b1bad3] text-sm group-hover:translate-x-1 transition-transform">
-                &gt;
-              </span>
+              <ChevronRight className="h-4 w-4 text-[#b1bad3] group-hover:translate-x-1 transition-transform" />
             </h2>
             <span className="rounded-full bg-[#213743] px-2 py-0.5 text-[11px] font-bold text-[#00e701]">
               31 Games
@@ -874,14 +235,25 @@ export default function HomePage() {
           </Link>
         </div>
 
-        {/* 3:4 Aspect Ratio Full-Bleed Stake Game Cards Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5">
-          {stakeOriginals.map((game) => {
-            const thumb = getGameThumbnail(game.id, game.image);
+        {/* 3:4 Full-Bleed Stake Originals Cards Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5">
+          {STAKE_ORIGINALS.slice(0, visibleOriginalsCount).map((game) => {
+            const thumb = getGameThumbnail(game.slug || game.id, game.image);
+            const gameHref = game.href || `/games/${game.slug || game.id}`;
             return (
               <Link
                 key={game.id}
-                href={game.href || `/games/${game.id}`}
+                href={gameHref}
+                onClick={() => {
+                  addRecentlyPlayedGame({
+                    id: game.id,
+                    slug: game.slug,
+                    title: game.title,
+                    href: gameHref,
+                    image: thumb,
+                    playersCount: game.playersCount,
+                  });
+                }}
                 className="group relative flex flex-col select-none cursor-pointer"
               >
                 {/* 100% Full-Bleed Image Box */}
@@ -898,7 +270,7 @@ export default function HomePage() {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center p-3">
-                      <StakeGameArtwork gameId={game.id} />
+                      <StakeGameArtwork gameId={game.slug || game.id} />
                     </div>
                   )}
 
@@ -912,94 +284,29 @@ export default function HomePage() {
 
                 {/* Under-Card Player Count (ONLY green live player status pill) */}
                 <div className="flex items-center gap-1.5 mt-2 px-1 text-[11px] font-semibold text-[#b1bad3]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] animate-pulse"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] animate-pulse" />
                   <span>{(game.playersCount || 2450).toLocaleString("en-US")} playing</span>
                 </div>
               </Link>
             );
           })}
         </div>
-      </section>
 
-      {/* 4. GAMES CATALOG: SECTION 2: POPULAR SLOTS (Interactive Demo Spin Modal) */}
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <Link
-            href="/casino/group/slots"
-            className="flex items-center gap-2 group cursor-pointer"
-          >
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/15 text-amber-400">
-              <Sparkles className="h-4 w-4" />
-            </div>
-            <h2 className="text-lg sm:text-xl font-black text-white group-hover:text-amber-400 transition-colors flex items-center gap-1.5">
-              <span>Popular Slots</span>
-              <span className="text-[#b1bad3] text-sm group-hover:translate-x-1 transition-transform">
-                &gt;
-              </span>
-            </h2>
-          </Link>
-          <div className="flex items-center gap-2">
-            <span className="rounded-full bg-[#213743] px-2 py-0.5 text-[11px] font-bold text-amber-400">
-              Pragmatic & Hacksaw
-            </span>
-            <Link
-              href="/casino/group/slots"
-              className="text-xs font-bold text-amber-400 hover:underline"
+        {/* Load More Button for Stake Originals */}
+        {visibleOriginalsCount < STAKE_ORIGINALS.length && (
+          <div className="flex justify-center pt-2">
+            <button
+              onClick={() => setVisibleOriginalsCount((prev) => Math.min(STAKE_ORIGINALS.length, prev + 6))}
+              className="rounded-xl bg-[#213743] hover:bg-[#2f4553] px-6 py-2.5 text-xs font-bold text-white transition-colors"
             >
-              View All Slots &gt;
-            </Link>
+              Load More
+            </button>
           </div>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3.5">
-          {popularSlots.map((slot, idx) => {
-            const thumb = getGameThumbnail(slot.id, slot.image);
-            const slotPlayers = [4821, 3912, 2840, 2195, 1750][idx % 5];
-            return (
-              <div
-                key={slot.id}
-                onClick={() => setActiveSlotModal(slot)}
-                className="group flex flex-col"
-              >
-                {/* 100% Full-bleed Image Box */}
-                <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-[#1a2c38] border border-[#213743] hover:border-[#2f4553] transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg cursor-pointer">
-                  {thumb ? (
-                    <img
-                      src={thumb}
-                      alt={slot.title}
-                      className="w-full h-full object-cover rounded-xl"
-                      loading="lazy"
-                      onError={(e) => {
-                        (e.currentTarget as HTMLElement).style.display = "none";
-                      }}
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center p-3">
-                      <StakeGameArtwork gameId={slot.id} />
-                    </div>
-                  )}
-
-                  {/* Play Button Overlay on Hover */}
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#00e701] text-[#0f212e] shadow-lg shadow-[#00e701]/50 transform scale-75 group-hover:scale-100 transition-transform">
-                      <Play className="h-5 w-5 fill-current ml-0.5" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Under-Card Player Count (ONLY green live player status pill) */}
-                <div className="flex items-center gap-1.5 mt-2 px-1 text-[11px] font-semibold text-[#b1bad3]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] animate-pulse"></span>
-                  <span>{slotPlayers.toLocaleString("en-US")} playing</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        )}
       </section>
 
-      {/* 5. GAMES CATALOG: SECTION 3: LIVE CASINO & GAME SHOWS */}
-      <section className="space-y-4">
+      {/* 6. LIVE CASINO > (Live dealer cards with "Load More" button) */}
+      <section className="space-y-3.5">
         <div className="flex items-center justify-between">
           <Link
             href="/casino/group/live-casino"
@@ -1008,42 +315,53 @@ export default function HomePage() {
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-500/15 text-red-400">
               <Activity className="h-4 w-4" />
             </div>
-            <h2 className="text-lg sm:text-xl font-black text-white group-hover:text-red-400 transition-colors flex items-center gap-1.5">
-              <span>Live Casino & Shows</span>
-              <span className="text-[#b1bad3] text-sm group-hover:translate-x-1 transition-transform">
-                &gt;
-              </span>
+            <h2 className="text-base sm:text-xl font-black text-white group-hover:text-red-400 transition-colors flex items-center gap-1.5">
+              <span>Live Casino</span>
+              <ChevronRight className="h-4 w-4 text-[#b1bad3] group-hover:translate-x-1 transition-transform" />
             </h2>
-          </Link>
-          <div className="flex items-center gap-2">
             <span className="rounded-full bg-[#213743] px-2 py-0.5 text-[11px] font-bold text-red-400">
               Live Dealers
             </span>
-            <Link
-              href="/casino/group/live-casino"
-              className="text-xs font-bold text-red-400 hover:underline"
-            >
-              View All Live &gt;
-            </Link>
-          </div>
+          </Link>
+          <Link
+            href="/casino/group/live-casino"
+            className="text-xs font-bold text-red-400 hover:underline"
+          >
+            View All Live &gt;
+          </Link>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
-          {liveShows.map((live, idx) => {
-            const thumb = getGameThumbnail(live.id, live.image);
-            const livePlayers = [3240, 1890, 940][idx % 3];
+        {/* 3:4 Full-Bleed Live Casino Cards Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5">
+          {LIVE_CASINO_GAMES.slice(0, visibleLiveCount).map((game) => {
+            const thumb = getGameThumbnail(game.slug || game.id, game.image);
+            const gameHref = game.href || `/games/blackjack`;
             return (
               <div
-                key={live.id}
-                onClick={() => setActiveSlotModal(live)}
-                className="group flex flex-col"
+                key={game.id}
+                onClick={() => {
+                  addRecentlyPlayedGame({
+                    id: game.id,
+                    slug: game.slug,
+                    title: game.title,
+                    href: gameHref,
+                    image: thumb,
+                    playersCount: game.playersCount,
+                  });
+                  setActiveSlotModal({
+                    id: game.id,
+                    title: game.title,
+                    provider: game.provider,
+                    rtp: "99.28% RTP",
+                  });
+                }}
+                className="group relative flex flex-col select-none cursor-pointer"
               >
-                {/* 100% Full-bleed Image Box */}
-                <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-[#1a2c38] border border-[#213743] hover:border-[#2f4553] transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg cursor-pointer">
+                <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-[#1a2c38] border border-[#213743] hover:border-[#2f4553] transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg">
                   {thumb ? (
                     <img
                       src={thumb}
-                      alt={live.title}
+                      alt={game.title}
                       className="w-full h-full object-cover rounded-xl"
                       loading="lazy"
                       onError={(e) => {
@@ -1052,11 +370,10 @@ export default function HomePage() {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center p-3">
-                      <StakeGameArtwork gameId={live.id} />
+                      <StakeGameArtwork gameId={game.slug || game.id} />
                     </div>
                   )}
 
-                  {/* Play Button Overlay on Hover */}
                   <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                     <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#00e701] text-[#0f212e] shadow-lg shadow-[#00e701]/50 transform scale-75 group-hover:scale-100 transition-transform">
                       <Play className="h-5 w-5 fill-current ml-0.5" />
@@ -1064,23 +381,49 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                {/* Under-Card Player Count (ONLY green live player status pill) */}
                 <div className="flex items-center gap-1.5 mt-2 px-1 text-[11px] font-semibold text-[#b1bad3]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] animate-pulse"></span>
-                  <span>{livePlayers.toLocaleString("en-US")} playing</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] animate-pulse" />
+                  <span>{(game.playersCount || 1920).toLocaleString("en-US")} playing</span>
                 </div>
               </div>
             );
           })}
         </div>
+
+        {/* Load More Button for Live Casino */}
+        {visibleLiveCount < LIVE_CASINO_GAMES.length && (
+          <div className="flex justify-center pt-2">
+            <button
+              onClick={() => setVisibleLiveCount((prev) => Math.min(LIVE_CASINO_GAMES.length, prev + 6))}
+              className="rounded-xl bg-[#213743] hover:bg-[#2f4553] px-6 py-2.5 text-xs font-bold text-white transition-colors"
+            >
+              Load More
+            </button>
+          </div>
+        )}
       </section>
 
-      {/* 9. REAL-TIME LIVE BETS FEED (DUAL RESPONSIVE PARITY) */}
+      {/* 7. GAMES FOR YOU > (Drac's Stacks, Skyscraper Crash, Nuukd with "Load More" button) */}
+      <GamesForYou />
+
+      {/* 8. SLOTS > (Trending Games: Gates of Olympus 2500, Gates of Olympus Super Scatter, Sharks! with "Load More" button) */}
+      <TrendingGames
+        title="Slots"
+        categoryHref="/casino/group/slots"
+        onSelectGame={(g) => setActiveSlotModal(g as SlotModalGame)}
+      />
+
+      {/* 9. TRENDING SPORTS > (Soccer, Tennis, American Football cards with "Load More" button) */}
+      <TrendingSports />
+
+      {/* 10. RACES AND RAFFLES WIDGET ($100k Race, countdown, Leaderboard button, Not entered yet) */}
+      <RacesAndRafflesWidget />
+
+      {/* 11. LIVE BETS FEED (Casino Bets, Sports Bets, Race Leaderboard tabs with auto-streaming bets) */}
       <LiveBetsFeed />
 
-      {/* 7. AUTHENTIC STAKE SPONSORSHIPS & ACCEPTED CRYPTO */}
-      <section className="border-t border-[#213743] pt-8 pb-4 space-y-8 text-xs text-[#b1bad3]">
-        {/* Sponsorship Banner */}
+      {/* Stake Authentic Partnerships & Accepted Cryptos Banner */}
+      <section className="border-t border-[#213743] pt-8 pb-4 space-y-6 text-xs text-[#b1bad3]">
         <div className="rounded-2xl border border-[#213743] bg-[#1a2c38] p-6 space-y-4">
           <div className="text-[11px] font-bold uppercase tracking-wider text-white text-center">
             Official Global Partners
@@ -1088,7 +431,7 @@ export default function HomePage() {
           <div className="flex flex-wrap items-center justify-around gap-6">
             <div className="flex items-center gap-2 font-black text-white text-sm sm:text-base tracking-wider">
               <span className="rounded bg-[#00e701] px-2 py-0.5 text-xs text-[#0f212e] font-black">F1</span>
-              <span>STAKE F1 TEAM SAUBER</span>
+              <span>STAKE F1 TEAM KICK SAUBER</span>
             </div>
             <div className="flex items-center gap-2 font-black text-white text-sm sm:text-base tracking-wider">
               <span className="rounded bg-red-600 px-2 py-0.5 text-xs text-white font-black">UFC</span>
@@ -1114,7 +457,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 8. INTERACTIVE SLOT / LIVE GAME DEMO PLAYER MODAL */}
+      {/* Interactive Slot / Live Game Demo Player Modal */}
       {activeSlotModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
           <div className="w-full max-w-xl rounded-2xl border border-[#213743] bg-[#1a2c38] shadow-2xl overflow-hidden space-y-4">
@@ -1126,7 +469,9 @@ export default function HomePage() {
                 </div>
                 <div>
                   <h3 className="text-base font-black text-white">{activeSlotModal.title}</h3>
-                  <p className="text-xs text-[#b1bad3]">{activeSlotModal.provider} • {activeSlotModal.rtp}</p>
+                  <p className="text-xs text-[#b1bad3]">
+                    {activeSlotModal.provider} • {activeSlotModal.rtp || "96.50% RTP"}
+                  </p>
                 </div>
               </div>
               <button

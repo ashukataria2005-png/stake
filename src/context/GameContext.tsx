@@ -16,6 +16,15 @@ export interface DisplayBalanceInfo {
   isFiat: boolean;
 }
 
+export interface RecentlyPlayedGame {
+  id: string;
+  slug?: string;
+  title: string;
+  image?: string;
+  href?: string;
+  playersCount?: number;
+}
+
 interface GameContextType {
   balance: number; // Stored in USD / USDT equivalent
   currency: string; // Active cryptocurrency (USDT, BTC, ETH, LTC, SOL, DOGE, BCH, XRP, TRX)
@@ -31,6 +40,8 @@ interface GameContextType {
   isOneTapOpen: boolean;
   isWalletModalOpen: boolean;
   isWalletSettingsOpen: boolean;
+  recentlyPlayedGames: RecentlyPlayedGame[];
+  addRecentlyPlayedGame: (game: RecentlyPlayedGame) => void;
   toggleSidebar: () => void;
   setSidebarOpen: (open: boolean) => void;
   toggleChat: () => void;
@@ -94,6 +105,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [isOneTapOpen, setIsOneTapOpen] = useState<boolean>(false);
   const [isWalletModalOpen, setIsWalletModalOpen] = useState<boolean>(false);
   const [isWalletSettingsOpen, setIsWalletSettingsOpen] = useState<boolean>(false);
+  const [recentlyPlayedGames, setRecentlyPlayedGames] = useState<RecentlyPlayedGame[]>([]);
 
   // Hydrate state from localStorage safely on client
   useEffect(() => {
@@ -134,15 +146,34 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
           setUser(authData.user || { name: "Anuj", email: "ashukataria2005@gmail.com", avatarColor: "#9333ea" });
         }
       }
+      const savedRecent = localStorage.getItem("stake_clone_recently_played");
+      if (savedRecent) {
+        const parsed = JSON.parse(savedRecent);
+        if (Array.isArray(parsed)) {
+          setRecentlyPlayedGames(parsed);
+        }
+      }
+      // On mobile devices, ensure the hamburger drawer starts closed
+      if (typeof window !== "undefined" && window.innerWidth < 1024) {
+        setIsSidebarOpen(false);
+      }
     } catch {
       // localStorage may fail in private mode
     }
-
-    // On mobile devices, ensure the hamburger drawer starts closed
-    if (typeof window !== "undefined" && window.innerWidth < 1024) {
-      setIsSidebarOpen(false);
-    }
   }, []);
+
+  const addRecentlyPlayedGame = (game: RecentlyPlayedGame) => {
+    setRecentlyPlayedGames((prev) => {
+      const filtered = prev.filter((g) => g.id !== game.id && (g.slug ? g.slug !== game.slug : true));
+      const updated = [game, ...filtered].slice(0, 5);
+      try {
+        localStorage.setItem("stake_clone_recently_played", JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
+  };
 
   const login = (userData?: Partial<UserProfile>) => {
     const profile: UserProfile = {
@@ -346,6 +377,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         isOneTapOpen,
         isWalletModalOpen,
         isWalletSettingsOpen,
+        recentlyPlayedGames,
+        addRecentlyPlayedGame,
         toggleSidebar,
         setSidebarOpen,
         toggleChat,
