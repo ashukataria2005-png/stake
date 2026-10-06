@@ -12,7 +12,8 @@ export interface CasinoCardData {
   badge?: string;
   badgeColor?: string;
   href?: string;
-  graphic: React.ReactNode;
+  graphic?: React.ReactNode;
+  image?: string;
   bgGradient?: string;
   isPublisherCard?: boolean;
 }
@@ -84,11 +85,25 @@ export default function CasinoGameRow({
                 )}
               </div>
 
-              {/* Graphic Center */}
-              <div className="relative z-10 my-auto flex flex-col items-center justify-center">
-                <div className="transform group-hover:scale-110 transition-transform duration-300">
-                  {card.graphic}
-                </div>
+              {/* Graphic Center / Real Poster Image */}
+              <div className="relative z-10 my-auto flex flex-col items-center justify-center w-full px-1 overflow-hidden">
+                {card.image ? (
+                  <div className="w-full h-24 sm:h-28 flex items-center justify-center overflow-hidden rounded-lg">
+                    <img
+                      src={card.image}
+                      alt={card.title}
+                      className="w-full h-full object-cover rounded-lg transform group-hover:scale-110 transition-transform duration-300"
+                      loading="lazy"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLElement).style.display = "none";
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div className="transform group-hover:scale-110 transition-transform duration-300">
+                    {card.graphic}
+                  </div>
+                )}
 
                 {/* Hover Play Button Overlay */}
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { Play } from "lucide-react";
 import StakeGameArtwork from "@/components/casino/StakeGameArtwork";
@@ -12,6 +12,8 @@ interface StakeGameCardProps {
 }
 
 export default function StakeGameCard({ game, onClick }: StakeGameCardProps) {
+  const [imageError, setImageError] = useState(false);
+
   const cardContent = (
     <div
       onClick={() => onClick && onClick(game)}
@@ -39,11 +41,23 @@ export default function StakeGameCard({ game, onClick }: StakeGameCardProps) {
         )}
       </div>
 
-      {/* Center Artwork Graphic */}
-      <div className="relative z-10 my-auto flex flex-col items-center justify-center w-full px-2">
-        <div className="w-24 h-24 sm:w-28 sm:h-28 transform group-hover:scale-110 transition-transform duration-300 flex items-center justify-center">
-          <StakeGameArtwork gameId={game.id} />
-        </div>
+      {/* Center Artwork Graphic / Real CDN Poster Image (Task 9) */}
+      <div className="relative z-10 my-auto flex flex-col items-center justify-center w-full px-1 overflow-hidden">
+        {game.image && !imageError ? (
+          <div className="w-full h-24 sm:h-28 flex items-center justify-center overflow-hidden rounded-lg">
+            <img
+              src={game.image}
+              alt={game.title}
+              onError={() => setImageError(true)}
+              className="w-full h-full object-cover rounded-lg transform group-hover:scale-110 transition-transform duration-300"
+              loading="lazy"
+            />
+          </div>
+        ) : (
+          <div className="w-24 h-24 sm:w-28 sm:h-28 transform group-hover:scale-110 transition-transform duration-300 flex items-center justify-center">
+            <StakeGameArtwork gameId={game.id} />
+          </div>
+        )}
 
         {/* Hover Play Button Overlay */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">

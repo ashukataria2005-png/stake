@@ -109,10 +109,12 @@ export const CRYPTO_CURRENCIES: CryptoCurrency[] = [
 // ============================================================
 export const PRIMARY_FIAT_CURRENCIES: FiatCurrency[] = [
   { code: "USD", name: "US Dollar", flag: "🇺🇸", symbol: "$", ratePerUsd: 1.0, isPrimary: true },
+  { code: "INR", name: "Indian Rupee", flag: "🇮🇳", symbol: "₹", ratePerUsd: 86.5, isPrimary: true },
   { code: "EUR", name: "Euro", flag: "🇪🇺", symbol: "€", ratePerUsd: 0.92, isPrimary: true },
-  { code: "JPY", name: "Japanese Yen", flag: "🇯🇵", symbol: "¥", ratePerUsd: 154.5, isPrimary: true },
-  { code: "INR", name: "Indian Rupee", flag: "🇮🇳", symbol: "₹", ratePerUsd: 87.2, isPrimary: true },
-  { code: "CAD", name: "Canadian Dollar", flag: "🇨🇦", symbol: "$", ratePerUsd: 1.38, isPrimary: true },
+  { code: "GBP", name: "British Pound", flag: "🇬🇧", symbol: "£", ratePerUsd: 0.785, isPrimary: true },
+  { code: "JPY", name: "Japanese Yen", flag: "🇯🇵", symbol: "¥", ratePerUsd: 152.4, isPrimary: true },
+  { code: "CAD", name: "Canadian Dollar", flag: "🇨🇦", symbol: "CA$", ratePerUsd: 1.37, isPrimary: true },
+  { code: "BRL", name: "Brazilian Real", flag: "🇧🇷", symbol: "R$", ratePerUsd: 5.60, isPrimary: true },
   { code: "CNY", name: "Chinese Yuan", flag: "🇨🇳", symbol: "¥", ratePerUsd: 7.25, isPrimary: true },
   { code: "IDR", name: "Indonesian Rupiah", flag: "🇮🇩", symbol: "Rp", ratePerUsd: 16250, isPrimary: true },
   { code: "KRW", name: "South Korean Won", flag: "🇰🇷", symbol: "₩", ratePerUsd: 1380, isPrimary: true },
@@ -122,7 +124,7 @@ export const PRIMARY_FIAT_CURRENCIES: FiatCurrency[] = [
   { code: "PLN", name: "Polish Złoty", flag: "🇵🇱", symbol: "zł", ratePerUsd: 3.98, isPrimary: true },
   { code: "TRY", name: "Turkish Lira", flag: "🇹🇷", symbol: "₺", ratePerUsd: 34.2, isPrimary: true },
   { code: "VND", name: "Vietnamese Dong", flag: "🇻🇳", symbol: "₫", ratePerUsd: 25400, isPrimary: true },
-  { code: "ARS", name: "Argentine Peso", flag: "🇦🇷", symbol: "$", ratePerUsd: 980, isPrimary: true },
+  { code: "ARS", name: "Argentine Peso", flag: "🇦🇷", symbol: "ARS", ratePerUsd: 980.0, isPrimary: true },
   { code: "PEN", name: "Peruvian Sol", flag: "🇵🇪", symbol: "S/", ratePerUsd: 3.75, isPrimary: true },
   { code: "CLP", name: "Chilean Peso", flag: "🇨🇱", symbol: "$", ratePerUsd: 940, isPrimary: true },
   { code: "NGN", name: "Nigerian Naira", flag: "🇳🇬", symbol: "₦", ratePerUsd: 1650, isPrimary: true },
@@ -177,7 +179,6 @@ export const EXTENDED_FIAT_CURRENCIES: FiatCurrency[] = [
   { code: "BIF", name: "Burundian Franc", flag: "🇧🇮", symbol: "FBu", ratePerUsd: 2900 },
   { code: "MWK", name: "Malawian Kwacha", flag: "🇲🇼", symbol: "MK", ratePerUsd: 1740 },
   { code: "PGK", name: "Papua New Guinean Kina", flag: "🇵🇬", symbol: "K", ratePerUsd: 3.95 },
-  { code: "BRL", name: "Brazilian Real", flag: "🇧🇷", symbol: "R$", ratePerUsd: 5.62 },
 ];
 
 export const ALL_FIAT_CURRENCIES: FiatCurrency[] = [

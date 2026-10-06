@@ -64,6 +64,7 @@ interface GameCard {
   iconBg: string;
   symbols?: string[];
   themeColor: string;
+  image?: string;
 }
 
 export default function HomePage() {
@@ -323,6 +324,7 @@ export default function HomePage() {
       desc: "Uncover gems, dodge hidden explosives",
       iconBg: "bg-emerald-500/10 text-[#00e701]",
       themeColor: "#00e701",
+      image: "https://mediumrare.imgix.net/3b470acf1e794ecb437a535c35a20f12e8f7caf1a1153b6601dab4a2d34607e4?auto=format",
     },
     {
       id: "crash",
@@ -337,6 +339,7 @@ export default function HomePage() {
       desc: "Cash out before the multiplier rocket crashes",
       iconBg: "bg-amber-500/10 text-amber-400",
       themeColor: "#f59e0b",
+      image: "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?auto=format",
     },
     {
       id: "plinko",
@@ -351,6 +354,7 @@ export default function HomePage() {
       desc: "Drop balls through pegs for up to 1000x",
       iconBg: "bg-blue-500/10 text-blue-400",
       themeColor: "#3b82f6",
+      image: "https://mediumrare.imgix.net/8c1768b783a43931a4ebc8784ce64085e39139d262e6bb50da242b9f3fda70da?auto=format",
     },
     {
       id: "dice",
@@ -365,6 +369,7 @@ export default function HomePage() {
       desc: "Roll over or under with custom win chances",
       iconBg: "bg-purple-500/10 text-purple-400",
       themeColor: "#a855f7",
+      image: "https://mediumrare.imgix.net/3b470acf1e794ecb437a535c35a20f12e8f7caf1a1153b6601dab4a2d34607e4?auto=format",
     },
     {
       id: "limbo",
@@ -379,6 +384,7 @@ export default function HomePage() {
       desc: "Target multipliers up to 1,000,000x",
       iconBg: "bg-yellow-500/10 text-yellow-400",
       themeColor: "#eab308",
+      image: "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?auto=format",
     },
     {
       id: "keno",
@@ -393,6 +399,7 @@ export default function HomePage() {
       desc: "Pick 1 to 10 numbers from 40",
       iconBg: "bg-pink-500/10 text-pink-400",
       themeColor: "#ec4899",
+      image: "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?auto=format",
     },
     {
       id: "wheel",
@@ -407,6 +414,7 @@ export default function HomePage() {
       desc: "Colored segment prize wheel",
       iconBg: "bg-cyan-500/10 text-cyan-400",
       themeColor: "#06b6d4",
+      image: "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?auto=format",
     },
     {
       id: "blackjack",
@@ -421,6 +429,7 @@ export default function HomePage() {
       desc: "Beat the dealer to 21 with 3:2 blackjack payout",
       iconBg: "bg-emerald-500/10 text-emerald-400",
       themeColor: "#10b981",
+      image: "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?auto=format",
     },
     {
       id: "roulette",
@@ -435,6 +444,7 @@ export default function HomePage() {
       desc: "Single zero European wheel with inside & outside bets",
       iconBg: "bg-red-500/10 text-red-400",
       themeColor: "#ef4444",
+      image: "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?auto=format",
     },
   ];
 
@@ -452,6 +462,7 @@ export default function HomePage() {
       iconBg: "bg-amber-500/10 text-amber-400",
       symbols: ["⚡", "👑", "💎", "⭐", "🏺"],
       themeColor: "#f59e0b",
+      image: "https://mediumrare.imgix.net/3b470acf1e794ecb437a535c35a20f12e8f7caf1a1153b6601dab4a2d34607e4?auto=format",
     },
     {
       id: "sweet-bonanza",
@@ -466,6 +477,7 @@ export default function HomePage() {
       iconBg: "bg-pink-500/10 text-pink-400",
       symbols: ["🍭", "🍬", "🍇", "🍉", "🍏"],
       themeColor: "#ec4899",
+      image: "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?auto=format",
     },
     {
       id: "wanted-dead-or-wild",
@@ -480,6 +492,7 @@ export default function HomePage() {
       iconBg: "bg-orange-500/10 text-orange-400",
       symbols: ["🤠", "💀", "💰", "🥃", "🌵"],
       themeColor: "#f97316",
+      image: "https://mediumrare.imgix.net/3b470acf1e794ecb437a535c35a20f12e8f7caf1a1153b6601dab4a2d34607e4?auto=format",
     },
     {
       id: "sugar-rush-1000",
@@ -886,11 +899,25 @@ export default function HomePage() {
                 <span className="text-[10px] font-bold text-[#b1bad3]">{game.rtp}</span>
               </div>
 
-              {/* Graphic Center */}
-              <div className="my-auto flex flex-col items-center justify-center relative w-full">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 transform group-hover:scale-110 transition-transform duration-300 flex items-center justify-center">
-                  <StakeGameArtwork gameId={game.id} />
-                </div>
+              {/* Graphic Center / Real CDN Poster Image */}
+              <div className="my-auto flex flex-col items-center justify-center relative w-full overflow-hidden">
+                {game.image ? (
+                  <div className="w-full h-24 sm:h-28 flex items-center justify-center overflow-hidden rounded-lg">
+                    <img
+                      src={game.image}
+                      alt={game.title}
+                      className="w-full h-full object-cover rounded-lg transform group-hover:scale-110 transition-transform duration-300"
+                      loading="lazy"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLElement).style.display = "none";
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 transform group-hover:scale-110 transition-transform duration-300 flex items-center justify-center">
+                    <StakeGameArtwork gameId={game.id} />
+                  </div>
+                )}
 
                 {/* Play Button Overlay on Hover */}
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -960,18 +987,32 @@ export default function HomePage() {
                 <span className="text-[10px] font-bold text-[#b1bad3]">{slot.rtp}</span>
               </div>
 
-              {/* Slot Visual Thumb Representation */}
-              <div className="my-auto flex flex-col items-center justify-center relative">
-                <div className="flex flex-col items-center justify-center h-20 w-20 rounded-2xl bg-[#0f212e] border border-[#213743] p-2 space-y-1 group-hover:scale-105 transition-transform">
-                  <div className="flex gap-1 text-base">
-                    <span>{slot.symbols?.[0]}</span>
-                    <span>{slot.symbols?.[1]}</span>
+              {/* Slot Visual Thumb Representation / Official Poster */}
+              <div className="my-auto flex flex-col items-center justify-center relative w-full overflow-hidden">
+                {slot.image ? (
+                  <div className="w-full h-24 sm:h-28 flex items-center justify-center overflow-hidden rounded-lg">
+                    <img
+                      src={slot.image}
+                      alt={slot.title}
+                      className="w-full h-full object-cover rounded-lg transform group-hover:scale-110 transition-transform duration-300"
+                      loading="lazy"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLElement).style.display = "none";
+                      }}
+                    />
                   </div>
-                  <div className="flex gap-1 text-base">
-                    <span>{slot.symbols?.[2]}</span>
-                    <span>{slot.symbols?.[3]}</span>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-20 w-20 rounded-2xl bg-[#0f212e] border border-[#213743] p-2 space-y-1 group-hover:scale-105 transition-transform">
+                    <div className="flex gap-1 text-base">
+                      <span>{slot.symbols?.[0]}</span>
+                      <span>{slot.symbols?.[1]}</span>
+                    </div>
+                    <div className="flex gap-1 text-base">
+                      <span>{slot.symbols?.[2]}</span>
+                      <span>{slot.symbols?.[3]}</span>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Instant Play Badge */}
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">

@@ -137,6 +137,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // localStorage may fail in private mode
     }
+
+    // On mobile devices, ensure the hamburger drawer starts closed
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      setIsSidebarOpen(false);
+    }
   }, []);
 
   const login = (userData?: Partial<UserProfile>) => {

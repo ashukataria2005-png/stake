@@ -14,6 +14,7 @@ interface TrendingGameItem {
   bgGradient: string;
   accentColor: string;
   symbols: string[];
+  image?: string;
   href?: string;
 }
 
@@ -35,6 +36,7 @@ export default function TrendingGames({ onSelectGame }: TrendingGamesProps) {
       bgGradient: "from-amber-950/80 via-[#1a2c38] to-[#0f212e]",
       accentColor: "#eab308",
       symbols: ["⚡", "👑", "💎", "🏺"],
+      image: "https://mediumrare.imgix.net/3b470acf1e794ecb437a535c35a20f12e8f7caf1a1153b6601dab4a2d34607e4?auto=format",
     },
     {
       id: "gates-olympus-super-scatter",
@@ -46,6 +48,7 @@ export default function TrendingGames({ onSelectGame }: TrendingGamesProps) {
       bgGradient: "from-blue-950/80 via-[#1a2c38] to-[#0f212e]",
       accentColor: "#3b82f6",
       symbols: ["⚡", "💎", "👑", "⭐"],
+      image: "https://mediumrare.imgix.net/3b470acf1e794ecb437a535c35a20f12e8f7caf1a1153b6601dab4a2d34607e4?auto=format",
     },
     {
       id: "sharks",
@@ -57,6 +60,7 @@ export default function TrendingGames({ onSelectGame }: TrendingGamesProps) {
       bgGradient: "from-cyan-950/80 via-[#1a2c38] to-[#0f212e]",
       accentColor: "#06b6d4",
       symbols: ["🦈", "🌊", "⚓", "💎"],
+      image: "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?auto=format",
     },
     {
       id: "big-bass-vegas-1000",
@@ -68,6 +72,7 @@ export default function TrendingGames({ onSelectGame }: TrendingGamesProps) {
       bgGradient: "from-purple-950/80 via-[#1a2c38] to-[#0f212e]",
       accentColor: "#a855f7",
       symbols: ["🐟", "🎣", "💰", "🎰"],
+      image: "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?auto=format",
     },
     {
       id: "waylanders-forge",
@@ -80,6 +85,7 @@ export default function TrendingGames({ onSelectGame }: TrendingGamesProps) {
       accentColor: "#00e701",
       symbols: ["⚔️", "🛡️", "🔨", "🔥"],
       href: "/games/mines",
+      image: "https://mediumrare.imgix.net/8c1768b783a43931a4ebc8784ce64085e39139d262e6bb50da242b9f3fda70da?auto=format",
     },
     {
       id: "odins-vault",
@@ -91,6 +97,7 @@ export default function TrendingGames({ onSelectGame }: TrendingGamesProps) {
       bgGradient: "from-indigo-950/80 via-[#1a2c38] to-[#0f212e]",
       accentColor: "#6366f1",
       symbols: ["🦅", "⚡", "🗝️", "👑"],
+      image: "https://mediumrare.imgix.net/3b470acf1e794ecb437a535c35a20f12e8f7caf1a1153b6601dab4a2d34607e4?auto=format",
     },
     {
       id: "sugar-rush-1000",
@@ -102,6 +109,7 @@ export default function TrendingGames({ onSelectGame }: TrendingGamesProps) {
       bgGradient: "from-pink-950/80 via-[#1a2c38] to-[#0f212e]",
       accentColor: "#ec4899",
       symbols: ["🍬", "🍭", "🐻", "🧁"],
+      image: "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?auto=format",
     },
     {
       id: "wanted-dead-or-a-wild",
@@ -113,6 +121,7 @@ export default function TrendingGames({ onSelectGame }: TrendingGamesProps) {
       bgGradient: "from-red-950/80 via-[#1a2c38] to-[#0f212e]",
       accentColor: "#ef4444",
       symbols: ["💀", "🔫", "🥃", "💰"],
+      image: "https://mediumrare.imgix.net/3b470acf1e794ecb437a535c35a20f12e8f7caf1a1153b6601dab4a2d34607e4?auto=format",
     },
   ];
 
@@ -156,7 +165,7 @@ export default function TrendingGames({ onSelectGame }: TrendingGamesProps) {
           <div
             key={game.id}
             onClick={() => handleClick(game)}
-            className="group relative flex flex-col justify-between rounded-lg overflow-hidden border border-[#213743] bg-[#1a2c38] p-2.5 sm:p-3 transition-all duration-300 hover:-translate-y-1 hover:border-[#2f4553] hover:shadow-xl aspect-[3/4] cursor-pointer select-none"
+            className="group relative flex flex-col justify-between rounded-xl overflow-hidden border border-[#213743] bg-[#1a2c38] p-2.5 sm:p-3 transition-all duration-300 hover:-translate-y-1 hover:border-[#2f4553] hover:shadow-xl aspect-[3/4] cursor-pointer select-none"
           >
             {/* Ambient Background Gradient */}
             <div
@@ -164,7 +173,7 @@ export default function TrendingGames({ onSelectGame }: TrendingGamesProps) {
             />
 
             {/* Top Badge */}
-            <div className="relative z-10 flex items-center justify-between">
+            <div className="relative z-10 flex items-center justify-between min-h-[20px]">
               <span
                 className={`rounded px-1.5 py-0.5 text-[8px] sm:text-[9px] font-black uppercase tracking-wider border truncate max-w-[85%] ${game.badgeColor}`}
               >
@@ -172,16 +181,32 @@ export default function TrendingGames({ onSelectGame }: TrendingGamesProps) {
               </span>
             </div>
 
-            {/* Center Slot Theme Representation */}
-            <div className="relative z-10 my-auto flex flex-col items-center justify-center">
-              <div className="flex gap-1 text-lg sm:text-2xl transform group-hover:scale-110 transition-transform duration-300 filter drop-shadow-md">
-                <span>{game.symbols[0]}</span>
-                <span>{game.symbols[1]}</span>
-              </div>
-              <div className="flex gap-1 text-base sm:text-xl mt-0.5 transform group-hover:scale-110 transition-transform duration-300 filter drop-shadow-md">
-                <span>{game.symbols[2]}</span>
-                <span>{game.symbols[3]}</span>
-              </div>
+            {/* Center Slot Theme Poster Graphic */}
+            <div className="relative z-10 my-auto flex flex-col items-center justify-center w-full px-1 overflow-hidden">
+              {game.image ? (
+                <div className="w-full h-24 sm:h-28 flex items-center justify-center overflow-hidden rounded-lg">
+                  <img
+                    src={game.image}
+                    alt={game.title}
+                    className="w-full h-full object-cover rounded-lg transform group-hover:scale-110 transition-transform duration-300"
+                    loading="lazy"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLElement).style.display = "none";
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center">
+                  <div className="flex gap-1 text-lg sm:text-2xl transform group-hover:scale-110 transition-transform duration-300 filter drop-shadow-md">
+                    <span>{game.symbols[0]}</span>
+                    <span>{game.symbols[1]}</span>
+                  </div>
+                  <div className="flex gap-1 text-base sm:text-xl mt-0.5 transform group-hover:scale-110 transition-transform duration-300 filter drop-shadow-md">
+                    <span>{game.symbols[2]}</span>
+                    <span>{game.symbols[3]}</span>
+                  </div>
+                </div>
+              )}
 
               {/* Play Hover Overlay */}
               <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -192,15 +217,15 @@ export default function TrendingGames({ onSelectGame }: TrendingGamesProps) {
             </div>
 
             {/* Bottom Details & Live Player Pill */}
-            <div className="relative z-10 space-y-1">
+            <div className="relative z-10 space-y-1 pt-1">
               <h3 className="text-xs font-bold text-white group-hover:text-[#00e701] transition-colors truncate leading-tight">
                 {game.title}
               </h3>
               <p className="text-[10px] text-[#b1bad3] truncate">{game.provider}</p>
 
               {/* Live Player Pill */}
-              <div className="flex items-center gap-1 rounded bg-[#0f212e]/80 border border-[#213743] px-1.5 py-0.5 text-[9px] sm:text-[10px] font-mono text-[#b1bad3]">
-                <span className="text-[#00e701]">🟢</span>
+              <div className="flex items-center gap-1 rounded bg-[#0f212e]/80 border border-[#213743] px-1.5 py-0.5 text-[9px] sm:text-[10px] font-mono text-[#b1bad3] w-fit">
+                <span className="text-[#00e701] animate-pulse">🟢</span>
                 <span className="font-semibold text-white">{game.playersCount}</span>
                 <span className="hidden sm:inline">playing</span>
               </div>
