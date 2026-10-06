@@ -88,6 +88,24 @@ export default function NotificationsDrawer({
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   useEffect(() => {
+    const loadNotifs = () => {
+      try {
+        const saved = localStorage.getItem("stake_notifications");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setNotifications(parsed);
+          }
+        }
+      } catch {}
+    };
+    loadNotifs();
+
+    window.addEventListener("stake_notifications_updated", loadNotifs);
+    return () => window.removeEventListener("stake_notifications_updated", loadNotifs);
+  }, []);
+
+  useEffect(() => {
     if (onUnreadCountChange) {
       onUnreadCountChange(unreadCount);
     }
@@ -107,13 +125,19 @@ export default function NotificationsDrawer({
   if (!isOpen) return null;
 
   const markAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    const updated = notifications.map((n) => ({ ...n, isRead: true }));
+    setNotifications(updated);
+    try {
+      localStorage.setItem("stake_notifications", JSON.stringify(updated));
+    } catch {}
   };
 
   const toggleReadStatus = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, isRead: !n.isRead } : n))
-    );
+    const updated = notifications.map((n) => (n.id === id ? { ...n, isRead: !n.isRead } : n));
+    setNotifications(updated);
+    try {
+      localStorage.setItem("stake_notifications", JSON.stringify(updated));
+    } catch {}
   };
 
   const filteredNotifications = notifications.filter((n) => {
