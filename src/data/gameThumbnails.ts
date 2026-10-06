@@ -76,7 +76,7 @@ export const GAME_THUMBNAILS: Record<string, string> = {
   "waylanders-forge": "https://slotcatalog.com/userfiles/image/games/Stake/waylanders_stake.jpg",
   "odins-vault": "https://slotcatalog.com/userfiles/image/games/Stake/odinsvault_stake.jpg",
   "wicked-grin": "https://slotcatalog.com/userfiles/image/games/Stake/wickedgrin_stake.jpg",
-  tongue: "https://slotcatalog.com/userfiles/image/games/Stake/tongue_stake.jpg",
+  tongue: "https://mediumrare.imgix.net/858a74fba0051e9bbbf3498c7830d912f23908670b8910dbe60b7617eab2abf3?w=180&h=236&fit=min&auto=format",
   "toon-sailor": "https://slotcatalog.com/userfiles/image/games/Stake/toonsailor_stake.jpg",
   "zombie-academy": "https://mediumrare.imgix.net/68de73960353c4369158541fe0555128f13e4afb769ccc421a0472a04dba784f?w=180&h=236&fit=min&auto=format",
   "dracs-stacks": "https://mediumrare.imgix.net/3b470acf1e794ecb437a535c35a20f12e8f7caf1a1153b6601dab4a2d34607e4?w=180&h=236&fit=min&auto=format",
