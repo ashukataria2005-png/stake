@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import CommunityChat from "@/components/CommunityChat";
+import GoogleOneTap from "@/components/GoogleOneTap";
 import { useGame } from "@/context/GameContext";
 
 export default function MainLayoutShell({
@@ -38,6 +39,9 @@ export default function MainLayoutShell({
 
       {/* Mobile Fixed Bottom Navigation */}
       <MobileBottomNav />
+
+      {/* Google One-Tap Bottom Sheet Drawer */}
+      <GoogleOneTap />
     </div>
   );
 }

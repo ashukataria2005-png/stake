@@ -30,6 +30,7 @@ import {
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
 import confetti from "canvas-confetti";
+import GuestHero from "@/components/GuestHero";
 
 interface BetRecord {
   id: string;
@@ -60,7 +61,7 @@ interface GameCard {
 }
 
 export default function HomePage() {
-  const { balance, updateBalance, currency, formatBalance } = useGame();
+  const { balance, updateBalance, currency, formatBalance, isAuthenticated } = useGame();
 
   // Navigation states
   const [topTab, setTopTab] = useState<"casino" | "sports">("casino");
@@ -688,6 +689,7 @@ export default function HomePage() {
             <div className="relative flex-1">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#b1bad3]" />
               <input
+                id="game-search-input"
                 type="text"
                 placeholder="Search your game..."
                 value={searchQuery}
@@ -730,59 +732,62 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 2. HERO PROMOTIONAL CAROUSEL & ARENA SPOTLIGHT CARDS */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        {/* Main Rotating Carousel Banner (8 Cols on Desktop) */}
-        <div className="lg:col-span-8 relative overflow-hidden rounded-2xl border border-[#213743] bg-[#1a2c38] p-6 sm:p-8 flex flex-col justify-between min-h-[300px] shadow-xl">
-          <div
-            className={`absolute inset-0 bg-gradient-to-r ${slides[activeSlide].bgGradient} opacity-90 transition-all duration-700 pointer-events-none`}
-          />
+      {/* 2. HERO SECTION: GUEST HERO LANDING OR PROMOTIONAL CAROUSEL */}
+      {!isAuthenticated ? (
+        <GuestHero />
+      ) : (
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          {/* Main Rotating Carousel Banner (8 Cols on Desktop) */}
+          <div className="lg:col-span-8 relative overflow-hidden rounded-2xl border border-[#213743] bg-[#1a2c38] p-6 sm:p-8 flex flex-col justify-between min-h-[300px] shadow-xl">
+            <div
+              className={`absolute inset-0 bg-gradient-to-r ${slides[activeSlide].bgGradient} opacity-90 transition-all duration-700 pointer-events-none`}
+            />
 
-          <div className="relative z-10 space-y-3 max-w-xl">
-            <div className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-black uppercase tracking-wider backdrop-blur-sm ${slides[activeSlide].badgeColor}">
-              <Flame className="h-3.5 w-3.5 fill-current" />
-              <span>{slides[activeSlide].badge}</span>
-            </div>
+            <div className="relative z-10 space-y-3 max-w-xl">
+              <div className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-black uppercase tracking-wider backdrop-blur-sm ${slides[activeSlide].badgeColor}">
+                <Flame className="h-3.5 w-3.5 fill-current" />
+                <span>{slides[activeSlide].badge}</span>
+              </div>
 
-            <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight">
-              {slides[activeSlide].title}
-            </h1>
+              <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight">
+                {slides[activeSlide].title}
+              </h1>
 
-            <p className="text-xs sm:text-sm text-[#b1bad3] leading-relaxed">
-              {slides[activeSlide].subtitle}
-            </p>
+              <p className="text-xs sm:text-sm text-[#b1bad3] leading-relaxed">
+                {slides[activeSlide].subtitle}
+              </p>
 
-            <div className="pt-2 flex items-center gap-3">
-              <Link
-                href={slides[activeSlide].ctaLink}
-                className="flex items-center gap-2 rounded-xl bg-[#00e701] px-5 py-3 text-xs sm:text-sm font-black text-[#0f212e] shadow-lg shadow-[#00e701]/25 transition-all hover:bg-[#00c701] active:scale-95"
-              >
-                <Play className="h-4 w-4 fill-current" />
-                <span>{slides[activeSlide].ctaText}</span>
-              </Link>
-              <div className="rounded-xl border border-[#213743] bg-[#0f212e]/70 px-3.5 py-2.5 text-xs font-mono font-bold text-white">
-                <span className="text-[#b1bad3] text-[10px] block uppercase">Time Left:</span>
-                <span>{slides[activeSlide].timer}</span>
+              <div className="pt-2 flex items-center gap-3">
+                <Link
+                  href={slides[activeSlide].ctaLink}
+                  className="flex items-center gap-2 rounded-xl bg-[#00e701] px-5 py-3 text-xs sm:text-sm font-black text-[#0f212e] shadow-lg shadow-[#00e701]/25 transition-all hover:bg-[#00c701] active:scale-95"
+                >
+                  <Play className="h-4 w-4 fill-current" />
+                  <span>{slides[activeSlide].ctaText}</span>
+                </Link>
+                <div className="rounded-xl border border-[#213743] bg-[#0f212e]/70 px-3.5 py-2.5 text-xs font-mono font-bold text-white">
+                  <span className="text-[#b1bad3] text-[10px] block uppercase">Time Left:</span>
+                  <span>{slides[activeSlide].timer}</span>
+                </div>
               </div>
             </div>
+
+            {/* Carousel Slide Indicators */}
+            <div className="relative z-10 flex items-center gap-2 pt-4">
+              {slides.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setActiveSlide(idx)}
+                  className={`h-1.5 rounded-full transition-all ${
+                    activeSlide === idx ? "w-8 bg-[#00e701]" : "w-2 bg-[#213743]"
+                  }`}
+                />
+              ))}
+            </div>
           </div>
 
-          {/* Carousel Slide Indicators */}
-          <div className="relative z-10 flex items-center gap-2 pt-4">
-            {slides.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => setActiveSlide(idx)}
-                className={`h-1.5 rounded-full transition-all ${
-                  activeSlide === idx ? "w-8 bg-[#00e701]" : "w-2 bg-[#213743]"
-                }`}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* 2 Spotlight Cards (4 Cols on Desktop) */}
-        <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-4">
+          {/* 2 Spotlight Cards (4 Cols on Desktop) */}
+          <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-4">
           {/* Spotlight Card 1: Casino */}
           <Link
             href="/games/mines"
@@ -829,6 +834,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* 3. GAMES CATALOG: SECTION 1: STAKE ORIGINALS */}
       <section className="space-y-4">
