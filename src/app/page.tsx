@@ -784,7 +784,7 @@ export default function HomePage() {
           <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-4">
           {/* Spotlight Card 1: Casino */}
           <Link
-            href="/games/mines"
+            href="/casino/home"
             className="flex-1 rounded-2xl border border-[#213743] bg-gradient-to-br from-[#1a2c38] to-[#0f212e] p-5 flex flex-col justify-between hover:border-[#00e701]/40 transition-all group shadow-lg"
           >
             <div className="flex items-center justify-between">

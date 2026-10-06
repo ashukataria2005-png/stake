@@ -65,7 +65,7 @@ export default function MobileBottomNav() {
 
         {/* Tab 2: Casino (Cards with heart icon - default active) */}
         <Link
-          href="/"
+          href="/casino/home"
           onClick={() => handleTabClick("casino")}
           className={`flex flex-col items-center justify-center flex-1 py-1 transition-all ${
             isCasinoActive

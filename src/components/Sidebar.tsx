@@ -41,7 +41,7 @@ export default function Sidebar() {
   ];
 
   const mainCategories: NavItem[] = [
-    { name: "Casino Lobby", href: "/", icon: Gamepad2 },
+    { name: "Casino Lobby", href: "/casino/home", icon: Gamepad2 },
     { name: "Favorites", href: "#favorites", icon: Sparkles },
     { name: "VIP Club", href: "#vip", icon: Trophy, badge: "Levels" },
     { name: "Promotions", href: "#promotions", icon: Gift, badge: "$100k" },
