@@ -46,9 +46,9 @@ export default function StakeGameCard({ game, onClick }: StakeGameCardProps) {
       </div>
 
       {/* Under-Card Player Count (ONLY green live player status pill) */}
-      <div className="flex items-center gap-1.5 mt-2 px-1 text-[11px] font-semibold text-[#b1bad3]">
-        <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] animate-pulse"></span>
-        <span>{(game.playersCount || 1200).toLocaleString("en-US")} playing</span>
+      <div className="flex items-center gap-1 sm:gap-1.5 mt-1.5 sm:mt-2 px-0.5 text-[10px] sm:text-[11px] font-semibold text-[#b1bad3] truncate">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] animate-pulse shrink-0" />
+        <span className="truncate">{(game.playersCount || 1200).toLocaleString("en-US")} playing</span>
       </div>
     </div>
   );

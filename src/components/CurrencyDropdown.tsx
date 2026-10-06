@@ -47,10 +47,13 @@ export default function CurrencyDropdown({ isOpen, onClose }: CurrencyDropdownPr
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 z-40" onClick={onClose} />
+      <div
+        className="fixed inset-0 z-40 bg-black/40 backdrop-blur-[1px] transition-opacity"
+        onClick={onClose}
+      />
 
-      {/* Floating Dropdown Card */}
-      <div className="absolute right-0 top-full mt-2.5 z-50 w-72 sm:w-80 rounded-xl border border-[#213743] bg-[#1a2c38] p-3 shadow-2xl animate-in fade-in zoom-in-95 duration-150 select-none space-y-3">
+      {/* Floating Dropdown Card - Centered on mobile viewports */}
+      <div className="absolute left-1/2 -translate-x-1/2 sm:left-auto sm:right-0 sm:translate-x-0 top-full mt-2.5 z-50 w-[340px] max-w-[92vw] sm:w-80 rounded-xl border border-[#213743] bg-[#1a2c38] p-3 shadow-2xl animate-in fade-in zoom-in-95 duration-150 select-none space-y-3">
         {/* Search Input Bar */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7a889b]" />

@@ -18,6 +18,7 @@ import UserProfileMenu from "@/components/UserProfileMenu";
 import CryptoIcon from "@/components/CryptoIcon";
 import FiatCoinIcon from "@/components/FiatCoinIcon";
 import StakeLogo from "@/components/StakeLogo";
+import NotificationsDrawer from "@/components/NotificationsDrawer";
 
 export default function Navbar() {
   const {
@@ -42,7 +43,8 @@ export default function Navbar() {
 
   const [isCurrencyDropdownOpen, setIsCurrencyDropdownOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-  const [notificationActive, setNotificationActive] = useState(true);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [unreadNotifsCount, setUnreadNotifsCount] = useState(3);
   const [showVipPopover, setShowVipPopover] = useState(false);
 
   // Close dropdowns on Escape key
@@ -189,13 +191,13 @@ export default function Navbar() {
           <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
             {/* Notification Bell (Visible on Both Mobile & Desktop) */}
             <button
-              onClick={() => setNotificationActive(false)}
+              onClick={() => setIsNotificationsOpen(true)}
               title="Notifications"
               className="relative flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-lg text-[#b1bad3] transition-colors hover:bg-[#213743] hover:text-white cursor-pointer"
             >
               <Bell className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
-              {notificationActive && (
-                <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-[#00e701] ring-2 ring-[#1a2c38]" />
+              {unreadNotifsCount > 0 && (
+                <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-[#1a2c38] shadow-[0_0_6px_#ef4444]" />
               )}
             </button>
 
@@ -323,6 +325,13 @@ export default function Navbar() {
       <WalletSettingsModal
         isOpen={isWalletSettingsOpen}
         onClose={closeWalletSettings}
+      />
+
+      {/* Notifications Drawer */}
+      <NotificationsDrawer
+        isOpen={isNotificationsOpen}
+        onClose={() => setIsNotificationsOpen(false)}
+        onUnreadCountChange={setUnreadNotifsCount}
       />
     </>
   );
