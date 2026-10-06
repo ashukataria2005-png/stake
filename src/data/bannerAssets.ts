@@ -24,14 +24,14 @@ export const BANNER_ASSETS: {
   casinoHero: {
     title: "CASINO",
     // Users can paste direct CDN/image URLs here. If empty or invalid, high-fidelity 3D graphics will be rendered.
-    image: "",
+    image: "https://mediumrare.imgix.net/home-header-one-piece-authenticated-desktop-casino-en.png?q=90&auto=compress%2Cformat&w=1184&h=360&fit=min",
     defaultPlayers: "65,562 playing",
     href: "/casino/home",
   },
   sportsHero: {
     title: "SPORTS",
     // Users can paste direct CDN/image URLs here. If empty or invalid, high-fidelity 3D graphics will be rendered.
-    image: "",
+    image: "https://mediumrare.imgix.net/home-header-one-piece-authenticated-desktop-sports-en.png?q=90&auto=compress%2Cformat&w=1184&h=360&fit=min",
     defaultPlayers: "39,681 betting",
     href: "/sports",
   },
