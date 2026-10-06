@@ -1016,8 +1016,8 @@ export default function HomePage() {
       {/* 9. REAL-TIME LIVE BETS FEED (DUAL RESPONSIVE PARITY) */}
       <LiveBetsFeed />
 
-      {/* 7. AUTHENTIC STAKE FOOTER & SPONSORSHIPS */}
-      <footer className="border-t border-[#213743] pt-8 pb-12 space-y-8 text-xs text-[#b1bad3]">
+      {/* 7. AUTHENTIC STAKE SPONSORSHIPS & ACCEPTED CRYPTO */}
+      <section className="border-t border-[#213743] pt-8 pb-4 space-y-8 text-xs text-[#b1bad3]">
         {/* Sponsorship Banner */}
         <div className="rounded-2xl border border-[#213743] bg-[#1a2c38] p-6 space-y-4">
           <div className="text-[11px] font-bold uppercase tracking-wider text-white text-center">
@@ -1050,73 +1050,7 @@ export default function HomePage() {
             </span>
           ))}
         </div>
-
-        {/* Footer Navigation Columns */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-6 pt-4 border-t border-[#213743]/50">
-          <div className="space-y-2">
-            <div className="font-bold text-white uppercase text-[11px]">Casino</div>
-            <ul className="space-y-1.5">
-              <li><Link href="/games/mines" className="hover:text-white">Mines</Link></li>
-              <li><Link href="/games/crash" className="hover:text-white">Crash</Link></li>
-              <li><Link href="/games/plinko" className="hover:text-white">Plinko</Link></li>
-              <li><Link href="/games/dice" className="hover:text-white">Dice</Link></li>
-            </ul>
-          </div>
-          <div className="space-y-2">
-            <div className="font-bold text-white uppercase text-[11px]">Originals</div>
-            <ul className="space-y-1.5">
-              <li><Link href="/games/limbo" className="hover:text-white">Limbo</Link></li>
-              <li><Link href="/games/keno" className="hover:text-white">Keno</Link></li>
-              <li><Link href="/games/wheel" className="hover:text-white">Wheel</Link></li>
-              <li><Link href="/games/blackjack" className="hover:text-white">Blackjack</Link></li>
-            </ul>
-          </div>
-          <div className="space-y-2">
-            <div className="font-bold text-white uppercase text-[11px]">Sports</div>
-            <ul className="space-y-1.5">
-              <li className="hover:text-white cursor-pointer">Live Events</li>
-              <li className="hover:text-white cursor-pointer">Soccer</li>
-              <li className="hover:text-white cursor-pointer">Basketball</li>
-              <li className="hover:text-white cursor-pointer">Tennis</li>
-            </ul>
-          </div>
-          <div className="space-y-2">
-            <div className="font-bold text-white uppercase text-[11px]">Promo</div>
-            <ul className="space-y-1.5">
-              <li className="hover:text-white cursor-pointer">VIP Club</li>
-              <li className="hover:text-white cursor-pointer">Daily Race</li>
-              <li className="hover:text-white cursor-pointer">Weekly Raffle</li>
-              <li className="hover:text-white cursor-pointer">Affiliate</li>
-            </ul>
-          </div>
-          <div className="space-y-2">
-            <div className="font-bold text-white uppercase text-[11px]">Support</div>
-            <ul className="space-y-1.5">
-              <li className="hover:text-white cursor-pointer">Live Support (24/7)</li>
-              <li className="hover:text-white cursor-pointer">Help Center</li>
-              <li className="hover:text-white cursor-pointer">Provably Fair</li>
-            </ul>
-          </div>
-          <div className="space-y-2">
-            <div className="font-bold text-white uppercase text-[11px]">Legal</div>
-            <ul className="space-y-1.5">
-              <li className="hover:text-white cursor-pointer">Terms of Service</li>
-              <li className="hover:text-white cursor-pointer">Privacy Policy</li>
-              <li className="hover:text-white cursor-pointer">Responsible Gaming</li>
-            </ul>
-          </div>
-        </div>
-
-        {/* 18+ Responsible Gaming Notice */}
-        <div className="text-center pt-4 border-t border-[#213743]/50 space-y-2">
-          <div className="inline-block rounded-full border border-red-500/40 bg-red-500/10 px-3 py-1 font-bold text-red-400 text-[10px]">
-            18+ ONLY • GAMBLE RESPONSIBLY
-          </div>
-          <p className="max-w-2xl mx-auto text-[11px] text-[#b1bad3]/80">
-            Stake is committed to responsible gaming. Players must be of legal age. This website is a demo clone created for educational and entertainment purposes.
-          </p>
-        </div>
-      </footer>
+      </section>
 
       {/* 8. INTERACTIVE SLOT / LIVE GAME DEMO PLAYER MODAL */}
       {activeSlotModal && (

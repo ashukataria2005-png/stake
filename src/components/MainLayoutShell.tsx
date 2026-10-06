@@ -7,6 +7,7 @@ import MobileBottomNav from "@/components/MobileBottomNav";
 import CommunityChat from "@/components/CommunityChat";
 import GoogleOneTap from "@/components/GoogleOneTap";
 import ScrollToTop from "@/components/ScrollToTop";
+import StakeFooter from "@/components/StakeFooter";
 import { useGame } from "@/context/GameContext";
 
 export default function MainLayoutShell({
@@ -31,7 +32,11 @@ export default function MainLayoutShell({
             isSidebarOpen ? "lg:pl-64" : "lg:pl-16"
           } ${isChatOpen ? "xl:pr-[340px]" : ""} pb-20 lg:pb-8`}
         >
-          {children}
+          <div className="flex-1">
+            {children}
+          </div>
+          {/* Universal Stake Footer */}
+          <StakeFooter />
         </main>
 
         {/* Community Chat Slide-over Drawer */}
