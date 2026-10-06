@@ -37,6 +37,7 @@ import TrendingSports from "@/components/TrendingSports";
 import PromotionsSection from "@/components/PromotionsSection";
 import LiveBetsFeed from "@/components/LiveBetsFeed";
 import StakeGameArtwork from "@/components/casino/StakeGameArtwork";
+import { getGameThumbnail } from "@/data/gameThumbnails";
 
 interface BetRecord {
   id: string;
@@ -65,6 +66,7 @@ interface GameCard {
   symbols?: string[];
   themeColor: string;
   image?: string;
+  playersCount?: number;
 }
 
 export default function HomePage() {
@@ -324,7 +326,6 @@ export default function HomePage() {
       desc: "Uncover gems, dodge hidden explosives",
       iconBg: "bg-emerald-500/10 text-[#00e701]",
       themeColor: "#00e701",
-      image: "https://mediumrare.imgix.net/3b470acf1e794ecb437a535c35a20f12e8f7caf1a1153b6601dab4a2d34607e4?auto=format",
     },
     {
       id: "crash",
@@ -339,7 +340,6 @@ export default function HomePage() {
       desc: "Cash out before the multiplier rocket crashes",
       iconBg: "bg-amber-500/10 text-amber-400",
       themeColor: "#f59e0b",
-      image: "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?auto=format",
     },
     {
       id: "plinko",
@@ -354,7 +354,6 @@ export default function HomePage() {
       desc: "Drop balls through pegs for up to 1000x",
       iconBg: "bg-blue-500/10 text-blue-400",
       themeColor: "#3b82f6",
-      image: "https://mediumrare.imgix.net/8c1768b783a43931a4ebc8784ce64085e39139d262e6bb50da242b9f3fda70da?auto=format",
     },
     {
       id: "dice",
@@ -369,7 +368,6 @@ export default function HomePage() {
       desc: "Roll over or under with custom win chances",
       iconBg: "bg-purple-500/10 text-purple-400",
       themeColor: "#a855f7",
-      image: "https://mediumrare.imgix.net/3b470acf1e794ecb437a535c35a20f12e8f7caf1a1153b6601dab4a2d34607e4?auto=format",
     },
     {
       id: "limbo",
@@ -384,7 +382,6 @@ export default function HomePage() {
       desc: "Target multipliers up to 1,000,000x",
       iconBg: "bg-yellow-500/10 text-yellow-400",
       themeColor: "#eab308",
-      image: "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?auto=format",
     },
     {
       id: "keno",
@@ -399,7 +396,6 @@ export default function HomePage() {
       desc: "Pick 1 to 10 numbers from 40",
       iconBg: "bg-pink-500/10 text-pink-400",
       themeColor: "#ec4899",
-      image: "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?auto=format",
     },
     {
       id: "wheel",
@@ -414,7 +410,6 @@ export default function HomePage() {
       desc: "Colored segment prize wheel",
       iconBg: "bg-cyan-500/10 text-cyan-400",
       themeColor: "#06b6d4",
-      image: "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?auto=format",
     },
     {
       id: "blackjack",
@@ -429,7 +424,6 @@ export default function HomePage() {
       desc: "Beat the dealer to 21 with 3:2 blackjack payout",
       iconBg: "bg-emerald-500/10 text-emerald-400",
       themeColor: "#10b981",
-      image: "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?auto=format",
     },
     {
       id: "roulette",
@@ -444,7 +438,6 @@ export default function HomePage() {
       desc: "Single zero European wheel with inside & outside bets",
       iconBg: "bg-red-500/10 text-red-400",
       themeColor: "#ef4444",
-      image: "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?auto=format",
     },
   ];
 
@@ -462,7 +455,6 @@ export default function HomePage() {
       iconBg: "bg-amber-500/10 text-amber-400",
       symbols: ["⚡", "👑", "💎", "⭐", "🏺"],
       themeColor: "#f59e0b",
-      image: "https://mediumrare.imgix.net/3b470acf1e794ecb437a535c35a20f12e8f7caf1a1153b6601dab4a2d34607e4?auto=format",
     },
     {
       id: "sweet-bonanza",
@@ -477,7 +469,6 @@ export default function HomePage() {
       iconBg: "bg-pink-500/10 text-pink-400",
       symbols: ["🍭", "🍬", "🍇", "🍉", "🍏"],
       themeColor: "#ec4899",
-      image: "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?auto=format",
     },
     {
       id: "wanted-dead-or-wild",
@@ -492,7 +483,6 @@ export default function HomePage() {
       iconBg: "bg-orange-500/10 text-orange-400",
       symbols: ["🤠", "💀", "💰", "🥃", "🌵"],
       themeColor: "#f97316",
-      image: "https://mediumrare.imgix.net/3b470acf1e794ecb437a535c35a20f12e8f7caf1a1153b6601dab4a2d34607e4?auto=format",
     },
     {
       id: "sugar-rush-1000",
@@ -884,62 +874,50 @@ export default function HomePage() {
           </Link>
         </div>
 
-        {/* 3:4 Aspect Ratio Stake Game Cards Grid */}
+        {/* 3:4 Aspect Ratio Full-Bleed Stake Game Cards Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5">
-          {stakeOriginals.map((game) => (
-            <Link
-              key={game.id}
-              href={game.href || `/games/${game.id}`}
-              className="group relative flex flex-col justify-between rounded-2xl border border-[#213743] bg-[#1a2c38] p-3.5 transition-all duration-300 hover:-translate-y-1.5 hover:border-[#00e701]/50 hover:shadow-2xl hover:shadow-black/60 aspect-[3/4]"
-            >
-              <div className="flex items-center justify-between z-10">
-                <span className={`rounded-md px-1.5 py-0.5 text-[9px] font-black uppercase border ${game.badgeColor}`}>
-                  {game.badge}
-                </span>
-                <span className="text-[10px] font-bold text-[#b1bad3]">{game.rtp}</span>
-              </div>
-
-              {/* Graphic Center / Real CDN Poster Image */}
-              <div className="my-auto flex flex-col items-center justify-center relative w-full overflow-hidden">
-                {game.image ? (
-                  <div className="w-full h-24 sm:h-28 flex items-center justify-center overflow-hidden rounded-lg">
+          {stakeOriginals.map((game) => {
+            const thumb = getGameThumbnail(game.id, game.image);
+            return (
+              <Link
+                key={game.id}
+                href={game.href || `/games/${game.id}`}
+                className="group relative flex flex-col select-none cursor-pointer"
+              >
+                {/* 100% Full-Bleed Image Box */}
+                <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-[#1a2c38] border border-[#213743] hover:border-[#2f4553] transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg">
+                  {thumb ? (
                     <img
-                      src={game.image}
+                      src={thumb}
                       alt={game.title}
-                      className="w-full h-full object-cover rounded-lg transform group-hover:scale-110 transition-transform duration-300"
+                      className="w-full h-full object-cover rounded-xl"
                       loading="lazy"
                       onError={(e) => {
                         (e.currentTarget as HTMLElement).style.display = "none";
                       }}
                     />
-                  </div>
-                ) : (
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 transform group-hover:scale-110 transition-transform duration-300 flex items-center justify-center">
-                    <StakeGameArtwork gameId={game.id} />
-                  </div>
-                )}
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center p-3">
+                      <StakeGameArtwork gameId={game.id} />
+                    </div>
+                  )}
 
-                {/* Play Button Overlay on Hover */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#00e701] text-[#0f212e] shadow-lg shadow-[#00e701]/40 transform scale-75 group-hover:scale-100 transition-transform">
-                    <Play className="h-5 w-5 fill-current ml-0.5" />
+                  {/* Play Button Overlay on Hover */}
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#00e701] text-[#0f212e] shadow-lg shadow-[#00e701]/50 transform scale-75 group-hover:scale-100 transition-transform">
+                      <Play className="h-5 w-5 fill-current ml-0.5" />
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="z-10 space-y-1">
-                <h3 className="text-sm font-black text-white group-hover:text-[#00e701] transition-colors truncate">
-                  {game.title}
-                </h3>
-                <div className="flex items-center justify-between">
-                  <p className="text-[10px] text-[#b1bad3] truncate">{game.provider}</p>
-                  <span className="text-[9px] font-mono text-[#00e701] flex items-center gap-0.5">
-                    <span>🟢</span> Live
-                  </span>
+                {/* Under-Card Player Count (ONLY green live player status pill) */}
+                <div className="flex items-center gap-1.5 mt-2 px-1 text-[11px] font-semibold text-[#b1bad3]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] animate-pulse"></span>
+                  <span>{(game.playersCount || 2450).toLocaleString("en-US")} playing</span>
                 </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
         </div>
       </section>
 
@@ -974,109 +952,126 @@ export default function HomePage() {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3.5">
-          {popularSlots.map((slot) => (
-            <div
-              key={slot.id}
-              onClick={() => setActiveSlotModal(slot)}
-              className="group relative flex flex-col justify-between rounded-2xl border border-[#213743] bg-[#1a2c38] p-3.5 transition-all duration-300 hover:-translate-y-1.5 hover:border-amber-400/50 hover:shadow-2xl hover:shadow-black/60 aspect-[3/4] cursor-pointer"
-            >
-              <div className="flex items-center justify-between z-10">
-                <span className={`rounded-md px-1.5 py-0.5 text-[9px] font-black uppercase border ${slot.badgeColor}`}>
-                  {slot.badge}
-                </span>
-                <span className="text-[10px] font-bold text-[#b1bad3]">{slot.rtp}</span>
-              </div>
-
-              {/* Slot Visual Thumb Representation / Official Poster */}
-              <div className="my-auto flex flex-col items-center justify-center relative w-full overflow-hidden">
-                {slot.image ? (
-                  <div className="w-full h-24 sm:h-28 flex items-center justify-center overflow-hidden rounded-lg">
+          {popularSlots.map((slot, idx) => {
+            const thumb = getGameThumbnail(slot.id, slot.image);
+            const slotPlayers = [4821, 3912, 2840, 2195, 1750][idx % 5];
+            return (
+              <div
+                key={slot.id}
+                onClick={() => setActiveSlotModal(slot)}
+                className="group flex flex-col"
+              >
+                {/* 100% Full-bleed Image Box */}
+                <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-[#1a2c38] border border-[#213743] hover:border-[#2f4553] transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg cursor-pointer">
+                  {thumb ? (
                     <img
-                      src={slot.image}
+                      src={thumb}
                       alt={slot.title}
-                      className="w-full h-full object-cover rounded-lg transform group-hover:scale-110 transition-transform duration-300"
+                      className="w-full h-full object-cover rounded-xl"
                       loading="lazy"
                       onError={(e) => {
                         (e.currentTarget as HTMLElement).style.display = "none";
                       }}
                     />
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center h-20 w-20 rounded-2xl bg-[#0f212e] border border-[#213743] p-2 space-y-1 group-hover:scale-105 transition-transform">
-                    <div className="flex gap-1 text-base">
-                      <span>{slot.symbols?.[0]}</span>
-                      <span>{slot.symbols?.[1]}</span>
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center p-3">
+                      <StakeGameArtwork gameId={slot.id} />
                     </div>
-                    <div className="flex gap-1 text-base">
-                      <span>{slot.symbols?.[2]}</span>
-                      <span>{slot.symbols?.[3]}</span>
-                    </div>
-                  </div>
-                )}
+                  )}
 
-                {/* Instant Play Badge */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="rounded-full bg-amber-400 px-3 py-1 text-[11px] font-black text-[#0f212e] shadow-lg shadow-amber-400/40">
-                    Spin Demo
+                  {/* Play Button Overlay on Hover */}
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#00e701] text-[#0f212e] shadow-lg shadow-[#00e701]/50 transform scale-75 group-hover:scale-100 transition-transform">
+                      <Play className="h-5 w-5 fill-current ml-0.5" />
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="z-10 space-y-0.5">
-                <h3 className="text-xs sm:text-sm font-black text-white group-hover:text-amber-400 transition-colors truncate">
-                  {slot.title}
-                </h3>
-                <p className="text-[10px] text-[#b1bad3] truncate">{slot.provider}</p>
+                {/* Under-Card Player Count (ONLY green live player status pill) */}
+                <div className="flex items-center gap-1.5 mt-2 px-1 text-[11px] font-semibold text-[#b1bad3]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] animate-pulse"></span>
+                  <span>{slotPlayers.toLocaleString("en-US")} playing</span>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
       {/* 5. GAMES CATALOG: SECTION 3: LIVE CASINO & GAME SHOWS */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <Link
+            href="/casino/group/live-casino"
+            className="flex items-center gap-2 group cursor-pointer"
+          >
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-500/15 text-red-400">
               <Activity className="h-4 w-4" />
             </div>
-            <h2 className="text-lg sm:text-xl font-black text-white">Live Casino & Shows</h2>
+            <h2 className="text-lg sm:text-xl font-black text-white group-hover:text-red-400 transition-colors flex items-center gap-1.5">
+              <span>Live Casino & Shows</span>
+              <span className="text-[#b1bad3] text-sm group-hover:translate-x-1 transition-transform">
+                &gt;
+              </span>
+            </h2>
+          </Link>
+          <div className="flex items-center gap-2">
             <span className="rounded-full bg-[#213743] px-2 py-0.5 text-[11px] font-bold text-red-400">
               Live Dealers
             </span>
+            <Link
+              href="/casino/group/live-casino"
+              className="text-xs font-bold text-red-400 hover:underline"
+            >
+              View All Live &gt;
+            </Link>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {liveShows.map((live) => (
-            <div
-              key={live.id}
-              onClick={() => setActiveSlotModal(live)}
-              className="group relative flex flex-col justify-between rounded-2xl border border-[#213743] bg-[#1a2c38] p-5 transition-all duration-300 hover:-translate-y-1 hover:border-red-500/50 hover:shadow-xl cursor-pointer"
-            >
-              <div className="flex items-center justify-between">
-                <span className={`rounded-md px-2 py-0.5 text-[10px] font-black uppercase border ${live.badgeColor}`}>
-                  {live.badge}
-                </span>
-                <span className="text-xs font-bold text-[#b1bad3]">{live.rtp}</span>
-              </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
+          {liveShows.map((live, idx) => {
+            const thumb = getGameThumbnail(live.id, live.image);
+            const livePlayers = [3240, 1890, 940][idx % 3];
+            return (
+              <div
+                key={live.id}
+                onClick={() => setActiveSlotModal(live)}
+                className="group flex flex-col"
+              >
+                {/* 100% Full-bleed Image Box */}
+                <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-[#1a2c38] border border-[#213743] hover:border-[#2f4553] transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg cursor-pointer">
+                  {thumb ? (
+                    <img
+                      src={thumb}
+                      alt={live.title}
+                      className="w-full h-full object-cover rounded-xl"
+                      loading="lazy"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLElement).style.display = "none";
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center p-3">
+                      <StakeGameArtwork gameId={live.id} />
+                    </div>
+                  )}
 
-              <div className="my-4">
-                <h3 className="text-base font-black text-white group-hover:text-red-400 transition-colors">
-                  {live.title}
-                </h3>
-                <p className="text-xs text-[#b1bad3] mt-1">{live.desc}</p>
-              </div>
+                  {/* Play Button Overlay on Hover */}
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#00e701] text-[#0f212e] shadow-lg shadow-[#00e701]/50 transform scale-75 group-hover:scale-100 transition-transform">
+                      <Play className="h-5 w-5 fill-current ml-0.5" />
+                    </div>
+                  </div>
+                </div>
 
-              <div className="flex items-center justify-between border-t border-[#213743] pt-3">
-                <span className="text-[11px] font-bold text-[#b1bad3]">{live.provider}</span>
-                <div className="flex items-center gap-1 text-xs font-bold text-[#00e701]">
-                  <span>Launch Live</span>
-                  <ArrowUpRight className="h-3.5 w-3.5" />
+                {/* Under-Card Player Count (ONLY green live player status pill) */}
+                <div className="flex items-center gap-1.5 mt-2 px-1 text-[11px] font-semibold text-[#b1bad3]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] animate-pulse"></span>
+                  <span>{livePlayers.toLocaleString("en-US")} playing</span>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 

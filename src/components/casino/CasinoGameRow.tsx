@@ -4,6 +4,9 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { Play } from "lucide-react";
 
+import StakeGameArtwork from "@/components/casino/StakeGameArtwork";
+import { getGameThumbnail } from "@/data/gameThumbnails";
+
 export interface CasinoCardData {
   id: string;
   title: string;
@@ -59,79 +62,87 @@ export default function CasinoGameRow({
       {/* Responsive Card Grid (Mobile: 3-Col, Desktop: 6-Col) */}
       <div className="grid grid-cols-3 md:grid-cols-6 gap-2.5 sm:gap-3.5">
         {displayedCards.map((card) => {
+          const thumb = getGameThumbnail(card.id, card.image);
+
+          // For Publisher / Studio tiles
+          if (card.isPublisherCard) {
+            const pubContent = (
+              <div
+                key={card.id}
+                onClick={() => onCardClick && onCardClick(card)}
+                className="group relative flex flex-col justify-between rounded-xl overflow-hidden border border-[#213743] bg-[#1a2c38] p-3 transition-all duration-300 hover:-translate-y-1 hover:border-[#2f4553] hover:shadow-xl aspect-[3/4] cursor-pointer select-none"
+              >
+                <div
+                  className={`absolute inset-0 bg-gradient-to-b ${
+                    card.bgGradient || "from-slate-900/80 via-[#1a2c38] to-[#0f212e]"
+                  } opacity-70 group-hover:opacity-90 transition-opacity`}
+                />
+                <div className="relative z-10 flex items-center justify-between">
+                  {card.badge && (
+                    <span className="rounded px-1.5 py-0.5 text-[8px] sm:text-[9px] font-black uppercase tracking-wider border truncate bg-[#00e701]/20 text-[#00e701] border-[#00e701]/30">
+                      {card.badge}
+                    </span>
+                  )}
+                </div>
+                <div className="relative z-10 my-auto flex flex-col items-center justify-center w-full px-1">
+                  {card.graphic}
+                </div>
+                <div className="relative z-10 space-y-0.5">
+                  <h3 className="text-xs font-bold text-white group-hover:text-[#00e701] transition-colors truncate">
+                    {card.title}
+                  </h3>
+                  {card.provider && <p className="text-[10px] text-[#b1bad3] truncate">{card.provider}</p>}
+                </div>
+              </div>
+            );
+
+            if (card.href) {
+              return (
+                <Link key={card.id} href={card.href} className="block">
+                  {pubContent}
+                </Link>
+              );
+            }
+            return <React.Fragment key={card.id}>{pubContent}</React.Fragment>;
+          }
+
+          // Full-Bleed Game Card
           const content = (
             <div
               key={card.id}
               onClick={() => onCardClick && onCardClick(card)}
-              className={`group relative flex flex-col justify-between rounded-xl overflow-hidden border border-[#213743] bg-[#1a2c38] p-2.5 sm:p-3 transition-all duration-300 hover:-translate-y-1 hover:border-[#2f4553] hover:shadow-xl aspect-[3/4] cursor-pointer select-none`}
+              className="group relative flex flex-col select-none cursor-pointer"
             >
-              {/* Background gradient */}
-              <div
-                className={`absolute inset-0 bg-gradient-to-b ${
-                  card.bgGradient || "from-slate-900/80 via-[#1a2c38] to-[#0f212e]"
-                } opacity-70 group-hover:opacity-90 transition-opacity`}
-              />
-
-              {/* Top Badge */}
-              <div className="relative z-10 flex items-center justify-between">
-                {card.badge && (
-                  <span
-                    className={`rounded px-1.5 py-0.5 text-[8px] sm:text-[9px] font-black uppercase tracking-wider border truncate max-w-[85%] ${
-                      card.badgeColor || "bg-[#00e701]/20 text-[#00e701] border-[#00e701]/30"
-                    }`}
-                  >
-                    {card.badge}
-                  </span>
-                )}
-              </div>
-
-              {/* Graphic Center / Real Poster Image */}
-              <div className="relative z-10 my-auto flex flex-col items-center justify-center w-full px-1 overflow-hidden">
-                {card.image ? (
-                  <div className="w-full h-24 sm:h-28 flex items-center justify-center overflow-hidden rounded-lg">
-                    <img
-                      src={card.image}
-                      alt={card.title}
-                      className="w-full h-full object-cover rounded-lg transform group-hover:scale-110 transition-transform duration-300"
-                      loading="lazy"
-                      onError={(e) => {
-                        (e.currentTarget as HTMLElement).style.display = "none";
-                      }}
-                    />
-                  </div>
+              {/* 100% Full-Bleed Image Box */}
+              <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-[#1a2c38] border border-[#213743] hover:border-[#2f4553] transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg">
+                {thumb ? (
+                  <img
+                    src={thumb}
+                    alt={card.title}
+                    className="w-full h-full object-cover rounded-xl"
+                    loading="lazy"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLElement).style.display = "none";
+                    }}
+                  />
                 ) : (
-                  <div className="transform group-hover:scale-110 transition-transform duration-300">
-                    {card.graphic}
+                  <div className="w-full h-full flex items-center justify-center p-3">
+                    {card.graphic ? card.graphic : <StakeGameArtwork gameId={card.id} />}
                   </div>
                 )}
 
                 {/* Hover Play Button Overlay */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#00e701] text-[#0f212e] shadow-lg shadow-[#00e701]/40 transform scale-75 group-hover:scale-100 transition-transform">
+                <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#00e701] text-[#0f212e] shadow-lg shadow-[#00e701]/40 transform scale-75 group-hover:scale-100 transition-transform">
                     <Play className="h-4 w-4 fill-current ml-0.5" />
                   </div>
                 </div>
               </div>
 
-              {/* Bottom Details & Player Pill */}
-              <div className="relative z-10 space-y-1">
-                <h3 className="text-xs font-bold text-white group-hover:text-[#00e701] transition-colors truncate leading-tight">
-                  {card.title}
-                </h3>
-                {card.provider && (
-                  <p className="text-[10px] text-[#b1bad3] truncate">{card.provider}</p>
-                )}
-
-                {/* Live Player Pill */}
-                {card.playersCount !== undefined && (
-                  <div className="flex items-center gap-1 rounded bg-[#0f212e]/80 border border-[#213743] px-1.5 py-0.5 text-[9px] sm:text-[10px] font-mono text-[#b1bad3]">
-                    <span className="text-[#00e701]">🟢</span>
-                    <span className="font-semibold text-white">
-                      {card.playersCount.toLocaleString("en-US")}
-                    </span>
-                    <span className="hidden sm:inline">playing</span>
-                  </div>
-                )}
+              {/* Under-Card Player Count (ONLY green live player status pill) */}
+              <div className="flex items-center gap-1.5 mt-2 px-1 text-[11px] font-semibold text-[#b1bad3]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] animate-pulse"></span>
+                <span>{(card.playersCount || 1250).toLocaleString("en-US")} playing</span>
               </div>
             </div>
           );

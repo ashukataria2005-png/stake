@@ -24,10 +24,19 @@ export interface ProviderItem {
   accentColor: string;
 }
 
+import { GAME_THUMBNAILS, getGameThumbnail } from "@/data/gameThumbnails";
+
+export function attachThumbnail<T extends GameItem>(game: T): T {
+  return {
+    ...game,
+    image: GAME_THUMBNAILS[game.slug] || GAME_THUMBNAILS[game.id] || game.image,
+  };
+}
+
 // ==========================================
 // 31 STAKE ORIGINALS
 // ==========================================
-export const STAKE_ORIGINALS: GameItem[] = [
+const RAW_STAKE_ORIGINALS: GameItem[] = [
   {
     id: "mines",
     title: "Mines",
@@ -39,7 +48,6 @@ export const STAKE_ORIGINALS: GameItem[] = [
     href: "/games/mines",
     category: "originals",
     bgGradient: "from-emerald-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "https://mediumrare.imgix.net/3b470acf1e794ecb437a535c35a20f12e8f7caf1a1153b6601dab4a2d34607e4?auto=format",
     isPlayable: true,
   },
   {
@@ -53,7 +61,6 @@ export const STAKE_ORIGINALS: GameItem[] = [
     href: "/games/dice",
     category: "originals",
     bgGradient: "from-purple-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "https://mediumrare.imgix.net/3b470acf1e794ecb437a535c35a20f12e8f7caf1a1153b6601dab4a2d34607e4?auto=format",
     isPlayable: true,
   },
   {
@@ -67,7 +74,6 @@ export const STAKE_ORIGINALS: GameItem[] = [
     href: "/games/limbo",
     category: "originals",
     bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?auto=format",
     isPlayable: true,
   },
   {
@@ -81,7 +87,6 @@ export const STAKE_ORIGINALS: GameItem[] = [
     href: "/games/blackjack",
     category: "originals",
     bgGradient: "from-amber-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?auto=format",
     isPlayable: true,
   },
   {
@@ -95,7 +100,6 @@ export const STAKE_ORIGINALS: GameItem[] = [
     href: "/games/plinko",
     category: "originals",
     bgGradient: "from-cyan-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "https://mediumrare.imgix.net/8c1768b783a43931a4ebc8784ce64085e39139d262e6bb50da242b9f3fda70da?auto=format",
     isPlayable: true,
   },
   {
@@ -109,7 +113,6 @@ export const STAKE_ORIGINALS: GameItem[] = [
     href: "/games/keno",
     category: "originals",
     bgGradient: "from-pink-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?auto=format",
     isPlayable: true,
   },
   {
@@ -123,7 +126,6 @@ export const STAKE_ORIGINALS: GameItem[] = [
     href: "/games/crash",
     category: "originals",
     bgGradient: "from-orange-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?auto=format",
     isPlayable: true,
   },
   {
@@ -136,7 +138,6 @@ export const STAKE_ORIGINALS: GameItem[] = [
     badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/30",
     category: "originals",
     bgGradient: "from-yellow-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?auto=format",
   },
   {
     id: "hilo",
@@ -148,7 +149,6 @@ export const STAKE_ORIGINALS: GameItem[] = [
     badgeColor: "bg-purple-500/20 text-purple-300 border-purple-500/30",
     category: "originals",
     bgGradient: "from-purple-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?auto=format",
   },
   {
     id: "dragon-tower",
@@ -160,7 +160,6 @@ export const STAKE_ORIGINALS: GameItem[] = [
     badgeColor: "bg-red-500/20 text-red-300 border-red-500/30",
     category: "originals",
     bgGradient: "from-red-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?auto=format",
   },
   {
     id: "moles",
@@ -383,11 +382,12 @@ export const STAKE_ORIGINALS: GameItem[] = [
     bgGradient: "from-rose-950/90 via-[#1a2c38] to-[#0f212e]",
   },
 ];
+export const STAKE_ORIGINALS: GameItem[] = RAW_STAKE_ORIGINALS.map(attachThumbnail);
 
 // ==========================================
 // 30 LIVE CASINO & GAME SHOWS
 // ==========================================
-export const LIVE_CASINO_GAMES: GameItem[] = [
+const RAW_LIVE_CASINO_GAMES: GameItem[] = [
   {
     id: "blackjack-live",
     title: "Blackjack Live",
@@ -398,7 +398,6 @@ export const LIVE_CASINO_GAMES: GameItem[] = [
     badgeColor: "bg-red-500/20 text-red-300 border-red-500/30",
     category: "live",
     bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?auto=format",
   },
   {
     id: "roulette-live",
@@ -410,7 +409,6 @@ export const LIVE_CASINO_GAMES: GameItem[] = [
     badgeColor: "bg-red-500/20 text-red-300 border-red-500/30",
     category: "live",
     bgGradient: "from-red-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?auto=format",
   },
   {
     id: "baccarat-live",
@@ -422,7 +420,6 @@ export const LIVE_CASINO_GAMES: GameItem[] = [
     badgeColor: "bg-red-500/20 text-red-300 border-red-500/30",
     category: "live",
     bgGradient: "from-rose-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?auto=format",
   },
   {
     id: "dragon-tiger",
@@ -506,7 +503,6 @@ export const LIVE_CASINO_GAMES: GameItem[] = [
     badgeColor: "bg-pink-500/20 text-pink-300 border-pink-500/30",
     category: "game-shows",
     bgGradient: "from-pink-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?auto=format",
   },
   {
     id: "crazy-pachinko",
@@ -704,14 +700,14 @@ export const LIVE_CASINO_GAMES: GameItem[] = [
     badgeColor: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30",
     category: "live",
     bgGradient: "from-amber-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?auto=format",
   },
 ];
+export const LIVE_CASINO_GAMES: GameItem[] = RAW_LIVE_CASINO_GAMES.map(attachThumbnail);
 
 // ==========================================
 // POPULAR SLOTS
 // ==========================================
-export const POPULAR_SLOTS: GameItem[] = [
+const RAW_POPULAR_SLOTS: GameItem[] = [
   {
     id: "sweet-bonanza",
     title: "Sweet Bonanza 1000",
@@ -722,7 +718,6 @@ export const POPULAR_SLOTS: GameItem[] = [
     badgeColor: "bg-pink-500/20 text-pink-300 border-pink-500/30",
     category: "slots",
     bgGradient: "from-pink-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?auto=format",
   },
   {
     id: "gates-of-olympus",
@@ -734,7 +729,6 @@ export const POPULAR_SLOTS: GameItem[] = [
     badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/30",
     category: "slots",
     bgGradient: "from-amber-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "https://mediumrare.imgix.net/3b470acf1e794ecb437a535c35a20f12e8f7caf1a1153b6601dab4a2d34607e4?auto=format",
   },
   {
     id: "sugar-rush",
@@ -745,7 +739,6 @@ export const POPULAR_SLOTS: GameItem[] = [
     badge: "POPULAR",
     category: "slots",
     bgGradient: "from-fuchsia-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?auto=format",
   },
   {
     id: "wanted-dead-or-a-wild",
@@ -757,7 +750,6 @@ export const POPULAR_SLOTS: GameItem[] = [
     badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
     category: "slots",
     bgGradient: "from-orange-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "https://mediumrare.imgix.net/3b470acf1e794ecb437a535c35a20f12e8f7caf1a1153b6601dab4a2d34607e4?auto=format",
   },
   {
     id: "chaos-crew-2",
@@ -840,6 +832,7 @@ export const POPULAR_SLOTS: GameItem[] = [
     bgGradient: "from-cyan-950/90 via-[#1a2c38] to-[#0f212e]",
   },
 ];
+export const POPULAR_SLOTS: GameItem[] = RAW_POPULAR_SLOTS.map(attachThumbnail);
 
 // ==========================================
 // 19 PUBLISHERS / GAME STUDIOS
