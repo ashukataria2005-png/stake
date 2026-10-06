@@ -36,6 +36,7 @@ import TrendingGames from "@/components/TrendingGames";
 import TrendingSports from "@/components/TrendingSports";
 import PromotionsSection from "@/components/PromotionsSection";
 import LiveBetsFeed from "@/components/LiveBetsFeed";
+import StakeGameArtwork from "@/components/casino/StakeGameArtwork";
 
 interface BetRecord {
   id: string;
@@ -845,15 +846,29 @@ export default function HomePage() {
       {/* 7. GAMES CATALOG: SECTION 1: STAKE ORIGINALS */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <Link
+            href="/casino/group/stake-originals"
+            className="flex items-center gap-2 group cursor-pointer"
+          >
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#00e701]/15 text-[#00e701]">
               <Flame className="h-4 w-4 fill-current" />
             </div>
-            <h2 className="text-lg sm:text-xl font-black text-white">Stake Originals</h2>
+            <h2 className="text-lg sm:text-xl font-black text-white group-hover:text-[#00e701] transition-colors flex items-center gap-1.5">
+              <span>Stake Originals</span>
+              <span className="text-[#b1bad3] text-sm group-hover:translate-x-1 transition-transform">
+                &gt;
+              </span>
+            </h2>
             <span className="rounded-full bg-[#213743] px-2 py-0.5 text-[11px] font-bold text-[#00e701]">
-              {stakeOriginals.length} Games
+              31 Games
             </span>
-          </div>
+          </Link>
+          <Link
+            href="/casino/group/stake-originals"
+            className="text-xs font-bold text-[#00e701] hover:underline"
+          >
+            View All 31 &gt;
+          </Link>
         </div>
 
         {/* 3:4 Aspect Ratio Stake Game Cards Grid */}
@@ -872,19 +887,9 @@ export default function HomePage() {
               </div>
 
               {/* Graphic Center */}
-              <div className="my-auto flex flex-col items-center justify-center relative">
-                <div
-                  className={`flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-2xl border border-[#213743] bg-[#0f212e] shadow-lg transform group-hover:scale-110 transition-transform duration-300`}
-                >
-                  {game.id === "mines" && <Bomb className="h-8 w-8 text-[#00e701]" />}
-                  {game.id === "crash" && <TrendingUp className="h-8 w-8 text-amber-400" />}
-                  {game.id === "plinko" && <CircleDot className="h-8 w-8 text-blue-400" />}
-                  {game.id === "dice" && <Dice5 className="h-8 w-8 text-purple-400" />}
-                  {game.id === "limbo" && <Zap className="h-8 w-8 text-yellow-400" />}
-                  {game.id === "keno" && <Sparkles className="h-8 w-8 text-pink-400" />}
-                  {game.id === "wheel" && <CircleDot className="h-8 w-8 text-cyan-400" />}
-                  {game.id === "blackjack" && <span className="text-2xl font-black text-emerald-400">21</span>}
-                  {game.id === "roulette" && <span className="text-2xl font-black text-red-400">36</span>}
+              <div className="my-auto flex flex-col items-center justify-center relative w-full">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 transform group-hover:scale-110 transition-transform duration-300 flex items-center justify-center">
+                  <StakeGameArtwork gameId={game.id} />
                 </div>
 
                 {/* Play Button Overlay on Hover */}
@@ -895,11 +900,16 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="z-10 space-y-0.5">
-                <h3 className="text-sm font-black text-white group-hover:text-[#00e701] transition-colors">
+              <div className="z-10 space-y-1">
+                <h3 className="text-sm font-black text-white group-hover:text-[#00e701] transition-colors truncate">
                   {game.title}
                 </h3>
-                <p className="text-[10px] text-[#b1bad3] truncate">{game.provider}</p>
+                <div className="flex items-center justify-between">
+                  <p className="text-[10px] text-[#b1bad3] truncate">{game.provider}</p>
+                  <span className="text-[9px] font-mono text-[#00e701] flex items-center gap-0.5">
+                    <span>🟢</span> Live
+                  </span>
+                </div>
               </div>
             </Link>
           ))}
@@ -909,14 +919,30 @@ export default function HomePage() {
       {/* 4. GAMES CATALOG: SECTION 2: POPULAR SLOTS (Interactive Demo Spin Modal) */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <Link
+            href="/casino/group/slots"
+            className="flex items-center gap-2 group cursor-pointer"
+          >
             <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/15 text-amber-400">
               <Sparkles className="h-4 w-4" />
             </div>
-            <h2 className="text-lg sm:text-xl font-black text-white">Popular Slots</h2>
+            <h2 className="text-lg sm:text-xl font-black text-white group-hover:text-amber-400 transition-colors flex items-center gap-1.5">
+              <span>Popular Slots</span>
+              <span className="text-[#b1bad3] text-sm group-hover:translate-x-1 transition-transform">
+                &gt;
+              </span>
+            </h2>
+          </Link>
+          <div className="flex items-center gap-2">
             <span className="rounded-full bg-[#213743] px-2 py-0.5 text-[11px] font-bold text-amber-400">
               Pragmatic & Hacksaw
             </span>
+            <Link
+              href="/casino/group/slots"
+              className="text-xs font-bold text-amber-400 hover:underline"
+            >
+              View All Slots &gt;
+            </Link>
           </div>
         </div>
 

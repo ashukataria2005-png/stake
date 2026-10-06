@@ -19,6 +19,7 @@ import CasinoCategoryPills from "@/components/casino/CasinoCategoryPills";
 import CasinoGameRow, { CasinoCardData } from "@/components/casino/CasinoGameRow";
 import CasinoLiveBets from "@/components/casino/CasinoLiveBets";
 import LiveStatusAndSearch from "@/components/LiveStatusAndSearch";
+import StakeGameArtwork from "@/components/casino/StakeGameArtwork";
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
 import confetti from "canvas-confetti";
@@ -49,7 +50,7 @@ export default function CasinoHomePage() {
       badge: "ORIGINAL",
       badgeColor: "bg-[#00e701]/20 text-[#00e701] border-[#00e701]/30",
       href: "/games/dice",
-      graphic: <Dice5 className="h-10 w-10 text-purple-400" />,
+      graphic: <StakeGameArtwork gameId="dice" className="w-16 h-16 sm:w-20 sm:h-20" />,
       bgGradient: "from-purple-950/80 via-[#1a2c38] to-[#0f212e]",
     },
     {
@@ -60,7 +61,7 @@ export default function CasinoHomePage() {
       badge: "TOP PICK",
       badgeColor: "bg-[#00e701]/20 text-[#00e701] border-[#00e701]/30",
       href: "/games/mines",
-      graphic: <Bomb className="h-10 w-10 text-[#00e701]" />,
+      graphic: <StakeGameArtwork gameId="mines" className="w-16 h-16 sm:w-20 sm:h-20" />,
       bgGradient: "from-emerald-950/80 via-[#1a2c38] to-[#0f212e]",
     },
     {
@@ -71,7 +72,7 @@ export default function CasinoHomePage() {
       badge: "ORIGINAL",
       badgeColor: "bg-blue-500/20 text-blue-300 border-blue-500/30",
       href: "/games/plinko",
-      graphic: <CircleDot className="h-10 w-10 text-blue-400" />,
+      graphic: <StakeGameArtwork gameId="plinko" className="w-16 h-16 sm:w-20 sm:h-20" />,
       bgGradient: "from-blue-950/80 via-[#1a2c38] to-[#0f212e]",
     },
     {
@@ -82,7 +83,7 @@ export default function CasinoHomePage() {
       badge: "ORIGINAL",
       badgeColor: "bg-pink-500/20 text-pink-300 border-pink-500/30",
       href: "/games/keno",
-      graphic: <Sparkles className="h-10 w-10 text-pink-400" />,
+      graphic: <StakeGameArtwork gameId="keno" className="w-16 h-16 sm:w-20 sm:h-20" />,
       bgGradient: "from-pink-950/80 via-[#1a2c38] to-[#0f212e]",
     },
     {
@@ -93,7 +94,7 @@ export default function CasinoHomePage() {
       badge: "HOT",
       badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/30",
       href: "/games/crash",
-      graphic: <TrendingUp className="h-10 w-10 text-amber-400" />,
+      graphic: <StakeGameArtwork gameId="crash" className="w-16 h-16 sm:w-20 sm:h-20" />,
       bgGradient: "from-amber-950/80 via-[#1a2c38] to-[#0f212e]",
     },
     {
@@ -104,7 +105,7 @@ export default function CasinoHomePage() {
       badge: "1,000,000X",
       badgeColor: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30",
       href: "/games/limbo",
-      graphic: <Zap className="h-10 w-10 text-yellow-400" />,
+      graphic: <StakeGameArtwork gameId="limbo" className="w-16 h-16 sm:w-20 sm:h-20" />,
       bgGradient: "from-yellow-950/80 via-[#1a2c38] to-[#0f212e]",
     },
   ];
@@ -529,7 +530,7 @@ export default function CasinoHomePage() {
       {/* Row 2: Slots > */}
       <CasinoGameRow
         title="Slots"
-        linkHref="#slots"
+        linkHref="/casino/group/slots"
         cards={row2Slots}
         onCardClick={handleCardClick}
       />
@@ -537,7 +538,7 @@ export default function CasinoHomePage() {
       {/* Row 3: Publishers > */}
       <CasinoGameRow
         title="Publishers"
-        linkHref="#publishers"
+        linkHref="/casino/collection/providers"
         cards={row3Publishers}
         onCardClick={handleCardClick}
       />
@@ -545,7 +546,7 @@ export default function CasinoHomePage() {
       {/* Row 4: Featured Publishers > */}
       <CasinoGameRow
         title="Featured Publishers"
-        linkHref="#featured-publishers"
+        linkHref="/casino/collection/providers"
         cards={row4FeaturedPublishers}
         onCardClick={handleCardClick}
       />
@@ -553,7 +554,7 @@ export default function CasinoHomePage() {
       {/* Row 5: Only on Stake > with '2x VIP' badge */}
       <CasinoGameRow
         title="Only on Stake"
-        linkHref="#only-on-stake"
+        linkHref="/casino/group/stake-originals"
         rowBadge="2x VIP"
         cards={row5OnlyOnStake}
         onCardClick={handleCardClick}

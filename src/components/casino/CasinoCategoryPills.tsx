@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useRouter } from "next/navigation";
 import {
   User,
   Sparkles,
@@ -23,6 +24,14 @@ export default function CasinoCategoryPills({
   activeCategory,
   onSelectCategory,
 }: CasinoCategoryPillsProps) {
+  const router = useRouter();
+
+  const handlePillClick = (id: string) => {
+    onSelectCategory(id);
+    if (["stake-originals", "slots", "live-casino", "game-shows"].includes(id)) {
+      router.push(`/casino/group/${id}`);
+    }
+  };
   const categories: CategoryPill[] = [
     {
       id: "home",
@@ -94,7 +103,7 @@ export default function CasinoCategoryPills({
           return (
             <button
               key={cat.id}
-              onClick={() => onSelectCategory(cat.id)}
+              onClick={() => handlePillClick(cat.id)}
               className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer shrink-0 ${
                 isActive
                   ? "bg-[#1475e1] text-white shadow-md shadow-blue-600/30 ring-1 ring-blue-400/50"

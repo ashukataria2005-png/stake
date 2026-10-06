@@ -18,6 +18,7 @@ import {
   Sparkles,
   ChevronRight,
   ExternalLink,
+  Zap,
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 
@@ -38,13 +39,19 @@ export default function Sidebar() {
     { name: "Crash", href: "/games/crash", icon: TrendingUp, badge: "Hot", isOriginal: true },
     { name: "Plinko", href: "/games/plinko", icon: CircleDot, badge: "Original", isOriginal: true },
     { name: "Dice", href: "/games/dice", icon: Dice5, badge: "Classic", isOriginal: true },
+    { name: "Limbo", href: "/games/limbo", icon: Zap, badge: "Original", isOriginal: true },
+    { name: "Blackjack", href: "/games/blackjack", icon: Trophy, badge: "21", isOriginal: true },
+    { name: "Roulette", href: "/games/roulette", icon: Sparkles, badge: "Classic", isOriginal: true },
+    { name: "Keno", href: "/games/keno", icon: Sparkles, badge: "Original", isOriginal: true },
+    { name: "Wheel", href: "/games/wheel", icon: CircleDot, badge: "Original", isOriginal: true },
   ];
 
   const mainCategories: NavItem[] = [
     { name: "Casino Lobby", href: "/casino/home", icon: Gamepad2 },
-    { name: "Favorites", href: "#favorites", icon: Sparkles },
-    { name: "VIP Club", href: "#vip", icon: Trophy, badge: "Levels" },
-    { name: "Promotions", href: "#promotions", icon: Gift, badge: "$100k" },
+    { name: "Stake Originals", href: "/casino/group/stake-originals", icon: Flame, badge: "31" },
+    { name: "Live Casino", href: "/casino/group/live-casino", icon: Sparkles, badge: "Live" },
+    { name: "Slots", href: "/casino/group/slots", icon: Trophy },
+    { name: "Providers", href: "/casino/collection/providers", icon: Gift, badge: "19" },
   ];
 
   const bottomLinks = [
@@ -121,11 +128,19 @@ export default function Sidebar() {
           <div>
             {isSidebarOpen ? (
               <div className="flex items-center justify-between px-3 pb-2">
-                <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#b1bad3]">
+                <Link
+                  href="/casino/group/stake-originals"
+                  className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#b1bad3] hover:text-[#00e701] transition-colors"
+                >
                   <Flame className="h-3.5 w-3.5 text-[#00e701]" />
                   <span>Stake Originals</span>
-                </div>
-                <span className="text-[10px] font-semibold text-[#00e701]">4 Games</span>
+                </Link>
+                <Link
+                  href="/casino/group/stake-originals"
+                  className="text-[10px] font-semibold text-[#00e701] hover:underline"
+                >
+                  31 Games &gt;
+                </Link>
               </div>
             ) : (
               <div className="my-2 border-t border-[#213743]" />
