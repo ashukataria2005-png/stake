@@ -6,6 +6,7 @@ import Sidebar from "@/components/Sidebar";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import CommunityChat from "@/components/CommunityChat";
 import GoogleOneTap from "@/components/GoogleOneTap";
+import ScrollToTop from "@/components/ScrollToTop";
 import { useGame } from "@/context/GameContext";
 
 export default function MainLayoutShell({
@@ -42,6 +43,9 @@ export default function MainLayoutShell({
 
       {/* Google One-Tap Bottom Sheet Drawer */}
       <GoogleOneTap />
+
+      {/* Floating Scroll-To-Top Button */}
+      <ScrollToTop />
     </div>
   );
 }

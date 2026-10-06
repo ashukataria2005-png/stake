@@ -31,6 +31,11 @@ import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
 import confetti from "canvas-confetti";
 import GuestHero from "@/components/GuestHero";
+import LiveStatusAndSearch from "@/components/LiveStatusAndSearch";
+import TrendingGames from "@/components/TrendingGames";
+import TrendingSports from "@/components/TrendingSports";
+import PromotionsSection from "@/components/PromotionsSection";
+import LiveBetsFeed from "@/components/LiveBetsFeed";
 
 interface BetRecord {
   id: string;
@@ -684,23 +689,12 @@ export default function HomePage() {
             </button>
           </div>
 
-          {/* Search Bar + Providers Filter */}
-          <div className="flex items-center gap-2.5 flex-1 max-w-md sm:ml-auto">
-            <div className="relative flex-1">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#b1bad3]" />
-              <input
-                id="game-search-input"
-                type="text"
-                placeholder="Search your game..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-xl border border-[#213743] bg-[#1a2c38] pl-10 pr-4 py-2.5 text-xs text-white placeholder-[#b1bad3]/60 focus:border-[#00e701] focus:outline-none transition-colors"
-              />
-            </div>
+          {/* Providers Filter */}
+          <div className="flex items-center gap-2.5 self-start sm:self-auto sm:ml-auto">
             <select
               value={selectedProvider}
               onChange={(e) => setSelectedProvider(e.target.value)}
-              className="rounded-xl border border-[#213743] bg-[#1a2c38] px-3 py-2.5 text-xs font-bold text-white focus:border-[#00e701] focus:outline-none cursor-pointer"
+              className="rounded-xl border border-[#213743] bg-[#1a2c38] px-3.5 py-2 text-xs font-bold text-white focus:border-[#00e701] focus:outline-none cursor-pointer"
             >
               <option value="All">All Providers</option>
               <option value="Stake Originals">Stake Originals</option>
@@ -836,7 +830,19 @@ export default function HomePage() {
       </section>
       )}
 
-      {/* 3. GAMES CATALOG: SECTION 1: STAKE ORIGINALS */}
+      {/* 3. LIVE STATUS PILLS & CTRL+K GLOBAL SEARCH */}
+      <LiveStatusAndSearch searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+
+      {/* 4. TRENDING GAMES SECTION */}
+      <TrendingGames onSelectGame={(g) => setActiveSlotModal(g as any)} />
+
+      {/* 5. TRENDING SPORTS SECTION */}
+      <TrendingSports />
+
+      {/* 6. PROMOTIONS SECTION */}
+      <PromotionsSection />
+
+      {/* 7. GAMES CATALOG: SECTION 1: STAKE ORIGINALS */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -1007,97 +1013,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 6. REAL-TIME LIVE BETS TABLE FEED */}
-      <section className="rounded-2xl border border-[#213743] bg-[#1a2c38] overflow-hidden shadow-xl">
-        {/* Table Tabs */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between border-b border-[#213743] p-4 sm:px-6 gap-3">
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
-            {(["all", "high", "lucky", "my"] as const).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveBetsTab(tab)}
-                className={`rounded-xl px-3.5 py-1.5 text-xs font-bold capitalize transition-all shrink-0 ${
-                  activeBetsTab === tab
-                    ? "bg-[#213743] text-white shadow-sm"
-                    : "text-[#b1bad3] hover:text-white"
-                }`}
-              >
-                {tab === "all" ? "All Bets" : tab === "high" ? "High Rollers" : tab === "lucky" ? "Lucky Wins" : "My Bets"}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-3 self-end sm:self-center">
-            <button
-              onClick={() => setIsLivePaused(!isLivePaused)}
-              className="flex items-center gap-2 rounded-lg border border-[#213743] bg-[#0f212e] px-2.5 py-1 text-xs font-semibold text-[#b1bad3] hover:text-white transition-colors"
-            >
-              <span
-                className={`h-2 w-2 rounded-full ${
-                  isLivePaused ? "bg-amber-400" : "bg-[#00e701] animate-pulse"
-                }`}
-              />
-              <span>{isLivePaused ? "Paused" : "Live Feed"}</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Table Stream */}
-        <div className="w-full overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-[#0f212e]/50 border-b border-[#213743] text-[11px] font-bold uppercase tracking-wider text-[#b1bad3]">
-              <tr>
-                <th className="px-5 py-3">Game</th>
-                <th className="px-5 py-3">Player</th>
-                <th className="px-5 py-3 hidden sm:table-cell">Time</th>
-                <th className="px-5 py-3 text-right">Bet Amount</th>
-                <th className="px-5 py-3 text-right">Multiplier</th>
-                <th className="px-5 py-3 text-right">Payout</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#213743]/50">
-              {(activeBetsTab === "my" ? myBets : bets)
-                .filter((b) =>
-                  activeBetsTab === "all"
-                    ? true
-                    : activeBetsTab === "high"
-                    ? b.betAmount >= 500
-                    : activeBetsTab === "lucky"
-                    ? b.multiplier >= 10
-                    : true
-                )
-                .slice(0, 12)
-                .map((b) => (
-                  <tr key={b.id} className="transition-colors hover:bg-[#213743]/40 font-medium">
-                    <td className="px-5 py-3 font-bold text-white flex items-center gap-2">
-                      <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#0f212e] text-[#00e701] border border-[#213743]">
-                        <Gamepad2 className="h-3.5 w-3.5" />
-                      </span>
-                      <span>{b.game}</span>
-                    </td>
-                    <td className="px-5 py-3 text-[#b1bad3] font-semibold">{b.user}</td>
-                    <td className="px-5 py-3 hidden sm:table-cell text-[#b1bad3]">{b.time}</td>
-                    <td className="px-5 py-3 text-right font-mono font-semibold text-[#b1bad3]">
-                      ${b.betAmount.toFixed(2)} {currency}
-                    </td>
-                    <td className="px-5 py-3 text-right font-mono font-bold">
-                      <span className={b.multiplier >= 2 ? "text-[#00e701]" : b.multiplier > 0 ? "text-white" : "text-[#b1bad3]"}>
-                        {b.multiplier.toFixed(2)}x
-                      </span>
-                    </td>
-                    <td className="px-5 py-3 text-right font-mono font-bold">
-                      {b.isWin ? (
-                        <span className="text-[#00e701]">+${b.payout.toFixed(2)} {currency}</span>
-                      ) : (
-                        <span className="text-[#b1bad3]">$0.00</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      {/* 9. REAL-TIME LIVE BETS FEED (DUAL RESPONSIVE PARITY) */}
+      <LiveBetsFeed />
 
       {/* 7. AUTHENTIC STAKE FOOTER & SPONSORSHIPS */}
       <footer className="border-t border-[#213743] pt-8 pb-12 space-y-8 text-xs text-[#b1bad3]">
