@@ -11,6 +11,7 @@ import {
   FiatCurrency,
 } from "@/data/currencies";
 import CryptoIcon from "@/components/CryptoIcon";
+import FiatCoinIcon from "@/components/FiatCoinIcon";
 
 interface WalletSettingsModalProps {
   isOpen: boolean;
@@ -199,9 +200,9 @@ export default function WalletSettingsModal({ isOpen, onClose }: WalletSettingsM
                               : "bg-[#0f212e] border-[#213743] text-[#b1bad3] hover:bg-[#213743] hover:text-white"
                           }`}
                         >
-                          <span className="flex items-center gap-1.5 truncate">
-                            <span className="text-sm">{fiat.flag}</span>
-                            <span>{fiat.code}</span>
+                          <span className="flex items-center gap-2 truncate">
+                            <FiatCoinIcon currency={fiat.code} size={18} className="w-4.5 h-4.5 shrink-0" />
+                            <span className="font-bold">{fiat.code}</span>
                           </span>
                           {isSelected && (
                             <Check className="w-3.5 h-3.5 text-[#00e701] shrink-0" />
@@ -239,9 +240,9 @@ export default function WalletSettingsModal({ isOpen, onClose }: WalletSettingsM
                                   : "bg-[#0f212e] border-[#213743] text-[#b1bad3] hover:bg-[#213743] hover:text-white"
                               }`}
                             >
-                              <span className="flex items-center gap-1.5 truncate">
-                                <span className="text-sm">{fiat.flag}</span>
-                                <span>{fiat.code}</span>
+                              <span className="flex items-center gap-2 truncate">
+                                <FiatCoinIcon currency={fiat.code} size={18} className="w-4.5 h-4.5 shrink-0" />
+                                <span className="font-bold">{fiat.code}</span>
                               </span>
                               {isSelected && (
                                 <Check className="w-3.5 h-3.5 text-[#00e701] shrink-0" />

@@ -1,4 +1,7 @@
 import React from "react";
+import FiatCoinIcon from "@/components/FiatCoinIcon";
+
+export { FiatCoinIcon };
 
 interface CryptoIconProps {
   symbol: string;
@@ -6,8 +9,25 @@ interface CryptoIconProps {
   size?: number;
 }
 
+const FIAT_CODES = new Set([
+  "INR", "USD", "EUR", "GBP", "JPY", "CAD", "AUD", "BRL", "CNY",
+  "IDR", "KRW", "PHP", "RUB", "MXN", "PLN", "TRY", "VND", "ARS",
+  "PEN", "CLP", "NGN", "AED", "BHD", "CRC", "KWD", "MAD", "MYR",
+  "QAR", "SAR", "SGD", "TND", "TWD", "GHS", "KES", "BOB", "XOF",
+  "PKR", "NZD", "ISK", "BAM", "TZS", "EGP", "LKR", "UGX", "AZN",
+  "KZT", "UAH", "GEL", "MNT", "GTQ", "KGS", "ZAR", "TMT", "ZMW",
+  "TTD", "JMD", "NIO", "HNL", "MZN", "XAF", "GNF", "BWP", "KMF",
+  "THB", "LSL", "ERN", "BIF", "MWK", "PGK"
+]);
+
 export default function CryptoIcon({ symbol, className = "w-5 h-5", size = 20 }: CryptoIconProps) {
   const s = symbol.toUpperCase();
+
+  // If this symbol corresponds to a fiat currency, render the 3D metallic digital coin badge!
+  if (FIAT_CODES.has(s) || s.startsWith("FIAT_")) {
+    const cleanCode = s.replace(/^FIAT_/, "");
+    return <FiatCoinIcon currency={cleanCode} className={className} size={size} />;
+  }
 
   switch (s) {
     case "USDT":

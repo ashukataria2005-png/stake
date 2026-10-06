@@ -16,6 +16,7 @@ import WalletSettingsModal from "@/components/WalletSettingsModal";
 import CurrencyDropdown from "@/components/CurrencyDropdown";
 import UserProfileMenu from "@/components/UserProfileMenu";
 import CryptoIcon from "@/components/CryptoIcon";
+import FiatCoinIcon from "@/components/FiatCoinIcon";
 import StakeLogo from "@/components/StakeLogo";
 
 export default function Navbar() {
@@ -62,9 +63,9 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-[#213743] bg-[#1a2c38] px-2.5 sm:px-5 select-none">
+      <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-[#213743] bg-[#1a2c38] px-2 sm:px-4 md:px-6 select-none">
         {/* Left Section: Sidebar Toggle & Authentic Stake Cursive Logo */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <button
             onClick={toggleSidebar}
             aria-label="Toggle Navigation Sidebar"
@@ -78,19 +79,98 @@ export default function Navbar() {
             className="flex items-center gap-1.5 focus:outline-none"
             aria-label="Stake Home"
           >
-            {/* Mobile cursive 'S' logo */}
-            <svg viewBox="0 0 25 40" className="h-7 w-auto text-white fill-current sm:hidden">
+            {/* Mobile cursive 'S' logo - scaled up for better presence */}
+            <svg viewBox="0 0 25 40" className="h-8 sm:h-9 w-auto text-white fill-current sm:hidden">
               <path d="M17.408 19.336c2.432-1.048 4.296-2.568 5.6-4.568 1.304-2 1.952-4.4 1.952-7.2 0-2.48-.568-4.6-1.704-6.36C22.12.968 20.512 0 18.424 0c-.88 0-1.68.216-2.4.648s-1.32 1.056-1.8 1.872l-1.488 2.544C11.664 6.944 9.8 8.04 7.144 8.352v-2.88c0-1.552-.408-2.768-1.224-3.648C5.104.944 4.016.504 2.656.504c-.816 0-1.504.288-2.064.864C.032 1.944-.144 2.68.048 3.576l3.52 16.512c.384 1.76 1.168 3.2 2.352 4.32 1.184 1.12 2.688 1.68 4.512 1.68h.864c3.424-.48 5.92-1.92 7.488-4.32.48-.736.88-1.544 1.2-2.424l-2.576-.008zm5.728 10.368c-1.28 1.84-3.08 3.248-5.4 4.224-2.32.976-5.04 1.464-8.16 1.464-2.848 0-5.184-.52-7.008-1.56-1.824-1.04-2.736-2.488-2.736-4.344 0-1.2.392-2.2 1.176-3 .784-.8 1.832-1.2 3.144-1.2.704 0 1.344.152 1.92.456.576.304 1.056.768 1.44 1.392.512.832 1.152 1.488 1.92 1.968.768.48 1.76.72 2.976.72 1.472 0 2.624-.312 3.456-.936.832-.624 1.248-1.448 1.248-2.472 0-.896-.344-1.632-1.032-2.208-.688-.576-1.872-1.096-3.552-1.56l-2.784-.768c-3.136-.864-5.344-2.008-6.624-3.432-1.28-1.424-1.92-3.32-1.92-5.688 0-2.368.808-4.352 2.424-5.952C9.176 1.048 11.4.248 14.288.248c2.4 0 4.416.48 6.048 1.44 1.632.96 2.448 2.272 2.448 3.936 0 1.056-.368 1.952-1.104 2.688-.736.736-1.712 1.104-2.928 1.104-.64 0-1.216-.144-1.728-.432-.512-.288-.952-.72-1.32-1.296-.448-.672-1.04-1.192-1.776-1.56-.736-.368-1.632-.552-2.688-.552-1.216 0-2.16.272-2.832.816-.672.544-1.008 1.288-1.008 2.232 0 .864.336 1.56 1.008 2.088.672.528 1.808 1.008 3.408 1.44l2.784.768c3.296.928 5.616 2.152 6.96 3.672 1.344 1.52 2.016 3.472 2.016 5.856.008 2.656-.84 4.888-2.544 6.696z" />
             </svg>
-            {/* Desktop full cursive Stake logo */}
-            <StakeLogo className="h-7 w-auto text-white hover:opacity-90 transition-opacity hidden sm:block" />
+            {/* Desktop full cursive Stake logo - scaled up for better prominence */}
+            <StakeLogo className="h-8 sm:h-9 w-auto text-white hover:opacity-90 transition-opacity hidden sm:block" />
           </Link>
         </div>
+
+        {/* Center / Middle Section: Dynamically Expanded Wallet Balance Pill filling dead space */}
+        {isAuthenticated ? (
+          <div className="flex-1 flex items-center justify-center px-1.5 sm:px-4 md:px-8 min-w-0">
+            <div className="flex items-center w-full max-w-[280px] sm:max-w-[380px] md:max-w-[440px] transition-all">
+              {/* Balance Pill Container */}
+              <div className="relative flex-1 min-w-0">
+                <div
+                  onClick={() => setIsCurrencyDropdownOpen(!isCurrencyDropdownOpen)}
+                  className="flex items-center justify-between gap-1.5 sm:gap-2.5 rounded-l-lg border border-r-0 border-[#213743] bg-[#0f212e] py-1.5 sm:py-2 px-2.5 sm:px-3 shadow-inner cursor-pointer hover:border-[#2f4553] transition-colors w-full"
+                >
+                  {/* Left part: Coin Badge + Centered Bold Balance Typography */}
+                  <div className="flex items-center justify-center gap-2 flex-1 min-w-0">
+                    {displayInfo.isFiat ? (
+                      <FiatCoinIcon
+                        currency={displayInfo.code}
+                        size={20}
+                        className="w-5 h-5 shrink-0"
+                      />
+                    ) : (
+                      <CryptoIcon
+                        symbol={currency}
+                        size={20}
+                        className="w-5 h-5 shrink-0"
+                      />
+                    )}
+
+                    <span className="font-mono text-white tracking-wide tabular-nums font-extrabold text-xs sm:text-sm md:text-base truncate text-center">
+                      {displayInfo.amount}
+                    </span>
+
+                    <span className="text-[10px] font-semibold text-[#b1bad3] hidden md:inline uppercase shrink-0">
+                      {displayInfo.code}
+                    </span>
+                  </div>
+
+                  {/* Right part of pill: Chevron toggle & quick reset button */}
+                  <div className="flex items-center gap-1 shrink-0">
+                    <ChevronDown
+                      className={`h-3.5 w-3.5 text-[#b1bad3] transition-transform duration-200 ${
+                        isCurrencyDropdownOpen ? "rotate-180" : ""
+                      }`}
+                    />
+
+                    {/* Quick Demo Balance Reset Button (Desktop) */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        resetBalance();
+                      }}
+                      title="Reset Demo Balance to $1,000"
+                      className="hidden sm:flex h-5 w-5 ml-0.5 items-center justify-center rounded text-[#b1bad3] transition-colors hover:text-[#00e701] cursor-pointer"
+                    >
+                      <RotateCcw className="h-3 w-3" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Currency Dropdown Floating Menu */}
+                <CurrencyDropdown
+                  isOpen={isCurrencyDropdownOpen}
+                  onClose={() => setIsCurrencyDropdownOpen(false)}
+                />
+              </div>
+
+              {/* Vibrant Blue Wallet Button Attached Cleanly to the Right */}
+              <button
+                onClick={openWalletModal}
+                className="flex items-center gap-1 sm:gap-1.5 rounded-r-lg bg-[#1475e1] hover:bg-[#1268c7] px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-bold text-white shadow-md transition-all active:scale-95 cursor-pointer border border-[#1475e1] shrink-0"
+                title="Wallet"
+              >
+                <Wallet className="h-4 w-4" />
+                <span className="hidden sm:inline">Wallet</span>
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex-1" />
+        )}
 
         {/* Right Section: Guest vs Authenticated State */}
         {!isAuthenticated ? (
           /* Guest View: Sign In & Register Buttons */
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <button
               onClick={openOneTap}
               className="text-[#b1bad3] hover:text-white font-semibold text-xs sm:text-sm px-3 py-1.5 transition-colors cursor-pointer"
@@ -105,67 +185,8 @@ export default function Navbar() {
             </button>
           </div>
         ) : (
-          /* Authenticated View: Balance Pill, Attached Wallet Button, Bell & Profile Avatar */
-          <div className="flex items-center gap-1.5 sm:gap-2.5">
-            {/* Balance Pill & Attached Vibrant Blue Wallet Button */}
-            <div className="flex items-center">
-              {/* Balance Container */}
-              <div className="relative">
-                <div className="flex items-center rounded-l-lg border border-r-0 border-[#213743] bg-[#0f212e] py-1 px-2 sm:px-2.5 shadow-inner">
-                  <div
-                    onClick={() => setIsCurrencyDropdownOpen(!isCurrencyDropdownOpen)}
-                    className="flex cursor-pointer items-center gap-1.5 text-xs font-semibold text-[#b1bad3] transition-colors hover:text-white sm:text-sm"
-                  >
-                    {displayInfo.isFiat ? (
-                      <span className="font-bold text-white text-xs sm:text-sm leading-none mr-0.5">
-                        {displayInfo.symbol}
-                      </span>
-                    ) : (
-                      <CryptoIcon symbol={currency} size={16} className="w-4 h-4 shrink-0" />
-                    )}
-                    <span className="font-mono text-white tracking-wide tabular-nums font-bold text-xs sm:text-sm">
-                      {displayInfo.isFiat ? displayInfo.amount : `${displayInfo.symbol} ${displayInfo.amount}`}
-                    </span>
-                    {!displayInfo.isFiat && (
-                      <span className="text-[10px] font-semibold text-[#b1bad3] hidden md:inline uppercase">
-                        {displayInfo.code}
-                      </span>
-                    )}
-                    <ChevronDown
-                      className={`h-3 w-3 text-[#b1bad3] transition-transform duration-200 ${
-                        isCurrencyDropdownOpen ? "rotate-180" : ""
-                      }`}
-                    />
-                  </div>
-
-                  {/* Quick Reset Demo Balance Button (desktop) */}
-                  <button
-                    onClick={resetBalance}
-                    title="Reset Demo Balance to $1,000"
-                    className="hidden sm:flex h-6 w-6 ml-1 items-center justify-center rounded text-[#b1bad3] transition-colors hover:bg-[#213743] hover:text-[#00e701] cursor-pointer"
-                  >
-                    <RotateCcw className="h-3 w-3" />
-                  </button>
-                </div>
-
-                {/* Currency Dropdown Floating Menu */}
-                <CurrencyDropdown
-                  isOpen={isCurrencyDropdownOpen}
-                  onClose={() => setIsCurrencyDropdownOpen(false)}
-                />
-              </div>
-
-              {/* Vibrant Blue Wallet Button Attached Directly */}
-              <button
-                onClick={openWalletModal}
-                className="flex items-center gap-1 sm:gap-1.5 rounded-r-lg bg-[#1475e1] hover:bg-[#1268c7] px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-xs font-bold text-white shadow-md transition-all active:scale-95 cursor-pointer border border-[#1475e1]"
-                title="Wallet"
-              >
-                <Wallet className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline">Wallet</span>
-              </button>
-            </div>
-
+          /* Authenticated Controls: Notification Bell, Desktop Community Chat, VIP Popover, Profile Menu */
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
             {/* Notification Bell (Visible on Both Mobile & Desktop) */}
             <button
               onClick={() => setNotificationActive(false)}
@@ -178,7 +199,7 @@ export default function Navbar() {
               )}
             </button>
 
-            {/* Desktop Only Actions (Community Chat, VIP popover) */}
+            {/* Desktop Only Actions (Community Chat, VIP progress pill) */}
             <div className="hidden md:flex items-center gap-2">
               {/* Live Community Chat Trigger */}
               <button
@@ -273,7 +294,7 @@ export default function Navbar() {
                 className="flex items-center gap-1.5 p-1 rounded-xl hover:bg-[#213743] transition-colors cursor-pointer"
                 aria-label="User Profile Menu"
               >
-                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center font-bold text-xs sm:text-sm text-white shadow-md">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center font-bold text-xs sm:text-sm text-white shadow-md">
                   {user?.name?.[0] || "A"}
                 </div>
                 <ChevronDown

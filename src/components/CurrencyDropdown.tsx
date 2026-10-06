@@ -5,6 +5,7 @@ import { Search, Check, Settings, X } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import { CRYPTO_CURRENCIES } from "@/data/currencies";
 import CryptoIcon from "@/components/CryptoIcon";
+import FiatCoinIcon from "@/components/FiatCoinIcon";
 
 interface CurrencyDropdownProps {
   isOpen: boolean;
@@ -119,8 +120,9 @@ export default function CurrencyDropdown({ isOpen, onClose }: CurrencyDropdownPr
                         {formattedBal}
                       </span>
                       {displayCryptoInFiat && (
-                        <span className="text-[9px] text-[#00e701]">
-                          ≈ {selectedFiat}
+                        <span className="text-[9px] text-[#00e701] flex items-center justify-end gap-1">
+                          <FiatCoinIcon currency={selectedFiat} size={11} className="w-2.5 h-2.5 inline" />
+                          <span>≈ {selectedFiat}</span>
                         </span>
                       )}
                     </div>
