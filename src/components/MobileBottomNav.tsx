@@ -58,10 +58,10 @@ export default function MobileBottomNav() {
           aria-label="Toggle Navigation Drawer"
           className="flex flex-col items-center justify-center flex-1 py-1 transition-colors bg-transparent hover:bg-transparent active:bg-transparent cursor-pointer"
         >
-          <div className="flex h-8 w-8 items-center justify-center bg-transparent">
+          <div className="flex h-8.5 w-8.5 items-center justify-center bg-transparent">
             <svg
-              width="24"
-              height="24"
+              width="26"
+              height="26"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -69,8 +69,8 @@ export default function MobileBottomNav() {
               strokeLinecap="round"
               strokeLinejoin="round"
               className={`transition-colors ${isSidebarOpen && !isChatOpen
-                  ? "stroke-[#00e701] text-[#00e701]"
-                  : "stroke-[#b1bad3] text-[#b1bad3]"
+                ? "stroke-[#00e701] text-[#00e701]"
+                : "stroke-[#b1bad3] text-[#b1bad3]"
                 }`}
             >
               <line x1="3" y1="6" x2="12" y2="6" />
@@ -82,8 +82,8 @@ export default function MobileBottomNav() {
           </div>
           <span
             className={`text-xs font-bold tracking-tight mt-0.5 transition-colors ${isSidebarOpen && !isChatOpen
-                ? "text-[#00e701]"
-                : "text-[#b1bad3]"
+              ? "text-[#00e701]"
+              : "text-[#b1bad3]"
               }`}
           >
             Browse

@@ -148,15 +148,15 @@ export default function Sidebar() {
         <div className="fixed inset-0 z-50 flex lg:hidden">
           {/* Backdrop overlay */}
           <div
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity"
+            className="fixed inset-0 bg-black/60 backdrop-blur-[2px] z-40"
             onClick={() => setSidebarOpen(false)}
             aria-hidden="true"
           />
 
           {/* Drawer Sheet Container */}
-          <div className="relative z-10 w-[300px] max-w-[85vw] max-h-[100dvh] h-[100dvh] overflow-y-auto overscroll-contain pb-24 bg-[#1a2c38] border-r border-[#213743] shadow-2xl flex flex-col [-webkit-overflow-scrolling:touch]">
+          <div className="relative z-50 w-[82vw] sm:w-[320px] max-w-[340px] max-h-[100dvh] h-full overflow-y-auto overscroll-contain pb-24 bg-[#0f212e] border-r border-[#213743] shadow-2xl flex flex-col [-webkit-overflow-scrolling:touch]">
             {/* Drawer Header */}
-            <div className="sticky top-0 z-20 flex h-14 shrink-0 items-center justify-between border-b border-[#213743] bg-[#1a2c38]/95 backdrop-blur px-4">
+            <div className="sticky top-0 z-20 flex h-14 shrink-0 items-center justify-between border-b border-[#213743] bg-[#0f212e]/95 backdrop-blur px-4">
               <Link
                 href="/"
                 onClick={handleMobileNavClick}
@@ -182,7 +182,7 @@ export default function Sidebar() {
                   placeholder="Search Stake.com"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-[#0f212e] border border-[#213743] focus:border-[#2f4553] text-sm text-white placeholder-[#b1bad3] pl-9 pr-8 py-2 rounded-xl outline-none"
+                  className="w-full bg-[#1a2c38] border border-[#213743] focus:border-[#2f4553] text-sm font-bold text-white placeholder:font-semibold placeholder-[#b1bad3] pl-9 pr-8 py-2 rounded-xl outline-none"
                 />
                 {searchQuery ? (
                   <button
@@ -204,38 +204,38 @@ export default function Sidebar() {
 
             {/* Segmented Toggle: [ 🎰 Casino | ⚽ Sports ] (blue gradient capsule active state) */}
             <div className="px-3 pt-2.5 pb-2 border-b border-[#213743]">
-              <div className="grid grid-cols-2 bg-[#0f212e] p-1 rounded-xl border border-[#213743]">
+              <div className="grid grid-cols-2 bg-[#1a2c38] p-1 rounded-xl border border-[#213743]">
                 <button
                   onClick={() => setActiveDrawerTab("casino")}
-                  className={`py-2 px-3 rounded-lg text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  className={`py-2 px-3 rounded-lg text-xs sm:text-sm font-extrabold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                     activeDrawerTab === "casino"
                       ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-md"
                       : "text-[#b1bad3] hover:text-white"
                   }`}
                 >
-                  <span>🎰</span>
+                  <span className="text-sm">🎰</span>
                   <span>Casino</span>
                 </button>
                 <button
                   onClick={() => setActiveDrawerTab("sports")}
-                  className={`py-2 px-3 rounded-lg text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  className={`py-2 px-3 rounded-lg text-xs sm:text-sm font-extrabold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                     activeDrawerTab === "sports"
                       ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-md"
                       : "text-[#b1bad3] hover:text-white"
                   }`}
                 >
-                  <span>⚽</span>
+                  <span className="text-sm">⚽</span>
                   <span>Sports</span>
                 </button>
               </div>
             </div>
 
-            {/* Scrollable Navigation Area */}
-            <div className="flex-1 px-3 py-3 space-y-5">
+            {/* Scrollable Navigation Area (Snug fit, no wide dead space) */}
+            <div className="flex-1 px-3 py-2 space-y-3">
               {/* Group 1: Personal (Top Section) */}
               <div>
-                <div className="px-3 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-[#b1bad3]">
-                  Personal
+                <div className="text-xs font-black uppercase tracking-wider text-[#b1bad3] px-3 pt-3 pb-1">
+                  PERSONAL
                 </div>
                 <div className="space-y-0.5">
                   {personalLinks.map((item) => (
@@ -243,9 +243,9 @@ export default function Sidebar() {
                       key={item.name}
                       href={item.href}
                       onClick={handleMobileNavClick}
-                      className="group flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-semibold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-all cursor-pointer"
+                      className="group flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#213743]/70 hover:text-white transition-colors cursor-pointer text-sm sm:text-base font-bold text-white tracking-wide"
                     >
-                      <span className="text-sm shrink-0">{item.emoji}</span>
+                      <span className="text-base sm:text-lg shrink-0">{item.emoji}</span>
                       <span className="truncate">{item.name}</span>
                     </Link>
                   ))}
@@ -254,8 +254,8 @@ export default function Sidebar() {
 
               {/* Group 2: Core Games Directory (Casino or Sports) */}
               <div>
-                <div className="px-3 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-[#b1bad3]">
-                  {activeDrawerTab === "casino" ? "Games" : "Sportsbook"}
+                <div className="text-xs font-black uppercase tracking-wider text-[#b1bad3] px-3 pt-3 pb-1">
+                  {activeDrawerTab === "casino" ? "GAMES" : "SPORTSBOOK"}
                 </div>
                 <div className="space-y-0.5">
                   {(activeDrawerTab === "casino" ? coreGamesLinks : sportsLinks).map((item) => {
@@ -265,18 +265,18 @@ export default function Sidebar() {
                         key={item.name}
                         href={item.href}
                         onClick={handleMobileNavClick}
-                        className={`group flex items-center justify-between rounded-lg px-3 py-2 text-xs font-semibold transition-all cursor-pointer ${
+                        className={`group flex items-center justify-between px-3 py-2.5 rounded-xl transition-colors cursor-pointer text-sm sm:text-base font-bold tracking-wide ${
                           isActive
                             ? "bg-[#213743] text-white shadow-sm"
-                            : "text-[#b1bad3] hover:bg-[#213743] hover:text-white"
+                            : "text-white hover:bg-[#213743]/70"
                         }`}
                       >
                         <div className="flex items-center gap-3 truncate">
-                          <span className="text-sm shrink-0">{item.emoji}</span>
+                          <span className="text-base sm:text-lg shrink-0">{item.emoji}</span>
                           <span className="truncate">{item.name}</span>
                         </div>
                         {item.badge && (
-                          <span className="rounded bg-[#0f212e] px-1.5 py-0.5 text-[9px] font-bold text-[#00e701] border border-[#213743] shrink-0">
+                          <span className="rounded-md bg-[#213743] px-2 py-0.5 text-[10px] font-black text-[#00e701] border border-[#2f4553] shrink-0">
                             {item.badge}
                           </span>
                         )}
@@ -288,46 +288,46 @@ export default function Sidebar() {
 
               {/* Group 3: Community & Promos */}
               <div>
-                <div className="px-3 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-[#b1bad3]">
-                  Community & Promos
+                <div className="text-xs font-black uppercase tracking-wider text-[#b1bad3] px-3 pt-3 pb-1">
+                  PROMOTIONS & COMMUNITY
                 </div>
                 <div className="space-y-0.5">
                   {/* Collapsible Promotions */}
                   <div>
                     <button
                       onClick={() => setIsPromosOpen(!isPromosOpen)}
-                      className="w-full group flex items-center justify-between rounded-lg px-3 py-2 text-xs font-semibold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-all cursor-pointer"
+                      className="w-full group flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-[#213743]/70 transition-colors cursor-pointer text-sm sm:text-base font-bold text-white tracking-wide"
                     >
                       <div className="flex items-center gap-3">
-                        <span className="text-sm">🎁</span>
+                        <span className="text-base sm:text-lg shrink-0">🎁</span>
                         <span>Promotions</span>
                       </div>
                       <ChevronDown
-                        className={`w-3.5 h-3.5 transition-transform ${
+                        className={`w-4 h-4 transition-transform text-[#b1bad3] group-hover:text-white ${
                           isPromosOpen ? "rotate-180 text-white" : ""
                         }`}
                       />
                     </button>
                     {isPromosOpen && (
-                      <div className="pl-9 pr-3 py-1 space-y-1 bg-[#14232f]/60 rounded-lg my-1">
+                      <div className="pl-9 pr-3 py-1 space-y-1 bg-[#1a2c38]/60 rounded-xl my-1">
                         <Link
                           href="/casino/home"
                           onClick={handleMobileNavClick}
-                          className="block py-1.5 text-[11px] font-medium text-[#b1bad3] hover:text-[#00e701]"
+                          className="block py-1.5 text-xs font-semibold text-[#b1bad3] hover:text-[#00e701]"
                         >
                           Casino Promotions
                         </Link>
                         <Link
                           href="/sports"
                           onClick={handleMobileNavClick}
-                          className="block py-1.5 text-[11px] font-medium text-[#b1bad3] hover:text-[#00e701]"
+                          className="block py-1.5 text-xs font-semibold text-[#b1bad3] hover:text-[#00e701]"
                         >
                           Sports Promotions
                         </Link>
                         <Link
                           href="#vip"
                           onClick={handleMobileNavClick}
-                          className="block py-1.5 text-[11px] font-medium text-[#b1bad3] hover:text-[#00e701]"
+                          className="block py-1.5 text-xs font-semibold text-[#b1bad3] hover:text-[#00e701]"
                         >
                           VIP Club Promotions
                         </Link>
@@ -340,9 +340,9 @@ export default function Sidebar() {
                       key={item.name}
                       href={item.href}
                       onClick={handleMobileNavClick}
-                      className="group flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-semibold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-all cursor-pointer"
+                      className="group flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#213743]/70 hover:text-white transition-colors cursor-pointer text-sm sm:text-base font-bold text-white tracking-wide"
                     >
-                      <span className="text-sm shrink-0">{item.emoji}</span>
+                      <span className="text-base sm:text-lg shrink-0">{item.emoji}</span>
                       <span>{item.name}</span>
                     </a>
                   ))}
@@ -351,38 +351,38 @@ export default function Sidebar() {
 
               {/* Group 4: Footer Support & Settings */}
               <div>
-                <div className="px-3 pb-1.5 text-[11px] font-bold uppercase tracking-wider text-[#b1bad3]">
-                  Support & Settings
+                <div className="text-xs font-black uppercase tracking-wider text-[#b1bad3] px-3 pt-3 pb-1">
+                  SUPPORT & SETTINGS
                 </div>
                 <div className="space-y-0.5">
                   {/* Collapsible Sponsorships */}
                   <div>
                     <button
                       onClick={() => setIsSponsorshipsOpen(!isSponsorshipsOpen)}
-                      className="w-full group flex items-center justify-between rounded-lg px-3 py-2 text-xs font-semibold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-all cursor-pointer"
+                      className="w-full group flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-[#213743]/70 transition-colors cursor-pointer text-sm sm:text-base font-bold text-white tracking-wide"
                     >
                       <div className="flex items-center gap-3">
-                        <span className="text-sm">🤝</span>
+                        <span className="text-base sm:text-lg shrink-0">🤝</span>
                         <span>Sponsorships</span>
                       </div>
                       <ChevronDown
-                        className={`w-3.5 h-3.5 transition-transform ${
+                        className={`w-4 h-4 transition-transform text-[#b1bad3] group-hover:text-white ${
                           isSponsorshipsOpen ? "rotate-180 text-white" : ""
                         }`}
                       />
                     </button>
                     {isSponsorshipsOpen && (
-                      <div className="pl-9 pr-3 py-1 space-y-1 bg-[#14232f]/60 rounded-lg my-1">
-                        <span className="block py-1 text-[11px] text-[#b1bad3]">
+                      <div className="pl-9 pr-3 py-1 space-y-1 bg-[#1a2c38]/60 rounded-xl my-1">
+                        <span className="block py-1 text-xs text-[#b1bad3]">
                           Alfa Romeo F1 Team
                         </span>
-                        <span className="block py-1 text-[11px] text-[#b1bad3]">
+                        <span className="block py-1 text-xs text-[#b1bad3]">
                           Everton Football Club
                         </span>
-                        <span className="block py-1 text-[11px] text-[#b1bad3]">
+                        <span className="block py-1 text-xs text-[#b1bad3]">
                           Official UFC Partner
                         </span>
-                        <span className="block py-1 text-[11px] text-[#b1bad3]">
+                        <span className="block py-1 text-xs text-[#b1bad3]">
                           Drake Partnership
                         </span>
                       </div>
@@ -393,9 +393,9 @@ export default function Sidebar() {
                   <a
                     href="#responsible"
                     onClick={handleMobileNavClick}
-                    className="group flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-semibold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-all cursor-pointer"
+                    className="group flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#213743]/70 hover:text-white transition-colors cursor-pointer text-sm sm:text-base font-bold text-white tracking-wide"
                   >
-                    <ShieldCheck className="w-4 h-4 text-[#00e701]" />
+                    <ShieldCheck className="w-5 h-5 text-[#00e701] shrink-0" />
                     <span>Responsible Gambling</span>
                   </a>
 
@@ -405,9 +405,9 @@ export default function Sidebar() {
                       handleMobileNavClick();
                       toggleChat();
                     }}
-                    className="w-full group flex items-center gap-3 rounded-lg px-3 py-2 text-xs font-semibold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-all cursor-pointer"
+                    className="w-full group flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-[#213743]/70 hover:text-white transition-colors cursor-pointer text-sm sm:text-base font-bold text-white tracking-wide"
                   >
-                    <Headphones className="w-4 h-4 text-[#1475e1]" />
+                    <Headphones className="w-5 h-5 text-[#1475e1] shrink-0" />
                     <span>Live Support</span>
                   </button>
 
@@ -415,20 +415,20 @@ export default function Sidebar() {
                   <div>
                     <button
                       onClick={() => setIsLanguageOpen(!isLanguageOpen)}
-                      className="w-full group flex items-center justify-between rounded-lg px-3 py-2 text-xs font-semibold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-all cursor-pointer"
+                      className="w-full group flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-[#213743]/70 transition-colors cursor-pointer text-sm sm:text-base font-bold text-white tracking-wide"
                     >
                       <div className="flex items-center gap-3">
-                        <Globe className="w-4 h-4 text-cyan-400" />
+                        <Globe className="w-5 h-5 text-cyan-400 shrink-0" />
                         <span>Language: {selectedLanguage}</span>
                       </div>
                       <ChevronDown
-                        className={`w-3.5 h-3.5 transition-transform ${
+                        className={`w-4 h-4 transition-transform text-[#b1bad3] group-hover:text-white ${
                           isLanguageOpen ? "rotate-180 text-white" : ""
                         }`}
                       />
                     </button>
                     {isLanguageOpen && (
-                      <div className="pl-9 pr-3 py-1 space-y-1 bg-[#14232f]/60 rounded-lg my-1">
+                      <div className="pl-9 pr-3 py-1 space-y-1 bg-[#1a2c38]/60 rounded-xl my-1">
                         {["English", "Español", "Português", "日本語", "हिन्दी"].map(
                           (lang) => (
                             <button
@@ -437,7 +437,7 @@ export default function Sidebar() {
                                 setSelectedLanguage(lang);
                                 setIsLanguageOpen(false);
                               }}
-                              className={`block w-full text-left py-1 text-[11px] font-medium transition-colors ${
+                              className={`block w-full text-left py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
                                 selectedLanguage === lang
                                   ? "text-[#00e701] font-bold"
                                   : "text-[#b1bad3] hover:text-white"
