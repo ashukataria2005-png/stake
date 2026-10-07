@@ -133,8 +133,8 @@ export default function ProfileDropdown({ isOpen, onClose }: ProfileDropdownProp
       {/* Click outside backdrop dismiss */}
       <div className="fixed inset-0 z-40" onClick={onClose} />
 
-      {/* Official Stake Profile Dropdown Menu - Strictly Matching Screenshot 2 */}
-      <div className="absolute right-1 sm:right-2 top-full mt-1.5 w-[190px] sm:w-[200px] bg-[#1a2c38] border border-[#2f4553] rounded-xl shadow-2xl py-1.5 overflow-hidden flex flex-col text-[#b1bad3] animate-in fade-in zoom-in-95 duration-150 select-none z-50">
+      {/* Official Stake Profile Dropdown Menu - Strictly Matching Screenshot 153 */}
+      <div className="fixed right-0 top-14 sm:top-16 z-50 w-[165px] sm:w-[175px] max-w-[85vw] bg-[#1a2c38] border-l border-b border-[#2f4553] rounded-bl-xl shadow-2xl py-2 flex flex-col text-[#b1bad3] animate-in fade-in zoom-in-95 duration-150 select-none">
         {menuItems.map((item) => {
           const Icon = item.icon;
           const isLogout = item.id === "logout";
@@ -142,10 +142,10 @@ export default function ProfileDropdown({ isOpen, onClose }: ProfileDropdownProp
             <button
               key={item.id}
               onClick={item.action}
-              className={`w-full px-3 py-2 flex items-center gap-2.5 text-xs sm:text-sm font-semibold transition-colors cursor-pointer text-left whitespace-nowrap ${
+              className={`w-full px-3.5 py-2.5 flex items-center gap-3 text-sm font-semibold hover:bg-[#213743] hover:text-white transition-colors cursor-pointer select-none text-left whitespace-nowrap ${
                 isLogout
-                  ? "text-red-400 hover:text-red-300 hover:bg-[#213743]"
-                  : "text-[#b1bad3] hover:bg-[#213743] hover:text-white"
+                  ? "text-red-400 hover:text-red-300"
+                  : "text-[#b1bad3]"
               }`}
             >
               <Icon className={`w-4 h-4 shrink-0 ${isLogout ? "text-red-400" : "text-[#b1bad3]"}`} />

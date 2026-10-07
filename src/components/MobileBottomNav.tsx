@@ -4,26 +4,22 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Search,
+  Menu,
   MessageSquare,
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 
 export default function MobileBottomNav() {
   const pathname = usePathname();
-  const { toggleChat, isChatOpen } = useGame();
+  const { toggleChat, isChatOpen, toggleSidebar, isSidebarOpen } = useGame();
   const [activeTab, setActiveTab] = useState<string>("casino");
 
   const handleTabClick = (tabId: string) => {
     setActiveTab(tabId);
     if (tabId === "chat") {
       toggleChat();
-    } else if (tabId === "browse") {
-      const searchInput = document.getElementById("game-search-input");
-      if (searchInput) {
-        searchInput.focus();
-        searchInput.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
+    } else if (tabId === "menu") {
+      toggleSidebar();
     }
   };
 
@@ -56,25 +52,28 @@ export default function MobileBottomNav() {
       </div>
 
       <div className="flex items-center justify-between relative z-20">
-        {/* Tab 1: Browse */}
+        {/* Tab 1: 3-Line Hamburger Menu / Browse Drawer */}
         <button
-          onClick={() => handleTabClick("browse")}
+          onClick={() => handleTabClick("menu")}
+          aria-label="Toggle Navigation Drawer"
           className="flex flex-col items-center justify-center flex-1 py-1 transition-colors bg-transparent hover:bg-transparent active:bg-transparent cursor-pointer"
         >
           <div className="flex h-7 w-7 items-center justify-center bg-transparent">
-            <Search
-              className={`h-6 w-6 transition-colors ${activeTab === "browse" && !isChatOpen
-                ? "text-[#00e701] stroke-[#00e701]"
-                : "text-[#b1bad3] stroke-[#b1bad3]"
-                }`}
+            <Menu
+              className={`h-6 w-6 transition-colors ${
+                isSidebarOpen && !isChatOpen
+                  ? "text-[#00e701] stroke-[#00e701]"
+                  : "text-[#b1bad3] stroke-[#b1bad3]"
+              }`}
               strokeWidth={2.2}
             />
           </div>
           <span
-            className={`text-[11px] font-bold tracking-tight mt-0.5 transition-colors ${activeTab === "browse" && !isChatOpen
-              ? "text-[#00e701]"
-              : "text-[#b1bad3]"
-              }`}
+            className={`text-[11px] font-bold tracking-tight mt-0.5 transition-colors ${
+              isSidebarOpen && !isChatOpen
+                ? "text-[#00e701]"
+                : "text-[#b1bad3]"
+            }`}
           >
             Browse
           </span>

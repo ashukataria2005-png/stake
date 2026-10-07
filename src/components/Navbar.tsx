@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import {
-  Menu,
   Wallet,
   Bell,
   MessageSquare,
@@ -66,16 +65,8 @@ export default function Navbar() {
   return (
     <>
       <header className="sticky top-0 z-40 flex h-14 sm:h-16 w-full items-center justify-between gap-2 px-3 sm:px-4 md:px-6 bg-[#1a2c38] border-b border-[#213743] select-none">
-        {/* Left Section: Sidebar Toggle & Stake cursive Logo */}
-        <div className="flex items-center gap-2 shrink-0">
-          <button
-            onClick={toggleSidebar}
-            aria-label="Toggle Navigation Sidebar"
-            className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-lg text-[#b1bad3] transition-colors hover:bg-[#213743] hover:text-white cursor-pointer"
-          >
-            <Menu className="h-5 w-5" />
-          </button>
-
+        {/* Left Section: Stake cursive Logo (Clean Direct Start) */}
+        <div className="flex items-center shrink-0">
           <Link
             href="/"
             className="flex items-center focus:outline-none"
