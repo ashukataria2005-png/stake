@@ -163,6 +163,34 @@ function DepositPayContent() {
         console.error("Failed to save deposit notification", err);
       }
 
+      // Update persistent deposit order ledger in stake_deposit_orders
+      try {
+        const savedOrders = localStorage.getItem("stake_deposit_orders");
+        const existingOrders = savedOrders ? JSON.parse(savedOrders) : [];
+        let orderFound = false;
+        const updatedOrders = existingOrders.map((ord: any) => {
+          if (ord.orderId === rawOrderId) {
+            orderFound = true;
+            return { ...ord, status: "Success", utr: utrNumber };
+          }
+          return ord;
+        });
+        if (!orderFound) {
+          updatedOrders.unshift({
+            orderId: rawOrderId,
+            amountINR: amountNumber,
+            amountUSD: parseFloat((amountNumber / 86.5).toFixed(2)),
+            date: new Date().toLocaleString(),
+            status: "Success",
+            utr: utrNumber,
+          });
+        }
+        localStorage.setItem("stake_deposit_orders", JSON.stringify(updatedOrders));
+        window.dispatchEvent(new Event("stake_deposit_orders_updated"));
+      } catch (err) {
+        console.error("Failed to update deposit orders", err);
+      }
+
       // 3. Audio celebration chime
       sounds.playCashout();
 
@@ -508,6 +536,13 @@ function DepositPayContent() {
                 </>
               )}
             </button>
+
+            {/* Mandatory UTR Submission Warning Disclaimer */}
+            <div className="bg-[#2b1717] border border-[#ff4949]/40 rounded-xl p-3.5 mt-3 text-left">
+              <p className="text-xs text-[#ffb4b4] leading-relaxed font-medium">
+                ⚠️ <span className="font-bold text-[#ff6b6b]">IMPORTANT WARNING:</span> Submitting your 12-digit UTR is strictly mandatory. If you complete the UPI transfer but leave or close this page without submitting the UTR, your payment cannot be verified automatically, and funds may be delayed or permanently lost. Do not refresh or exit until your UTR is submitted.
+              </p>
+            </div>
           </form>
         </div>
       </div>

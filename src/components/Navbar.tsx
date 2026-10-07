@@ -92,13 +92,13 @@ export default function Navbar() {
 
         {/* Center / Middle Section: Dynamically Expanded Wallet Balance Pill filling dead space */}
         {isAuthenticated ? (
-          <div className="flex-1 flex items-center justify-center px-1.5 sm:px-4 md:px-8 min-w-0">
-            <div className="flex items-center w-full max-w-[280px] sm:max-w-[380px] md:max-w-[440px] transition-all">
+          <div className="flex-1 flex items-center justify-start sm:justify-center ml-2 sm:ml-4 mr-2 sm:mr-4 min-w-0">
+            <div className="flex items-center w-full max-w-full sm:max-w-[380px] md:max-w-[440px] transition-all">
               {/* Balance Pill Container */}
               <div className="relative flex-1 min-w-0">
                 <div
                   onClick={() => setIsCurrencyDropdownOpen(!isCurrencyDropdownOpen)}
-                  className="flex items-center justify-between gap-1.5 sm:gap-2.5 rounded-l-lg border border-r-0 border-[#213743] bg-[#0f212e] py-1.5 sm:py-2 px-2.5 sm:px-3 shadow-inner cursor-pointer hover:border-[#2f4553] transition-colors w-full"
+                  className="flex items-center justify-between gap-1 sm:gap-2.5 rounded-l-lg border border-r-0 border-[#213743] bg-[#0f212e] py-1.5 sm:py-2 px-2 sm:px-3 shadow-inner cursor-pointer hover:border-[#2f4553] transition-colors w-full"
                 >
                   {/* Left part: Coin Badge + Centered Bold Balance Typography */}
                   <div className="flex items-center justify-center gap-2 flex-1 min-w-0">
