@@ -3,24 +3,20 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
   X,
-  Send,
   Smile,
-  CloudRain,
-  ShieldCheck,
-  Info,
   ChevronDown,
-  Volume2,
-  VolumeX,
+  FileText,
+  Star,
+  ExternalLink,
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
-import confetti from "canvas-confetti";
 
 interface ChatMessage {
   id: string;
   user: string;
   badge: "Bronze" | "Silver" | "Gold" | "Platinum" | "Diamond";
-  badgeColor: string;
+  badgeColor?: string;
   time: string;
   text: string;
   isSelf?: boolean;
@@ -31,15 +27,13 @@ const initialMessages: ChatMessage[] = [
     id: "m1",
     user: "Satoshi_88",
     badge: "Platinum",
-    badgeColor: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30",
     time: "02:40",
-    text: "gg on that 24x crash run! 🚀",
+    text: "gg @CryptoWolf on that 24x crash run! 🚀",
   },
   {
     id: "m2",
     user: "CryptoWolf",
     badge: "Gold",
-    badgeColor: "bg-amber-500/20 text-amber-400 border-amber-500/30",
     time: "02:41",
     text: "mines 3 gems and cashout is the only way brothers 💎",
   },
@@ -47,23 +41,20 @@ const initialMessages: ChatMessage[] = [
     id: "m3",
     user: "Valkyrie",
     badge: "Diamond",
-    badgeColor: "bg-purple-500/20 text-purple-400 border-purple-500/30",
     time: "02:42",
-    text: "Zeus gave a 120x tumble on Gates ⚡",
+    text: "@ApexPredator Zeus gave a 120x tumble on Gates ⚡",
   },
   {
     id: "m4",
     user: "LuckyStrike",
     badge: "Silver",
-    badgeColor: "bg-slate-400/20 text-slate-300 border-slate-400/30",
     time: "02:43",
-    text: "rain when?? 🌧️",
+    text: "@Satoshi_88 rain when?? 🌧️",
   },
   {
     id: "m5",
     user: "ApexPredator",
     badge: "Platinum",
-    badgeColor: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30",
     time: "02:44",
     text: "just hit 110x on Plinko 16 rows!! 🤑",
   },
@@ -71,17 +62,26 @@ const initialMessages: ChatMessage[] = [
 
 const cannedChatter = [
   "plinko 16 rows is paying today 🎯",
-  "who's leading the $100k daily race? 🏆",
+  "@CryptoWolf who's leading the $100k daily race? 🏆",
   "mines is wild right now 💣",
   "gg brothers! 💎",
-  "cashout early or get wrecked haha 😂",
+  "@Valkyrie cashout early or get wrecked haha 😂",
   "zeus 500x multiplier dropped on stream! ⚡",
   "stake VIP weekly bonus was huge 💰",
-  "rocket went to 48x on crash! 🚀",
+  "@LuckyStrike rocket went to 48x on crash! 🚀",
   "1 more game before sleep lol 😴",
   "dropping 50 balls on plinko wish me luck 🍀",
   "rakeback claimed, time to send it on Limbo 🚀",
   "always 1 gem away from 100x on mines 💎",
+];
+
+const CHANNELS = [
+  { id: "india", label: "India", flag: "🇮🇳" },
+  { id: "global", label: "English", flag: "🌍" },
+  { id: "philippines", label: "Philippines", flag: "🇵🇭" },
+  { id: "brazil", label: "Brazil", flag: "🇧🇷" },
+  { id: "japan", label: "Japan", flag: "🇯🇵" },
+  { id: "germany", label: "Germany", flag: "🇩🇪" },
 ];
 
 const EMOJI_CATEGORIES = {
@@ -90,20 +90,33 @@ const EMOJI_CATEGORIES = {
   faces: ["😂", "🥳", "😎", "🤩", "👏", "🙌", "💀", "🤝", "🫡", "🤖", "🤯", "✨"],
 };
 
+const STAKE_CHAT_RULES = [
+  "Do not spam, harass, or be offensive towards other members or staff.",
+  "No begging, asking for loans, rain, or tips.",
+  "No posting cryptocurrency addresses or attempting to buy/sell/trade in chat.",
+  "No advertising or promotion of external sites, Telegram groups, referral links, or codes.",
+  "Avoid excessive use of caps, symbols, or repetitive text.",
+  "Do not share personal information (yours or others).",
+  "Use the designated channel for appropriate languages.",
+  "No discussing alternate accounts or ban evasion.",
+  "No political or religious debates.",
+  "No fake giveaways or deceptive behavior.",
+  "Respect moderators and staff decisions.",
+  "Adhere to Stake terms of service at all times.",
+];
+
 const MAX_CHARS = 160;
 
 export default function CommunityChat() {
-  const { isChatOpen, toggleChat, updateBalance } = useGame();
-  const [channel, setChannel] = useState<"English" | "Hindi" | "High Rollers" | "Sports">("English");
+  const { isChatOpen, toggleChat } = useGame();
+  const [selectedChannel, setSelectedChannel] = useState(CHANNELS[0]);
+  const [isChannelDropdownOpen, setIsChannelDropdownOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [inputText, setInputText] = useState("");
-  const [hasRain, setHasRain] = useState<boolean>(true);
-  const [rainClaimed, setRainClaimed] = useState<boolean>(false);
-  const [onlineCount, setOnlineCount] = useState<number>(1482);
+  const [onlineCount, setOnlineCount] = useState<number>(56926);
   const [showRulesModal, setShowRulesModal] = useState<boolean>(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
   const [emojiTab, setEmojiTab] = useState<"popular" | "gaming" | "faces">("popular");
-  const [isSoundMuted, setIsSoundMuted] = useState<boolean>(false);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const chatInputRef = useRef<HTMLInputElement | null>(null);
@@ -129,13 +142,6 @@ export default function CommunityChat() {
         "Platinum",
         "Diamond",
       ];
-      const badgeStyles: Record<string, string> = {
-        Bronze: "bg-amber-800/20 text-[#cd7f32] border-[#cd7f32]/40",
-        Silver: "bg-slate-400/20 text-slate-300 border-slate-400/40",
-        Gold: "bg-amber-500/20 text-amber-400 border-amber-500/40",
-        Platinum: "bg-cyan-500/20 text-cyan-400 border-cyan-500/40",
-        Diamond: "bg-purple-500/20 text-purple-400 border-purple-500/30",
-      };
       const users = [
         "Staker_77",
         "GoldRush",
@@ -146,6 +152,8 @@ export default function CommunityChat() {
         "AcesHigh",
         "WhaleHunter",
         "LuckyStrike",
+        "CryptoWolf",
+        "ApexPredator",
       ];
 
       const chosenBadge = badges[Math.floor(Math.random() * badges.length)];
@@ -162,13 +170,12 @@ export default function CommunityChat() {
         id: `msg-${Date.now()}-${Math.random()}`,
         user: chosenUser,
         badge: chosenBadge,
-        badgeColor: badgeStyles[chosenBadge],
         time: timeStr,
         text,
       };
 
-      setMessages((prev) => [...prev.slice(-30), newMsg]);
-      setOnlineCount((c) => c + (Math.random() > 0.5 ? 1 : -1));
+      setMessages((prev) => [...prev.slice(-35), newMsg]);
+      setOnlineCount((c) => c + (Math.random() > 0.5 ? Math.floor(Math.random() * 5 + 1) : -Math.floor(Math.random() * 4 + 1)));
     }, 3200);
 
     return () => clearInterval(interval);
@@ -179,9 +186,7 @@ export default function CommunityChat() {
     if (e) e.preventDefault();
     if (!inputText.trim()) return;
 
-    if (!isSoundMuted) {
-      sounds.playClick();
-    }
+    sounds.playClick();
     const now = new Date();
     const timeStr = `${now.getHours().toString().padStart(2, "0")}:${now
       .getMinutes()
@@ -192,7 +197,6 @@ export default function CommunityChat() {
       id: `my-${Date.now()}`,
       user: "You",
       badge: "Gold",
-      badgeColor: "bg-amber-500/20 text-amber-400 border-amber-500/40",
       time: timeStr,
       text: inputText.trim(),
       isSelf: true,
@@ -220,26 +224,23 @@ export default function CommunityChat() {
     chatInputRef.current?.focus();
   };
 
-  // Claim Community Rain
-  const handleClaimRain = () => {
-    if (rainClaimed) return;
-    updateBalance(1.5);
-    setRainClaimed(true);
-    if (!isSoundMuted) {
-      sounds.playDiceWin();
-    }
-    try {
-      confetti({
-        particleCount: 50,
-        spread: 60,
-        origin: { y: 0.5 },
-        colors: ["#38bdf8", "#00e701", "#ffffff"],
-      });
-    } catch {}
-
-    setTimeout(() => {
-      setHasRain(false);
-    }, 3000);
+  // Render message text with styled @mention pills
+  const renderMessageText = (text: string) => {
+    const parts = text.split(/(@\w+)/g);
+    return parts.map((part, index) => {
+      if (part.startsWith("@")) {
+        return (
+          <span
+            key={index}
+            onClick={() => handleMentionUser(part.slice(1))}
+            className="bg-[#213743] text-[#b1bad3] px-2 py-0.5 rounded-md font-medium text-xs cursor-pointer hover:text-white transition-colors inline-block my-0.5 mx-0.5"
+          >
+            {part}
+          </span>
+        );
+      }
+      return <span key={index}>{part}</span>;
+    });
   };
 
   if (!isChatOpen) return null;
@@ -249,143 +250,89 @@ export default function CommunityChat() {
   return (
     <>
       <aside className="fixed top-14 sm:top-16 bottom-0 right-0 z-50 w-full sm:w-[350px] bg-[#1a2c38] border-l border-[#213743] shadow-2xl flex flex-col select-none animate-in slide-in-from-right duration-200">
-        {/* 1. Live Online Header */}
-        <div className="flex items-center justify-between border-b border-[#213743] px-3.5 py-3 bg-[#14232f] shrink-0">
-          <div className="flex items-center gap-2.5">
-            <span className="flex h-2.5 w-2.5 rounded-full bg-[#00e701] shadow-[0_0_8px_#00e701] animate-pulse" />
-            <div className="flex flex-col">
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs font-black text-white tracking-wide">Stake Chat</span>
-                <span className="rounded bg-[#213743] px-1.5 py-0.2 text-[9px] font-mono font-bold text-[#00e701]">
-                  {channel}
-                </span>
+        {/* 1. Channel Header: Dropdown Pill with Flag (e.g. 🇮🇳 India ⌄) & Minimal Close '✕' */}
+        <div className="flex items-center justify-between border-b border-[#213743] px-3.5 py-3 bg-[#14232f] shrink-0 relative">
+          {/* Channel Dropdown Pill */}
+          <div className="relative">
+            <button
+              onClick={() => setIsChannelDropdownOpen(!isChannelDropdownOpen)}
+              className="flex items-center gap-2 bg-[#213743] hover:bg-[#2a4454] text-white text-xs font-bold px-3 py-1.5 rounded-lg border border-[#2f4553]/60 transition-colors cursor-pointer"
+            >
+              <span>{selectedChannel.flag}</span>
+              <span>{selectedChannel.label}</span>
+              <ChevronDown className="w-3.5 h-3.5 text-[#b1bad3]" />
+            </button>
+
+            {/* Dropdown Menu */}
+            {isChannelDropdownOpen && (
+              <div className="absolute top-full left-0 mt-1.5 w-44 bg-[#1a2c38] border border-[#2f4553] rounded-xl shadow-2xl py-1 z-30 animate-in zoom-in-95 duration-150">
+                {CHANNELS.map((ch) => (
+                  <button
+                    key={ch.id}
+                    onClick={() => {
+                      setSelectedChannel(ch);
+                      setIsChannelDropdownOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-left transition-colors cursor-pointer ${
+                      selectedChannel.id === ch.id
+                        ? "bg-[#213743] text-[#00e701]"
+                        : "text-[#b1bad3] hover:bg-[#213743] hover:text-white"
+                    }`}
+                  >
+                    <span>{ch.flag}</span>
+                    <span>{ch.label}</span>
+                  </button>
+                ))}
               </div>
-              <span className="text-[11px] font-mono text-[#b1bad3]">
-                {onlineCount.toLocaleString()} online
-              </span>
-            </div>
+            )}
           </div>
 
-          <div className="flex items-center gap-1.5">
-            {/* Sound Toggle */}
-            <button
-              onClick={() => setIsSoundMuted(!isSoundMuted)}
-              title={isSoundMuted ? "Unmute sounds" : "Mute sounds"}
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer"
-            >
-              {isSoundMuted ? (
-                <VolumeX className="h-3.5 w-3.5 text-red-400" />
-              ) : (
-                <Volume2 className="h-3.5 w-3.5" />
-              )}
-            </button>
-
-            {/* Chat Rules Info Button */}
-            <button
-              onClick={() => setShowRulesModal(true)}
-              title="Stake Chat Rules"
-              className="flex items-center gap-1 text-[11px] font-bold text-[#b1bad3] hover:text-white px-2 py-1 rounded-lg hover:bg-[#213743] transition-colors cursor-pointer"
-            >
-              <ShieldCheck className="h-3.5 w-3.5 text-[#00e701]" />
-              <span className="hidden sm:inline">Rules</span>
-            </button>
-
-            {/* Close Chat */}
-            <button
-              onClick={toggleChat}
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer"
-              aria-label="Close Chat"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
+          {/* Minimal Clean '✕' Dismiss Button */}
+          <button
+            onClick={toggleChat}
+            className="flex h-7 w-7 items-center justify-center rounded-lg text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer text-sm font-semibold"
+            aria-label="Close Chat"
+          >
+            ✕
+          </button>
         </div>
 
-        {/* 2. Channel Selector */}
-        <div className="flex gap-1 border-b border-[#213743] px-3 py-2 bg-[#1a2c38] shrink-0">
-          {(["English", "Hindi", "High Rollers", "Sports"] as const).map((ch) => (
-            <button
-              key={ch}
-              onClick={() => {
-                if (!isSoundMuted) sounds.playClick();
-                setChannel(ch);
-              }}
-              className={`rounded-lg px-2.5 py-1 text-[11px] font-bold transition-all cursor-pointer ${
-                channel === ch
-                  ? "bg-[#213743] text-[#00e701] shadow-sm border border-[#00e701]/30"
-                  : "text-[#b1bad3] hover:text-white"
-              }`}
-            >
-              {ch}
-            </button>
-          ))}
-        </div>
-
-        {/* 3. Community Crypto Rain Banner */}
-        {hasRain && (
-          <div className="m-2.5 rounded-xl border border-sky-500/40 bg-gradient-to-r from-sky-950/60 to-blue-950/60 p-2.5 shadow-lg flex items-center justify-between shrink-0 animate-in zoom-in-95 duration-200">
-            <div className="flex items-center gap-2">
-              <CloudRain className="h-5 w-5 text-sky-400 animate-bounce" />
-              <div>
-                <div className="text-[11px] font-black text-white">Crypto Rain Active!</div>
-                <div className="text-[10px] text-sky-300 font-medium">$25.00 shared among chat</div>
-              </div>
-            </div>
-            <button
-              onClick={handleClaimRain}
-              disabled={rainClaimed}
-              className={`rounded-lg px-3 py-1.5 text-xs font-black transition-all cursor-pointer ${
-                rainClaimed
-                  ? "bg-slate-700 text-slate-400 cursor-default"
-                  : "bg-sky-400 text-[#0f212e] shadow-md hover:bg-sky-300 active:scale-95"
-              }`}
-            >
-              {rainClaimed ? "Claimed ✓" : "Claim $1.50"}
-            </button>
-          </div>
-        )}
-
-        {/* 4. Scrollable Chat Messages Area (Isolated Bubble Containers) */}
-        <div className="flex-1 overflow-y-auto p-3 space-y-2.5">
+        {/* 2. Scrollable Message Cards (Isolated Bubbles matching Screenshot 18) */}
+        <div className="flex-1 overflow-y-auto px-3 py-2 space-y-1">
           {messages.map((m) => (
             <div
               key={m.id}
-              className={`rounded-xl p-2.5 space-y-1 transition-all text-xs ${
-                m.isSelf
-                  ? "bg-[#0f212e] border border-[#00e701]/40 shadow-[0_0_12px_rgba(0,231,1,0.06)]"
-                  : "bg-[#0f212e] border border-[#213743] hover:border-[#2f4553]"
+              className={`bg-[#1a2c38] rounded-xl p-3 my-1.5 border border-[#213743]/50 flex flex-col gap-1 text-xs sm:text-sm ${
+                m.isSelf ? "border-[#00e701]/40 shadow-[0_0_8px_rgba(0,231,1,0.05)]" : ""
               }`}
             >
-              {/* Header with VIP Badge & Username */}
+              {/* User Header Row */}
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <Star className="w-3.5 h-3.5 fill-[#00e701] text-[#00e701] shrink-0" />
                   <span
-                    className={`rounded px-1.5 py-0.2 text-[9px] font-black uppercase border tracking-wider ${m.badgeColor}`}
-                  >
-                    {m.badge}
-                  </span>
-                  <button
                     onClick={() => handleMentionUser(m.user)}
-                    title={`Mention ${m.user}`}
-                    className="font-bold text-[#b1bad3] hover:text-white hover:underline transition-colors cursor-pointer"
+                    className="font-bold text-white mr-1.5 hover:underline cursor-pointer tracking-tight"
                   >
-                    {m.user}
-                  </button>
+                    {m.user}:
+                  </span>
                 </div>
-                <span className="text-[10px] text-[#b1bad3]/60 font-mono">{m.time}</span>
+                <span className="text-[10px] text-[#b1bad3]/60 font-mono shrink-0">
+                  {m.time}
+                </span>
               </div>
 
-              {/* Message text */}
-              <p className="text-white text-[12px] sm:text-[13px] leading-relaxed break-words font-medium">
-                {m.text}
+              {/* Message Text with authentic Stake @mention pills */}
+              <p className="text-[#d5dceb] leading-relaxed break-words font-normal">
+                {renderMessageText(m.text)}
               </p>
             </div>
           ))}
           <div ref={messagesEndRef} />
         </div>
 
-        {/* 5. Chat Input Box with Emoji Picker & 160 Char Counter */}
-        <div className="relative border-t border-[#213743] p-3 bg-[#14232f] shrink-0">
+        {/* 3. Input Bar & Bottom Action Row matching Screenshots 18, 19, 20 */}
+        <div className="relative border-t border-[#213743] p-3 bg-[#14232f] shrink-0 space-y-2">
           {/* Full Emoji Picker Popover */}
           {showEmojiPicker && (
             <div className="absolute bottom-full mb-2 left-2 right-2 bg-[#1a2c38] border border-[#2f4553] rounded-2xl shadow-2xl p-3 z-30 animate-in zoom-in-95 duration-150">
@@ -424,9 +371,9 @@ export default function CommunityChat() {
                 </div>
                 <button
                   onClick={() => setShowEmojiPicker(false)}
-                  className="text-[#b1bad3] hover:text-white p-0.5 cursor-pointer"
+                  className="text-[#b1bad3] hover:text-white p-0.5 cursor-pointer text-xs"
                 >
-                  <X className="w-3.5 h-3.5" />
+                  ✕
                 </button>
               </div>
 
@@ -446,146 +393,115 @@ export default function CommunityChat() {
             </div>
           )}
 
-          {/* Quick Reaction Bar */}
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-1.5">
-              {["🔥", "💎", "🚀", "🤑", "⚡"].map((em) => (
-                <button
-                  key={em}
-                  type="button"
-                  onClick={() => handleInsertEmoji(em)}
-                  className="rounded-lg bg-[#1a2c38] px-2 py-0.5 text-xs hover:bg-[#213743] hover:scale-105 transition-all cursor-pointer"
-                >
-                  {em}
-                </button>
-              ))}
-            </div>
-
-            {/* 160 Char Counter */}
-            <span
-              className={`text-[10px] font-mono font-bold transition-colors ${
-                charsRemaining <= 10
-                  ? "text-red-400"
-                  : charsRemaining <= 30
-                  ? "text-amber-400"
-                  : "text-[#b1bad3]/60"
-              }`}
-            >
-              {charsRemaining}
-            </span>
-          </div>
-
-          {/* Input & Action Buttons */}
-          <form onSubmit={handleSendMessage} className="flex items-center gap-1.5">
-            <div className="flex flex-1 items-center rounded-xl border border-[#213743] bg-[#0f212e] px-2 py-1.5 focus-within:border-[#00e701] transition-colors">
+          {/* Form with Input Field & Smile Icon */}
+          <form onSubmit={handleSendMessage} className="space-y-2">
+            <div className="relative flex items-center w-full">
               <input
                 ref={chatInputRef}
                 type="text"
-                placeholder="Type in chat..."
+                placeholder="Type your message"
                 value={inputText}
                 maxLength={MAX_CHARS}
                 onChange={(e) => setInputText(e.target.value)}
-                className="w-full bg-transparent px-1 text-xs text-white placeholder-[#b1bad3]/60 focus:outline-none"
+                className="bg-[#0f212e] border border-[#213743] focus:border-[#2f4553] rounded-xl px-3 py-2.5 text-sm text-white placeholder-[#b1bad3] outline-none w-full pr-10"
               />
               <button
                 type="button"
                 onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                className={`flex h-7 w-7 items-center justify-center rounded-lg transition-colors cursor-pointer ${
-                  showEmojiPicker
-                    ? "text-[#00e701] bg-[#213743]"
-                    : "text-[#b1bad3] hover:text-white hover:bg-[#1a2c38]"
-                }`}
-                aria-label="Open Emoji Picker"
+                className="absolute right-3 text-amber-400 hover:scale-110 transition-transform cursor-pointer flex items-center justify-center"
+                aria-label="Emoji Picker"
               >
-                <Smile className="h-4 w-4" />
+                <Smile className="w-5 h-5 fill-amber-400/20 text-amber-400" />
               </button>
             </div>
 
-            <button
-              type="submit"
-              disabled={!inputText.trim()}
-              className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#00e701] text-[#0f212e] disabled:opacity-30 disabled:cursor-not-allowed transition-all hover:bg-[#00c701] active:scale-95 cursor-pointer shrink-0 shadow-sm"
-              aria-label="Send message"
-            >
-              <Send className="h-4 w-4" />
-            </button>
+            {/* Bottom Controls Bar */}
+            <div className="flex items-center justify-between pt-1">
+              {/* Left: Live User Count */}
+              <span className="flex items-center gap-1.5 text-xs text-[#b1bad3]">
+                <span className="w-2 h-2 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] animate-pulse"></span>
+                <span>Online: {onlineCount.toLocaleString()}</span>
+              </span>
+
+              {/* Right Grouping */}
+              <div className="flex items-center gap-2">
+                {/* Character limit countdown */}
+                <span className="text-xs font-semibold text-[#b1bad3]">
+                  {charsRemaining}
+                </span>
+
+                {/* Notepad Rules Button */}
+                <button
+                  type="button"
+                  onClick={() => setShowRulesModal(true)}
+                  title="Chat Rules"
+                  className="bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white rounded-lg p-2 cursor-pointer transition-colors flex items-center justify-center"
+                >
+                  <FileText className="w-4 h-4" />
+                </button>
+
+                {/* Send Button: Solid Stake Blue */}
+                <button
+                  type="submit"
+                  disabled={!inputText.trim()}
+                  className="bg-[#1475e1] hover:bg-[#1164c2] text-white font-bold px-4 py-2 rounded-lg text-xs sm:text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 shadow-sm"
+                >
+                  Send
+                </button>
+              </div>
+            </div>
           </form>
         </div>
       </aside>
 
-      {/* 6. Stake Chat Rules Modal */}
+      {/* 4. Chat Rules Modal (Screenshots 19 & 20) with all 12 rules verbatim and forum link */}
       {showRulesModal && (
         <div className="fixed inset-0 z-60 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-150 select-none">
-          <div className="w-full max-w-sm rounded-2xl bg-[#1a2c38] border border-[#2f4553] shadow-2xl p-5 space-y-4 animate-in zoom-in-95 duration-150 text-white">
+          <div className="w-full max-w-md rounded-2xl bg-[#1a2c38] border border-[#2f4553] shadow-2xl p-5 space-y-4 animate-in zoom-in-95 duration-150 text-white max-h-[90dvh] flex flex-col">
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-[#213743] pb-3">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="h-5 w-5 text-[#00e701]" />
-                <h3 className="text-base font-extrabold tracking-wide">Stake Chat Rules</h3>
-              </div>
+            <div className="flex items-center justify-between border-b border-[#213743] pb-3 shrink-0">
+              <h3 className="text-base font-extrabold tracking-wide flex items-center gap-2">
+                <span>📋</span>
+                <span>Chat Rules</span>
+              </h3>
               <button
                 onClick={() => setShowRulesModal(false)}
-                className="flex h-7 w-7 items-center justify-center rounded-lg text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer"
+                className="flex h-7 w-7 items-center justify-center rounded-lg text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer text-sm font-semibold"
               >
-                <X className="h-4 w-4" />
+                ✕
               </button>
             </div>
 
-            {/* Modal Rules Content */}
-            <div className="space-y-3 text-xs leading-relaxed text-[#b1bad3]">
-              <div className="flex items-start gap-2.5">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#00e701]/20 text-[#00e701] font-bold text-[10px]">
-                  1
-                </span>
-                <p>
-                  <strong className="text-white">No spamming or flooding:</strong> Do not repeat messages, post walls of text, or type in ALL CAPS.
-                </p>
-              </div>
-
-              <div className="flex items-start gap-2.5">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#00e701]/20 text-[#00e701] font-bold text-[10px]">
-                  2
-                </span>
-                <p>
-                  <strong className="text-white">No begging or loans:</strong> Asking for rain, tips, crypto loans, or posting wallet addresses is strictly forbidden.
-                </p>
-              </div>
-
-              <div className="flex items-start gap-2.5">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#00e701]/20 text-[#00e701] font-bold text-[10px]">
-                  3
-                </span>
-                <p>
-                  <strong className="text-white">No toxicity or harassment:</strong> Treat other players and moderators with respect. Zero tolerance for hate speech or racism.
-                </p>
-              </div>
-
-              <div className="flex items-start gap-2.5">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#00e701]/20 text-[#00e701] font-bold text-[10px]">
-                  4
-                </span>
-                <p>
-                  <strong className="text-white">No advertising or promotion:</strong> External referral codes, social links, or competing services will result in an instant ban.
-                </p>
-              </div>
-
-              <div className="flex items-start gap-2.5">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#00e701]/20 text-[#00e701] font-bold text-[10px]">
-                  5
-                </span>
-                <p>
-                  <strong className="text-white">Protect your security:</strong> Never share passwords or seed phrases. Stake staff will never ask for your private keys.
-                </p>
-              </div>
+            {/* Modal Rules Content - 12 Rules Verbatim */}
+            <div className="space-y-2.5 text-xs leading-relaxed text-[#b1bad3] overflow-y-auto pr-1 flex-1">
+              {STAKE_CHAT_RULES.map((rule, idx) => (
+                <div key={idx} className="flex items-start gap-2.5">
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#213743] text-white font-bold text-[10px]">
+                    {idx + 1}
+                  </span>
+                  <p className="text-[#d5dceb]">{rule}</p>
+                </div>
+              ))}
             </div>
 
-            {/* Acknowledge Button */}
-            <button
-              onClick={() => setShowRulesModal(false)}
-              className="w-full py-2.5 rounded-xl bg-[#00e701] hover:bg-[#00c701] text-[#0f212e] font-extrabold text-sm transition-all shadow-md active:scale-95 cursor-pointer"
-            >
-              I Understand
-            </button>
+            {/* Modal Footer with Forum Link & Dismiss Button */}
+            <div className="space-y-3 pt-2 border-t border-[#213743] shrink-0">
+              <a
+                href="#forum"
+                onClick={() => setShowRulesModal(false)}
+                className="flex items-center justify-center gap-1.5 text-xs font-semibold text-[#1475e1] hover:underline"
+              >
+                <span>Read the full Stake Chat Rules on our Forum</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+
+              <button
+                onClick={() => setShowRulesModal(false)}
+                className="w-full py-2.5 rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white font-extrabold text-sm transition-all shadow-md active:scale-95 cursor-pointer"
+              >
+                I Understand
+              </button>
+            </div>
           </div>
         </div>
       )}
