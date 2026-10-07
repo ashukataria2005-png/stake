@@ -31,7 +31,7 @@ export default function CasinoSportsHeroBanner() {
         className="group relative w-full rounded-2xl overflow-hidden bg-[#0f212e] border border-[#213743] hover:border-[#2f4553] flex flex-col justify-between transition-transform duration-200 active:scale-[0.98] shadow-lg"
       >
         {/* Upper Graphic Stage - 100% Full-Bleed Edge-to-Edge */}
-        <div className="relative w-full h-[135px] sm:h-[155px] overflow-hidden rounded-t-2xl bg-gradient-to-b from-[#1475e1] to-[#0b4bb1]">
+        <div className="relative w-full h-[155px] sm:h-[175px] overflow-hidden rounded-t-2xl bg-gradient-to-b from-[#1475e1] to-[#0b4bb1]">
           {/* Title Overlay */}
           <span className="absolute top-3 left-3.5 z-10 text-white font-black text-base sm:text-lg tracking-wider drop-shadow-md">
             {BANNER_ASSETS.casinoHero.title || "CASINO"}
@@ -43,15 +43,15 @@ export default function CasinoSportsHeroBanner() {
               src={casinoImgUrl}
               alt={BANNER_ASSETS.casinoHero.title || "CASINO"}
               onError={() => setCasinoImgError(true)}
-              className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none transition-transform duration-300 group-hover:scale-105"
+              className="absolute inset-0 w-full h-full object-contain object-bottom sm:object-center p-2 pointer-events-none transition-transform duration-300 group-hover:scale-105"
             />
           ) : (
             /* Edge-to-edge 3D artwork fallback */
-            <div className="absolute inset-0 w-full h-full flex items-center justify-center pointer-events-none transition-transform duration-300 group-hover:scale-105">
+            <div className="absolute inset-0 w-full h-full flex items-center justify-center pb-2 sm:pb-3 pointer-events-none transition-transform duration-300 group-hover:scale-105">
               <svg
                 viewBox="0 0 200 140"
-                preserveAspectRatio="xMidYMid slice"
-                className="w-full h-full object-cover"
+                preserveAspectRatio="xMidYMid meet"
+                className="w-full h-full object-contain"
               >
                 <defs>
                   <radialGradient id="chipGlow" cx="50%" cy="50%" r="50%">
@@ -76,8 +76,8 @@ export default function CasinoSportsHeroBanner() {
                 {/* Subtle light sweep */}
                 <rect x="0" y="0" width="200" height="140" fill="url(#shineGlow)" />
 
-                {/* 3D Casino Chip (Back Left) */}
-                <g transform="translate(40, 50)">
+                {/* 3D Casino Chip (Back Left) - Elevated */}
+                <g transform="translate(38, 42)">
                   <ellipse cx="28" cy="28" rx="28" ry="20" fill="#7f1d1d" />
                   <ellipse cx="28" cy="25" rx="28" ry="20" fill="url(#chipGlow)" />
                   <path d="M7 19 L13 16" stroke="#ffffff" strokeWidth="4.5" strokeLinecap="round" />
@@ -92,8 +92,8 @@ export default function CasinoSportsHeroBanner() {
                   </text>
                 </g>
 
-                {/* 3D Sparkling Blue Diamond (Front Right) */}
-                <g transform="translate(95, 20)">
+                {/* 3D Sparkling Blue Diamond (Front Right) - Elevated */}
+                <g transform="translate(95, 16)">
                   <polygon points="32,8 50,8 60,28 22,28" fill="url(#facetTop)" />
                   <polygon points="10,28 22,28 32,8 20,8" fill="#bae6fd" />
                   <polygon points="50,8 62,8 72,28 60,28" fill="#0284c7" />
@@ -123,7 +123,7 @@ export default function CasinoSportsHeroBanner() {
         className="group relative w-full rounded-2xl overflow-hidden bg-[#0f212e] border border-[#213743] hover:border-[#2f4553] flex flex-col justify-between transition-transform duration-200 active:scale-[0.98] shadow-lg"
       >
         {/* Upper Graphic Stage - 100% Full-Bleed Edge-to-Edge */}
-        <div className="relative w-full h-[135px] sm:h-[155px] overflow-hidden rounded-t-2xl bg-gradient-to-b from-[#1475e1] to-[#0b4bb1]">
+        <div className="relative w-full h-[155px] sm:h-[175px] overflow-hidden rounded-t-2xl bg-gradient-to-b from-[#1475e1] to-[#0b4bb1]">
           {/* Title Overlay */}
           <span className="absolute top-3 left-3.5 z-10 text-white font-black text-base sm:text-lg tracking-wider drop-shadow-md">
             {BANNER_ASSETS.sportsHero.title || "SPORTS"}
@@ -135,15 +135,15 @@ export default function CasinoSportsHeroBanner() {
               src={sportsImgUrl}
               alt={BANNER_ASSETS.sportsHero.title || "SPORTS"}
               onError={() => setSportsImgError(true)}
-              className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none transition-transform duration-300 group-hover:scale-105"
+              className="absolute inset-0 w-full h-full object-contain object-bottom sm:object-center p-2 pointer-events-none transition-transform duration-300 group-hover:scale-105"
             />
           ) : (
             /* Edge-to-edge 3D artwork fallback */
-            <div className="absolute inset-0 w-full h-full flex items-center justify-center pointer-events-none transition-transform duration-300 group-hover:scale-105">
+            <div className="absolute inset-0 w-full h-full flex items-center justify-center pb-2 sm:pb-3 pointer-events-none transition-transform duration-300 group-hover:scale-105">
               <svg
                 viewBox="0 0 200 140"
-                preserveAspectRatio="xMidYMid slice"
-                className="w-full h-full object-cover"
+                preserveAspectRatio="xMidYMid meet"
+                className="w-full h-full object-contain"
               >
                 <defs>
                   <linearGradient id="trophyGold" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -165,8 +165,8 @@ export default function CasinoSportsHeroBanner() {
                 {/* Subtle light sweep */}
                 <rect x="0" y="0" width="200" height="140" fill="url(#shineGlowSports)" />
 
-                {/* 3D Trophy (Left) */}
-                <g transform="translate(35, 25)">
+                {/* 3D Trophy (Left) - Elevated */}
+                <g transform="translate(35, 20)">
                   <path
                     d="M9 16 C-5 16 -5 34 11 36"
                     fill="none"
@@ -194,8 +194,8 @@ export default function CasinoSportsHeroBanner() {
                   </text>
                 </g>
 
-                {/* 3D Stake Soccer Ball (Right) */}
-                <g transform="translate(100, 38)">
+                {/* 3D Stake Soccer Ball (Right) - Elevated */}
+                <g transform="translate(100, 32)">
                   <circle cx="28" cy="28" r="26" fill="#f8fafc" stroke="#334155" strokeWidth="1.2" />
                   <polygon points="28,17 36,23 33,34 23,34 20,23" fill="#0284c7" />
                   <line x1="28" y1="17" x2="28" y2="4" stroke="#0f172a" strokeWidth="2" />
