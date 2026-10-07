@@ -43,14 +43,14 @@ export default function CasinoGameRow({
       {/* Row Header */}
       <div className="flex items-center justify-between">
         <Link href={linkHref} className="flex items-center gap-2 group cursor-pointer">
-          <h2 className="text-sm sm:text-base font-extrabold text-white flex items-center gap-1.5 tracking-tight hover:text-[#00e701] transition-colors cursor-pointer">
+          <h2 className="text-base sm:text-lg font-extrabold text-white flex items-center gap-1.5 tracking-tight hover:text-[#00e701] transition-colors cursor-pointer">
             <span>{title}</span>
-            <span className="text-[#b1bad3] text-sm group-hover:translate-x-1 transition-transform">
+            <span className="text-[#b1bad3] text-sm sm:text-base group-hover:translate-x-1 transition-transform">
               &gt;
             </span>
           </h2>
           {rowBadge && (
-            <span className="rounded-md bg-blue-500/20 text-blue-300 border border-blue-400/40 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider">
+            <span className="rounded-md bg-blue-500/20 text-blue-300 border border-blue-400/40 px-2 py-0.5 text-xs font-black uppercase tracking-wider">
               {rowBadge}
             </span>
           )}
@@ -76,7 +76,7 @@ export default function CasinoGameRow({
                 />
                 <div className="relative z-10 flex items-center justify-between">
                   {card.badge && (
-                    <span className="rounded px-1.5 py-0.5 text-[8px] sm:text-[9px] font-black uppercase tracking-wider border truncate bg-[#00e701]/20 text-[#00e701] border-[#00e701]/30">
+                    <span className="rounded px-1.5 py-0.5 text-xs font-black uppercase tracking-wider border truncate bg-[#00e701]/20 text-[#00e701] border-[#00e701]/30">
                       {card.badge}
                     </span>
                   )}
@@ -85,10 +85,10 @@ export default function CasinoGameRow({
                   {card.graphic}
                 </div>
                 <div className="relative z-10 space-y-0.5">
-                  <h3 className="font-black uppercase tracking-wider text-xs sm:text-sm text-white group-hover:text-[#00e701] transition-colors truncate">
+                  <h3 className="font-black uppercase tracking-wider text-sm sm:text-base text-white group-hover:text-[#00e701] transition-colors truncate">
                     {card.title}
                   </h3>
-                  {card.provider && <p className="text-[10px] text-[#b1bad3] truncate">{card.provider}</p>}
+                  {card.provider && <p className="text-xs text-[#b1bad3] truncate">{card.provider}</p>}
                 </div>
               </div>
             );
@@ -143,10 +143,10 @@ export default function CasinoGameRow({
 
               {/* Under-Card Title & Player Count */}
               <div className="flex flex-col mt-1.5 px-0.5">
-                <span className="font-black uppercase tracking-wider text-xs sm:text-sm text-white truncate">
+                <span className="font-black uppercase tracking-wider text-sm sm:text-base text-white truncate">
                   {card.title}
                 </span>
-                <div className="flex items-center gap-1 sm:gap-1.5 mt-0.5 text-[10px] sm:text-[11px] font-semibold text-[#b1bad3] truncate">
+                <div className="flex items-center gap-1 sm:gap-1.5 mt-0.5 text-xs sm:text-sm font-semibold text-[#b1bad3] truncate">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] animate-pulse shrink-0" />
                   <span className="truncate">{(card.playersCount || 1250).toLocaleString("en-US")} playing</span>
                 </div>
@@ -178,7 +178,7 @@ export default function CasinoGameRow({
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1a2c38] group-hover:bg-[#00e701] text-[#b1bad3] group-hover:text-[#0f212e] transition-colors shadow-md">
             <ArrowRight className="h-5 w-5" />
           </div>
-          <span className="text-xs font-bold text-center px-1">View All {title}</span>
+          <span className="text-xs sm:text-sm font-bold text-center px-1">View All {title}</span>
         </Link>
       </div>
     </section>

@@ -55,6 +55,15 @@
   scrollbar-color: #213743 #0f212e;
 }
 
+html {
+  font-size: 17px; /* Bump from standard 16px to give +2px to +3px effective readability */
+}
+@media (min-width: 640px) {
+  html {
+    font-size: 17.5px;
+  }
+}
+
 body {
   background-color: #0f212e;
   color: #ffffff;
@@ -62,6 +71,9 @@ body {
   letter-spacing: -0.01em;
   overflow-x: hidden;
   user-select: none;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 h1, h2, h3, h4, h5, h6, .font-heading {

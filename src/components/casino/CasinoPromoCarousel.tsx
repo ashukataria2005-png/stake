@@ -224,7 +224,7 @@ export default function CasinoPromoCarousel() {
             className="min-w-[88%] sm:min-w-[380px] md:min-w-[420px] max-w-[460px] flex-shrink-0 snap-center"
           >
             <Link
-              href={promo.ctaLink}
+              href={promo.ctaLink.startsWith("http") && promo.ctaLink.includes("sanity.io") ? "/casino/home" : promo.ctaLink}
               className="h-[125px] sm:h-[140px] w-full rounded-2xl bg-[#1a2c38] border border-[#213743] hover:border-[#2f4553] flex items-center overflow-hidden select-none cursor-grab active:cursor-grabbing transition-transform active:scale-[0.99] shadow-lg group block"
             >
               <div className="flex w-full h-full">
@@ -232,18 +232,27 @@ export default function CasinoPromoCarousel() {
                 <div
                   className={`w-[40%] h-full relative overflow-hidden bg-gradient-to-r ${promo.bgGradient} flex items-center justify-center p-2 shrink-0 group-hover:scale-105 transition-transform duration-300`}
                 >
-                  {promo.artwork}
+                  {promo.ctaLink.startsWith("https://cdn.sanity.io") ? (
+                    <img
+                      src={promo.ctaLink}
+                      alt={promo.title}
+                      className="w-full h-full object-contain drop-shadow-md"
+                      loading="lazy"
+                    />
+                  ) : (
+                    promo.artwork
+                  )}
                 </div>
 
                 {/* Right side (Content - 60%) */}
                 <div className="w-[60%] p-3.5 flex flex-col justify-center gap-1 text-left overflow-hidden">
-                  <span className="w-fit text-[10px] font-bold uppercase tracking-wider bg-white/10 text-white px-2 py-0.5 rounded-md">
+                  <span className="w-fit text-xs font-bold uppercase tracking-wider bg-white/10 text-white px-2 py-0.5 rounded-md">
                     Promotion
                   </span>
                   <h3 className="text-white font-black text-sm sm:text-base leading-tight tracking-tight truncate">
                     {promo.title}
                   </h3>
-                  <p className="text-[#b1bad3] text-[11px] sm:text-xs line-clamp-2 leading-relaxed">
+                  <p className="text-[#b1bad3] text-xs sm:text-sm line-clamp-2 leading-relaxed">
                     {promo.description}
                   </p>
                 </div>

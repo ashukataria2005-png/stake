@@ -108,7 +108,7 @@ export default function CasinoCategoryPills({
             <button
               key={cat.id}
               onClick={() => handlePillClick(cat.id)}
-              className={`rounded-full px-4 py-2 flex items-center gap-2 text-xs sm:text-sm shrink-0 cursor-pointer transition-all duration-150 ${
+              className={`rounded-full px-4 py-2 flex items-center gap-2 text-sm sm:text-base shrink-0 cursor-pointer transition-all duration-150 ${
                 isActive
                   ? "bg-[#2f4553] text-white font-bold shadow-sm"
                   : "bg-transparent text-[#b1bad3] hover:text-white font-medium hover:bg-[#213743]/50"

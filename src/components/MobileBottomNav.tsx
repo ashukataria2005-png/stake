@@ -69,7 +69,7 @@ export default function MobileBottomNav() {
             />
           </div>
           <span
-            className={`text-[11px] font-bold tracking-tight mt-0.5 transition-colors ${
+            className={`text-xs font-bold tracking-tight mt-0.5 transition-colors ${
               isSidebarOpen && !isChatOpen
                 ? "text-[#00e701]"
                 : "text-[#b1bad3]"
@@ -99,7 +99,7 @@ export default function MobileBottomNav() {
             </svg>
           </div>
           <span
-            className={`text-[11px] font-bold tracking-tight mt-0.5 transition-colors ${isCasinoActive ? "text-[#00e701]" : "text-[#b1bad3]"
+            className={`text-xs font-bold tracking-tight mt-0.5 transition-colors ${isCasinoActive ? "text-[#00e701]" : "text-[#b1bad3]"
               }`}
           >
             Casino
@@ -150,7 +150,7 @@ export default function MobileBottomNav() {
             </svg>
           </div>
           <span
-            className={`text-[11px] font-bold tracking-tight mt-0.5 transition-colors ${pathname === "/sports" && !isChatOpen
+            className={`text-xs font-bold tracking-tight mt-0.5 transition-colors ${pathname === "/sports" && !isChatOpen
               ? "text-[#00e701]"
               : "text-[#b1bad3]"
               }`}
@@ -178,7 +178,7 @@ export default function MobileBottomNav() {
             </span>
           </div>
           <span
-            className={`text-[11px] font-bold tracking-tight mt-0.5 transition-colors ${isChatOpen ? "text-[#00e701]" : "text-[#b1bad3]"
+            className={`text-xs font-bold tracking-tight mt-0.5 transition-colors ${isChatOpen ? "text-[#00e701]" : "text-[#b1bad3]"
               }`}
           >
             Chat

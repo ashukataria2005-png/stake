@@ -119,11 +119,11 @@ export default function Navbar() {
                       />
                     )}
 
-                    <span className="font-mono text-white tracking-wide tabular-nums font-extrabold text-xs sm:text-sm md:text-base truncate text-center">
+                    <span className="font-mono text-white tracking-wide tabular-nums font-extrabold text-sm sm:text-base md:text-lg truncate text-center">
                       {displayInfo.amount}
                     </span>
 
-                    <span className="text-[10px] font-semibold text-[#b1bad3] hidden md:inline uppercase shrink-0">
+                    <span className="text-xs font-semibold text-[#b1bad3] hidden md:inline uppercase shrink-0">
                       {displayInfo.code}
                     </span>
                   </div>
@@ -160,7 +160,7 @@ export default function Navbar() {
               {/* Vibrant Blue Wallet Button Attached Cleanly to the Right of Balance Pill */}
               <button
                 onClick={openWalletModal}
-                className="flex items-center justify-center gap-1 sm:gap-1.5 h-10 w-10 sm:h-10 sm:w-auto rounded-r-xl bg-[#1475e1] hover:bg-[#1268c7] px-2.5 sm:px-4 text-xs sm:text-sm font-bold text-white shadow-md transition-all active:scale-95 cursor-pointer border border-[#1475e1] shrink-0"
+                className="flex items-center justify-center gap-1 sm:gap-1.5 h-10 w-10 sm:h-10 sm:w-auto rounded-r-xl bg-[#1475e1] hover:bg-[#1268c7] px-2.5 sm:px-4 text-sm sm:text-base font-bold text-white shadow-md transition-all active:scale-95 cursor-pointer border border-[#1475e1] shrink-0"
                 title="Wallet"
               >
                 <Wallet className="h-4.5 w-4.5" />
@@ -186,13 +186,13 @@ export default function Navbar() {
             </button>
             <button
               onClick={openOneTap}
-              className="text-[#b1bad3] hover:text-white font-semibold text-xs sm:text-sm px-3 py-2 transition-colors cursor-pointer"
+              className="text-[#b1bad3] hover:text-white font-semibold text-sm sm:text-base px-3 py-2 transition-colors cursor-pointer"
             >
               Sign In
             </button>
             <button
               onClick={openOneTap}
-              className="bg-[#1475e1] hover:bg-[#1268c7] text-white font-bold text-xs sm:text-sm px-3.5 py-2 rounded-xl shadow-sm transition-all cursor-pointer"
+              className="bg-[#1475e1] hover:bg-[#1268c7] text-white font-bold text-sm sm:text-base px-3.5 py-2 rounded-xl shadow-sm transition-all cursor-pointer"
             >
               Register
             </button>
