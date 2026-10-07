@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Play } from "lucide-react";
+import { Play, LayoutGrid, ArrowRight } from "lucide-react";
 
 import StakeGameArtwork from "@/components/casino/StakeGameArtwork";
 import { getGameThumbnail } from "@/data/gameThumbnails";
@@ -28,8 +28,6 @@ interface CasinoGameRowProps {
   cards: CasinoCardData[];
   onCardClick?: (card: CasinoCardData) => void;
   sectionId?: string;
-  isExpanded?: boolean;
-  onToggleExpand?: (sectionId?: string) => void;
 }
 
 export default function CasinoGameRow({
@@ -39,22 +37,34 @@ export default function CasinoGameRow({
   cards,
   onCardClick,
   sectionId,
-  isExpanded: controlledExpanded,
-  onToggleExpand,
 }: CasinoGameRowProps) {
-  const [localExpanded, setLocalExpanded] = useState<boolean>(false);
-  const isExpanded = controlledExpanded !== undefined ? controlledExpanded : localExpanded;
+  // 3-Stage Progressive Tier Loading:
+  // 0 = Initial: 3 games (1 row)
+  // 1 = 1st Click: 6 games (2 rows)
+  // 2 = 2nd Click: 9 games (3 rows)
+  // 3 = 3rd Click: Up to 11 games + "All Games" End Card (4 rows)
+  const [stage, setStage] = useState<number>(0);
 
-  const toggleLoadMore = () => {
-    if (onToggleExpand) {
-      onToggleExpand(sectionId);
-    } else {
-      setLocalExpanded(!localExpanded);
-    }
+  const handleLoadMore = () => {
+    setStage((prev) => Math.min(prev + 1, 3));
   };
 
-  // 3 items by default, expands to 9 items (revealing 2 extra rows)
-  const displayedCards = isExpanded ? cards.slice(0, 9) : cards.slice(0, 3);
+  let displayedCards: CasinoCardData[] = [];
+  let showAllGamesCard = false;
+
+  if (stage === 0) {
+    displayedCards = cards.slice(0, 3);
+  } else if (stage === 1) {
+    displayedCards = cards.slice(0, 6);
+  } else if (stage === 2) {
+    displayedCards = cards.slice(0, 9);
+  } else {
+    displayedCards = cards.slice(0, 11);
+    showAllGamesCard = true;
+  }
+
+  // Can load more for exactly 3 progressive tiers until stage 3 (where 'All Games' card is shown)
+  const canLoadMore = stage < 3 && cards.length > 3;
 
   return (
     <section className="space-y-3.5 my-7">
@@ -184,19 +194,40 @@ export default function CasinoGameRow({
             </div>
           );
         })}
+
+        {/* 3rd Click Dedicated 'All Games' End Card */}
+        {showAllGamesCard && (
+          <div className="w-full">
+            <Link
+              href={linkHref}
+              className="w-full aspect-[3/4] rounded-2xl bg-[#1a2c38] border-2 border-dashed border-[#2f4553] hover:border-[#00e701] flex flex-col items-center justify-center gap-2 p-3 sm:p-4 cursor-pointer text-[#b1bad3] hover:text-white transition-all group shadow-md hover:shadow-xl hover:-translate-y-1"
+            >
+              <div className="w-11 h-11 rounded-xl bg-[#0f212e] border border-[#213743] flex items-center justify-center group-hover:bg-[#00e701] group-hover:text-[#0f212e] text-[#b1bad3] transition-colors shadow-inner">
+                <LayoutGrid className="w-5 h-5 transition-transform group-hover:scale-110" />
+              </div>
+              <span className="font-black uppercase tracking-wider text-xs sm:text-sm text-center text-white group-hover:text-[#00e701] transition-colors">
+                All Games
+              </span>
+              <span className="text-[10px] sm:text-xs font-bold text-[#b1bad3] bg-[#0f212e] px-2 py-0.5 rounded-full border border-[#213743] group-hover:border-[#00e701]/40 flex items-center gap-1">
+                <span>View All</span>
+                <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+              </span>
+            </Link>
+          </div>
+        )}
       </div>
 
-      {/* Underneath each 3-game row: Centered Stake 'Load More' Divider Trigger */}
-      {cards.length > 3 && (
+      {/* Underneath each 3-game row: Centered Stake 'Load More' Divider Trigger (Hidden after Stage 3, NO 'Show Less') */}
+      {canLoadMore && (
         <div className="relative flex items-center justify-center my-3 w-full">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-[#213743]" />
           </div>
           <button
-            onClick={toggleLoadMore}
+            onClick={handleLoadMore}
             className="relative z-10 px-4 text-xs sm:text-sm font-bold text-[#b1bad3] hover:text-white transition-colors bg-[#0f212e] cursor-pointer"
           >
-            {isExpanded ? "Show Less" : "Load More"}
+            Load More
           </button>
         </div>
       )}

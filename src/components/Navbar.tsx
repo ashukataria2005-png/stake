@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   Wallet,
   Bell,
-  Search,
   MessageSquare,
   ChevronDown,
   RotateCcw,
@@ -59,16 +58,6 @@ export default function Navbar() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
-
-  const handleSearchClick = () => {
-    const searchInput = document.getElementById("game-search-input") as HTMLInputElement | null;
-    if (searchInput) {
-      searchInput.focus();
-      searchInput.scrollIntoView({ behavior: "smooth", block: "center" });
-    } else {
-      window.location.href = "/casino/home";
-    }
-  };
 
   const displayInfo = isMounted
     ? formatDisplayBalance(realBalance)
@@ -174,16 +163,8 @@ export default function Navbar() {
 
         {/* Right Section: Guest vs Authenticated Controls with exact gap-2 */}
         {!isAuthenticated ? (
-          /* Guest View: Search, Sign In & Register Buttons */
+          /* Guest View: Sign In & Register Buttons */
           <div className="flex items-center gap-2 shrink-0">
-            <button
-              onClick={handleSearchClick}
-              title="Search Games"
-              aria-label="Search Games"
-              className="w-10 h-10 rounded-xl bg-[#213743]/60 hover:bg-[#213743] flex items-center justify-center text-[#b1bad3] hover:text-white transition-colors cursor-pointer shrink-0"
-            >
-              <Search className="w-5 h-5" />
-            </button>
             <button
               onClick={openOneTap}
               className="text-[#b1bad3] hover:text-white font-semibold text-sm sm:text-base px-3 py-2 transition-colors cursor-pointer"
@@ -199,16 +180,6 @@ export default function Navbar() {
           </div>
         ) : (
           <div className="flex items-center gap-2 shrink-0">
-            {/* Dedicated Header Search Button */}
-            <button
-              onClick={handleSearchClick}
-              title="Search Games"
-              aria-label="Search Games"
-              className="w-10 h-10 rounded-xl bg-[#213743]/60 hover:bg-[#213743] flex items-center justify-center text-[#b1bad3] hover:text-white transition-colors cursor-pointer shrink-0"
-            >
-              <Search className="w-5 h-5" />
-            </button>
-
             {/* Notification Bell (Visible on Both Mobile & Desktop) */}
             <button
               onClick={() => setIsNotificationsOpen(true)}

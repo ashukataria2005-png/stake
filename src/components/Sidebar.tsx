@@ -19,6 +19,7 @@ import {
   ChevronRight,
   Zap,
   X,
+  Search,
   FileText,
   Lock,
 } from "lucide-react";
@@ -135,6 +136,18 @@ export default function Sidebar() {
               >
                 <X className="h-5 w-5" />
               </button>
+            </div>
+
+            {/* Top Drawer Search Input */}
+            <div className="p-3 border-b border-[#213743]">
+              <div className="relative flex items-center">
+                <Search className="absolute left-3 w-4 h-4 text-[#b1bad3]" />
+                <input
+                  type="text"
+                  placeholder="Search games, providers..."
+                  className="w-full bg-[#0f212e] border border-[#213743] focus:border-[#2f4553] text-sm text-white placeholder-[#b1bad3] pl-9 pr-3 py-2 rounded-xl outline-none"
+                />
+              </div>
             </div>
 
             {/* Scrollable Navigation Area */}
