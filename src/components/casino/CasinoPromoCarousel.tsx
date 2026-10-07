@@ -230,17 +230,19 @@ export default function CasinoPromoCarousel() {
               <div className="flex w-full h-full">
                 {/* Left side (Artwork - 40%) */}
                 <div
-                  className={`w-[40%] h-full relative overflow-hidden bg-gradient-to-r ${promo.bgGradient} flex items-center justify-center p-2 shrink-0 group-hover:scale-105 transition-transform duration-300`}
+                  className={`w-[40%] h-full relative overflow-hidden bg-gradient-to-r ${promo.bgGradient} shrink-0`}
                 >
                   {promo.ctaLink.startsWith("https://cdn.sanity.io") ? (
                     <img
                       src={promo.ctaLink}
                       alt={promo.title}
-                      className="w-full h-full object-contain drop-shadow-md"
+                      className="w-full h-full object-cover object-center pointer-events-none group-hover:scale-105 transition-transform duration-300"
                       loading="lazy"
                     />
                   ) : (
-                    promo.artwork
+                    <div className="w-full h-full flex items-center justify-center p-2">
+                      {promo.artwork}
+                    </div>
                   )}
                 </div>
 
