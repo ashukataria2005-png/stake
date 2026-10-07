@@ -23,6 +23,7 @@ import {
   STAKE_ORIGINALS,
   LIVE_CASINO_GAMES,
   EVOLUTION_GAMES,
+  INOUT_GAMES,
   POPULAR_SLOTS,
   PROVIDERS_LIST,
   GameItem,
@@ -82,6 +83,19 @@ export default function CategoryGroupView({ slug }: CategoryGroupViewProps) {
           initialGames: EVOLUTION_GAMES,
           bannerBg: "from-red-950/70 via-[#1a2c38] to-[#0f212e]",
           icon: <Activity className="w-6 h-6 text-red-500" />,
+        };
+      case "inout":
+      case "inout-games":
+        return {
+          title: "INOUT Games",
+          badge: "30 EXCLUSIVE GAMES",
+          playersCount: "26,840",
+          stats: "30 Games • INOUT Studio • Instant Win & Crash Mechanics",
+          description:
+            "Play dynamic instant-win games, arcade multipliers, and crash sensations engineered by INOUT. Fast-paced action with provably fair rounds and high multipliers.",
+          initialGames: INOUT_GAMES,
+          bannerBg: "from-amber-950/70 via-[#1a2c38] to-[#0f212e]",
+          icon: <Flame className="w-6 h-6 text-amber-400" />,
         };
       case "game-shows":
         return {

@@ -5,7 +5,49 @@
  * Update any game's thumbnail simply by pasting a link into this dictionary.
  */
 
+// ==========================================
+// ISOLATED INOUT GAMES THUMBNAIL REGISTRY (Task 24)
+// Single Source of Truth for Screenshots 32-35
+// ==========================================
+export const INOUT_GAME_THUMBNAILS: Record<string, string> = {
+  "chicken-road-2": "https://mediumrare.imgix.net/chicken-road-2.png?w=360&h=472&fit=crop&auto=format",
+  "megablock": "https://mediumrare.imgix.net/megablock.png?w=360&h=472&fit=crop&auto=format",
+  "chicken-road": "https://mediumrare.imgix.net/chicken-road.png?w=360&h=472&fit=crop&auto=format",
+  "aviafly": "https://mediumrare.imgix.net/aviafly.png?w=360&h=472&fit=crop&auto=format",
+  "penalty-unlimited": "https://mediumrare.imgix.net/penalty-unlimited.png?w=360&h=472&fit=crop&auto=format",
+  "tower-dash": "https://mediumrare.imgix.net/tower-dash.png?w=360&h=472&fit=crop&auto=format",
+  "chicken-road-gold": "https://mediumrare.imgix.net/chicken-road-gold.png?w=360&h=472&fit=crop&auto=format",
+  "chicken-road-2-bonus": "https://mediumrare.imgix.net/chicken-road-2-bonus.png?w=360&h=472&fit=crop&auto=format",
+  "aviafly-2": "https://mediumrare.imgix.net/aviafly-2.png?w=360&h=472&fit=crop&auto=format",
+  "twist-inout": "https://mediumrare.imgix.net/twist-inout.png?w=360&h=472&fit=crop&auto=format",
+  "wheel-out": "https://mediumrare.imgix.net/wheel-out.png?w=360&h=472&fit=crop&auto=format",
+  "cricket-road": "https://mediumrare.imgix.net/cricket-road.png?w=360&h=472&fit=crop&auto=format",
+  "chicken-shoot": "https://mediumrare.imgix.net/chicken-shoot.png?w=360&h=472&fit=crop&auto=format",
+  "dragon-pots": "https://mediumrare.imgix.net/dragon-pots.png?w=360&h=472&fit=crop&auto=format",
+  "penalty-nations-cup": "https://mediumrare.imgix.net/penalty-nations-cup.png?w=360&h=472&fit=crop&auto=format",
+  "chicken-coin": "https://mediumrare.imgix.net/chicken-coin.png?w=360&h=472&fit=crop&auto=format",
+  "squid-gambler": "https://mediumrare.imgix.net/squid-gambler.png?w=360&h=472&fit=crop&auto=format",
+  "pengu-sport": "https://mediumrare.imgix.net/pengu-sport.png?w=360&h=472&fit=crop&auto=format",
+  "jumper-inout": "https://mediumrare.imgix.net/jumper-inout.png?w=360&h=472&fit=crop&auto=format",
+  "forest-arrow": "https://mediumrare.imgix.net/forest-arrow.png?w=360&h=472&fit=crop&auto=format",
+  "twist-san-quentin": "https://mediumrare.imgix.net/twist-san-quentin.png?w=360&h=472&fit=crop&auto=format",
+  "kingdom-drop": "https://mediumrare.imgix.net/kingdom-drop.png?w=360&h=472&fit=crop&auto=format",
+  "rump-and-friends": "https://mediumrare.imgix.net/rump-and-friends.png?w=360&h=472&fit=crop&auto=format",
+  "jokers-clash": "https://mediumrare.imgix.net/jokers-clash.png?w=360&h=472&fit=crop&auto=format",
+  "sugar-daddy": "https://mediumrare.imgix.net/sugar-daddy.png?w=360&h=472&fit=crop&auto=format",
+  "chicken-banana": "https://mediumrare.imgix.net/chicken-banana.png?w=360&h=472&fit=crop&auto=format",
+  "topo-mole": "https://mediumrare.imgix.net/topo-mole.png?w=360&h=472&fit=crop&auto=format",
+  "diver-inout": "https://mediumrare.imgix.net/diver-inout.png?w=360&h=472&fit=crop&auto=format",
+  "fruit-love-fever": "https://mediumrare.imgix.net/fruit-love-fever.png?w=360&h=472&fit=crop&auto=format",
+  "twist-xmas": "https://mediumrare.imgix.net/twist-xmas.png?w=360&h=472&fit=crop&auto=format",
+  // Aliases for slug convenience
+  "twist": "https://mediumrare.imgix.net/twist-inout.png?w=360&h=472&fit=crop&auto=format",
+  "jumper": "https://mediumrare.imgix.net/jumper-inout.png?w=360&h=472&fit=crop&auto=format",
+  "diver": "https://mediumrare.imgix.net/diver-inout.png?w=360&h=472&fit=crop&auto=format",
+};
+
 export const GAME_THUMBNAILS: Record<string, string> = {
+  ...INOUT_GAME_THUMBNAILS,
   // ==========================================
   // STAKE ORIGINALS (31 Games)
   // ==========================================

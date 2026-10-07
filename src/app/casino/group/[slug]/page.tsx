@@ -8,6 +8,7 @@ export function generateStaticParams() {
     { slug: "slots" },
     { slug: "game-shows" },
     { slug: "evolution" },
+    { slug: "inout" },
   ];
 }
 

@@ -23,7 +23,7 @@ export default function CasinoCategoryPills({
 
   const handlePillClick = (id: string) => {
     onSelectCategory(id);
-    if (["stake-originals", "slots", "live-casino", "game-shows"].includes(id)) {
+    if (["stake-originals", "slots", "live-casino", "game-shows", "evolution", "inout"].includes(id)) {
       router.push(`/casino/group/${id}`);
     } else if (id === "providers") {
       router.push("/casino/collection/providers");
