@@ -134,7 +134,7 @@ export default function ProfileDropdown({ isOpen, onClose }: ProfileDropdownProp
       <div className="fixed inset-0 z-40" onClick={onClose} />
 
       {/* Official Stake Profile Dropdown Menu - Strictly Matching Screenshot 2 */}
-      <div className="absolute right-2 top-full mt-2 w-56 bg-[#1a2c38] border border-[#2f4553] rounded-xl shadow-2xl py-2 z-50 flex flex-col text-sm font-semibold text-[#b1bad3] animate-in fade-in zoom-in-95 duration-150 select-none">
+      <div className="absolute right-1 sm:right-2 top-full mt-1.5 w-[190px] sm:w-[200px] bg-[#1a2c38] border border-[#2f4553] rounded-xl shadow-2xl py-1.5 overflow-hidden flex flex-col text-[#b1bad3] animate-in fade-in zoom-in-95 duration-150 select-none z-50">
         {menuItems.map((item) => {
           const Icon = item.icon;
           const isLogout = item.id === "logout";
@@ -142,14 +142,14 @@ export default function ProfileDropdown({ isOpen, onClose }: ProfileDropdownProp
             <button
               key={item.id}
               onClick={item.action}
-              className={`w-full px-4 py-2.5 flex items-center gap-3 transition-colors cursor-pointer text-left ${
+              className={`w-full px-3 py-2 flex items-center gap-2.5 text-xs sm:text-sm font-semibold transition-colors cursor-pointer text-left whitespace-nowrap ${
                 isLogout
                   ? "text-red-400 hover:text-red-300 hover:bg-[#213743]"
                   : "text-[#b1bad3] hover:bg-[#213743] hover:text-white"
               }`}
             >
-              <Icon className="w-4 h-4 shrink-0" />
-              <span>{item.label}</span>
+              <Icon className={`w-4 h-4 shrink-0 ${isLogout ? "text-red-400" : "text-[#b1bad3]"}`} />
+              <span className="truncate whitespace-nowrap">{item.label}</span>
             </button>
           );
         })}
