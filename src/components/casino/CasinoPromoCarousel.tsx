@@ -24,7 +24,7 @@ export default function CasinoPromoCarousel() {
       id: "ocean-surge",
       title: "Ocean Surge",
       description: "Hit or beat the target multiplier to share in...",
-      ctaLink: "/casino/group/slots",
+      ctaLink: "https://cdn.sanity.io/images/tdrhge4k/stake-com-production/c05dc42d09ddad893e1d7949cab00cabd26e4dec-1080x1080.png?w=220&h=220&fit=min&auto=format",
       bgGradient: "from-cyan-600 via-blue-700 to-indigo-950",
       artwork: (
         <div className="relative flex flex-col items-center justify-center text-center">
@@ -41,7 +41,7 @@ export default function CasinoPromoCarousel() {
       id: "2x-vip-progress",
       title: "2x VIP Progress",
       description: "Boosted VIP progress on Only on Stake Games",
-      ctaLink: "/casino/group/stake-originals",
+      ctaLink: "https://cdn.sanity.io/images/tdrhge4k/stake-com-production/36be0228883223bfdb374afe786551e0eb87dce2-400x400.png?w=220&h=220&fit=min&auto=format",
       bgGradient: "from-blue-600 via-indigo-700 to-indigo-950",
       artwork: (
         <div className="relative flex flex-col items-center justify-center text-center">
@@ -58,7 +58,7 @@ export default function CasinoPromoCarousel() {
       id: "daily-races",
       title: "Daily Races",
       description: "Race to the top for a share in $100,000",
-      ctaLink: "/casino/home",
+      ctaLink: "https://cdn.sanity.io/images/tdrhge4k/stake-com-production/67840b0454939cbd8c575498adc862ea4a70f02d-400x400.png?w=220&h=220&fit=min&auto=format",
       bgGradient: "from-amber-500 via-orange-600 to-red-950",
       artwork: (
         <div className="relative flex flex-col items-center justify-center text-center">
@@ -75,7 +75,7 @@ export default function CasinoPromoCarousel() {
       id: "weekly-raffle",
       title: "Weekly Raffle",
       description: "Earn raffle tickets for a chance to share in...",
-      ctaLink: "/casino/home",
+      ctaLink: "https://cdn.sanity.io/images/tdrhge4k/stake-com-production/43ff1d995fb37f0136932145c21ebff17654bd75-400x400.png?w=220&h=220&fit=min&auto=format",
       bgGradient: "from-emerald-500 via-teal-700 to-slate-900",
       artwork: (
         <div className="relative flex flex-col items-center justify-center text-center">
@@ -92,7 +92,7 @@ export default function CasinoPromoCarousel() {
       id: "stake-vs-eddie",
       title: "Stake vs Eddie",
       description: "Hit or beat the target multiplier to share in...",
-      ctaLink: "/casino/group/stake-originals",
+      ctaLink: "https://cdn.sanity.io/images/tdrhge4k/stake-com-production/9c2b0435d5a6a3b6d409e59aa86515b201b30e5f-400x400.png?w=220&h=220&fit=min&auto=format",
       bgGradient: "from-purple-600 via-indigo-800 to-slate-950",
       artwork: (
         <div className="relative flex flex-col items-center justify-center text-center">
@@ -109,7 +109,7 @@ export default function CasinoPromoCarousel() {
       id: "conquer-the-casino",
       title: "Conquer the Casino",
       description: "Hit the Big Win or Lucky...",
-      ctaLink: "/casino/group/slots",
+      ctaLink: "https://cdn.sanity.io/images/tdrhge4k/stake-com-production/ccbe2319e6a71726c160d4d60e3f27cb60253888-400x400.png?w=220&h=220&fit=min&auto=format",
       bgGradient: "from-rose-600 via-red-800 to-slate-900",
       artwork: (
         <div className="relative flex flex-col items-center justify-center text-center">
@@ -126,7 +126,7 @@ export default function CasinoPromoCarousel() {
       id: "jaqkpot",
       title: "JAQKpot!",
       description: "Win up to $1M!",
-      ctaLink: "/casino/group/slots",
+      ctaLink: "https://cdn.sanity.io/images/tdrhge4k/stake-com-production/d259681b54b7200c74eda08c3a965c6c5e52299d-400x400.png?w=220&h=220&fit=min&auto=format",
       bgGradient: "from-fuchsia-600 via-pink-700 to-indigo-950",
       artwork: (
         <div className="relative flex flex-col items-center justify-center text-center">
@@ -143,7 +143,7 @@ export default function CasinoPromoCarousel() {
       id: "all-in-or-fold",
       title: "All in or Fold Jackpot",
       description: "$500,000 In Prizes! in our exclusive tables",
-      ctaLink: "/casino/group/live-casino",
+      ctaLink: "https://cdn.sanity.io/images/tdrhge4k/stake-com-production/9075efd8dc1372901b0f56bfef43a7e96955db2d-400x400.png?w=220&h=220&fit=min&auto=format",
       bgGradient: "from-violet-600 via-purple-900 to-slate-950",
       artwork: (
         <div className="relative flex flex-col items-center justify-center text-center">
@@ -160,7 +160,7 @@ export default function CasinoPromoCarousel() {
       id: "bad-beat-jackpot",
       title: "Bad Beat Jackpot",
       description: "Win your share of the $1,000,000 Jackpot",
-      ctaLink: "/casino/home",
+      ctaLink: "https://cdn.sanity.io/images/tdrhge4k/stake-com-production/fbbab02dac8258f2fb4cba26063bb6f5802ce7cf-400x400.png?w=220&h=220&fit=min&auto=format",
       bgGradient: "from-red-600 via-rose-900 to-neutral-950",
       artwork: (
         <div className="relative flex flex-col items-center justify-center text-center">
