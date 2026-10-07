@@ -21,6 +21,7 @@ import CasinoGameRow, { CasinoCardData } from "@/components/casino/CasinoGameRow
 import CasinoLiveBets from "@/components/casino/CasinoLiveBets";
 import StakeGameArtwork from "@/components/casino/StakeGameArtwork";
 import { useGame } from "@/context/GameContext";
+import { EVOLUTION_GAMES } from "@/data/stakeGames";
 import { sounds } from "@/utils/audio";
 import confetti from "canvas-confetti";
 
@@ -749,6 +750,19 @@ export default function CasinoHomePage() {
     },
   ];
 
+  // 4.5. Evolution Gaming Suite (80 Games strictly ordered by popularity hierarchy)
+  const evolutionGames: CasinoCardData[] = EVOLUTION_GAMES.map((game) => ({
+    id: game.id,
+    title: game.title,
+    provider: "Evolution",
+    playersCount: game.playersCount,
+    badge: game.badge,
+    badgeColor: game.badgeColor,
+    href: "/casino/live",
+    image: game.image,
+    bgGradient: game.bgGradient || "from-red-950/80 via-[#1a2c38] to-[#0f212e]",
+  }));
+
   // 5. Game Shows (9 Games)
   const gameShowsGames: CasinoCardData[] = [
     {
@@ -1474,6 +1488,15 @@ export default function CasinoHomePage() {
         cards={liveCasinoGames}
         onCardClick={handleCardClick}
         sectionId="live-casino"
+      />
+
+      {/* 7.5. EVOLUTION > */}
+      <CasinoGameRow
+        title="Evolution"
+        linkHref="/casino/group/evolution"
+        cards={evolutionGames}
+        onCardClick={handleCardClick}
+        sectionId="evolution"
       />
 
       {/* 8. GAME SHOWS > */}

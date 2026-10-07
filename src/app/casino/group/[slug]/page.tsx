@@ -7,6 +7,7 @@ export function generateStaticParams() {
     { slug: "live-casino" },
     { slug: "slots" },
     { slug: "game-shows" },
+    { slug: "evolution" },
   ];
 }
 

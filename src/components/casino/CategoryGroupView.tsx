@@ -13,6 +13,7 @@ import {
   Tv,
   ShieldAlert,
   ArrowRight,
+  Activity,
 } from "lucide-react";
 import StakeGameCard from "@/components/casino/StakeGameCard";
 import CasinoLiveBets from "@/components/casino/CasinoLiveBets";
@@ -21,6 +22,7 @@ import { useGame } from "@/context/GameContext";
 import {
   STAKE_ORIGINALS,
   LIVE_CASINO_GAMES,
+  EVOLUTION_GAMES,
   POPULAR_SLOTS,
   PROVIDERS_LIST,
   GameItem,
@@ -62,12 +64,24 @@ export default function CategoryGroupView({ slug }: CategoryGroupViewProps) {
           title: "Live Casino",
           badge: "REAL DEALERS",
           playersCount: "28,420",
-          stats: "30 Live Tables • Evolution & Stake Live • 24/7 Professional Dealers",
+          stats: "80 Live Tables • Evolution & Stake Live • 24/7 Professional Dealers",
           description:
             "Experience high-definition live streaming tables directly from real casino studios. Stream Blackjack, Roulette, Baccarat, and high-roller VIP suites.",
           initialGames: LIVE_CASINO_GAMES,
           bannerBg: "from-rose-950/70 via-[#1a2c38] to-[#0f212e]",
           icon: <Gamepad2 className="w-6 h-6 text-rose-400" />,
+        };
+      case "evolution":
+        return {
+          title: "Evolution Gaming",
+          badge: "80 LIVE TABLES",
+          playersCount: "38,950",
+          stats: "80 Live Tables • Evolution Gaming • Live Dealers & Game Shows",
+          description:
+            "Experience high-definition live streaming tables directly from Evolution Gaming studios. Stream Blackjack, Roulette, Baccarat, and high-roller VIP suites.",
+          initialGames: EVOLUTION_GAMES,
+          bannerBg: "from-red-950/70 via-[#1a2c38] to-[#0f212e]",
+          icon: <Activity className="w-6 h-6 text-red-500" />,
         };
       case "game-shows":
         return {
