@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   Wallet,
   Bell,
+  Search,
   MessageSquare,
   ChevronDown,
   RotateCcw,
@@ -58,6 +59,16 @@ export default function Navbar() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  const handleSearchClick = () => {
+    const searchInput = document.getElementById("game-search-input") as HTMLInputElement | null;
+    if (searchInput) {
+      searchInput.focus();
+      searchInput.scrollIntoView({ behavior: "smooth", block: "center" });
+    } else {
+      window.location.href = "/casino/home";
+    }
+  };
+
   const displayInfo = isMounted
     ? formatDisplayBalance()
     : { amount: "1,000.00", symbol: "$", code: "USDT", isFiat: false };
@@ -81,29 +92,29 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* Center / Middle Section: Dynamically Expanded Wallet Balance Pill filling space with exact 8px gaps */}
+        {/* Center / Middle Section: Dynamically Expanded Wallet Balance Pill with comfortable separation */}
         {isAuthenticated ? (
-          <div className="flex-1 flex items-center justify-center min-w-0 max-w-[280px] sm:max-w-[340px]">
-            <div className="flex items-center w-full min-w-0 transition-all">
+          <div className="flex-1 flex items-center justify-center min-w-0 max-w-[280px] sm:max-w-[340px] ml-3 sm:ml-4">
+            <div className="flex items-center w-full min-w-0 transition-all h-10">
               {/* Balance Pill Container */}
-              <div className="relative flex-1 min-w-0">
+              <div className="relative flex-1 min-w-0 h-10">
                 <div
                   onClick={() => setIsCurrencyDropdownOpen(!isCurrencyDropdownOpen)}
-                  className="flex items-center justify-between gap-1 sm:gap-2 rounded-l-lg border border-r-0 border-[#213743] bg-[#0f212e] py-1.5 px-2 sm:px-3 shadow-inner cursor-pointer hover:border-[#2f4553] transition-colors w-full"
+                  className="flex items-center justify-between gap-1.5 sm:gap-2 rounded-l-xl border border-r-0 border-[#213743] bg-[#0f212e] h-10 px-2.5 sm:px-3 shadow-inner cursor-pointer hover:border-[#2f4553] transition-colors w-full"
                 >
                   {/* Left part: Coin Badge + Centered Bold Balance Typography */}
                   <div className="flex items-center justify-center gap-1.5 sm:gap-2 min-w-0 flex-1">
                     {displayInfo.isFiat ? (
                       <FiatCoinIcon
                         currency={displayInfo.code}
-                        size={18}
-                        className="w-4.5 h-4.5 shrink-0"
+                        size={20}
+                        className="w-5 h-5 shrink-0"
                       />
                     ) : (
                       <CryptoIcon
                         symbol={currency}
-                        size={18}
-                        className="w-4.5 h-4.5 shrink-0"
+                        size={20}
+                        className="w-5 h-5 shrink-0"
                       />
                     )}
 
@@ -148,10 +159,10 @@ export default function Navbar() {
               {/* Vibrant Blue Wallet Button Attached Cleanly to the Right of Balance Pill */}
               <button
                 onClick={openWalletModal}
-                className="flex items-center gap-1 sm:gap-1.5 rounded-r-lg bg-[#1475e1] hover:bg-[#1268c7] px-2.5 sm:px-4 py-1.5 text-xs sm:text-sm font-bold text-white shadow-md transition-all active:scale-95 cursor-pointer border border-[#1475e1] shrink-0"
+                className="flex items-center justify-center gap-1 sm:gap-1.5 h-10 w-10 sm:h-10 sm:w-auto rounded-r-xl bg-[#1475e1] hover:bg-[#1268c7] px-2.5 sm:px-4 text-xs sm:text-sm font-bold text-white shadow-md transition-all active:scale-95 cursor-pointer border border-[#1475e1] shrink-0"
                 title="Wallet"
               >
-                <Wallet className="h-4 w-4" />
+                <Wallet className="h-4.5 w-4.5" />
                 <span className="hidden sm:inline">Wallet</span>
               </button>
             </div>
@@ -162,32 +173,51 @@ export default function Navbar() {
 
         {/* Right Section: Guest vs Authenticated Controls with exact gap-2 */}
         {!isAuthenticated ? (
-          /* Guest View: Sign In & Register Buttons */
+          /* Guest View: Search, Sign In & Register Buttons */
           <div className="flex items-center gap-2 shrink-0">
             <button
+              onClick={handleSearchClick}
+              title="Search Games"
+              aria-label="Search Games"
+              className="w-10 h-10 rounded-xl bg-[#213743]/60 hover:bg-[#213743] flex items-center justify-center text-[#b1bad3] hover:text-white transition-colors cursor-pointer shrink-0"
+            >
+              <Search className="w-5 h-5" />
+            </button>
+            <button
               onClick={openOneTap}
-              className="text-[#b1bad3] hover:text-white font-semibold text-xs sm:text-sm px-3 py-1.5 transition-colors cursor-pointer"
+              className="text-[#b1bad3] hover:text-white font-semibold text-xs sm:text-sm px-3 py-2 transition-colors cursor-pointer"
             >
               Sign In
             </button>
             <button
               onClick={openOneTap}
-              className="bg-[#1475e1] hover:bg-[#1268c7] text-white font-bold text-xs sm:text-sm px-3.5 py-1.5 rounded-md shadow-sm transition-all cursor-pointer"
+              className="bg-[#1475e1] hover:bg-[#1268c7] text-white font-bold text-xs sm:text-sm px-3.5 py-2 rounded-xl shadow-sm transition-all cursor-pointer"
             >
               Register
             </button>
           </div>
         ) : (
           <div className="flex items-center gap-2 shrink-0">
+            {/* Dedicated Header Search Button */}
+            <button
+              onClick={handleSearchClick}
+              title="Search Games"
+              aria-label="Search Games"
+              className="w-10 h-10 rounded-xl bg-[#213743]/60 hover:bg-[#213743] flex items-center justify-center text-[#b1bad3] hover:text-white transition-colors cursor-pointer shrink-0"
+            >
+              <Search className="w-5 h-5" />
+            </button>
+
             {/* Notification Bell (Visible on Both Mobile & Desktop) */}
             <button
               onClick={() => setIsNotificationsOpen(true)}
               title="Notifications"
-              className="relative flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-lg text-[#b1bad3] transition-colors hover:bg-[#213743] hover:text-white cursor-pointer"
+              aria-label="Notifications"
+              className="relative w-10 h-10 rounded-xl bg-[#213743]/60 hover:bg-[#213743] flex items-center justify-center text-[#b1bad3] hover:text-white transition-colors cursor-pointer shrink-0"
             >
-              <Bell className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
+              <Bell className="w-5 h-5 text-[#b1bad3]" />
               {unreadNotifsCount > 0 && (
-                <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-[#1a2c38] shadow-[0_0_6px_#ef4444]" />
+                <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-[#1a2c38] shadow-[0_0_6px_#ef4444]" />
               )}
             </button>
 
@@ -280,13 +310,13 @@ export default function Navbar() {
             </div>
 
             {/* User Profile Avatar Icon (Visible on Both Mobile & Desktop) */}
-            <div className="relative">
+            <div className="relative shrink-0">
               <button
                 onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                className="flex items-center gap-1.5 p-1 rounded-xl hover:bg-[#213743] transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 p-0.5 rounded-full hover:ring-2 hover:ring-[#2f4553] transition-all cursor-pointer"
                 aria-label="User Profile Menu"
               >
-                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center font-bold text-xs sm:text-sm text-white shadow-md">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center font-bold text-sm sm:text-base text-white shadow-md">
                   {user?.name?.[0] || "A"}
                 </div>
                 <ChevronDown
