@@ -24,95 +24,93 @@ export default function CasinoSportsHeroBanner() {
   const sportsImgUrl = BANNER_ASSETS.sportsHero.image;
 
   return (
-    <div className="grid grid-cols-2 gap-3 w-full my-3 select-none">
+    <div className="grid grid-cols-2 gap-2.5 sm:gap-3 w-full my-3 select-none">
       {/* 1. Left Card: CASINO */}
       <Link
         href={BANNER_ASSETS.casinoHero.href || "/casino/home"}
-        className="group min-h-[175px] sm:min-h-[210px] w-full rounded-2xl overflow-hidden bg-[#0f212e] border border-[#213743] hover:border-[#2f4553] flex flex-col justify-between transition-transform duration-200 active:scale-[0.98] shadow-lg"
+        className="group relative w-full rounded-2xl overflow-hidden bg-[#0f212e] border border-[#213743] hover:border-[#2f4553] flex flex-col justify-between transition-transform duration-200 active:scale-[0.98] shadow-lg"
       >
-        {/* Top Blue Graphic Stage */}
-        <div className="relative h-[125px] sm:h-[155px] w-full overflow-hidden bg-gradient-to-b from-[#1475e1] to-[#0b4bb1] p-3 flex flex-col justify-between">
-          {/* Ambient stage shine */}
-          <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+        {/* Upper Graphic Stage - 100% Full-Bleed Edge-to-Edge */}
+        <div className="relative w-full h-[135px] sm:h-[160px] overflow-hidden rounded-t-2xl bg-gradient-to-b from-[#1475e1] to-[#0b4bb1]">
+          {/* Title Overlay */}
+          <span className="absolute top-3 left-3.5 z-10 text-white font-black text-base sm:text-lg tracking-wider drop-shadow-md">
+            {BANNER_ASSETS.casinoHero.title || "CASINO"}
+          </span>
 
-          {/* Title */}
-          <div className="z-10">
-            <h2 className="text-white font-extrabold text-base sm:text-lg tracking-wide uppercase drop-shadow-md">
-              {BANNER_ASSETS.casinoHero.title || "CASINO"}
-            </h2>
-          </div>
+          {/* Full-bleed image or responsive fallback */}
+          {casinoImgUrl && !casinoImgError ? (
+            <img
+              src={casinoImgUrl}
+              alt={BANNER_ASSETS.casinoHero.title || "CASINO"}
+              onError={() => setCasinoImgError(true)}
+              className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none transition-transform duration-300 group-hover:scale-105"
+            />
+          ) : (
+            /* Edge-to-edge 3D artwork fallback */
+            <div className="absolute inset-0 w-full h-full flex items-center justify-center pointer-events-none transition-transform duration-300 group-hover:scale-105">
+              <svg
+                viewBox="0 0 200 140"
+                preserveAspectRatio="xMidYMid slice"
+                className="w-full h-full object-cover"
+              >
+                <defs>
+                  <radialGradient id="chipGlow" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor="#ef4444" />
+                    <stop offset="100%" stopColor="#991b1b" />
+                  </radialGradient>
+                  <linearGradient id="facetTop" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#e0f2fe" />
+                    <stop offset="100%" stopColor="#38bdf8" />
+                  </linearGradient>
+                  <linearGradient id="facetMain" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#38bdf8" />
+                    <stop offset="50%" stopColor="#0284c7" />
+                    <stop offset="100%" stopColor="#075985" />
+                  </linearGradient>
+                  <radialGradient id="shineGlow" cx="60%" cy="40%" r="50%">
+                    <stop offset="0%" stopColor="#ffffff" stopOpacity="0.25" />
+                    <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+                  </radialGradient>
+                </defs>
 
-          {/* Centered 3D Artwork */}
-          <div className="relative z-0 flex items-center justify-center my-auto w-full">
-            {casinoImgUrl && !casinoImgError ? (
-              <img
-                src={casinoImgUrl}
-                alt="Casino"
-                onError={() => setCasinoImgError(true)}
-                className="w-24 h-24 sm:w-28 sm:h-28 object-contain drop-shadow-2xl mx-auto transition-transform duration-300 group-hover:scale-105"
-              />
-            ) : (
-              /* High-Fidelity 3D Blue Diamond & Red/White Casino Chip */
-              <div className="w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center mx-auto drop-shadow-2xl transition-transform duration-300 group-hover:scale-105">
-                <svg viewBox="0 0 100 90" className="w-full h-full">
-                  <defs>
-                    <radialGradient id="chipGlow" cx="50%" cy="50%" r="50%">
-                      <stop offset="0%" stopColor="#ef4444" />
-                      <stop offset="100%" stopColor="#991b1b" />
-                    </radialGradient>
-                    <linearGradient id="facetTop" x1="0%" y1="0%" x2="0%" y2="100%">
-                      <stop offset="0%" stopColor="#e0f2fe" />
-                      <stop offset="100%" stopColor="#38bdf8" />
-                    </linearGradient>
-                    <linearGradient id="facetMain" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#38bdf8" />
-                      <stop offset="50%" stopColor="#0284c7" />
-                      <stop offset="100%" stopColor="#075985" />
-                    </linearGradient>
-                  </defs>
+                {/* Subtle light sweep */}
+                <rect x="0" y="0" width="200" height="140" fill="url(#shineGlow)" />
 
-                  {/* 3D Casino Chip (Back Left) */}
-                  <g transform="translate(10, 32)">
-                    {/* Chip Edge / Thickness */}
-                    <ellipse cx="28" cy="28" rx="26" ry="19" fill="#7f1d1d" />
-                    <ellipse cx="28" cy="25" rx="26" ry="19" fill="url(#chipGlow)" />
-                    {/* White Edge Inlays */}
-                    <path d="M8 20 L14 17" stroke="#ffffff" strokeWidth="4.5" strokeLinecap="round" />
-                    <path d="M48 20 L42 17" stroke="#ffffff" strokeWidth="4.5" strokeLinecap="round" />
-                    <path d="M28 8 L28 12" stroke="#ffffff" strokeWidth="4.5" strokeLinecap="round" />
-                    <path d="M28 38 L28 42" stroke="#ffffff" strokeWidth="4.5" strokeLinecap="round" />
-                    {/* Inner Gold Border & Inset */}
-                    <ellipse cx="28" cy="25" rx="17" ry="12" fill="#b91c1c" />
-                    <ellipse cx="28" cy="25" rx="13" ry="9" fill="#ffffff" />
-                    <ellipse cx="28" cy="25" rx="10" ry="7" fill="#ef4444" />
-                    <text x="28" y="28" fill="#ffffff" fontSize="7" fontWeight="900" textAnchor="middle">
-                      ★
-                    </text>
-                  </g>
+                {/* 3D Casino Chip (Back Left) */}
+                <g transform="translate(40, 50)">
+                  <ellipse cx="28" cy="28" rx="28" ry="20" fill="#7f1d1d" />
+                  <ellipse cx="28" cy="25" rx="28" ry="20" fill="url(#chipGlow)" />
+                  <path d="M7 19 L13 16" stroke="#ffffff" strokeWidth="4.5" strokeLinecap="round" />
+                  <path d="M49 19 L43 16" stroke="#ffffff" strokeWidth="4.5" strokeLinecap="round" />
+                  <path d="M28 7 L28 11" stroke="#ffffff" strokeWidth="4.5" strokeLinecap="round" />
+                  <path d="M28 39 L28 43" stroke="#ffffff" strokeWidth="4.5" strokeLinecap="round" />
+                  <ellipse cx="28" cy="25" rx="18" ry="13" fill="#b91c1c" />
+                  <ellipse cx="28" cy="25" rx="14" ry="10" fill="#ffffff" />
+                  <ellipse cx="28" cy="25" rx="11" ry="8" fill="#ef4444" />
+                  <text x="28" y="28" fill="#ffffff" fontSize="8" fontWeight="900" textAnchor="middle">
+                    ★
+                  </text>
+                </g>
 
-                  {/* 3D Sparkling Blue Diamond (Front Right) */}
-                  <g transform="translate(42, 6)">
-                    {/* Crown Top facets */}
-                    <polygon points="26,6 40,6 48,22 18,22" fill="url(#facetTop)" />
-                    <polygon points="8,22 18,22 26,6 16,6" fill="#bae6fd" />
-                    <polygon points="40,6 50,6 58,22 48,22" fill="#0284c7" />
-                    {/* Pavilion Lower facets */}
-                    <polygon points="18,22 48,22 33,62" fill="url(#facetMain)" />
-                    <polygon points="8,22 18,22 33,62" fill="#0284c7" />
-                    <polygon points="48,22 58,22 33,62" fill="#0c4a6e" />
-                    {/* Star Glint */}
-                    <circle cx="26" cy="10" r="2.5" fill="#ffffff" />
-                    <path d="M26 4 L26 16 M20 10 L32 10" stroke="#ffffff" strokeWidth="1" strokeLinecap="round" />
-                  </g>
-                </svg>
-              </div>
-            )}
-          </div>
+                {/* 3D Sparkling Blue Diamond (Front Right) */}
+                <g transform="translate(95, 20)">
+                  <polygon points="32,8 50,8 60,28 22,28" fill="url(#facetTop)" />
+                  <polygon points="10,28 22,28 32,8 20,8" fill="#bae6fd" />
+                  <polygon points="50,8 62,8 72,28 60,28" fill="#0284c7" />
+                  <polygon points="22,28 60,28 41,78" fill="url(#facetMain)" />
+                  <polygon points="10,28 22,28 41,78" fill="#0284c7" />
+                  <polygon points="60,28 72,28 41,78" fill="#0c4a6e" />
+                  <circle cx="32" cy="14" r="3" fill="#ffffff" />
+                  <path d="M32 6 L32 22 M24 14 L40 14" stroke="#ffffff" strokeWidth="1.2" strokeLinecap="round" />
+                </g>
+              </svg>
+            </div>
+          )}
         </div>
 
-        {/* Bottom Status Strip */}
-        <div className="bg-[#0f212e] px-3 py-2.5 flex items-center gap-1.5 border-t border-[#1a2c38]">
-          <span className="w-2 h-2 rounded-full bg-[#00e701] shadow-[0_0_8px_#00e701] animate-pulse shrink-0" />
+        {/* Bottom Counter Strip */}
+        <div className="bg-[#0f212e] px-3.5 py-2.5 flex items-center gap-1.5 border-t border-[#213743]">
+          <span className="w-2 h-2 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] animate-pulse shrink-0" />
           <span className="text-xs sm:text-sm font-semibold text-[#b1bad3] tabular-nums font-mono">
             {casinoCount.toLocaleString("en-US")} playing
           </span>
@@ -122,107 +120,103 @@ export default function CasinoSportsHeroBanner() {
       {/* 2. Right Card: SPORTS */}
       <Link
         href={BANNER_ASSETS.sportsHero.href || "/sports"}
-        className="group min-h-[175px] sm:min-h-[210px] w-full rounded-2xl overflow-hidden bg-[#0f212e] border border-[#213743] hover:border-[#2f4553] flex flex-col justify-between transition-transform duration-200 active:scale-[0.98] shadow-lg"
+        className="group relative w-full rounded-2xl overflow-hidden bg-[#0f212e] border border-[#213743] hover:border-[#2f4553] flex flex-col justify-between transition-transform duration-200 active:scale-[0.98] shadow-lg"
       >
-        {/* Top Blue Graphic Stage */}
-        <div className="relative h-[125px] sm:h-[155px] w-full overflow-hidden bg-gradient-to-b from-[#1475e1] to-[#0b4bb1] p-3 flex flex-col justify-between">
-          {/* Ambient stage shine */}
-          <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+        {/* Upper Graphic Stage - 100% Full-Bleed Edge-to-Edge */}
+        <div className="relative w-full h-[135px] sm:h-[160px] overflow-hidden rounded-t-2xl bg-gradient-to-b from-[#1475e1] to-[#0b4bb1]">
+          {/* Title Overlay */}
+          <span className="absolute top-3 left-3.5 z-10 text-white font-black text-base sm:text-lg tracking-wider drop-shadow-md">
+            {BANNER_ASSETS.sportsHero.title || "SPORTS"}
+          </span>
 
-          {/* Title */}
-          <div className="z-10">
-            <h2 className="text-white font-extrabold text-base sm:text-lg tracking-wide uppercase drop-shadow-md">
-              {BANNER_ASSETS.sportsHero.title || "SPORTS"}
-            </h2>
-          </div>
+          {/* Full-bleed image or responsive fallback */}
+          {sportsImgUrl && !sportsImgError ? (
+            <img
+              src={sportsImgUrl}
+              alt={BANNER_ASSETS.sportsHero.title || "SPORTS"}
+              onError={() => setSportsImgError(true)}
+              className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none transition-transform duration-300 group-hover:scale-105"
+            />
+          ) : (
+            /* Edge-to-edge 3D artwork fallback */
+            <div className="absolute inset-0 w-full h-full flex items-center justify-center pointer-events-none transition-transform duration-300 group-hover:scale-105">
+              <svg
+                viewBox="0 0 200 140"
+                preserveAspectRatio="xMidYMid slice"
+                className="w-full h-full object-cover"
+              >
+                <defs>
+                  <linearGradient id="trophyGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#fef08a" />
+                    <stop offset="35%" stopColor="#facc15" />
+                    <stop offset="70%" stopColor="#eab308" />
+                    <stop offset="100%" stopColor="#ca8a04" />
+                  </linearGradient>
+                  <linearGradient id="silverRim" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#ffffff" />
+                    <stop offset="100%" stopColor="#cbd5e1" />
+                  </linearGradient>
+                  <radialGradient id="shineGlowSports" cx="40%" cy="30%" r="50%">
+                    <stop offset="0%" stopColor="#ffffff" stopOpacity="0.25" />
+                    <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+                  </radialGradient>
+                </defs>
 
-          {/* Centered 3D Artwork */}
-          <div className="relative z-0 flex items-center justify-center my-auto w-full">
-            {sportsImgUrl && !sportsImgError ? (
-              <img
-                src={sportsImgUrl}
-                alt="Sports"
-                onError={() => setSportsImgError(true)}
-                className="w-24 h-24 sm:w-28 sm:h-28 object-contain drop-shadow-2xl mx-auto transition-transform duration-300 group-hover:scale-105"
-              />
-            ) : (
-              /* High-Fidelity 3D Silver/Gold Trophy & Stake Blue Football */
-              <div className="w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center mx-auto drop-shadow-2xl transition-transform duration-300 group-hover:scale-105">
-                <svg viewBox="0 0 100 90" className="w-full h-full">
-                  <defs>
-                    <linearGradient id="trophyGold" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#fef08a" />
-                      <stop offset="35%" stopColor="#facc15" />
-                      <stop offset="70%" stopColor="#eab308" />
-                      <stop offset="100%" stopColor="#ca8a04" />
-                    </linearGradient>
-                    <linearGradient id="silverRim" x1="0%" y1="0%" x2="0%" y2="100%">
-                      <stop offset="0%" stopColor="#ffffff" />
-                      <stop offset="100%" stopColor="#cbd5e1" />
-                    </linearGradient>
-                  </defs>
+                {/* Subtle light sweep */}
+                <rect x="0" y="0" width="200" height="140" fill="url(#shineGlowSports)" />
 
-                  {/* 3D Trophy (Left) */}
-                  <g transform="translate(8, 8)">
-                    {/* Handles */}
-                    <path
-                      d="M8 14 C-4 14 -4 30 10 32"
-                      fill="none"
-                      stroke="url(#trophyGold)"
-                      strokeWidth="3.5"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="M40 14 C52 14 52 30 38 32"
-                      fill="none"
-                      stroke="url(#trophyGold)"
-                      strokeWidth="3.5"
-                      strokeLinecap="round"
-                    />
-                    {/* Cup Body */}
-                    <path
-                      d="M9 8 L39 8 L35 34 C33 44 15 44 13 34 Z"
-                      fill="url(#trophyGold)"
-                    />
-                    {/* Cup Opening Rim */}
-                    <ellipse cx="24" cy="8" rx="15" ry="4" fill="url(#silverRim)" />
-                    {/* Stem & Solid Base */}
-                    <path d="M21 41 L27 41 L27 48 L21 48 Z" fill="#a16207" />
-                    <path d="M15 48 L33 48 L35 56 L13 56 Z" fill="#713f12" />
-                    <rect x="16" y="50" width="16" height="3" fill="#fef08a" rx="0.5" />
-                    {/* Star Badge on Trophy */}
-                    <text x="24" y="27" fill="#713f12" fontSize="9" fontWeight="900" textAnchor="middle">
-                      ★
-                    </text>
-                  </g>
+                {/* 3D Trophy (Left) */}
+                <g transform="translate(35, 25)">
+                  <path
+                    d="M9 16 C-5 16 -5 34 11 36"
+                    fill="none"
+                    stroke="url(#trophyGold)"
+                    strokeWidth="3.8"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M45 16 C59 16 59 34 43 36"
+                    fill="none"
+                    stroke="url(#trophyGold)"
+                    strokeWidth="3.8"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M10 9 L44 9 L40 38 C37 49 17 49 14 38 Z"
+                    fill="url(#trophyGold)"
+                  />
+                  <ellipse cx="27" cy="9" rx="17" ry="4.5" fill="url(#silverRim)" />
+                  <path d="M24 46 L30 46 L30 54 L24 54 Z" fill="#a16207" />
+                  <path d="M17 54 L37 54 L39 63 L15 63 Z" fill="#713f12" />
+                  <rect x="18" y="56" width="18" height="3.5" fill="#fef08a" rx="0.5" />
+                  <text x="27" y="30" fill="#713f12" fontSize="10" fontWeight="900" textAnchor="middle">
+                    ★
+                  </text>
+                </g>
 
-                  {/* 3D Stake Soccer Ball (Right) */}
-                  <g transform="translate(50, 24)">
-                    <circle cx="24" cy="24" r="22" fill="#f8fafc" stroke="#334155" strokeWidth="1.2" />
-                    {/* Blue Pentagon Center */}
-                    <polygon points="24,15 31,20 28,29 20,29 17,20" fill="#0284c7" />
-                    {/* Seam Lines */}
-                    <line x1="24" y1="15" x2="24" y2="4" stroke="#0f172a" strokeWidth="1.8" />
-                    <line x1="31" y1="20" x2="41" y2="15" stroke="#0f172a" strokeWidth="1.8" />
-                    <line x1="28" y1="29" x2="37" y2="38" stroke="#0f172a" strokeWidth="1.8" />
-                    <line x1="20" y1="29" x2="11" y2="38" stroke="#0f172a" strokeWidth="1.8" />
-                    <line x1="17" y1="20" x2="7" y2="15" stroke="#0f172a" strokeWidth="1.8" />
-                    {/* Surrounding Blue Hex Patches */}
-                    <polygon points="21,3 27,3 30,7 18,7" fill="#38bdf8" />
-                    <polygon points="42,14 46,18 42,25 38,20" fill="#0284c7" />
-                    <polygon points="35,39 39,43 32,45 28,41" fill="#38bdf8" />
-                    <polygon points="13,39 9,43 16,45 20,41" fill="#0284c7" />
-                    <polygon points="6,14 2,18 6,25 10,20" fill="#38bdf8" />
-                  </g>
-                </svg>
-              </div>
-            )}
-          </div>
+                {/* 3D Stake Soccer Ball (Right) */}
+                <g transform="translate(100, 38)">
+                  <circle cx="28" cy="28" r="26" fill="#f8fafc" stroke="#334155" strokeWidth="1.2" />
+                  <polygon points="28,17 36,23 33,34 23,34 20,23" fill="#0284c7" />
+                  <line x1="28" y1="17" x2="28" y2="4" stroke="#0f172a" strokeWidth="2" />
+                  <line x1="36" y1="23" x2="48" y2="17" stroke="#0f172a" strokeWidth="2" />
+                  <line x1="33" y1="34" x2="43" y2="45" stroke="#0f172a" strokeWidth="2" />
+                  <line x1="23" y1="34" x2="13" y2="45" stroke="#0f172a" strokeWidth="2" />
+                  <line x1="20" y1="23" x2="8" y2="17" stroke="#0f172a" strokeWidth="2" />
+                  <polygon points="25,3 31,3 35,7 21,7" fill="#38bdf8" />
+                  <polygon points="49,16 54,21 49,29 44,23" fill="#0284c7" />
+                  <polygon points="41,46 45,51 37,53 32,48" fill="#38bdf8" />
+                  <polygon points="15,46 10,51 18,53 23,48" fill="#0284c7" />
+                  <polygon points="7,16 2,21 7,29 12,23" fill="#38bdf8" />
+                </g>
+              </svg>
+            </div>
+          )}
         </div>
 
-        {/* Bottom Status Strip */}
-        <div className="bg-[#0f212e] px-3 py-2.5 flex items-center gap-1.5 border-t border-[#1a2c38]">
-          <span className="w-2 h-2 rounded-full bg-[#00e701] shadow-[0_0_8px_#00e701] animate-pulse shrink-0" />
+        {/* Bottom Counter Strip */}
+        <div className="bg-[#0f212e] px-3.5 py-2.5 flex items-center gap-1.5 border-t border-[#213743]">
+          <span className="w-2 h-2 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] animate-pulse shrink-0" />
           <span className="text-xs sm:text-sm font-semibold text-[#b1bad3] tabular-nums font-mono">
             {sportsCount.toLocaleString("en-US")} betting
           </span>
