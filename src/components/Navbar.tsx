@@ -65,8 +65,8 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 flex h-14 sm:h-16 w-full items-center justify-between px-3 sm:px-4 md:px-6 bg-[#1a2c38] border-b border-[#213743] select-none">
-        {/* Left side: Sidebar Toggle & Stake cursive Logo */}
+      <header className="sticky top-0 z-40 flex h-14 sm:h-16 w-full items-center justify-between gap-2 px-3 sm:px-4 md:px-6 bg-[#1a2c38] border-b border-[#213743] select-none">
+        {/* Left Section: Sidebar Toggle & Stake cursive Logo */}
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={toggleSidebar}
@@ -78,11 +78,11 @@ export default function Navbar() {
 
           <Link
             href="/"
-            className="flex items-center gap-1.5 focus:outline-none"
+            className="flex items-center focus:outline-none"
             aria-label="Stake Home"
           >
-            {/* Mobile cursive 'S' logo */}
-            <svg viewBox="0 0 25 40" className="h-8 sm:h-9 w-auto text-white fill-current sm:hidden">
+            {/* Mobile cursive 'S' logo with zero dead whitespace */}
+            <svg viewBox="0 0 24 40" className="h-8 sm:h-9 w-auto text-white fill-current sm:hidden">
               <path d="M17.408 19.336c2.432-1.048 4.296-2.568 5.6-4.568 1.304-2 1.952-4.4 1.952-7.2 0-2.48-.568-4.6-1.704-6.36C22.12.968 20.512 0 18.424 0c-.88 0-1.68.216-2.4.648s-1.32 1.056-1.8 1.872l-1.488 2.544C11.664 6.944 9.8 8.04 7.144 8.352v-2.88c0-1.552-.408-2.768-1.224-3.648C5.104.944 4.016.504 2.656.504c-.816 0-1.504.288-2.064.864C.032 1.944-.144 2.68.048 3.576l3.52 16.512c.384 1.76 1.168 3.2 2.352 4.32 1.184 1.12 2.688 1.68 4.512 1.68h.864c3.424-.48 5.92-1.92 7.488-4.32.48-.736.88-1.544 1.2-2.424l-2.576-.008zm5.728 10.368c-1.28 1.84-3.08 3.248-5.4 4.224-2.32.976-5.04 1.464-8.16 1.464-2.848 0-5.184-.52-7.008-1.56-1.824-1.04-2.736-2.488-2.736-4.344 0-1.2.392-2.2 1.176-3 .784-.8 1.832-1.2 3.144-1.2.704 0 1.344.152 1.92.456.576.304 1.056.768 1.44 1.392.512.832 1.152 1.488 1.92 1.968.768.48 1.76.72 2.976.72 1.472 0 2.624-.312 3.456-.936.832-.624 1.248-1.448 1.248-2.472 0-.896-.344-1.632-1.032-2.208-.688-.576-1.872-1.096-3.552-1.56l-2.784-.768c-3.136-.864-5.344-2.008-6.624-3.432-1.28-1.424-1.92-3.32-1.92-5.688 0-2.368.808-4.352 2.424-5.952C9.176 1.048 11.4.248 14.288.248c2.4 0 4.416.48 6.048 1.44 1.632.96 2.448 2.272 2.448 3.936 0 1.056-.368 1.952-1.104 2.688-.736.736-1.712 1.104-2.928 1.104-.64 0-1.216-.144-1.728-.432-.512-.288-.952-.72-1.32-1.296-.448-.672-1.04-1.192-1.776-1.56-.736-.368-1.632-.552-2.688-.552-1.216 0-2.16.272-2.832.816-.672.544-1.008 1.288-1.008 2.232 0 .864.336 1.56 1.008 2.088.672.528 1.808 1.008 3.408 1.44l2.784.768c3.296.928 5.616 2.152 6.96 3.672 1.344 1.52 2.016 3.472 2.016 5.856.008 2.656-.84 4.888-2.544 6.696z" />
             </svg>
             {/* Desktop full cursive Stake logo */}
@@ -90,35 +90,18 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* Right/Center items: Uniform flex wrapper with gap-2 containing [Balance Pill + Wallet Button] -> [Notification Bell] -> [User Avatar] */}
-        {!isAuthenticated ? (
-          /* Guest View: Sign In & Register Buttons */
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              onClick={openOneTap}
-              className="text-[#b1bad3] hover:text-white font-semibold text-xs sm:text-sm px-3 py-1.5 transition-colors cursor-pointer"
-            >
-              Sign In
-            </button>
-            <button
-              onClick={openOneTap}
-              className="bg-[#1475e1] hover:bg-[#1268c7] text-white font-bold text-xs sm:text-sm px-3.5 py-1.5 rounded-md shadow-sm transition-all cursor-pointer"
-            >
-              Register
-            </button>
-          </div>
-        ) : (
-          <div className="flex items-center gap-2 min-w-0">
-            {/* [Balance Pill + Wallet Button] */}
-            <div className="flex items-center min-w-0">
+        {/* Center / Middle Section: Dynamically Expanded Wallet Balance Pill filling space with exact 8px gaps */}
+        {isAuthenticated ? (
+          <div className="flex-1 flex items-center justify-center min-w-0 max-w-[280px] sm:max-w-[340px]">
+            <div className="flex items-center w-full min-w-0 transition-all">
               {/* Balance Pill Container */}
-              <div className="relative min-w-0">
+              <div className="relative flex-1 min-w-0">
                 <div
                   onClick={() => setIsCurrencyDropdownOpen(!isCurrencyDropdownOpen)}
-                  className="flex items-center justify-between gap-1 sm:gap-2 rounded-l-lg border border-r-0 border-[#213743] bg-[#0f212e] py-1.5 px-2 sm:px-3 shadow-inner cursor-pointer hover:border-[#2f4553] transition-colors"
+                  className="flex items-center justify-between gap-1 sm:gap-2 rounded-l-lg border border-r-0 border-[#213743] bg-[#0f212e] py-1.5 px-2 sm:px-3 shadow-inner cursor-pointer hover:border-[#2f4553] transition-colors w-full"
                 >
                   {/* Left part: Coin Badge + Centered Bold Balance Typography */}
-                  <div className="flex items-center justify-center gap-1.5 sm:gap-2 min-w-0">
+                  <div className="flex items-center justify-center gap-1.5 sm:gap-2 min-w-0 flex-1">
                     {displayInfo.isFiat ? (
                       <FiatCoinIcon
                         currency={displayInfo.code}
@@ -181,6 +164,30 @@ export default function Navbar() {
                 <span className="hidden sm:inline">Wallet</span>
               </button>
             </div>
+          </div>
+        ) : (
+          <div className="flex-1" />
+        )}
+
+        {/* Right Section: Guest vs Authenticated Controls with exact gap-2 */}
+        {!isAuthenticated ? (
+          /* Guest View: Sign In & Register Buttons */
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={openOneTap}
+              className="text-[#b1bad3] hover:text-white font-semibold text-xs sm:text-sm px-3 py-1.5 transition-colors cursor-pointer"
+            >
+              Sign In
+            </button>
+            <button
+              onClick={openOneTap}
+              className="bg-[#1475e1] hover:bg-[#1268c7] text-white font-bold text-xs sm:text-sm px-3.5 py-1.5 rounded-md shadow-sm transition-all cursor-pointer"
+            >
+              Register
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 shrink-0">
             {/* Notification Bell (Visible on Both Mobile & Desktop) */}
             <button
               onClick={() => setIsNotificationsOpen(true)}

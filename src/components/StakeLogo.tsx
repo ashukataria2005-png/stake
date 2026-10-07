@@ -10,7 +10,7 @@ export default function StakeLogo({
 }: StakeLogoProps) {
   return (
     <svg
-      viewBox="0 0 109 40"
+      viewBox="0 0 100.5 40"
       className={className}
       fill="currentColor"
       xmlns="http://www.w3.org/2000/svg"

@@ -31,9 +31,9 @@ export default function MobileBottomNav() {
   const isCasinoActive = (pathname === "/casino/home" || pathname?.startsWith("/games") || pathname?.startsWith("/casino")) && !isHomeActive && !isChatOpen;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-[#0f212e] border-t border-[#213743] px-2 py-1.5 pb-safe select-none shadow-2xl">
-      {/* Top Arch / Half-Circle Curve at the exact center where 'S' sits */}
-      <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 w-16 h-5 bg-[#0f212e] border-t border-x border-[#213743] rounded-t-full pointer-events-none z-10 shadow-[0_-3px_6px_rgba(0,0,0,0.3)]" />
+    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-[#0f212e] border-t-2 border-[#2f4553] px-2 py-1.5 pb-safe select-none shadow-2xl">
+      {/* Top Border Breaker Arch: Smooth Continuous Speed-Breaker Dome */}
+      <div className="absolute -top-7 left-1/2 -translate-x-1/2 w-20 h-10 bg-[#0f212e] border-t-2 border-x-2 border-[#2f4553] rounded-t-[36px] pointer-events-none z-10 shadow-[0_-4px_8px_rgba(0,0,0,0.35)]" />
 
       <div className="flex items-center justify-between relative z-20">
         {/* Tab 1: Browse */}
@@ -46,19 +46,19 @@ export default function MobileBottomNav() {
           }`}
         >
           <div
-            className={`flex h-7 w-7 items-center justify-center rounded-lg transition-transform ${
+            className={`flex h-8 w-8 items-center justify-center rounded-lg transition-transform ${
               activeTab === "browse" && !isChatOpen
-                ? "bg-[#00e701]/15 text-[#00e701] scale-110"
+                ? "bg-[#00e701]/15 text-[#00e701] scale-105"
                 : ""
             }`}
           >
-            <Search className="h-5 w-5" />
+            <Search className="h-6 w-6" strokeWidth={2.2} />
           </div>
           <span
-            className={`text-[10px] mt-0.5 tracking-wide ${
+            className={`text-[11px] font-bold tracking-tight mt-0.5 ${
               activeTab === "browse" && !isChatOpen
-                ? "text-[#00e701] font-bold"
-                : "text-[#b1bad3] font-medium"
+                ? "text-[#00e701]"
+                : "text-[#b1bad3]"
             }`}
           >
             Browse
@@ -76,14 +76,14 @@ export default function MobileBottomNav() {
           }`}
         >
           <div
-            className={`flex h-7 w-7 items-center justify-center rounded-lg transition-transform ${
+            className={`flex h-8 w-8 items-center justify-center rounded-lg transition-transform ${
               isCasinoActive
-                ? "bg-[#00e701]/15 text-[#00e701] scale-110"
+                ? "bg-[#00e701]/15 text-[#00e701] scale-105"
                 : ""
             }`}
           >
             <svg
-              className="h-5 w-5 fill-current"
+              className="h-6 w-6 fill-current"
               viewBox="0 0 24 24"
               xmlns="http://www.w3.org/2000/svg"
             >
@@ -92,29 +92,27 @@ export default function MobileBottomNav() {
             </svg>
           </div>
           <span
-            className={`text-[10px] mt-0.5 tracking-wide ${
-              isCasinoActive ? "text-[#00e701] font-bold" : "text-[#b1bad3] font-medium"
+            className={`text-[11px] font-bold tracking-tight mt-0.5 ${
+              isCasinoActive ? "text-[#00e701]" : "text-[#b1bad3]"
             }`}
           >
             Casino
           </span>
         </Link>
 
-        {/* Tab 3 (CENTER): Standalone Stake 'S' Home Logo with Arch Curve & Persistent Active Zoom */}
+        {/* Tab 3 (CENTER): Stake 'S' Home Logo Contained Inside Breaker Arch with Persistent Active Zoom */}
         <Link
           href="/"
           onClick={() => handleTabClick("home")}
           aria-label="Stake Home"
-          className={`flex items-center justify-center flex-1 py-1 -translate-y-6 relative z-30 transition-all duration-300 ease-in-out cursor-pointer select-none ${
-            isHomeActive ? "scale-125" : "scale-100"
-          }`}
+          className="flex items-center justify-center flex-1 py-1 -translate-y-3.5 relative z-20 cursor-pointer select-none"
         >
           <svg
             viewBox="0 0 25 40"
-            className={`w-11 h-11 sm:w-12 sm:h-12 transition-all duration-300 ease-in-out ${
+            className={`w-8 h-8 sm:w-9 sm:h-9 transition-all duration-300 ease-in-out ${
               isHomeActive
-                ? "fill-[#00e701] text-[#00e701] drop-shadow-[0_0_10px_rgba(0,231,1,0.6)]"
-                : "fill-[#b1bad3] text-[#b1bad3]"
+                ? "scale-115 fill-[#00e701] text-[#00e701] drop-shadow-[0_0_8px_rgba(0,231,1,0.6)]"
+                : "scale-100 fill-[#b1bad3] text-[#b1bad3]"
             }`}
           >
             <path d="M17.408 19.336c2.432-1.048 4.296-2.568 5.6-4.568 1.304-2 1.952-4.4 1.952-7.2 0-2.48-.568-4.6-1.704-6.36C22.12.968 20.512 0 18.424 0c-.88 0-1.68.216-2.4.648s-1.32 1.056-1.8 1.872l-1.488 2.544C11.664 6.944 9.8 8.04 7.144 8.352v-2.88c0-1.552-.408-2.768-1.224-3.648C5.104.944 4.016.504 2.656.504c-.816 0-1.504.288-2.064.864C.032 1.944-.144 2.68.048 3.576l3.52 16.512c.384 1.76 1.168 3.2 2.352 4.32 1.184 1.12 2.688 1.68 4.512 1.68h.864c3.424-.48 5.92-1.92 7.488-4.32.48-.736.88-1.544 1.2-2.424l-2.576-.008zm5.728 10.368c-1.28 1.84-3.08 3.248-5.4 4.224-2.32.976-5.04 1.464-8.16 1.464-2.848 0-5.184-.52-7.008-1.56-1.824-1.04-2.736-2.488-2.736-4.344 0-1.2.392-2.2 1.176-3 .784-.8 1.832-1.2 3.144-1.2.704 0 1.344.152 1.92.456.576.304 1.056.768 1.44 1.392.512.832 1.152 1.488 1.92 1.968.768.48 1.76.72 2.976.72 1.472 0 2.624-.312 3.456-.936.832-.624 1.248-1.448 1.248-2.472 0-.896-.344-1.632-1.032-2.208-.688-.576-1.872-1.096-3.552-1.56l-2.784-.768c-3.136-.864-5.344-2.008-6.624-3.432-1.28-1.424-1.92-3.32-1.92-5.688 0-2.368.808-4.352 2.424-5.952C9.176 1.048 11.4.248 14.288.248c2.4 0 4.416.48 6.048 1.44 1.632.96 2.448 2.272 2.448 3.936 0 1.056-.368 1.952-1.104 2.688-.736.736-1.712 1.104-2.928 1.104-.64 0-1.216-.144-1.728-.432-.512-.288-.952-.72-1.32-1.296-.448-.672-1.04-1.192-1.776-1.56-.736-.368-1.632-.552-2.688-.552-1.216 0-2.16.272-2.832.816-.672.544-1.008 1.288-1.008 2.232 0 .864.336 1.56 1.008 2.088.672.528 1.808 1.008 3.408 1.44l2.784.768c3.296.928 5.616 2.152 6.96 3.672 1.344 1.52 2.016 3.472 2.016 5.856.008 2.656-.84 4.888-2.544 6.696z" />
@@ -132,14 +130,14 @@ export default function MobileBottomNav() {
           }`}
         >
           <div
-            className={`flex h-7 w-7 items-center justify-center rounded-lg transition-transform ${
+            className={`flex h-8 w-8 items-center justify-center rounded-lg transition-transform ${
               pathname === "/sports" && !isChatOpen
-                ? "bg-[#00e701]/15 text-[#00e701] scale-110"
+                ? "bg-[#00e701]/15 text-[#00e701] scale-105"
                 : ""
             }`}
           >
             <svg
-              className="h-5 w-5 fill-none stroke-current stroke-2"
+              className="h-6 w-6 fill-none stroke-current stroke-[2.2]"
               viewBox="0 0 24 24"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -154,10 +152,10 @@ export default function MobileBottomNav() {
             </svg>
           </div>
           <span
-            className={`text-[10px] mt-0.5 tracking-wide ${
+            className={`text-[11px] font-bold tracking-tight mt-0.5 ${
               pathname === "/sports" && !isChatOpen
-                ? "text-[#00e701] font-bold"
-                : "text-[#b1bad3] font-medium"
+                ? "text-[#00e701]"
+                : "text-[#b1bad3]"
             }`}
           >
             Sports
@@ -174,21 +172,21 @@ export default function MobileBottomNav() {
           }`}
         >
           <div
-            className={`flex h-7 w-7 items-center justify-center rounded-lg transition-transform relative ${
+            className={`flex h-8 w-8 items-center justify-center rounded-lg transition-transform relative ${
               isChatOpen
-                ? "bg-[#00e701]/15 text-[#00e701] scale-110"
+                ? "bg-[#00e701]/15 text-[#00e701] scale-105"
                 : ""
             }`}
           >
-            <MessageSquare className="h-5 w-5" />
+            <MessageSquare className="h-6 w-6" strokeWidth={2.2} />
             <span className="absolute -top-1 -right-1 flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00e701] opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00e701]" />
             </span>
           </div>
           <span
-            className={`text-[10px] mt-0.5 tracking-wide ${
-              isChatOpen ? "text-[#00e701] font-bold" : "text-[#b1bad3] font-medium"
+            className={`text-[11px] font-bold tracking-tight mt-0.5 ${
+              isChatOpen ? "text-[#00e701]" : "text-[#b1bad3]"
             }`}
           >
             Chat

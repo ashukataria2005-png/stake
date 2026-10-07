@@ -14,8 +14,8 @@ export default function CasinoSportsHeroBanner() {
   // Subtle organic counter jitter for authentic live feel
   useEffect(() => {
     const interval = setInterval(() => {
-      setCasinoCount((prev) => Math.max(50000, prev + Math.floor(Math.random() * 21) - 10));
-      setSportsCount((prev) => Math.max(30000, prev + Math.floor(Math.random() * 15) - 7));
+      setCasinoCount((prev) => Math.max(50000, (prev || 65562) + Math.floor(Math.random() * 21) - 10));
+      setSportsCount((prev) => Math.max(30000, (prev || 39681) + Math.floor(Math.random() * 15) - 7));
     }, 4000);
     return () => clearInterval(interval);
   }, []);
@@ -31,7 +31,7 @@ export default function CasinoSportsHeroBanner() {
         className="group relative w-full rounded-2xl overflow-hidden bg-[#0f212e] border border-[#213743] hover:border-[#2f4553] flex flex-col justify-between transition-transform duration-200 active:scale-[0.98] shadow-lg"
       >
         {/* Upper Graphic Stage - 100% Full-Bleed Edge-to-Edge */}
-        <div className="relative w-full h-[135px] sm:h-[160px] overflow-hidden rounded-t-2xl bg-gradient-to-b from-[#1475e1] to-[#0b4bb1]">
+        <div className="relative w-full h-[135px] sm:h-[155px] overflow-hidden rounded-t-2xl bg-gradient-to-b from-[#1475e1] to-[#0b4bb1]">
           {/* Title Overlay */}
           <span className="absolute top-3 left-3.5 z-10 text-white font-black text-base sm:text-lg tracking-wider drop-shadow-md">
             {BANNER_ASSETS.casinoHero.title || "CASINO"}
@@ -108,11 +108,11 @@ export default function CasinoSportsHeroBanner() {
           )}
         </div>
 
-        {/* Bottom Counter Strip */}
-        <div className="bg-[#0f212e] px-3.5 py-2.5 flex items-center gap-1.5 border-t border-[#213743]">
+        {/* Lower Footer Strip (BELOW the photo) */}
+        <div className="bg-[#0f212e] px-3.5 py-2.5 flex items-center gap-1.5 border-t border-[#213743] rounded-b-2xl">
           <span className="w-2 h-2 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] animate-pulse shrink-0" />
-          <span className="text-xs sm:text-sm font-semibold text-[#b1bad3] tabular-nums font-mono">
-            {casinoCount.toLocaleString("en-US")} playing
+          <span className="text-xs sm:text-sm font-semibold text-[#b1bad3]">
+            {casinoCount ? `${casinoCount.toLocaleString("en-US")} playing` : "65,562 playing"}
           </span>
         </div>
       </Link>
@@ -123,7 +123,7 @@ export default function CasinoSportsHeroBanner() {
         className="group relative w-full rounded-2xl overflow-hidden bg-[#0f212e] border border-[#213743] hover:border-[#2f4553] flex flex-col justify-between transition-transform duration-200 active:scale-[0.98] shadow-lg"
       >
         {/* Upper Graphic Stage - 100% Full-Bleed Edge-to-Edge */}
-        <div className="relative w-full h-[135px] sm:h-[160px] overflow-hidden rounded-t-2xl bg-gradient-to-b from-[#1475e1] to-[#0b4bb1]">
+        <div className="relative w-full h-[135px] sm:h-[155px] overflow-hidden rounded-t-2xl bg-gradient-to-b from-[#1475e1] to-[#0b4bb1]">
           {/* Title Overlay */}
           <span className="absolute top-3 left-3.5 z-10 text-white font-black text-base sm:text-lg tracking-wider drop-shadow-md">
             {BANNER_ASSETS.sportsHero.title || "SPORTS"}
@@ -214,11 +214,11 @@ export default function CasinoSportsHeroBanner() {
           )}
         </div>
 
-        {/* Bottom Counter Strip */}
-        <div className="bg-[#0f212e] px-3.5 py-2.5 flex items-center gap-1.5 border-t border-[#213743]">
+        {/* Lower Footer Strip (BELOW the photo) */}
+        <div className="bg-[#0f212e] px-3.5 py-2.5 flex items-center gap-1.5 border-t border-[#213743] rounded-b-2xl">
           <span className="w-2 h-2 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] animate-pulse shrink-0" />
-          <span className="text-xs sm:text-sm font-semibold text-[#b1bad3] tabular-nums font-mono">
-            {sportsCount.toLocaleString("en-US")} betting
+          <span className="text-xs sm:text-sm font-semibold text-[#b1bad3]">
+            {sportsCount ? `${sportsCount.toLocaleString("en-US")} betting` : "39,681 betting"}
           </span>
         </div>
       </Link>
