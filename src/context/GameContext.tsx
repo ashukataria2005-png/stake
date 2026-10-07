@@ -25,8 +25,16 @@ export interface RecentlyPlayedGame {
   playersCount?: number;
 }
 
+export type PlayMode = "real" | "fun";
+
 interface GameContextType {
-  balance: number; // Stored in USD / USDT equivalent
+  balance: number; // Active balance depending on playMode
+  realBalance: number; // Authentic wallet balance in USD
+  funBalance: number; // Isolated session demo balance (credits)
+  playMode: PlayMode; // "real" | "fun"
+  setPlayMode: (mode: PlayMode) => void;
+  resetFunBalance: () => void;
+  hasVerifiedDeposit: boolean;
   currency: string; // Active cryptocurrency (USDT, BTC, ETH, LTC, SOL, DOGE, BCH, XRP, TRX)
   cryptoBalances: Record<string, number>;
   hideZeroBalances: boolean;
@@ -74,27 +82,32 @@ const DISPLAY_FIAT_STORAGE_KEY = "stake_clone_display_fiat";
 const SELECTED_FIAT_STORAGE_KEY = "stake_clone_selected_fiat";
 const AUTH_STORAGE_KEY = "stake_clone_auth";
 
-const DEFAULT_USD_BALANCE = 1000.00;
+// Initial user balance is strictly 0.00 until an authentic deposit is verified
+const DEFAULT_USD_BALANCE = 0.00;
+const DEFAULT_FUN_BALANCE = 1000.00;
 
 const DEFAULT_CRYPTO_BALANCES: Record<string, number> = {
-  USDT: 1000.0,
-  BTC: 0.01459854,
-  ETH: 0.28409091,
-  LTC: 11.83431953,
-  SOL: 5.40540541,
-  DOGE: 6060.60606061,
-  BCH: 2.38095238,
-  XRP: 1612.90322581,
-  TRX: 6896.55172414,
+  USDT: 0.0,
+  BTC: 0.0,
+  ETH: 0.0,
+  LTC: 0.0,
+  SOL: 0.0,
+  DOGE: 0.0,
+  BCH: 0.0,
+  XRP: 0.0,
+  TRX: 0.0,
 };
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
-  const [balance, setBalance] = useState<number>(DEFAULT_USD_BALANCE);
+  const [realBalance, setRealBalance] = useState<number>(DEFAULT_USD_BALANCE);
+  const [funBalance, setFunBalance] = useState<number>(DEFAULT_FUN_BALANCE);
+  const [playMode, setPlayMode] = useState<PlayMode>("real");
+  const [hasVerifiedDeposit, setHasVerifiedDeposit] = useState<boolean>(false);
   const [currency, setCurrencyState] = useState<string>("USDT");
   const [cryptoBalances, setCryptoBalances] = useState<Record<string, number>>(DEFAULT_CRYPTO_BALANCES);
   const [hideZeroBalances, setHideZeroBalancesState] = useState<boolean>(false);
   const [displayCryptoInFiat, setDisplayCryptoInFiatState] = useState<boolean>(false);
-  const [selectedFiat, setSelectedFiatState] = useState<string>("USD");
+  const [selectedFiat, setSelectedFiatState] = useState<string>("INR");
 
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
@@ -107,17 +120,44 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [isWalletSettingsOpen, setIsWalletSettingsOpen] = useState<boolean>(false);
   const [recentlyPlayedGames, setRecentlyPlayedGames] = useState<RecentlyPlayedGame[]>([]);
 
+  // Helper to check verified deposit history in stake_deposit_orders
+  const checkDepositHistory = (): boolean => {
+    try {
+      const saved = localStorage.getItem("stake_deposit_orders");
+      if (!saved) return false;
+      const parsed = JSON.parse(saved);
+      return Array.isArray(parsed) && parsed.some((o: any) => o.status === "Success" || o.status === "Completed");
+    } catch {
+      return false;
+    }
+  };
+
   // Hydrate state from localStorage safely on client
   useEffect(() => {
     setIsMounted(true);
     try {
+      const verified = checkDepositHistory();
+      setHasVerifiedDeposit(verified);
+
       const savedBalance = localStorage.getItem(BALANCE_STORAGE_KEY);
       if (savedBalance !== null) {
         const parsed = parseFloat(savedBalance);
-        if (!isNaN(parsed) && parsed >= 0) {
-          setBalance(parsed);
+        // If user never deposited and has old demo 1000 balance, reset strictly to 0
+        if (!verified && (parsed === 1000 || parsed === 1000.0)) {
+          setRealBalance(0.00);
+          localStorage.setItem(BALANCE_STORAGE_KEY, "0");
+        } else if (!isNaN(parsed) && parsed >= 0) {
+          setRealBalance(parsed);
         }
+      } else {
+        setRealBalance(0.00);
       }
+
+      // Default playMode: if realBalance > 0 default to real, otherwise fun play
+      if (savedBalance !== null && parseFloat(savedBalance) > 0) {
+        setPlayMode("real");
+      }
+
       const savedCurrency = localStorage.getItem(CURRENCY_STORAGE_KEY);
       if (savedCurrency) {
         setCurrencyState(savedCurrency);
@@ -157,6 +197,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       if (typeof window !== "undefined" && window.innerWidth < 1024) {
         setIsSidebarOpen(false);
       }
+
+      const handleDepositOrdersUpdate = () => {
+        const hasVerified = checkDepositHistory();
+        setHasVerifiedDeposit(hasVerified);
+      };
+      window.addEventListener("stake_deposit_orders_updated", handleDepositOrdersUpdate);
+      return () => {
+        window.removeEventListener("stake_deposit_orders_updated", handleDepositOrdersUpdate);
+      };
     } catch {
       // localStorage may fail in private mode
     }
@@ -183,7 +232,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     };
     setIsAuthenticated(true);
     setUser(profile);
-    setBalance(DEFAULT_USD_BALANCE);
+    setRealBalance(DEFAULT_USD_BALANCE);
     setCryptoBalances(DEFAULT_CRYPTO_BALANCES);
     setIsOneTapOpen(false);
 
@@ -251,9 +300,20 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const resetFunBalance = () => {
+    setFunBalance(DEFAULT_FUN_BALANCE);
+  };
+
   const updateBalance = (amountUsd: number): boolean => {
+    // If user is currently playing Fun Play (Demo Mode), mutate session fun balance only
+    if (playMode === "fun") {
+      setFunBalance((prev) => Math.max(0, parseFloat((prev + amountUsd).toFixed(2))));
+      return true;
+    }
+
+    // Real Play: Mutate authentic real wallet balance & persist to localStorage
     let success = false;
-    setBalance((prev) => {
+    setRealBalance((prev) => {
       const next = Math.max(0, parseFloat((prev + amountUsd).toFixed(2)));
       try {
         localStorage.setItem(BALANCE_STORAGE_KEY, next.toString());
@@ -264,7 +324,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       return next;
     });
 
-    // Also update crypto balances
+    // Also update crypto balances in Real Play mode
     setCryptoBalances((prev) => {
       const activeCrypto = CRYPTO_CURRENCIES.find((c) => c.id === currency);
       const rate = activeCrypto?.rateUsd || 1.0;
@@ -286,7 +346,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   };
 
   const resetBalance = () => {
-    setBalance(DEFAULT_USD_BALANCE);
+    setRealBalance(DEFAULT_USD_BALANCE);
     setCryptoBalances(DEFAULT_CRYPTO_BALANCES);
     try {
       localStorage.setItem(BALANCE_STORAGE_KEY, DEFAULT_USD_BALANCE.toString());
@@ -312,8 +372,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     setIsChatOpen(open);
   };
 
+  // Active balance is funBalance when playing Fun Mode, else authentic realBalance
+  const activeBalance = playMode === "fun" ? funBalance : realBalance;
+
   const formatBalance = (val?: number): string => {
-    const target = val !== undefined ? val : balance;
+    const target = val !== undefined ? val : activeBalance;
     return target.toLocaleString("en-US", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
@@ -322,14 +385,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
   // Formats display balance based on user fiat settings or crypto
   const formatDisplayBalance = (valUsd?: number): DisplayBalanceInfo => {
-    const usdAmount = valUsd !== undefined ? valUsd : balance;
+    const usdAmount = valUsd !== undefined ? valUsd : activeBalance;
 
     if (displayCryptoInFiat) {
       const fiatObj = ALL_FIAT_CURRENCIES.find((f) => f.code === selectedFiat);
       const rate = fiatObj?.ratePerUsd || 1.0;
       const fiatValue = usdAmount * rate;
       const symbol = fiatObj?.symbol || "$";
-      const decimals = fiatValue > 1000 ? 2 : 2;
+      const decimals = 2;
 
       return {
         amount: fiatValue.toLocaleString("en-US", {
@@ -363,7 +426,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   return (
     <GameContext.Provider
       value={{
-        balance,
+        balance: activeBalance,
+        realBalance,
+        funBalance,
+        playMode,
+        setPlayMode,
+        resetFunBalance,
+        hasVerifiedDeposit,
         currency,
         cryptoBalances,
         hideZeroBalances,

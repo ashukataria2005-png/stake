@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import {
@@ -12,9 +11,14 @@ import {
   Sparkles,
   Gamepad2,
   Tv,
+  ShieldAlert,
+  ArrowRight,
 } from "lucide-react";
 import StakeGameCard from "@/components/casino/StakeGameCard";
 import CasinoLiveBets from "@/components/casino/CasinoLiveBets";
+import GamePlayModeBar from "@/components/casino/GamePlayModeBar";
+import LiveCasinoGateModal from "@/components/casino/LiveCasinoGateModal";
+import { useGame } from "@/context/GameContext";
 import {
   STAKE_ORIGINALS,
   LIVE_CASINO_GAMES,
@@ -28,11 +32,16 @@ interface CategoryGroupViewProps {
 }
 
 export default function CategoryGroupView({ slug }: CategoryGroupViewProps) {
+  const { realBalance, hasVerifiedDeposit, openWalletModal } = useGame();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPublisher, setSelectedPublisher] = useState("all");
   const [sortOption, setSortOption] = useState<"popular" | "az" | "za" | "featured">("popular");
   const [isFollowing, setIsFollowing] = useState(false);
   const [visibleCount, setVisibleCount] = useState(18);
+  const [gateModalOpen, setGateModalOpen] = useState(false);
+  const [gateTableName, setGateTableName] = useState("Live Casino Table");
+
+  const isLiveRestricted = slug === "live-casino" && realBalance <= 0 && !hasVerifiedDeposit;
 
   // Group metadata based on slug
   const groupMeta = useMemo(() => {
@@ -135,6 +144,9 @@ export default function CategoryGroupView({ slug }: CategoryGroupViewProps) {
 
   return (
     <div className="min-h-screen px-3 sm:px-6 py-4 max-w-7xl mx-auto space-y-6">
+      {/* Game Play Mode Bar (Fun Play disabled for live casino) */}
+      <GamePlayModeBar isLiveCasino={slug === "live-casino"} />
+
       {/* Category Header Banner matching Stake */}
       <div
         className={`relative rounded-2xl overflow-hidden border border-[#213743] bg-gradient-to-r ${groupMeta.bannerBg} p-5 sm:p-7 shadow-xl`}
@@ -250,6 +262,38 @@ export default function CategoryGroupView({ slug }: CategoryGroupViewProps) {
         </div>
       </div>
 
+      {/* Persistent Stake Warning Lock Sheet if Live Casino and unverified/zero balance */}
+      {isLiveRestricted && (
+        <div className="rounded-2xl border-2 border-amber-500/40 bg-[#1a2c38] p-5 sm:p-6 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-5 animate-in fade-in">
+          <div className="flex items-center gap-4 text-left">
+            <div className="w-12 h-12 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+              <ShieldAlert className="w-6 h-6" />
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-sm sm:text-base font-bold text-white">
+                  ⚠️ Real Balance Required
+                </span>
+                <span className="text-[10px] bg-red-500/20 text-red-300 border border-red-500/30 px-2 py-0.5 rounded font-black uppercase">
+                  Tables Locked
+                </span>
+              </div>
+              <p className="text-xs text-[#b1bad3] max-w-xl">
+                Live Casino tables require an active balance. Please deposit to join live dealer tables. Fun Play is disabled on live tables.
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={openWalletModal}
+            className="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#00e701] hover:bg-[#00c701] text-[#0f212e] font-black text-xs sm:text-sm shadow-[0_0_15px_rgba(0,231,1,0.35)] active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer shrink-0"
+          >
+            <span>Deposit Now</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       {/* Grid: Mobile 3-Col, Desktop 6-Col */}
       <div className="space-y-4">
         <div className="flex items-center justify-between text-xs text-[#b1bad3]">
@@ -284,7 +328,18 @@ export default function CategoryGroupView({ slug }: CategoryGroupViewProps) {
         ) : (
           <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 sm:gap-3.5">
             {displayedGames.map((game) => (
-              <StakeGameCard key={game.id} game={game} />
+              <StakeGameCard
+                key={game.id}
+                game={game}
+                onClick={
+                  isLiveRestricted
+                    ? (g) => {
+                        setGateTableName(g.title);
+                        setGateModalOpen(true);
+                      }
+                    : undefined
+                }
+              />
             ))}
           </div>
         )}
@@ -306,6 +361,13 @@ export default function CategoryGroupView({ slug }: CategoryGroupViewProps) {
       <div className="pt-6">
         <CasinoLiveBets />
       </div>
+
+      {/* Live Casino Gate Modal */}
+      <LiveCasinoGateModal
+        isOpen={gateModalOpen}
+        onClose={() => setGateModalOpen(false)}
+        tableName={gateTableName}
+      />
     </div>
   );
 }

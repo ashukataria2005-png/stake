@@ -23,6 +23,7 @@ import NotificationsDrawer from "@/components/NotificationsDrawer";
 export default function Navbar() {
   const {
     balance,
+    realBalance,
     currency,
     resetBalance,
     toggleSidebar,
@@ -70,8 +71,8 @@ export default function Navbar() {
   };
 
   const displayInfo = isMounted
-    ? formatDisplayBalance()
-    : { amount: "1,000.00", symbol: "$", code: "USDT", isFiat: false };
+    ? formatDisplayBalance(realBalance)
+    : { amount: "0.00", symbol: "₹", code: "INR", isFiat: true };
 
   return (
     <>

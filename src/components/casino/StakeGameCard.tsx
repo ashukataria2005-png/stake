@@ -53,7 +53,7 @@ export default function StakeGameCard({ game, onClick }: StakeGameCardProps) {
     </div>
   );
 
-  if (game.href) {
+  if (game.href && !onClick) {
     return (
       <Link href={game.href} className="block">
         {cardContent}

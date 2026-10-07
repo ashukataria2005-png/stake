@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
-import { Play } from "lucide-react";
+import { Play, ArrowRight } from "lucide-react";
 
 import StakeGameArtwork from "@/components/casino/StakeGameArtwork";
 import { getGameThumbnail } from "@/data/gameThumbnails";
@@ -36,9 +36,7 @@ export default function CasinoGameRow({
   cards,
   onCardClick,
 }: CasinoGameRowProps) {
-  const [visibleCount, setVisibleCount] = useState<number>(6);
-
-  const displayedCards = cards.slice(0, visibleCount);
+  const displayedCards = cards.slice(0, 15);
 
   return (
     <section className="space-y-3.5 my-7">
@@ -59,8 +57,8 @@ export default function CasinoGameRow({
         </Link>
       </div>
 
-      {/* Responsive Card Grid (Mobile: 3-Col, Desktop: 6-Col) */}
-      <div className="grid grid-cols-3 gap-2 sm:gap-3 md:grid-cols-4 lg:grid-cols-6">
+      {/* 3-Card Responsive Horizontal Scroll Carousel */}
+      <div className="flex gap-2.5 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory py-1 px-1">
         {displayedCards.map((card) => {
           const thumb = getGameThumbnail(card.id, card.image);
 
@@ -68,7 +66,6 @@ export default function CasinoGameRow({
           if (card.isPublisherCard) {
             const pubContent = (
               <div
-                key={card.id}
                 onClick={() => onCardClick && onCardClick(card)}
                 className="group relative flex flex-col justify-between rounded-xl overflow-hidden border border-[#213743] bg-[#1a2c38] p-3 transition-all duration-300 hover:-translate-y-1 hover:border-[#2f4553] hover:shadow-xl aspect-[3/4] cursor-pointer select-none"
               >
@@ -96,20 +93,25 @@ export default function CasinoGameRow({
               </div>
             );
 
-            if (card.href) {
-              return (
-                <Link key={card.id} href={card.href} className="block">
-                  {pubContent}
-                </Link>
-              );
-            }
-            return <React.Fragment key={card.id}>{pubContent}</React.Fragment>;
+            return (
+              <div
+                key={card.id}
+                className="w-[calc(33.333%-7px)] min-w-[110px] sm:min-w-[150px] md:w-[150px] lg:w-[165px] flex-shrink-0 snap-start"
+              >
+                {card.href ? (
+                  <Link href={card.href} className="block">
+                    {pubContent}
+                  </Link>
+                ) : (
+                  pubContent
+                )}
+              </div>
+            );
           }
 
           // Full-Bleed Game Card
           const content = (
             <div
-              key={card.id}
               onClick={() => onCardClick && onCardClick(card)}
               className="group relative flex flex-col select-none cursor-pointer"
             >
@@ -147,29 +149,33 @@ export default function CasinoGameRow({
             </div>
           );
 
-          if (card.href) {
-            return (
-              <Link key={card.id} href={card.href} className="block">
-                {content}
-              </Link>
-            );
-          }
-
-          return <React.Fragment key={card.id}>{content}</React.Fragment>;
+          return (
+            <div
+              key={card.id}
+              className="w-[calc(33.333%-7px)] min-w-[110px] sm:min-w-[150px] md:w-[150px] lg:w-[165px] flex-shrink-0 snap-start"
+            >
+              {card.href ? (
+                <Link href={card.href} className="block">
+                  {content}
+                </Link>
+              ) : (
+                content
+              )}
+            </div>
+          );
         })}
-      </div>
 
-      {/* Center-Aligned "Load More" Button */}
-      {visibleCount < cards.length && (
-        <div className="flex justify-center pt-2">
-          <button
-            onClick={() => setVisibleCount((prev) => Math.min(cards.length, prev + 3))}
-            className="bg-[#213743] hover:bg-[#2a4555] text-white font-bold text-xs px-6 py-2 rounded-lg border border-[#2f4553] transition-all cursor-pointer active:scale-95 shadow-md"
-          >
-            Load More
-          </button>
-        </div>
-      )}
+        {/* Authentic "View All" End Card */}
+        <Link
+          href={linkHref}
+          className="w-[calc(33.333%-7px)] min-w-[110px] sm:min-w-[140px] md:w-[150px] lg:w-[165px] aspect-[3/4] rounded-xl bg-[#213743]/50 border border-[#2f4553] hover:border-[#213743] flex flex-col items-center justify-center gap-2 cursor-pointer transition-transform active:scale-95 text-[#b1bad3] hover:text-white flex-shrink-0 snap-start group"
+        >
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1a2c38] group-hover:bg-[#00e701] text-[#b1bad3] group-hover:text-[#0f212e] transition-colors shadow-md">
+            <ArrowRight className="h-5 w-5" />
+          </div>
+          <span className="text-xs font-bold text-center px-1">View All {title}</span>
+        </Link>
+      </div>
     </section>
   );
 }

@@ -10,6 +10,7 @@ import {
   Search,
   X,
   Sparkles,
+  ArrowRight,
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
@@ -24,6 +25,7 @@ import TrendingSports from "@/components/TrendingSports";
 import RacesAndRafflesWidget from "@/components/RacesAndRafflesWidget";
 import LiveBetsFeed from "@/components/LiveBetsFeed";
 import StakeGameArtwork from "@/components/casino/StakeGameArtwork";
+import LiveCasinoGateModal from "@/components/casino/LiveCasinoGateModal";
 import { getGameThumbnail } from "@/data/gameThumbnails";
 import { STAKE_ORIGINALS, LIVE_CASINO_GAMES, GameItem } from "@/data/stakeGames";
 
@@ -36,13 +38,14 @@ interface SlotModalGame {
 }
 
 export default function HomePage() {
-  const { balance, updateBalance, currency, addRecentlyPlayedGame } = useGame();
+  const { balance, realBalance, hasVerifiedDeposit, updateBalance, currency, addRecentlyPlayedGame } = useGame();
 
   // Search state
   const [searchQuery, setSearchQuery] = useState<string>("");
 
-  // Visible counts for Load More
-  const [visibleOriginalsCount, setVisibleOriginalsCount] = useState<number>(6);
+  // Live casino gating modal state
+  const [isLiveGateOpen, setIsLiveGateOpen] = useState<boolean>(false);
+  const [gateTableName, setGateTableName] = useState<string>("Live Casino Table");
   const [visibleLiveCount, setVisibleLiveCount] = useState<number>(6);
 
   // Slot Demo Player Modal state
@@ -235,77 +238,80 @@ export default function HomePage() {
           </Link>
         </div>
 
-        {/* 3:4 Full-Bleed Stake Originals Cards Grid */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-3 md:grid-cols-4 lg:grid-cols-6">
-          {STAKE_ORIGINALS.slice(0, visibleOriginalsCount).map((game) => {
+        {/* 3-Card Responsive Horizontal Scroll Carousel for Stake Originals */}
+        <div className="flex gap-2.5 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory py-1 px-1">
+          {STAKE_ORIGINALS.slice(0, 14).map((game) => {
             const thumb = getGameThumbnail(game.slug || game.id, game.image);
             const gameHref = game.href || `/games/${game.slug || game.id}`;
             return (
-              <Link
+              <div
                 key={game.id}
-                href={gameHref}
-                onClick={() => {
-                  addRecentlyPlayedGame({
-                    id: game.id,
-                    slug: game.slug,
-                    title: game.title,
-                    href: gameHref,
-                    image: thumb,
-                    playersCount: game.playersCount,
-                  });
-                }}
-                className="group relative flex flex-col select-none cursor-pointer"
+                className="w-[calc(33.333%-7px)] min-w-[110px] sm:min-w-[150px] md:w-[150px] lg:w-[165px] flex-shrink-0 snap-start"
               >
-                {/* 100% Full-Bleed Image Box */}
-                <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-[#1a2c38] border border-[#213743] hover:border-[#2f4553] transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg">
-                  {thumb ? (
-                    <img
-                      src={thumb}
-                      alt={game.title}
-                      className="w-full h-full object-cover rounded-xl"
-                      loading="lazy"
-                      onError={(e) => {
-                        (e.currentTarget as HTMLElement).style.display = "none";
-                      }}
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center p-3">
-                      <StakeGameArtwork gameId={game.slug || game.id} />
-                    </div>
-                  )}
+                <Link
+                  href={gameHref}
+                  onClick={() => {
+                    addRecentlyPlayedGame({
+                      id: game.id,
+                      slug: game.slug,
+                      title: game.title,
+                      href: gameHref,
+                      image: thumb,
+                      playersCount: game.playersCount,
+                    });
+                  }}
+                  className="group relative flex flex-col select-none cursor-pointer"
+                >
+                  {/* 100% Full-Bleed Image Box */}
+                  <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-[#1a2c38] border border-[#213743] hover:border-[#2f4553] transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg">
+                    {thumb ? (
+                      <img
+                        src={thumb}
+                        alt={game.title}
+                        className="w-full h-full object-cover rounded-xl"
+                        loading="lazy"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLElement).style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center p-3">
+                        <StakeGameArtwork gameId={game.slug || game.id} />
+                      </div>
+                    )}
 
-                  {/* Play Button Overlay on Hover */}
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#00e701] text-[#0f212e] shadow-lg shadow-[#00e701]/50 transform scale-75 group-hover:scale-100 transition-transform">
-                      <Play className="h-5 w-5 fill-current ml-0.5" />
+                    {/* Play Button Overlay on Hover */}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#00e701] text-[#0f212e] shadow-lg shadow-[#00e701]/50 transform scale-75 group-hover:scale-100 transition-transform">
+                        <Play className="h-5 w-5 fill-current ml-0.5" />
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Under-Card Player Count (ONLY green live player status pill) */}
-                <div className="flex items-center gap-1 sm:gap-1.5 mt-1.5 sm:mt-2 px-0.5 text-[10px] sm:text-[11px] font-semibold text-[#b1bad3] truncate">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] animate-pulse shrink-0" />
-                  <span className="truncate">{(game.playersCount || 2450).toLocaleString("en-US")} playing</span>
-                </div>
-              </Link>
+                  {/* Under-Card Player Count (ONLY green live player status pill) */}
+                  <div className="flex items-center gap-1 sm:gap-1.5 mt-1.5 sm:mt-2 px-0.5 text-[10px] sm:text-[11px] font-semibold text-[#b1bad3] truncate">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] animate-pulse shrink-0" />
+                    <span className="truncate">{(game.playersCount || 2450).toLocaleString("en-US")} playing</span>
+                  </div>
+                </Link>
+              </div>
             );
           })}
-        </div>
 
-        {/* Load More Button for Stake Originals */}
-        {visibleOriginalsCount < STAKE_ORIGINALS.length && (
-          <div className="flex justify-center pt-2">
-            <button
-              onClick={() => setVisibleOriginalsCount((prev) => Math.min(STAKE_ORIGINALS.length, prev + 6))}
-              className="rounded-xl bg-[#213743] hover:bg-[#2f4553] px-6 py-2.5 text-xs font-bold text-white transition-colors"
-            >
-              Load More
-            </button>
-          </div>
-        )}
+          {/* Authentic "View All" End Card */}
+          <Link
+            href="/casino/group/stake-originals"
+            className="w-[calc(33.333%-7px)] min-w-[110px] sm:min-w-[140px] md:w-[150px] lg:w-[165px] aspect-[3/4] rounded-xl bg-[#213743]/50 border border-[#2f4553] hover:border-[#213743] flex flex-col items-center justify-center gap-2 cursor-pointer transition-transform active:scale-95 text-[#b1bad3] hover:text-white flex-shrink-0 snap-start group"
+          >
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1a2c38] group-hover:bg-[#00e701] text-[#b1bad3] group-hover:text-[#0f212e] transition-colors shadow-md">
+              <ArrowRight className="h-5 w-5" />
+            </div>
+            <span className="text-xs font-bold text-center px-1">View All Originals</span>
+          </Link>
+        </div>
       </section>
 
-      {/* 6. LIVE CASINO > (Live dealer cards with "Load More" button) */}
+      {/* 6. LIVE CASINO > (Live dealer cards with 3-Card Carousel) */}
       <section className="space-y-3.5">
         <div className="flex items-center justify-between">
           <Link
@@ -331,76 +337,86 @@ export default function HomePage() {
           </Link>
         </div>
 
-        {/* 3:4 Full-Bleed Live Casino Cards Grid */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-3 md:grid-cols-4 lg:grid-cols-6">
-          {LIVE_CASINO_GAMES.slice(0, visibleLiveCount).map((game) => {
+        {/* 3:4 Full-Bleed Live Casino Cards Horizontal Carousel */}
+        <div className="flex gap-2.5 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory py-1 px-1">
+          {LIVE_CASINO_GAMES.slice(0, 14).map((game) => {
             const thumb = getGameThumbnail(game.slug || game.id, game.image);
             const gameHref = game.href || `/games/blackjack`;
+            const isRestricted = realBalance <= 0 && !hasVerifiedDeposit;
+
             return (
               <div
                 key={game.id}
-                onClick={() => {
-                  addRecentlyPlayedGame({
-                    id: game.id,
-                    slug: game.slug,
-                    title: game.title,
-                    href: gameHref,
-                    image: thumb,
-                    playersCount: game.playersCount,
-                  });
-                  setActiveSlotModal({
-                    id: game.id,
-                    title: game.title,
-                    provider: game.provider,
-                    rtp: "99.28% RTP",
-                  });
-                }}
-                className="group relative flex flex-col select-none cursor-pointer"
+                className="w-[calc(33.333%-7px)] min-w-[110px] sm:min-w-[150px] md:w-[150px] lg:w-[165px] flex-shrink-0 snap-start"
               >
-                <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-[#1a2c38] border border-[#213743] hover:border-[#2f4553] transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg">
-                  {thumb ? (
-                    <img
-                      src={thumb}
-                      alt={game.title}
-                      className="w-full h-full object-cover rounded-xl"
-                      loading="lazy"
-                      onError={(e) => {
-                        (e.currentTarget as HTMLElement).style.display = "none";
-                      }}
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center p-3">
-                      <StakeGameArtwork gameId={game.slug || game.id} />
-                    </div>
-                  )}
+                <div
+                  onClick={() => {
+                    if (isRestricted) {
+                      setGateTableName(game.title);
+                      setIsLiveGateOpen(true);
+                      return;
+                    }
+                    addRecentlyPlayedGame({
+                      id: game.id,
+                      slug: game.slug,
+                      title: game.title,
+                      href: gameHref,
+                      image: thumb,
+                      playersCount: game.playersCount,
+                    });
+                    setActiveSlotModal({
+                      id: game.id,
+                      title: game.title,
+                      provider: game.provider,
+                      rtp: "99.28% RTP",
+                    });
+                  }}
+                  className="group relative flex flex-col select-none cursor-pointer"
+                >
+                  <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-[#1a2c38] border border-[#213743] hover:border-[#2f4553] transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg">
+                    {thumb ? (
+                      <img
+                        src={thumb}
+                        alt={game.title}
+                        className="w-full h-full object-cover rounded-xl"
+                        loading="lazy"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLElement).style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center p-3">
+                        <StakeGameArtwork gameId={game.slug || game.id} />
+                      </div>
+                    )}
 
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#00e701] text-[#0f212e] shadow-lg shadow-[#00e701]/50 transform scale-75 group-hover:scale-100 transition-transform">
-                      <Play className="h-5 w-5 fill-current ml-0.5" />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#00e701] text-[#0f212e] shadow-lg shadow-[#00e701]/50 transform scale-75 group-hover:scale-100 transition-transform">
+                        <Play className="h-5 w-5 fill-current ml-0.5" />
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="flex items-center gap-1 sm:gap-1.5 mt-1.5 sm:mt-2 px-0.5 text-[10px] sm:text-[11px] font-semibold text-[#b1bad3] truncate">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] animate-pulse shrink-0" />
-                  <span className="truncate">{(game.playersCount || 1920).toLocaleString("en-US")} playing</span>
+                  <div className="flex items-center gap-1 sm:gap-1.5 mt-1.5 sm:mt-2 px-0.5 text-[10px] sm:text-[11px] font-semibold text-[#b1bad3] truncate">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_6px_#ef4444] animate-pulse shrink-0" />
+                    <span className="truncate">{(game.playersCount || 1920).toLocaleString("en-US")} playing</span>
+                  </div>
                 </div>
               </div>
             );
           })}
-        </div>
 
-        {/* Load More Button for Live Casino */}
-        {visibleLiveCount < LIVE_CASINO_GAMES.length && (
-          <div className="flex justify-center pt-2">
-            <button
-              onClick={() => setVisibleLiveCount((prev) => Math.min(LIVE_CASINO_GAMES.length, prev + 6))}
-              className="rounded-xl bg-[#213743] hover:bg-[#2f4553] px-6 py-2.5 text-xs font-bold text-white transition-colors"
-            >
-              Load More
-            </button>
-          </div>
-        )}
+          {/* Authentic "View All" End Card for Live Casino */}
+          <Link
+            href="/casino/group/live-casino"
+            className="w-[calc(33.333%-7px)] min-w-[110px] sm:min-w-[140px] md:w-[150px] lg:w-[165px] aspect-[3/4] rounded-xl bg-[#213743]/50 border border-[#2f4553] hover:border-[#213743] flex flex-col items-center justify-center gap-2 cursor-pointer transition-transform active:scale-95 text-[#b1bad3] hover:text-white flex-shrink-0 snap-start group"
+          >
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1a2c38] group-hover:bg-red-500 text-[#b1bad3] group-hover:text-white transition-colors shadow-md">
+              <ArrowRight className="h-5 w-5" />
+            </div>
+            <span className="text-xs font-bold text-center px-1">View All Live</span>
+          </Link>
+        </div>
       </section>
 
       {/* 7. GAMES FOR YOU > (Drac's Stacks, Skyscraper Crash, Nuukd with "Load More" button) */}
@@ -545,6 +561,13 @@ export default function HomePage() {
           </div>
         </div>
       )}
+
+      {/* Live Casino Table Gating Modal */}
+      <LiveCasinoGateModal
+        isOpen={isLiveGateOpen}
+        onClose={() => setIsLiveGateOpen(false)}
+        tableName={gateTableName}
+      />
     </div>
   );
 }
