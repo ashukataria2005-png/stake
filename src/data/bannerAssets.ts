@@ -25,14 +25,14 @@ export const BANNER_ASSETS: {
     title: "CASINO",
     // Users can paste direct CDN/image URLs here. If empty or invalid, high-fidelity 3D graphics will be rendered.
     image: "https://mediumrare.imgix.net/home-header-one-piece-authenticated-mobile-casino-en.png?q=90&auto=compress%2Cformat&w=402&h=432&fit=min",
-    defaultPlayers: "65,562 playing",
+    defaultPlayers: "",
     href: "/casino/home",
   },
   sportsHero: {
     title: "SPORTS",
     // Users can paste direct CDN/image URLs here. If empty or invalid, high-fidelity 3D graphics will be rendered.
     image: "https://mediumrare.imgix.net/home-header-one-piece-authenticated-mobile-sports-en.png?q=90&auto=compress%2Cformat&w=402&h=432&fit=min",
-    defaultPlayers: "39,681 betting",
+    defaultPlayers: "",
     href: "/sports",
   },
 
