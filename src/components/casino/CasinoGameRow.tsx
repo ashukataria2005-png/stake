@@ -43,7 +43,7 @@ export default function CasinoGameRow({
       {/* Row Header */}
       <div className="flex items-center justify-between">
         <Link href={linkHref} className="flex items-center gap-2 group cursor-pointer">
-          <h2 className="text-base sm:text-lg font-black text-white group-hover:text-[#00e701] transition-colors flex items-center gap-1.5">
+          <h2 className="text-sm sm:text-base font-extrabold text-white flex items-center gap-1.5 tracking-tight hover:text-[#00e701] transition-colors cursor-pointer">
             <span>{title}</span>
             <span className="text-[#b1bad3] text-sm group-hover:translate-x-1 transition-transform">
               &gt;
@@ -85,7 +85,7 @@ export default function CasinoGameRow({
                   {card.graphic}
                 </div>
                 <div className="relative z-10 space-y-0.5">
-                  <h3 className="text-xs font-bold text-white group-hover:text-[#00e701] transition-colors truncate">
+                  <h3 className="font-black uppercase tracking-wider text-xs sm:text-sm text-white group-hover:text-[#00e701] transition-colors truncate">
                     {card.title}
                   </h3>
                   {card.provider && <p className="text-[10px] text-[#b1bad3] truncate">{card.provider}</p>}
@@ -141,10 +141,15 @@ export default function CasinoGameRow({
                 </div>
               </div>
 
-              {/* Under-Card Player Count (ONLY green live player status pill) */}
-              <div className="flex items-center gap-1 sm:gap-1.5 mt-1.5 sm:mt-2 px-0.5 text-[10px] sm:text-[11px] font-semibold text-[#b1bad3] truncate">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] animate-pulse shrink-0" />
-                <span className="truncate">{(card.playersCount || 1250).toLocaleString("en-US")} playing</span>
+              {/* Under-Card Title & Player Count */}
+              <div className="flex flex-col mt-1.5 px-0.5">
+                <span className="font-black uppercase tracking-wider text-xs sm:text-sm text-white truncate">
+                  {card.title}
+                </span>
+                <div className="flex items-center gap-1 sm:gap-1.5 mt-0.5 text-[10px] sm:text-[11px] font-semibold text-[#b1bad3] truncate">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] animate-pulse shrink-0" />
+                  <span className="truncate">{(card.playersCount || 1250).toLocaleString("en-US")} playing</span>
+                </div>
               </div>
             </div>
           );

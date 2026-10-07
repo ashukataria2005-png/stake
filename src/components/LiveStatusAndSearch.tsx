@@ -7,12 +7,14 @@ interface LiveStatusAndSearchProps {
   searchQuery: string;
   setSearchQuery: (val: string) => void;
   showPills?: boolean;
+  showSearch?: boolean;
 }
 
 export default function LiveStatusAndSearch({
   searchQuery,
   setSearchQuery,
   showPills = true,
+  showSearch = true,
 }: LiveStatusAndSearchProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -83,21 +85,23 @@ export default function LiveStatusAndSearch({
       )}
 
       {/* 2. Global Stake Search Bar with Ctrl+K shortcut badge */}
-      <div className="bg-[#1a2c38] border border-[#213743] hover:border-[#2f4553] focus-within:border-[#00e701] rounded-lg px-4 py-2.5 flex items-center gap-3 transition-colors shadow-sm">
-        <Search className="h-4 w-4 text-[#b1bad3] flex-shrink-0" />
-        <input
-          ref={inputRef}
-          id="game-search-input"
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search Stake.com"
-          className="w-full bg-transparent text-xs sm:text-sm text-white placeholder-[#7a889b] focus:outline-none"
-        />
-        <kbd className="hidden md:flex items-center text-[11px] font-semibold text-[#b1bad3] bg-[#0f212e] px-2 py-0.5 rounded border border-[#213743] select-none flex-shrink-0">
-          Ctrl + K
-        </kbd>
-      </div>
+      {showSearch && (
+        <div className="bg-[#1a2c38] border border-[#213743] hover:border-[#2f4553] focus-within:border-[#00e701] rounded-lg px-4 py-2.5 flex items-center gap-3 transition-colors shadow-sm">
+          <Search className="h-4 w-4 text-[#b1bad3] flex-shrink-0" />
+          <input
+            ref={inputRef}
+            id="game-search-input"
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search Stake.com"
+            className="w-full bg-transparent text-xs sm:text-sm text-white placeholder-[#7a889b] focus:outline-none"
+          />
+          <kbd className="hidden md:flex items-center text-[11px] font-semibold text-[#b1bad3] bg-[#0f212e] px-2 py-0.5 rounded border border-[#213743] select-none flex-shrink-0">
+            Ctrl + K
+          </kbd>
+        </div>
+      )}
     </div>
   );
 }

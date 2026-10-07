@@ -1,165 +1,255 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, Sparkles, Award } from "lucide-react";
+import { Sparkles, Trophy, Flame, Ticket, Shield, Swords, Crown, Zap, Waves } from "lucide-react";
 
-interface BannerSlide {
+interface PromoItem {
   id: string;
-  badge: string;
-  badgeStyle: string;
   title: string;
-  subtitle: string;
-  ctaText: string;
+  description: string;
   ctaLink: string;
   bgGradient: string;
-  graphic: React.ReactNode;
+  artwork: React.ReactNode;
 }
 
 export default function CasinoPromoCarousel() {
-  const [currentSlide, setCurrentSlide] = useState<number>(0);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  const slides: BannerSlide[] = [
+  // 9 Exact Real Stake Promotions
+  const promos: PromoItem[] = [
     {
-      id: "monster-lab",
-      badge: "Only on Stake",
-      badgeStyle: "bg-teal-500/20 text-teal-300 border-teal-500/40",
-      title: "Monster Lab - One Bet Can Change Everything",
-      subtitle:
-        "Exclusive release! Step inside the secret laboratory for mutating multipliers up to 10,000x.",
-      ctaText: "Play Monster Lab",
-      ctaLink: "/games/mines",
-      bgGradient: "from-teal-950 via-[#1a2c38] to-[#0f212e]",
-      graphic: (
-        <div className="relative flex items-center justify-center select-none">
-          {/* Mad Scientist Laboratory Artwork */}
-          <div className="w-24 h-28 sm:w-36 sm:h-36 rounded-2xl bg-gradient-to-tr from-teal-500/25 via-emerald-800/40 to-slate-900 border-2 border-teal-400/30 p-3 shadow-2xl flex flex-col items-center justify-center relative overflow-hidden group-hover:scale-105 transition-transform duration-300">
-            <span className="text-4xl sm:text-6xl filter drop-shadow-[0_0_20px_rgba(45,212,191,0.7)] animate-bounce">
-              🧪
-            </span>
-            <div className="flex items-center gap-1 mt-2">
-              <span className="text-[10px] sm:text-xs font-mono font-black text-teal-300 bg-teal-950/80 px-2 py-0.5 rounded border border-teal-500/40">
-                10,000X
-              </span>
-            </div>
-            {/* Ambient Beaker Vapor */}
-            <div className="absolute top-1 right-2 text-base animate-pulse">⚡</div>
-            <div className="absolute bottom-1 left-2 text-base animate-ping opacity-60">🫧</div>
+      id: "ocean-surge",
+      title: "Ocean Surge",
+      description: "Hit or beat the target multiplier to share in...",
+      ctaLink: "/casino/group/slots",
+      bgGradient: "from-cyan-600 via-blue-700 to-indigo-950",
+      artwork: (
+        <div className="relative flex flex-col items-center justify-center text-center">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-cyan-400/20 border border-cyan-300/40 flex items-center justify-center text-3xl sm:text-4xl shadow-lg shadow-cyan-500/20">
+            🌊
           </div>
+          <span className="mt-1 text-[9px] font-black uppercase tracking-wider text-cyan-200 bg-cyan-950/80 px-2 py-0.5 rounded-full border border-cyan-400/30">
+            Multiplier
+          </span>
         </div>
       ),
     },
     {
-      id: "vip-progress",
-      badge: "2x VIP Progress",
-      badgeStyle: "bg-blue-500/20 text-blue-300 border-blue-500/40",
-      title: "2x VIP Progress - Boosted VIP Progress on Only on Stake Games",
-      subtitle:
-        "Level up faster! Every wager on exclusive Stake Originals and custom releases awards double VIP points.",
-      ctaText: "Explore Exclusive Games",
-      ctaLink: "/games/plinko",
-      bgGradient: "from-blue-950 via-[#1a2c38] to-[#0f212e]",
-      graphic: (
-        <div className="relative flex items-center justify-center select-none">
-          {/* Neon Blue VIP Stake Medal Badge */}
-          <div className="w-24 h-28 sm:w-36 sm:h-36 rounded-2xl bg-gradient-to-tr from-blue-600/30 via-indigo-900/50 to-slate-900 border-2 border-blue-400/40 p-3 shadow-2xl flex flex-col items-center justify-center relative overflow-hidden group-hover:scale-105 transition-transform duration-300">
-            <span className="text-4xl sm:text-6xl filter drop-shadow-[0_0_25px_rgba(59,130,246,0.8)]">
-              🥇
-            </span>
-            <div className="flex items-center gap-1 mt-2">
-              <span className="text-[10px] sm:text-xs font-black text-blue-300 bg-blue-950/80 px-2 py-0.5 rounded border border-blue-400/50 tracking-wider">
-                2X BOOST
-              </span>
-            </div>
-            <div className="absolute top-2 right-2 text-sm text-yellow-300 animate-spin">✨</div>
+      id: "2x-vip-progress",
+      title: "2x VIP Progress",
+      description: "Boosted VIP progress on Only on Stake Games",
+      ctaLink: "/casino/group/stake-originals",
+      bgGradient: "from-blue-600 via-indigo-700 to-indigo-950",
+      artwork: (
+        <div className="relative flex flex-col items-center justify-center text-center">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-blue-500/20 border border-blue-400/40 flex items-center justify-center text-3xl sm:text-4xl shadow-lg shadow-blue-500/20">
+            🥇
           </div>
+          <span className="mt-1 text-[9px] font-black uppercase tracking-wider text-blue-200 bg-blue-950/80 px-2 py-0.5 rounded-full border border-blue-400/30">
+            2X Boost
+          </span>
+        </div>
+      ),
+    },
+    {
+      id: "daily-races",
+      title: "Daily Races",
+      description: "Race to the top for a share in $100,000",
+      ctaLink: "/casino/home",
+      bgGradient: "from-amber-500 via-orange-600 to-red-950",
+      artwork: (
+        <div className="relative flex flex-col items-center justify-center text-center">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-amber-400/20 border border-amber-300/40 flex items-center justify-center text-3xl sm:text-4xl shadow-lg shadow-amber-500/20">
+            🏎️
+          </div>
+          <span className="mt-1 text-[9px] font-black uppercase tracking-wider text-amber-200 bg-amber-950/80 px-2 py-0.5 rounded-full border border-amber-400/30 font-mono">
+            $100,000
+          </span>
+        </div>
+      ),
+    },
+    {
+      id: "weekly-raffle",
+      title: "Weekly Raffle",
+      description: "Earn raffle tickets for a chance to share in...",
+      ctaLink: "/casino/home",
+      bgGradient: "from-emerald-500 via-teal-700 to-slate-900",
+      artwork: (
+        <div className="relative flex flex-col items-center justify-center text-center">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-emerald-400/20 border border-emerald-300/40 flex items-center justify-center text-3xl sm:text-4xl shadow-lg shadow-emerald-500/20">
+            🎟️
+          </div>
+          <span className="mt-1 text-[9px] font-black uppercase tracking-wider text-emerald-200 bg-emerald-950/80 px-2 py-0.5 rounded-full border border-emerald-400/30">
+            Weekly Draw
+          </span>
+        </div>
+      ),
+    },
+    {
+      id: "stake-vs-eddie",
+      title: "Stake vs Eddie",
+      description: "Hit or beat the target multiplier to share in...",
+      ctaLink: "/casino/group/stake-originals",
+      bgGradient: "from-purple-600 via-indigo-800 to-slate-950",
+      artwork: (
+        <div className="relative flex flex-col items-center justify-center text-center">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-purple-400/20 border border-purple-300/40 flex items-center justify-center text-3xl sm:text-4xl shadow-lg shadow-purple-500/20">
+            🥊
+          </div>
+          <span className="mt-1 text-[9px] font-black uppercase tracking-wider text-purple-200 bg-purple-950/80 px-2 py-0.5 rounded-full border border-purple-400/30">
+            Beat Eddie
+          </span>
+        </div>
+      ),
+    },
+    {
+      id: "conquer-the-casino",
+      title: "Conquer the Casino",
+      description: "Hit the Big Win or Lucky...",
+      ctaLink: "/casino/group/slots",
+      bgGradient: "from-rose-600 via-red-800 to-slate-900",
+      artwork: (
+        <div className="relative flex flex-col items-center justify-center text-center">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-rose-400/20 border border-rose-300/40 flex items-center justify-center text-3xl sm:text-4xl shadow-lg shadow-rose-500/20">
+            ⚔️
+          </div>
+          <span className="mt-1 text-[9px] font-black uppercase tracking-wider text-rose-200 bg-rose-950/80 px-2 py-0.5 rounded-full border border-rose-400/30">
+            Lucky Win
+          </span>
+        </div>
+      ),
+    },
+    {
+      id: "jaqkpot",
+      title: "JAQKpot!",
+      description: "Win up to $1M!",
+      ctaLink: "/casino/group/slots",
+      bgGradient: "from-fuchsia-600 via-pink-700 to-indigo-950",
+      artwork: (
+        <div className="relative flex flex-col items-center justify-center text-center">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-fuchsia-400/20 border border-fuchsia-300/40 flex items-center justify-center text-3xl sm:text-4xl shadow-lg shadow-fuchsia-500/20">
+            🃏
+          </div>
+          <span className="mt-1 text-[9px] font-black uppercase tracking-wider text-fuchsia-200 bg-fuchsia-950/80 px-2 py-0.5 rounded-full border border-fuchsia-400/30 font-mono">
+            $1,000,000
+          </span>
+        </div>
+      ),
+    },
+    {
+      id: "all-in-or-fold",
+      title: "All in or Fold Jackpot",
+      description: "$500,000 In Prizes! in our exclusive tables",
+      ctaLink: "/casino/group/live-casino",
+      bgGradient: "from-violet-600 via-purple-900 to-slate-950",
+      artwork: (
+        <div className="relative flex flex-col items-center justify-center text-center">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-violet-400/20 border border-violet-300/40 flex items-center justify-center text-3xl sm:text-4xl shadow-lg shadow-violet-500/20">
+            ♠️
+          </div>
+          <span className="mt-1 text-[9px] font-black uppercase tracking-wider text-violet-200 bg-violet-950/80 px-2 py-0.5 rounded-full border border-violet-400/30 font-mono">
+            $500,000
+          </span>
+        </div>
+      ),
+    },
+    {
+      id: "bad-beat-jackpot",
+      title: "Bad Beat Jackpot",
+      description: "Win your share of the $1,000,000 Jackpot",
+      ctaLink: "/casino/home",
+      bgGradient: "from-red-600 via-rose-900 to-neutral-950",
+      artwork: (
+        <div className="relative flex flex-col items-center justify-center text-center">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-red-400/20 border border-red-300/40 flex items-center justify-center text-3xl sm:text-4xl shadow-lg shadow-red-500/20">
+            🔥
+          </div>
+          <span className="mt-1 text-[9px] font-black uppercase tracking-wider text-red-200 bg-red-950/80 px-2 py-0.5 rounded-full border border-red-400/30 font-mono">
+            $1,000,000
+          </span>
         </div>
       ),
     },
   ];
 
-  // Auto-advance slides every 5 seconds
+  // Advance to next promo slide
+  const scrollToIndex = useCallback((nextIdx: number) => {
+    if (!scrollRef.current) return;
+    const container = scrollRef.current;
+    const cards = container.children;
+    if (cards[nextIdx]) {
+      const card = cards[nextIdx] as HTMLElement;
+      container.scrollTo({
+        left: card.offsetLeft - container.offsetLeft,
+        behavior: "smooth",
+      });
+      setCurrentIndex(nextIdx);
+    }
+  }, []);
+
+  // Auto-slide timer: Every 4.5 seconds advances to next promo (loops infinitely)
   useEffect(() => {
+    if (isPaused) return;
+
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 5000);
+      setCurrentIndex((prev) => {
+        const next = (prev + 1) % promos.length;
+        scrollToIndex(next);
+        return next;
+      });
+    }, 4500);
+
     return () => clearInterval(timer);
-  }, [slides.length]);
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
-  };
-
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % slides.length);
-  };
+  }, [isPaused, promos.length, scrollToIndex]);
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-[#213743] bg-[#1a2c38] shadow-2xl select-none group">
-      {/* Active Slide Container */}
+    <div
+      className="relative w-full overflow-hidden select-none"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+      onTouchStart={() => setIsPaused(true)}
+      onTouchEnd={() => setIsPaused(false)}
+    >
+      {/* Horizontal Snap Scroll Carousel (No dots, no circles) */}
       <div
-        className={`relative flex flex-col sm:flex-row items-center justify-between p-6 sm:p-8 min-h-[220px] sm:min-h-[240px] bg-gradient-to-r ${slides[currentSlide].bgGradient} transition-all duration-700`}
+        ref={scrollRef}
+        className="snap-x snap-mandatory flex gap-3 overflow-x-auto no-scrollbar py-1 scroll-smooth"
       >
-        {/* Left Information */}
-        <div className="relative z-10 space-y-2 sm:space-y-3 max-w-xl text-center sm:text-left">
-          <div className="flex items-center justify-center sm:justify-start">
-            <span
-              className={`rounded-md px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wider border shadow-sm ${slides[currentSlide].badgeStyle}`}
-            >
-              {slides[currentSlide].badge}
-            </span>
-          </div>
-
-          <h2 className="text-xl sm:text-3xl font-black text-white tracking-tight leading-snug">
-            {slides[currentSlide].title}
-          </h2>
-
-          <p className="text-xs sm:text-sm text-[#b1bad3] leading-relaxed line-clamp-2">
-            {slides[currentSlide].subtitle}
-          </p>
-
-          <div className="pt-2 flex items-center justify-center sm:justify-start gap-3">
+        {promos.map((promo) => (
+          <div
+            key={promo.id}
+            className="min-w-[88%] sm:min-w-[380px] md:min-w-[420px] max-w-[460px] flex-shrink-0 snap-center"
+          >
             <Link
-              href={slides[currentSlide].ctaLink}
-              className="rounded-xl bg-[#00e701] px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-black text-[#0f212e] shadow-lg shadow-[#00e701]/25 hover:bg-[#00c701] active:scale-95 transition-all"
+              href={promo.ctaLink}
+              className="h-[125px] sm:h-[140px] w-full rounded-2xl bg-[#1a2c38] border border-[#213743] hover:border-[#2f4553] flex items-center overflow-hidden select-none cursor-grab active:cursor-grabbing transition-transform active:scale-[0.99] shadow-lg group block"
             >
-              {slides[currentSlide].ctaText}
+              <div className="flex w-full h-full">
+                {/* Left side (Artwork - 40%) */}
+                <div
+                  className={`w-[40%] h-full relative overflow-hidden bg-gradient-to-r ${promo.bgGradient} flex items-center justify-center p-2 shrink-0 group-hover:scale-105 transition-transform duration-300`}
+                >
+                  {promo.artwork}
+                </div>
+
+                {/* Right side (Content - 60%) */}
+                <div className="w-[60%] p-3.5 flex flex-col justify-center gap-1 text-left overflow-hidden">
+                  <span className="w-fit text-[10px] font-bold uppercase tracking-wider bg-white/10 text-white px-2 py-0.5 rounded-md">
+                    Promotion
+                  </span>
+                  <h3 className="text-white font-black text-sm sm:text-base leading-tight tracking-tight truncate">
+                    {promo.title}
+                  </h3>
+                  <p className="text-[#b1bad3] text-[11px] sm:text-xs line-clamp-2 leading-relaxed">
+                    {promo.description}
+                  </p>
+                </div>
+              </div>
             </Link>
           </div>
-        </div>
-
-        {/* Right Artwork Graphic */}
-        <div className="relative z-10 mt-4 sm:mt-0 flex-shrink-0">
-          {slides[currentSlide].graphic}
-        </div>
-      </div>
-
-      {/* Manual Left / Right Chevron Controls */}
-      <button
-        onClick={prevSlide}
-        aria-label="Previous Slide"
-        className="absolute left-2 top-1/2 -translate-y-1/2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-[#0f212e]/80 text-[#b1bad3] hover:text-white border border-[#213743] opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-      >
-        <ChevronLeft className="h-4 w-4" />
-      </button>
-      <button
-        onClick={nextSlide}
-        aria-label="Next Slide"
-        className="absolute right-2 top-1/2 -translate-y-1/2 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-[#0f212e]/80 text-[#b1bad3] hover:text-white border border-[#213743] opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-      >
-        <ChevronRight className="h-4 w-4" />
-      </button>
-
-      {/* Slide Dots Indicator */}
-      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
-        {slides.map((_, idx) => (
-          <button
-            key={idx}
-            onClick={() => setCurrentSlide(idx)}
-            className={`h-1.5 rounded-full transition-all cursor-pointer ${
-              currentSlide === idx ? "w-6 bg-[#00e701]" : "w-2 bg-[#213743]"
-            }`}
-          />
         ))}
       </div>
     </div>

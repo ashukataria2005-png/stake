@@ -13,6 +13,7 @@ import {
   Award,
   Play,
   X,
+  Search,
 } from "lucide-react";
 import CasinoPromoCarousel from "@/components/casino/CasinoPromoCarousel";
 import CasinoCategoryPills from "@/components/casino/CasinoCategoryPills";
@@ -506,22 +507,35 @@ export default function CasinoHomePage() {
       {/* 1. TOP PROMOTIONAL BANNER CAROUSEL */}
       <CasinoPromoCarousel />
 
-      {/* 2. HORIZONTAL CATEGORY NAVIGATION PILLS */}
+      {/* 2. AUTHENTIC SEARCH BAR */}
+      <div className="relative w-full my-3">
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#b1bad3]" />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search Stake.com"
+          className="w-full bg-[#0f212e] border border-[#213743] focus:border-[#2f4553] text-sm text-white placeholder-[#b1bad3] pl-10 pr-4 py-2.5 rounded-xl outline-none"
+        />
+      </div>
+
+      {/* 3. HORIZONTAL CATEGORY NAVIGATION PILLS */}
       <CasinoCategoryPills
         activeCategory={activeCategory}
         onSelectCategory={setActiveCategory}
       />
 
-      {/* 3. LIVE STATUS & SEARCH SUB-HEADER */}
+      {/* 4. LIVE STATUS & SEARCH SUB-HEADER */}
       <LiveStatusAndSearch
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
+        showSearch={false}
       />
 
-      {/* 4. STRUCTURED GAME ROWS & CAROUSELS */}
-      {/* Row 1: Stake Originals > */}
+      {/* 5. STRUCTURED GAME ROWS & CAROUSELS */}
+      {/* Row 1: 🔥 Stake Originals > */}
       <CasinoGameRow
-        title="Stake Originals"
+        title="🔥 Stake Originals"
         linkHref="/casino/group/stake-originals"
         cards={row1Originals}
         onCardClick={handleCardClick}
