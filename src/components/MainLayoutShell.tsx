@@ -30,10 +30,12 @@ export default function MainLayoutShell({
         <main
           className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out ${
             isSidebarOpen ? "lg:pl-64" : "lg:pl-16"
-          } ${isChatOpen ? "xl:pr-[350px]" : ""} pb-[74px] sm:pb-[80px] lg:pb-10 min-h-[calc(100vh-60px)]`}
+          } ${isChatOpen ? "xl:pr-[350px]" : ""} min-h-[calc(100vh-60px)]`}
         >
-          <div className="flex-1 pb-10 sm:pb-12 lg:pb-0">
+          <div className="flex-1 app-bottom-spacer min-h-screen w-full relative">
             {children}
+            {/* Dedicated safety spacer so lowest button or table row can ALWAYS scroll 100% cleanly */}
+            <div className="h-20 sm:h-24 w-full shrink-0 pointer-events-none" />
           </div>
           {/* Universal Stake Footer */}
           <StakeFooter />

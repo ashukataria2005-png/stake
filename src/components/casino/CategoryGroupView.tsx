@@ -16,7 +16,6 @@ import {
 } from "lucide-react";
 import StakeGameCard from "@/components/casino/StakeGameCard";
 import CasinoLiveBets from "@/components/casino/CasinoLiveBets";
-import GamePlayModeBar from "@/components/casino/GamePlayModeBar";
 import LiveCasinoGateModal from "@/components/casino/LiveCasinoGateModal";
 import { useGame } from "@/context/GameContext";
 import {
@@ -144,9 +143,6 @@ export default function CategoryGroupView({ slug }: CategoryGroupViewProps) {
 
   return (
     <div className="min-h-screen px-3 sm:px-6 py-4 max-w-7xl mx-auto space-y-6">
-      {/* Game Play Mode Bar (Fun Play disabled for live casino) */}
-      <GamePlayModeBar isLiveCasino={slug === "live-casino"} />
-
       {/* Category Header Banner matching Stake */}
       <div
         className={`relative rounded-2xl overflow-hidden border border-[#213743] bg-gradient-to-r ${groupMeta.bannerBg} p-5 sm:p-7 shadow-xl`}

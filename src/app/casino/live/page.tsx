@@ -7,7 +7,6 @@ import { useGame } from "@/context/GameContext";
 import { LIVE_CASINO_GAMES, GameItem } from "@/data/stakeGames";
 import { getGameThumbnail } from "@/data/gameThumbnails";
 import StakeGameArtwork from "@/components/casino/StakeGameArtwork";
-import GamePlayModeBar from "@/components/casino/GamePlayModeBar";
 import LiveCasinoGateModal from "@/components/casino/LiveCasinoGateModal";
 
 export default function LiveCasinoPage() {
@@ -36,8 +35,6 @@ export default function LiveCasinoPage() {
 
   return (
     <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 py-4 space-y-6">
-      {/* Strict Live Casino Mode Bar: Fun play is completely disabled/hidden */}
-      <GamePlayModeBar isLiveCasino={true} />
 
       {/* Hero Banner for Live Casino */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-red-950/80 via-[#1a2c38] to-[#0f212e] border border-red-500/20 p-5 sm:p-7 shadow-xl">

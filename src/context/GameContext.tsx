@@ -305,13 +305,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateBalance = (amountUsd: number): boolean => {
-    // If user is currently playing Fun Play (Demo Mode), mutate session fun balance only
-    if (playMode === "fun") {
-      setFunBalance((prev) => Math.max(0, parseFloat((prev + amountUsd).toFixed(2))));
-      return true;
-    }
-
-    // Real Play: Mutate authentic real wallet balance & persist to localStorage
+    // Strictly mutate authentic unified real wallet balance & persist to localStorage
     let success = false;
     setRealBalance((prev) => {
       const next = Math.max(0, parseFloat((prev + amountUsd).toFixed(2)));
@@ -372,8 +366,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     setIsChatOpen(open);
   };
 
-  // Active balance is funBalance when playing Fun Mode, else authentic realBalance
-  const activeBalance = playMode === "fun" ? funBalance : realBalance;
+  // Active balance is strictly authentic unified realBalance
+  const activeBalance = realBalance;
 
   const formatBalance = (val?: number): string => {
     const target = val !== undefined ? val : activeBalance;

@@ -23,6 +23,18 @@
   --stake-green-hover: #00c701;
   --stake-muted: #b1bad3;
   --stake-white: #ffffff;
+  --bottom-nav-height: 74px;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --bottom-nav-height: 80px;
+  }
+}
+
+/* Permanent global bottom clearance for all viewports */
+.app-bottom-spacer {
+  padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 16px) + 20px) !important;
 }
 
 * {
