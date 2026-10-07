@@ -14,7 +14,7 @@ import { useGame } from "@/context/GameContext";
 import WalletModal from "@/components/WalletModal";
 import WalletSettingsModal from "@/components/WalletSettingsModal";
 import CurrencyDropdown from "@/components/CurrencyDropdown";
-import UserProfileMenu from "@/components/UserProfileMenu";
+import ProfileDropdown from "@/components/ProfileDropdown";
 import CryptoIcon from "@/components/CryptoIcon";
 import FiatCoinIcon from "@/components/FiatCoinIcon";
 import StakeLogo from "@/components/StakeLogo";
@@ -65,7 +65,7 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-[#213743] bg-[#1a2c38] px-2 sm:px-4 md:px-6 select-none">
+      <header className="sticky top-0 z-40 flex h-16 w-full items-center justify-between gap-2 sm:gap-3 border-b border-[#213743] bg-[#1a2c38] px-2 sm:px-4 md:px-6 select-none">
         {/* Left Section: Sidebar Toggle & Authentic Stake Cursive Logo */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <button
@@ -92,7 +92,7 @@ export default function Navbar() {
 
         {/* Center / Middle Section: Dynamically Expanded Wallet Balance Pill filling dead space */}
         {isAuthenticated ? (
-          <div className="flex-1 flex items-center justify-start sm:justify-center ml-2 sm:ml-4 mr-2 sm:mr-4 min-w-0">
+          <div className="flex-1 flex items-center justify-start sm:justify-center min-w-0">
             <div className="flex items-center w-full max-w-full sm:max-w-[380px] md:max-w-[440px] transition-all">
               {/* Balance Pill Container */}
               <div className="relative flex-1 min-w-0">
@@ -306,7 +306,7 @@ export default function Navbar() {
                 />
               </button>
 
-              <UserProfileMenu
+              <ProfileDropdown
                 isOpen={isProfileMenuOpen}
                 onClose={() => setIsProfileMenuOpen(false)}
               />
