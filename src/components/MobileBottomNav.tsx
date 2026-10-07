@@ -60,23 +60,24 @@ export default function MobileBottomNav() {
         >
           <div className="flex h-7 w-7 items-center justify-center bg-transparent">
             <svg
+              width="22"
+              height="22"
               viewBox="0 0 24 24"
-              className={`h-6 w-6 transition-colors fill-none ${
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={`transition-colors ${
                 isSidebarOpen && !isChatOpen
                   ? "stroke-[#00e701] text-[#00e701]"
                   : "stroke-[#b1bad3] text-[#b1bad3]"
               }`}
-              strokeWidth={2.2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
             >
-              {/* 3 Menu Lines */}
-              <line x1="3" y1="5" x2="21" y2="5" />
-              <line x1="3" y1="11" x2="13" y2="11" />
-              <line x1="3" y1="17" x2="10" y2="17" />
-              {/* Magnifying Glass Search Accent */}
-              <circle cx="16.5" cy="15.5" r="3.5" />
-              <line x1="19" y1="18" x2="21.5" y2="20.5" />
+              <line x1="3" y1="7" x2="11" y2="7" />
+              <line x1="3" y1="13" x2="9" y2="13" />
+              <circle cx="15.5" cy="11.5" r="4.5" />
+              <path d="M19 15l3.5 3.5" />
             </svg>
           </div>
           <span
