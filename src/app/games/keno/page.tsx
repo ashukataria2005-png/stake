@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Sparkles, ShieldCheck, Play, RotateCcw } from "lucide-react";
+import { ArrowLeft, Sparkles, ShieldCheck } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
 import confetti from "canvas-confetti";
@@ -10,7 +10,7 @@ import confetti from "canvas-confetti";
 export default function KenoPage() {
   const { balance, updateBalance, currency, formatBalance } = useGame();
   const [betAmount, setBetAmount] = useState<number>(10);
-  const [selectedNumbers, setSelectedNumbers] = useState<number[]>([7, 14, 21, 28]);
+  const [selectedNumbers, setSelectedNumbers] = useState<number[]>([3, 7, 12, 25, 38]);
   const [drawnNumbers, setDrawnNumbers] = useState<number[]>([]);
   const [isDrawing, setIsDrawing] = useState<boolean>(false);
   const [hits, setHits] = useState<number>(0);
@@ -21,32 +21,32 @@ export default function KenoPage() {
     if (selectedNumbers.includes(num)) {
       setSelectedNumbers(selectedNumbers.filter((n) => n !== num));
     } else {
-      if (selectedNumbers.length < 10) {
-        setSelectedNumbers([...selectedNumbers, num]);
-      }
+      if (selectedNumbers.length >= 10) return;
+      setSelectedNumbers([...selectedNumbers, num]);
     }
   };
 
   const autoPick = () => {
+    if (isDrawing) return;
     sounds.playClick();
-    const picks: number[] = [];
-    while (picks.length < 5) {
+    const nums: number[] = [];
+    while (nums.length < 5) {
       const r = Math.floor(Math.random() * 40) + 1;
-      if (!picks.includes(r)) picks.push(r);
+      if (!nums.includes(r)) nums.push(r);
     }
-    setSelectedNumbers(picks);
+    setSelectedNumbers(nums);
   };
 
   const clearPicks = () => {
+    if (isDrawing) return;
     sounds.playClick();
     setSelectedNumbers([]);
-    setDrawnNumbers([]);
   };
 
   const startKeno = () => {
     if (isDrawing || selectedNumbers.length === 0) return;
     if (betAmount > balance) {
-      alert("Insufficient demo balance! Top up in Wallet.");
+      alert("Insufficient demo balance! Please use the Wallet button.");
       return;
     }
     if (betAmount <= 0) return;
@@ -55,28 +55,28 @@ export default function KenoPage() {
     setIsDrawing(true);
     setDrawnNumbers([]);
     setHits(0);
+    sounds.playDiceRoll();
 
-    const draws: number[] = [];
-    while (draws.length < 10) {
-      const r = Math.floor(Math.random() * 40) + 1;
-      if (!draws.includes(r)) draws.push(r);
-    }
+    const drawn: number[] = [];
+    let intervalCount = 0;
 
-    let revealed = 0;
     const interval = setInterval(() => {
-      revealed++;
-      const currentDraws = draws.slice(0, revealed);
-      setDrawnNumbers(currentDraws);
-      sounds.playPeg();
+      let nextNum = Math.floor(Math.random() * 40) + 1;
+      while (drawn.includes(nextNum)) {
+        nextNum = Math.floor(Math.random() * 40) + 1;
+      }
+      drawn.push(nextNum);
+      setDrawnNumbers([...drawn]);
+      sounds.playClick();
 
-      if (revealed === 10) {
+      intervalCount++;
+      if (intervalCount >= 10) {
         clearInterval(interval);
         setIsDrawing(false);
 
-        const matchCount = selectedNumbers.filter((n) => draws.includes(n)).length;
+        const matchCount = selectedNumbers.filter((n) => drawn.includes(n)).length;
         setHits(matchCount);
 
-        // Multiplier scaling with matches
         const multTable: Record<number, number> = { 0: 0, 1: 1.2, 2: 2.5, 3: 5, 4: 15, 5: 50 };
         const mult = multTable[matchCount] ?? (matchCount >= 6 ? 150 : 0);
 
@@ -112,65 +112,73 @@ export default function KenoPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 rounded-2xl border border-[#213743] bg-[#1a2c38] overflow-hidden shadow-2xl">
-        <div className="lg:col-span-4 border-b lg:border-b-0 lg:border-r border-[#213743] bg-[#1a2c38] p-5 space-y-5">
-          <div className="space-y-1.5">
-            <div className="flex justify-between text-xs font-bold text-[#b1bad3]">
-              <span>Bet Amount</span>
-              <span className="text-[#00e701]">${formatBalance(balance)} {currency}</span>
+      {/* Main 2-Panel Container: On mobile, Grid Arena is on top, Controls below */}
+      <div className="rounded-2xl border border-[#213743] bg-[#1a2c38] overflow-hidden shadow-2xl flex flex-col-reverse lg:flex-row">
+        {/* Controls Panel */}
+        <div className="w-full lg:w-[340px] shrink-0 border-t lg:border-t-0 lg:border-r border-[#213743] bg-[#1a2c38] p-5 space-y-4 flex flex-col justify-start">
+          {/* [Section 2 - Directly below Game Screen]: PRIMARY ACTION BUTTON */}
+          <div className="w-full">
+            <button
+              onClick={startKeno}
+              disabled={isDrawing || selectedNumbers.length === 0 || betAmount > balance || betAmount <= 0}
+              className="w-full py-4 text-base font-extrabold rounded-lg bg-[#00e701] text-black shadow-md hover:brightness-110 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Sparkles className="h-5 w-5 fill-current" />
+              <span>{isDrawing ? "Drawing Numbers..." : "Bet"}</span>
+            </button>
+          </div>
+
+          {/* [Section 3]: Betting Inputs & Modifiers */}
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <div className="flex justify-between text-xs font-bold text-[#b1bad3]">
+                <span>Bet Amount</span>
+                <span className="text-[#00e701] font-mono">${formatBalance(balance)} {currency}</span>
+              </div>
+              <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] p-1 focus-within:border-[#00e701] transition-colors">
+                <span className="px-2 text-sm font-bold text-[#00e701]">$</span>
+                <input
+                  type="number"
+                  disabled={isDrawing}
+                  value={betAmount}
+                  onChange={(e) => setBetAmount(Math.max(1, parseFloat(e.target.value) || 0))}
+                  className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono"
+                />
+              </div>
             </div>
-            <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] p-1">
-              <span className="px-2 text-sm font-bold text-[#00e701]">$</span>
-              <input
-                type="number"
+
+            <div className="flex gap-2">
+              <button
+                onClick={autoPick}
                 disabled={isDrawing}
-                value={betAmount}
-                onChange={(e) => setBetAmount(Math.max(1, parseFloat(e.target.value) || 0))}
-                className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono"
-              />
+                className="flex-1 rounded-xl border border-[#213743] bg-[#0f212e] py-2 text-xs font-bold text-white hover:bg-[#213743] transition-colors cursor-pointer"
+              >
+                Auto Pick
+              </button>
+              <button
+                onClick={clearPicks}
+                disabled={isDrawing}
+                className="rounded-xl border border-[#213743] bg-[#0f212e] px-3 py-2 text-xs font-bold text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
+              >
+                Clear
+              </button>
+            </div>
+
+            <div className="rounded-xl border border-[#213743] bg-[#0f212e] p-3 text-xs space-y-1">
+              <div className="flex justify-between text-[#b1bad3]">
+                <span>Selected:</span>
+                <span className="font-bold text-white">{selectedNumbers.length} / 10</span>
+              </div>
+              <div className="flex justify-between text-[#b1bad3]">
+                <span>Hits:</span>
+                <span className="font-bold text-[#00e701] font-mono">{hits} Matches</span>
+              </div>
             </div>
           </div>
-
-          <div className="flex gap-2">
-            <button
-              onClick={autoPick}
-              disabled={isDrawing}
-              className="flex-1 rounded-xl border border-[#213743] bg-[#0f212e] py-2 text-xs font-bold text-white hover:bg-[#213743]"
-            >
-              Auto Pick
-            </button>
-            <button
-              onClick={clearPicks}
-              disabled={isDrawing}
-              className="rounded-xl border border-[#213743] bg-[#0f212e] px-3 py-2 text-xs font-bold text-[#b1bad3] hover:text-white"
-            >
-              Clear
-            </button>
-          </div>
-
-          <div className="rounded-xl border border-[#213743] bg-[#0f212e] p-3 text-xs space-y-1">
-            <div className="flex justify-between text-[#b1bad3]">
-              <span>Selected:</span>
-              <span className="font-bold text-white">{selectedNumbers.length} / 10</span>
-            </div>
-            <div className="flex justify-between text-[#b1bad3]">
-              <span>Hits:</span>
-              <span className="font-bold text-[#00e701] font-mono">{hits} Matches</span>
-            </div>
-          </div>
-
-          <button
-            onClick={startKeno}
-            disabled={isDrawing || selectedNumbers.length === 0}
-            className="w-full rounded-xl bg-[#00e701] py-4 text-sm font-extrabold text-[#0f212e] shadow-lg shadow-[#00e701]/30 transition-all hover:bg-[#00c701] active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
-          >
-            <Sparkles className="h-4 w-4 fill-current" />
-            <span>{isDrawing ? "Drawing Numbers..." : "Bet"}</span>
-          </button>
         </div>
 
-        {/* 40 Number Grid */}
-        <div className="lg:col-span-8 bg-[#0f212e] p-6 flex flex-col items-center justify-center min-h-[420px]">
+        {/* [Section 1]: 40 Number Grid Arena */}
+        <div className="flex-1 bg-[#0f212e] p-6 flex flex-col items-center justify-center min-h-[420px]">
           <div className="grid grid-cols-8 gap-2 sm:gap-2.5 w-full max-w-lg">
             {Array.from({ length: 40 }, (_, i) => i + 1).map((num) => {
               const isSelected = selectedNumbers.includes(num);
@@ -182,7 +190,7 @@ export default function KenoPage() {
                   key={num}
                   onClick={() => toggleNumber(num)}
                   disabled={isDrawing}
-                  className={`h-10 sm:h-12 rounded-xl text-xs sm:text-sm font-black font-mono transition-all ${
+                  className={`h-10 sm:h-12 rounded-xl text-xs sm:text-sm font-black font-mono transition-all cursor-pointer ${
                     isHit
                       ? "bg-[#00e701] text-[#0f212e] shadow-[0_0_15px_#00e701] scale-105"
                       : isDrawn

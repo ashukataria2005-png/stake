@@ -583,7 +583,20 @@ export default function PlinkoPage() {
         {/* ======================================================== */}
         {/* 1. BETTING CONTROLS (Left Panel on Desktop / Bottom on Mobile) */}
         {/* ======================================================== */}
-        <div className="w-full lg:w-[320px] shrink-0 border-t lg:border-t-0 lg:border-r border-[#213743] bg-[#1a2c38] p-4 sm:p-5 flex flex-col justify-between space-y-4">
+        <div className="w-full lg:w-[320px] shrink-0 border-t lg:border-t-0 lg:border-r border-[#213743] bg-[#1a2c38] p-4 sm:p-5 flex flex-col justify-start space-y-4">
+          {/* [Section 2 - Directly below Game Screen]: PRIMARY ACTION BUTTON */}
+          <div className="w-full">
+            <button
+              onClick={() => dropBall()}
+              disabled={betAmount > balance || betAmount <= 0}
+              className="w-full py-4 text-base font-extrabold rounded-lg bg-[#00e701] text-black shadow-md hover:brightness-110 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <CircleDot className="h-5 w-5 fill-current" />
+              <span>Bet</span>
+            </button>
+          </div>
+
+          {/* [Section 3]: Betting Inputs & Modifiers */}
           <div className="space-y-4">
             {/* Bet Amount Input with Quick Math Buttons */}
             <div className="space-y-1.5">
@@ -711,17 +724,7 @@ export default function PlinkoPage() {
             </div>
           </div>
 
-          {/* Primary Action Button: Big Green Bet Button (Supports rapid spam clicking) */}
-          <div className="pt-2">
-            <button
-              onClick={() => dropBall()}
-              disabled={betAmount > balance || betAmount <= 0}
-              className="w-full rounded-xl bg-[#00e701] py-4 text-sm font-extrabold text-[#0f212e] shadow-lg shadow-[#00e701]/25 transition-all hover:bg-[#00c701] hover:shadow-[#00e701]/40 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-            >
-              <CircleDot className="h-4 w-4 fill-current" />
-              <span>Bet (Drop Ball)</span>
-            </button>
-          </div>
+
         </div>
 
         {/* ======================================================== */}

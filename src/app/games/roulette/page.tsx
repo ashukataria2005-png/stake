@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ShieldCheck, Play, RotateCcw } from "lucide-react";
+import { ArrowLeft, RotateCcw, ShieldCheck } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
 import confetti from "canvas-confetti";
@@ -11,8 +11,8 @@ export default function RoulettePage() {
   const { balance, updateBalance, currency, formatBalance } = useGame();
   const [betAmount, setBetAmount] = useState<number>(10);
   const [selectedBet, setSelectedBet] = useState<"red" | "black" | "even" | "odd" | "green">("red");
-  const [isSpinning, setIsSpinning] = useState<boolean>(false);
   const [lastNumber, setLastNumber] = useState<number | null>(null);
+  const [isSpinning, setIsSpinning] = useState<boolean>(false);
   const [hasWon, setHasWon] = useState<boolean | null>(null);
 
   const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
@@ -30,35 +30,49 @@ export default function RoulettePage() {
     setHasWon(null);
     sounds.playDiceRoll();
 
-    setTimeout(() => {
-      const rolled = Math.floor(Math.random() * 37); // 0 to 36
-      setLastNumber(rolled);
-      setIsSpinning(false);
+    const start = performance.now();
+    const interval = setInterval(() => {
+      setLastNumber(Math.floor(Math.random() * 37));
+      if (performance.now() - start > 2200) {
+        clearInterval(interval);
+        const finalNum = Math.floor(Math.random() * 37);
+        setLastNumber(finalNum);
+        setIsSpinning(false);
 
-      let won = false;
-      let payoutMult = 2;
+        let won = false;
+        let payoutMult = 0;
 
-      if (rolled === 0) {
-        won = selectedBet === "green";
-        payoutMult = 36;
-      } else {
-        const isRed = redNumbers.includes(rolled);
-        if (selectedBet === "red" && isRed) won = true;
-        if (selectedBet === "black" && !isRed) won = true;
-        if (selectedBet === "even" && rolled % 2 === 0) won = true;
-        if (selectedBet === "odd" && rolled % 2 === 1) won = true;
+        if (selectedBet === "green" && finalNum === 0) {
+          won = true;
+          payoutMult = 36;
+        } else if (selectedBet === "red" && redNumbers.includes(finalNum)) {
+          won = true;
+          payoutMult = 2;
+        } else if (selectedBet === "black" && finalNum !== 0 && !redNumbers.includes(finalNum)) {
+          won = true;
+          payoutMult = 2;
+        } else if (selectedBet === "even" && finalNum !== 0 && finalNum % 2 === 0) {
+          won = true;
+          payoutMult = 2;
+        } else if (selectedBet === "odd" && finalNum % 2 === 1) {
+          won = true;
+          payoutMult = 2;
+        }
+
+        setHasWon(won);
+
+        if (won) {
+          const payout = parseFloat((betAmount * payoutMult).toFixed(2));
+          updateBalance(payout);
+          sounds.playDiceWin();
+          try {
+            confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+          } catch {}
+        } else {
+          sounds.playDiceLoss();
+        }
       }
-
-      setHasWon(won);
-      if (won) {
-        const payout = parseFloat((betAmount * payoutMult).toFixed(2));
-        updateBalance(payout);
-        sounds.playDiceWin();
-        try { confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } }); } catch {}
-      } else {
-        sounds.playDiceLoss();
-      }
-    }, 1500);
+    }, 50);
   };
 
   return (
@@ -73,92 +87,100 @@ export default function RoulettePage() {
         </Link>
         <div className="flex items-center gap-1.5 text-xs font-bold text-[#00e701] rounded-lg bg-[#00e701]/10 px-2.5 py-1 border border-[#00e701]/20">
           <ShieldCheck className="h-4 w-4" />
-          <span>European Roulette 97.3% RTP</span>
+          <span>Provably Fair European Roulette</span>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 rounded-2xl border border-[#213743] bg-[#1a2c38] overflow-hidden shadow-2xl">
-        <div className="lg:col-span-4 border-b lg:border-b-0 lg:border-r border-[#213743] bg-[#1a2c38] p-5 space-y-5">
-          <div className="space-y-1.5">
-            <div className="flex justify-between text-xs font-bold text-[#b1bad3]">
-              <span>Bet Amount</span>
-              <span className="text-[#00e701]">${formatBalance(balance)} {currency}</span>
-            </div>
-            <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] p-1">
-              <span className="px-2 text-sm font-bold text-[#00e701]">$</span>
-              <input
-                type="number"
-                disabled={isSpinning}
-                value={betAmount}
-                onChange={(e) => setBetAmount(Math.max(1, parseFloat(e.target.value) || 0))}
-                className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono"
-              />
-            </div>
+      {/* Main 2-Panel Container: On mobile, Display Area is on top, Controls below */}
+      <div className="rounded-2xl border border-[#213743] bg-[#1a2c38] overflow-hidden shadow-2xl flex flex-col-reverse lg:flex-row">
+        {/* Controls Panel */}
+        <div className="w-full lg:w-[340px] shrink-0 border-t lg:border-t-0 lg:border-r border-[#213743] bg-[#1a2c38] p-5 space-y-4 flex flex-col justify-start">
+          {/* [Section 2 - Directly below Game Screen]: PRIMARY ACTION BUTTON */}
+          <div className="w-full">
+            <button
+              onClick={spinRoulette}
+              disabled={isSpinning || betAmount > balance || betAmount <= 0}
+              className="w-full py-4 text-base font-extrabold rounded-lg bg-[#00e701] text-black shadow-md hover:brightness-110 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <RotateCcw className={`h-5 w-5 ${isSpinning ? "animate-spin" : ""}`} />
+              <span>{isSpinning ? "Spinning Ball..." : "Bet"}</span>
+            </button>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-xs font-bold text-[#b1bad3]">Select Bet</label>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setSelectedBet("red")}
-                className={`py-3 rounded-xl font-bold text-xs transition-all ${
-                  selectedBet === "red" ? "bg-red-600 text-white ring-2 ring-white" : "bg-red-950/70 text-red-300"
-                }`}
-              >
-                Red (2x)
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedBet("black")}
-                className={`py-3 rounded-xl font-bold text-xs transition-all ${
-                  selectedBet === "black" ? "bg-gray-800 text-white ring-2 ring-white" : "bg-[#0f212e] text-gray-300"
-                }`}
-              >
-                Black (2x)
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedBet("even")}
-                className={`py-2.5 rounded-xl font-bold text-xs transition-all ${
-                  selectedBet === "even" ? "bg-[#213743] text-[#00e701] border border-[#00e701]" : "bg-[#0f212e] text-[#b1bad3]"
-                }`}
-              >
-                Even (2x)
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedBet("odd")}
-                className={`py-2.5 rounded-xl font-bold text-xs transition-all ${
-                  selectedBet === "odd" ? "bg-[#213743] text-[#00e701] border border-[#00e701]" : "bg-[#0f212e] text-[#b1bad3]"
-                }`}
-              >
-                Odd (2x)
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedBet("green")}
-                className={`col-span-2 py-2 rounded-xl font-bold text-xs transition-all ${
-                  selectedBet === "green" ? "bg-[#00e701] text-[#0f212e]" : "bg-emerald-950/70 text-[#00e701]"
-                }`}
-              >
-                Zero 0 (36x)
-              </button>
+          {/* [Section 3]: Betting Inputs & Modifiers */}
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <div className="flex justify-between text-xs font-bold text-[#b1bad3]">
+                <span>Bet Amount</span>
+                <span className="text-[#00e701] font-mono">${formatBalance(balance)} {currency}</span>
+              </div>
+              <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] p-1 focus-within:border-[#00e701] transition-colors">
+                <span className="px-2 text-sm font-bold text-[#00e701]">$</span>
+                <input
+                  type="number"
+                  disabled={isSpinning}
+                  value={betAmount}
+                  onChange={(e) => setBetAmount(Math.max(1, parseFloat(e.target.value) || 0))}
+                  className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-[#b1bad3]">Bet Option</label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedBet("red")}
+                  className={`py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer ${
+                    selectedBet === "red" ? "bg-red-600 text-white shadow-md" : "bg-[#0f212e] text-[#b1bad3]"
+                  }`}
+                >
+                  Red (2x)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedBet("black")}
+                  className={`py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer ${
+                    selectedBet === "black" ? "bg-zinc-800 text-white border border-gray-600 shadow-md" : "bg-[#0f212e] text-[#b1bad3]"
+                  }`}
+                >
+                  Black (2x)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedBet("even")}
+                  className={`py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer ${
+                    selectedBet === "even" ? "bg-[#213743] text-[#00e701] border border-[#00e701]" : "bg-[#0f212e] text-[#b1bad3]"
+                  }`}
+                >
+                  Even (2x)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedBet("odd")}
+                  className={`py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer ${
+                    selectedBet === "odd" ? "bg-[#213743] text-[#00e701] border border-[#00e701]" : "bg-[#0f212e] text-[#b1bad3]"
+                  }`}
+                >
+                  Odd (2x)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedBet("green")}
+                  className={`col-span-2 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer ${
+                    selectedBet === "green" ? "bg-[#00e701] text-black font-extrabold" : "bg-emerald-950/70 text-[#00e701]"
+                  }`}
+                >
+                  Zero 0 (36x)
+                </button>
+              </div>
             </div>
           </div>
-
-          <button
-            onClick={spinRoulette}
-            disabled={isSpinning || betAmount > balance || betAmount <= 0}
-            className="w-full rounded-xl bg-[#00e701] py-4 text-sm font-extrabold text-[#0f212e] shadow-lg shadow-[#00e701]/30 transition-all hover:bg-[#00c701] active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
-          >
-            <RotateCcw className={`h-4 w-4 ${isSpinning ? "animate-spin" : ""}`} />
-            <span>{isSpinning ? "Spinning Ball..." : "Spin"}</span>
-          </button>
         </div>
 
-        {/* Roulette Display Area */}
-        <div className="lg:col-span-8 bg-[#0f212e] p-8 flex flex-col items-center justify-center min-h-[420px] space-y-4">
+        {/* [Section 1]: Roulette Display Area */}
+        <div className="flex-1 bg-[#0f212e] p-8 flex flex-col items-center justify-center min-h-[420px] space-y-4">
           <div
             className={`w-28 h-28 rounded-full border-4 flex items-center justify-center shadow-2xl transition-all ${
               lastNumber === 0

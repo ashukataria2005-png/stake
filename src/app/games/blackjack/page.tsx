@@ -2,45 +2,54 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ShieldCheck, Play, RotateCcw } from "lucide-react";
+import { ArrowLeft, Play, ShieldCheck } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
 import confetti from "canvas-confetti";
 
 interface Card {
-  suit: "♠" | "♥" | "♦" | "♣";
+  suit: string;
   value: string;
-  num: number;
+  score: number;
 }
+
+const SUITS = ["♠", "♥", "♦", "♣"];
+const VALUES = [
+  { val: "2", score: 2 },
+  { val: "3", score: 3 },
+  { val: "4", score: 4 },
+  { val: "5", score: 5 },
+  { val: "6", score: 6 },
+  { val: "7", score: 7 },
+  { val: "8", score: 8 },
+  { val: "9", score: 9 },
+  { val: "10", score: 10 },
+  { val: "J", score: 10 },
+  { val: "Q", score: 10 },
+  { val: "K", score: 10 },
+  { val: "A", score: 11 },
+];
 
 export default function BlackjackPage() {
   const { balance, updateBalance, currency, formatBalance } = useGame();
   const [betAmount, setBetAmount] = useState<number>(10);
-  const [playerHand, setPlayerHand] = useState<Card[]>([]);
   const [dealerHand, setDealerHand] = useState<Card[]>([]);
-  const [gameState, setGameState] = useState<"idle" | "playing" | "dealerTurn" | "ended">("idle");
+  const [playerHand, setPlayerHand] = useState<Card[]>([]);
+  const [gameState, setGameState] = useState<"betting" | "playing" | "ended">("betting");
   const [resultMsg, setResultMsg] = useState<string>("");
 
-  const suits: ("♠" | "♥" | "♦" | "♣")[] = ["♠", "♥", "♦", "♣"];
-  const values = [
-    { v: "2", n: 2 }, { v: "3", n: 3 }, { v: "4", n: 4 }, { v: "5", n: 5 },
-    { v: "6", n: 6 }, { v: "7", n: 7 }, { v: "8", n: 8 }, { v: "9", n: 9 },
-    { v: "10", n: 10 }, { v: "J", n: 10 }, { v: "Q", n: 10 }, { v: "K", n: 10 },
-    { v: "A", n: 11 },
-  ];
-
-  const drawCard = (): Card => {
-    const s = suits[Math.floor(Math.random() * suits.length)];
-    const val = values[Math.floor(Math.random() * values.length)];
-    return { suit: s, value: val.v, num: val.n };
+  const getRandomCard = (): Card => {
+    const s = SUITS[Math.floor(Math.random() * SUITS.length)];
+    const v = VALUES[Math.floor(Math.random() * VALUES.length)];
+    return { suit: s, value: v.val, score: v.score };
   };
 
   const getScore = (hand: Card[]): number => {
-    let score = hand.reduce((sum, c) => sum + c.num, 0);
+    let score = hand.reduce((acc, c) => acc + c.score, 0);
     let aces = hand.filter((c) => c.value === "A").length;
     while (score > 21 && aces > 0) {
       score -= 10;
-      aces--;
+      aces -= 1;
     }
     return score;
   };
@@ -54,63 +63,73 @@ export default function BlackjackPage() {
 
     updateBalance(-betAmount);
     sounds.playDiceRoll();
-
-    const pHand = [drawCard(), drawCard()];
-    const dHand = [drawCard(), drawCard()];
-    setPlayerHand(pHand);
-    setDealerHand(dHand);
     setResultMsg("");
 
-    const pScore = getScore(pHand);
-    if (pScore === 21) {
-      // Natural Blackjack!
-      setGameState("ended");
-      setResultMsg("Blackjack! Paid 3:2");
-      updateBalance(betAmount * 2.5);
-      sounds.playDiceWin();
-      try { confetti({ particleCount: 70, spread: 70 }); } catch {}
-    } else {
-      setGameState("playing");
+    const p1 = getRandomCard();
+    const p2 = getRandomCard();
+    const d1 = getRandomCard();
+
+    setPlayerHand([p1, p2]);
+    setDealerHand([d1]);
+    setGameState("playing");
+
+    if (getScore([p1, p2]) === 21) {
+      // Natural Blackjack
+      endRound([p1, p2], [d1]);
     }
   };
 
   const hit = () => {
     if (gameState !== "playing") return;
-    sounds.playPeg();
-    const newHand = [...playerHand, drawCard()];
-    setPlayerHand(newHand);
+    sounds.playClick();
+    const newCard = getRandomCard();
+    const nextHand = [...playerHand, newCard];
+    setPlayerHand(nextHand);
 
-    if (getScore(newHand) > 21) {
+    if (getScore(nextHand) > 21) {
+      // Bust
       setGameState("ended");
-      setResultMsg("Player Busted! Dealer Wins.");
+      setResultMsg("Bust! You exceeded 21.");
       sounds.playDiceLoss();
     }
   };
 
   const stand = () => {
     if (gameState !== "playing") return;
-    setGameState("dealerTurn");
-
+    sounds.playClick();
     let currentDealer = [...dealerHand];
-    while (getScore(currentDealer) < 17) {
-      currentDealer.push(drawCard());
-    }
-    setDealerHand(currentDealer);
 
-    const dScore = getScore(currentDealer);
-    const pScore = getScore(playerHand);
+    while (getScore(currentDealer) < 17) {
+      currentDealer.push(getRandomCard());
+    }
+
+    setDealerHand(currentDealer);
+    endRound(playerHand, currentDealer);
+  };
+
+  const endRound = (player: Card[], dealer: Card[]) => {
+    const pScore = getScore(player);
+    const dScore = getScore(dealer);
 
     setGameState("ended");
-    if (dScore > 21 || pScore > dScore) {
-      setResultMsg(`Player Wins with ${pScore}!`);
-      updateBalance(betAmount * 2);
+
+    if (pScore > 21) {
+      setResultMsg("Bust! You lose.");
+      sounds.playDiceLoss();
+    } else if (dScore > 21 || pScore > dScore) {
+      const payout = parseFloat((betAmount * 2).toFixed(2));
+      updateBalance(payout);
+      setResultMsg(`You Win! +$${payout} ${currency}`);
       sounds.playDiceWin();
-      try { confetti({ particleCount: 50, spread: 50 }); } catch {}
+      try {
+        confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+      } catch {}
     } else if (pScore === dScore) {
-      setResultMsg("Push! Bet refunded.");
       updateBalance(betAmount);
+      setResultMsg("Push (Tie) - Bet returned");
+      sounds.playClick();
     } else {
-      setResultMsg(`Dealer Wins with ${dScore}.`);
+      setResultMsg("Dealer Wins.");
       sounds.playDiceLoss();
     }
   };
@@ -131,60 +150,68 @@ export default function BlackjackPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 rounded-2xl border border-[#213743] bg-[#1a2c38] overflow-hidden shadow-2xl">
-        <div className="lg:col-span-4 border-b lg:border-b-0 lg:border-r border-[#213743] bg-[#1a2c38] p-5 space-y-5">
-          <div className="space-y-1.5">
-            <div className="flex justify-between text-xs font-bold text-[#b1bad3]">
-              <span>Bet Amount</span>
-              <span className="text-[#00e701]">${formatBalance(balance)} {currency}</span>
-            </div>
-            <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] p-1">
-              <span className="px-2 text-sm font-bold text-[#00e701]">$</span>
-              <input
-                type="number"
-                disabled={gameState === "playing"}
-                value={betAmount}
-                onChange={(e) => setBetAmount(Math.max(1, parseFloat(e.target.value) || 0))}
-                className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono"
-              />
-            </div>
+      {/* Main 2-Panel Container: On mobile, Felt Table is on top, Controls below */}
+      <div className="rounded-2xl border border-[#213743] bg-[#1a2c38] overflow-hidden shadow-2xl flex flex-col-reverse lg:flex-row">
+        {/* Controls Panel */}
+        <div className="w-full lg:w-[340px] shrink-0 border-t lg:border-t-0 lg:border-r border-[#213743] bg-[#1a2c38] p-5 space-y-4 flex flex-col justify-start">
+          {/* [Section 2 - Directly below Game Screen]: PRIMARY ACTION BUTTON */}
+          <div className="w-full">
+            {gameState !== "playing" ? (
+              <button
+                onClick={startRound}
+                disabled={betAmount > balance || betAmount <= 0}
+                className="w-full py-4 text-base font-extrabold rounded-lg bg-[#00e701] text-black shadow-md hover:brightness-110 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Play className="h-5 w-5 fill-current" />
+                <span>Bet (Deal Hand)</span>
+              </button>
+            ) : (
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={hit}
+                  className="rounded-xl bg-[#00e701] py-4 text-base font-extrabold text-black hover:brightness-110 transition-all cursor-pointer"
+                >
+                  Hit
+                </button>
+                <button
+                  onClick={stand}
+                  className="rounded-xl bg-amber-400 py-4 text-base font-extrabold text-black hover:bg-amber-300 transition-all cursor-pointer"
+                >
+                  Stand
+                </button>
+              </div>
+            )}
           </div>
 
-          {gameState !== "playing" ? (
-            <button
-              onClick={startRound}
-              disabled={betAmount > balance || betAmount <= 0}
-              className="w-full rounded-xl bg-[#00e701] py-4 text-sm font-extrabold text-[#0f212e] shadow-lg shadow-[#00e701]/30 transition-all hover:bg-[#00c701] active:scale-95 flex items-center justify-center gap-2"
-            >
-              <Play className="h-4 w-4 fill-current" />
-              <span>Deal Hand</span>
-            </button>
-          ) : (
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={hit}
-                className="rounded-xl bg-[#00e701] py-3.5 text-sm font-extrabold text-[#0f212e] hover:bg-[#00c701]"
-              >
-                Hit
-              </button>
-              <button
-                onClick={stand}
-                className="rounded-xl bg-amber-400 py-3.5 text-sm font-extrabold text-[#0f212e] hover:bg-amber-300"
-              >
-                Stand
-              </button>
+          {/* [Section 3]: Betting Inputs & Modifiers */}
+          <div className="space-y-4">
+            <div className="space-y-1.5">
+              <div className="flex justify-between text-xs font-bold text-[#b1bad3]">
+                <span>Bet Amount</span>
+                <span className="text-[#00e701] font-mono">${formatBalance(balance)} {currency}</span>
+              </div>
+              <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] p-1 focus-within:border-[#00e701] transition-colors">
+                <span className="px-2 text-sm font-bold text-[#00e701]">$</span>
+                <input
+                  type="number"
+                  disabled={gameState === "playing"}
+                  value={betAmount}
+                  onChange={(e) => setBetAmount(Math.max(1, parseFloat(e.target.value) || 0))}
+                  className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono"
+                />
+              </div>
             </div>
-          )}
 
-          {resultMsg && (
-            <div className="rounded-xl border border-[#213743] bg-[#0f212e] p-3 text-center">
-              <span className="text-xs font-bold text-white">{resultMsg}</span>
-            </div>
-          )}
+            {resultMsg && (
+              <div className="rounded-xl border border-[#213743] bg-[#0f212e] p-3 text-center">
+                <span className="text-xs font-bold text-white">{resultMsg}</span>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Blackjack Table Felt */}
-        <div className="lg:col-span-8 bg-[#0f212e] p-8 flex flex-col justify-between min-h-[460px]">
+        {/* [Section 1]: Blackjack Table Felt */}
+        <div className="flex-1 bg-[#0f212e] p-8 flex flex-col justify-between min-h-[460px]">
           {/* Dealer Area */}
           <div className="space-y-2">
             <div className="text-xs font-bold text-[#b1bad3] uppercase tracking-wider">
@@ -208,7 +235,7 @@ export default function BlackjackPage() {
           </div>
 
           {/* Table Center Text */}
-          <div className="text-center font-bold text-xs tracking-widest text-[#213743] uppercase select-none">
+          <div className="text-center font-bold text-xs tracking-widest text-[#213743] uppercase select-none my-6">
             BLACKJACK PAYS 3 TO 2 • DEALER MUST STAND ON 17
           </div>
 

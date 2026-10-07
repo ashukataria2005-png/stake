@@ -489,7 +489,39 @@ export default function CrashPage() {
         {/* ======================================================== */}
         {/* 1. BETTING CONTROLS (Left Panel on Desktop / Bottom on Mobile) */}
         {/* ======================================================== */}
-        <div className="w-full lg:w-[320px] shrink-0 border-t lg:border-t-0 lg:border-r border-[#213743] bg-[#1a2c38] p-4 sm:p-5 flex flex-col justify-between space-y-4">
+        <div className="w-full lg:w-[320px] shrink-0 border-t lg:border-t-0 lg:border-r border-[#213743] bg-[#1a2c38] p-4 sm:p-5 flex flex-col justify-start space-y-4">
+          {/* [Section 2 - Directly below Game Screen]: PRIMARY ACTION BUTTON */}
+          <div className="w-full">
+            {phase === "flying" && activeBetAmount > 0 && !hasCashedOut ? (
+              <button
+                onClick={() => cashout()}
+                className="w-full py-4 text-base font-extrabold rounded-lg bg-[#00e701] text-black shadow-md hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Zap className="h-5 w-5 fill-current" />
+                <span>
+                  Cashout ${(activeBetAmount * currentMultiplier).toFixed(2)}
+                </span>
+              </button>
+            ) : hasBetNextRound ? (
+              <button
+                onClick={toggleBetForNextRound}
+                className="w-full py-4 text-base font-extrabold rounded-lg border border-[#213743] bg-[#213743] text-white hover:bg-[#2f4553] transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>Queued (${betAmount.toFixed(2)}) - Click to Cancel</span>
+              </button>
+            ) : (
+              <button
+                onClick={toggleBetForNextRound}
+                disabled={betAmount > balance || betAmount <= 0}
+                className="w-full py-4 text-base font-extrabold rounded-lg bg-[#00e701] text-black shadow-md hover:brightness-110 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Sparkles className="h-5 w-5 fill-current" />
+                <span>Bet (Next Round)</span>
+              </button>
+            )}
+          </div>
+
+          {/* [Section 3]: Betting Inputs & Modifiers */}
           <div className="space-y-4">
             {/* Mode Switch Tabs: Manual vs Auto */}
             <div className="flex rounded-xl bg-[#0f212e] p-1 border border-[#213743]">
@@ -628,36 +660,7 @@ export default function CrashPage() {
             )}
           </div>
 
-          {/* Action Button: Bet (Next Round) or Cashout */}
-          <div className="pt-2">
-            {phase === "flying" && activeBetAmount > 0 && !hasCashedOut ? (
-              <button
-                onClick={() => cashout()}
-                className="w-full rounded-xl bg-[#00e701] py-4 text-sm font-extrabold text-[#0f212e] shadow-lg shadow-[#00e701]/30 transition-all hover:bg-[#00c701] active:scale-95 flex items-center justify-center gap-2"
-              >
-                <Zap className="h-4 w-4 fill-current" />
-                <span>
-                  Cashout ${(activeBetAmount * currentMultiplier).toFixed(2)}
-                </span>
-              </button>
-            ) : hasBetNextRound ? (
-              <button
-                onClick={toggleBetForNextRound}
-                className="w-full rounded-xl border border-[#213743] bg-[#213743] py-4 text-sm font-extrabold text-white transition-all hover:bg-[#2f4553] flex items-center justify-center gap-2"
-              >
-                <span>Queued (${betAmount.toFixed(2)}) - Click to Cancel</span>
-              </button>
-            ) : (
-              <button
-                onClick={toggleBetForNextRound}
-                disabled={betAmount > balance || betAmount <= 0}
-                className="w-full rounded-xl bg-[#00e701] py-4 text-sm font-extrabold text-[#0f212e] shadow-lg shadow-[#00e701]/25 transition-all hover:bg-[#00c701] hover:shadow-[#00e701]/40 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                <Sparkles className="h-4 w-4 fill-current" />
-                <span>Bet (Next Round)</span>
-              </button>
-            )}
-          </div>
+
         </div>
 
         {/* ======================================================== */}
