@@ -31,7 +31,7 @@ export default function CasinoSportsHeroBanner() {
         className="group relative w-full rounded-2xl overflow-hidden bg-[#0f212e] border border-[#213743] hover:border-[#2f4553] flex flex-col justify-between transition-transform duration-200 active:scale-[0.98] shadow-lg"
       >
         {/* Upper Graphic Stage - 100% Full-Bleed Edge-to-Edge */}
-        <div className="relative w-full h-[155px] sm:h-[175px] overflow-hidden rounded-t-2xl bg-gradient-to-b from-[#1475e1] to-[#0b4bb1]">
+        <div className="relative w-full h-[165px] sm:h-[185px] overflow-hidden rounded-t-2xl bg-gradient-to-b from-[#1475e1] to-[#0b4bb1]">
           {/* Title Overlay */}
           <span className="absolute top-3 left-3.5 z-10 text-white font-black text-base sm:text-lg tracking-wider drop-shadow-md">
             {BANNER_ASSETS.casinoHero.title || "CASINO"}
@@ -43,15 +43,15 @@ export default function CasinoSportsHeroBanner() {
               src={casinoImgUrl}
               alt={BANNER_ASSETS.casinoHero.title || "CASINO"}
               onError={() => setCasinoImgError(true)}
-              className="absolute inset-0 w-full h-full object-contain object-bottom sm:object-center p-2 pointer-events-none transition-transform duration-300 group-hover:scale-105"
+              className="absolute inset-0 w-full h-full object-cover object-top pointer-events-none transition-transform duration-300 group-hover:scale-105"
             />
           ) : (
             /* Edge-to-edge 3D artwork fallback */
-            <div className="absolute inset-0 w-full h-full flex items-center justify-center pb-2 sm:pb-3 pointer-events-none transition-transform duration-300 group-hover:scale-105">
+            <div className="absolute inset-0 w-full h-full flex items-center justify-center pointer-events-none transition-transform duration-300 group-hover:scale-105">
               <svg
                 viewBox="0 0 200 140"
-                preserveAspectRatio="xMidYMid meet"
-                className="w-full h-full object-contain"
+                preserveAspectRatio="xMidYMid slice"
+                className="w-full h-full object-cover"
               >
                 <defs>
                   <radialGradient id="chipGlow" cx="50%" cy="50%" r="50%">
@@ -123,7 +123,7 @@ export default function CasinoSportsHeroBanner() {
         className="group relative w-full rounded-2xl overflow-hidden bg-[#0f212e] border border-[#213743] hover:border-[#2f4553] flex flex-col justify-between transition-transform duration-200 active:scale-[0.98] shadow-lg"
       >
         {/* Upper Graphic Stage - 100% Full-Bleed Edge-to-Edge */}
-        <div className="relative w-full h-[155px] sm:h-[175px] overflow-hidden rounded-t-2xl bg-gradient-to-b from-[#1475e1] to-[#0b4bb1]">
+        <div className="relative w-full h-[165px] sm:h-[185px] overflow-hidden rounded-t-2xl bg-gradient-to-b from-[#1475e1] to-[#0b4bb1]">
           {/* Title Overlay */}
           <span className="absolute top-3 left-3.5 z-10 text-white font-black text-base sm:text-lg tracking-wider drop-shadow-md">
             {BANNER_ASSETS.sportsHero.title || "SPORTS"}
@@ -135,15 +135,15 @@ export default function CasinoSportsHeroBanner() {
               src={sportsImgUrl}
               alt={BANNER_ASSETS.sportsHero.title || "SPORTS"}
               onError={() => setSportsImgError(true)}
-              className="absolute inset-0 w-full h-full object-contain object-bottom sm:object-center p-2 pointer-events-none transition-transform duration-300 group-hover:scale-105"
+              className="absolute inset-0 w-full h-full object-cover object-top pointer-events-none transition-transform duration-300 group-hover:scale-105"
             />
           ) : (
             /* Edge-to-edge 3D artwork fallback */
-            <div className="absolute inset-0 w-full h-full flex items-center justify-center pb-2 sm:pb-3 pointer-events-none transition-transform duration-300 group-hover:scale-105">
+            <div className="absolute inset-0 w-full h-full flex items-center justify-center pointer-events-none transition-transform duration-300 group-hover:scale-105">
               <svg
                 viewBox="0 0 200 140"
-                preserveAspectRatio="xMidYMid meet"
-                className="w-full h-full object-contain"
+                preserveAspectRatio="xMidYMid slice"
+                className="w-full h-full object-cover"
               >
                 <defs>
                   <linearGradient id="trophyGold" x1="0%" y1="0%" x2="100%" y2="100%">
