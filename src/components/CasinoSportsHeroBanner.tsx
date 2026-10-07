@@ -16,7 +16,7 @@ export default function CasinoSportsHeroBanner() {
       {/* 1. Left Card: CASINO */}
       <Link
         href={BANNER_ASSETS.casinoHero.href || "/casino/home"}
-        className="relative w-full h-[150px] sm:h-[180px] rounded-2xl overflow-hidden bg-[#0f212e] border border-[#213743] hover:border-[#2f4553] shadow-lg group transition-transform duration-200 active:scale-[0.98]"
+        className="relative w-full h-[180px] sm:h-[2100px] rounded-2xl overflow-hidden bg-[#0f212e] border border-[#213743] hover:border-[#2f4553] shadow-lg group transition-transform duration-200 active:scale-[0.98]"
       >
         {/* Title Overlay */}
         <span className="absolute top-3 left-3.5 z-10 text-white font-black text-base sm:text-lg tracking-wider drop-shadow-md select-none">
@@ -97,7 +97,7 @@ export default function CasinoSportsHeroBanner() {
       {/* 2. Right Card: SPORTS */}
       <Link
         href={BANNER_ASSETS.sportsHero.href || "/sports"}
-        className="relative w-full h-[150px] sm:h-[180px] rounded-2xl overflow-hidden bg-[#0f212e] border border-[#213743] hover:border-[#2f4553] shadow-lg group transition-transform duration-200 active:scale-[0.98]"
+        className="relative w-full h-[180px] sm:h-[210px] rounded-2xl overflow-hidden bg-[#0f212e] border border-[#213743] hover:border-[#2f4553] shadow-lg group transition-transform duration-200 active:scale-[0.98]"
       >
         {/* Title Overlay */}
         <span className="absolute top-3 left-3.5 z-10 text-white font-black text-base sm:text-lg tracking-wider drop-shadow-md select-none">
