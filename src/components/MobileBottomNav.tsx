@@ -74,10 +74,11 @@ export default function MobileBottomNav() {
                   : "stroke-[#b1bad3] text-[#b1bad3]"
               }`}
             >
-              <line x1="3" y1="7" x2="11" y2="7" />
-              <line x1="3" y1="13" x2="9" y2="13" />
-              <circle cx="15.5" cy="11.5" r="4.5" />
-              <path d="M19 15l3.5 3.5" />
+              <line x1="3" y1="6" x2="12" y2="6" />
+              <line x1="3" y1="12" x2="10" y2="12" />
+              <line x1="3" y1="18" x2="13" y2="18" />
+              <circle cx="16" cy="12" r="4" />
+              <path d="M19 15l3 3" />
             </svg>
           </div>
           <span
