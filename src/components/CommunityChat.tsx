@@ -249,90 +249,91 @@ export default function CommunityChat() {
 
   return (
     <>
-      <aside className="fixed top-14 sm:top-16 bottom-0 right-0 z-50 w-full sm:w-[350px] bg-[#1a2c38] border-l border-[#213743] shadow-2xl flex flex-col select-none animate-in slide-in-from-right duration-200">
-        {/* 1. Channel Header: Dropdown Pill with Flag (e.g. 🇮🇳 India ⌄) & Minimal Close '✕' */}
-        <div className="flex items-center justify-between border-b border-[#213743] px-3.5 py-3 bg-[#14232f] shrink-0 relative">
-          {/* Channel Dropdown Pill */}
-          <div className="relative">
-            <button
-              onClick={() => setIsChannelDropdownOpen(!isChannelDropdownOpen)}
-              className="flex items-center gap-2 bg-[#213743] hover:bg-[#2a4454] text-white text-xs font-bold px-3 py-1.5 rounded-lg border border-[#2f4553]/60 transition-colors cursor-pointer"
-            >
-              <span>{selectedChannel.flag}</span>
-              <span>{selectedChannel.label}</span>
-              <ChevronDown className="w-3.5 h-3.5 text-[#b1bad3]" />
-            </button>
+      <aside className="fixed top-14 sm:top-16 bottom-[68px] sm:bottom-[72px] md:bottom-0 right-0 z-50 w-full sm:w-[350px] bg-[#1a2c38] border-l border-[#213743] shadow-2xl flex flex-col select-none animate-in slide-in-from-right duration-200">
+        <div className="h-full flex flex-col justify-between overflow-hidden">
+          {/* 1. Channel Header: Dropdown Pill with Flag (e.g. 🇮🇳 India ⌄) & Minimal Close '✕' */}
+          <div className="flex items-center justify-between border-b border-[#213743] px-3.5 py-3 bg-[#14232f] shrink-0 relative">
+            {/* Channel Dropdown Pill */}
+            <div className="relative">
+              <button
+                onClick={() => setIsChannelDropdownOpen(!isChannelDropdownOpen)}
+                className="flex items-center gap-2 bg-[#213743] hover:bg-[#2a4454] text-white text-xs font-bold px-3 py-1.5 rounded-lg border border-[#2f4553]/60 transition-colors cursor-pointer"
+              >
+                <span>{selectedChannel.flag}</span>
+                <span>{selectedChannel.label}</span>
+                <ChevronDown className="w-3.5 h-3.5 text-[#b1bad3]" />
+              </button>
 
-            {/* Dropdown Menu */}
-            {isChannelDropdownOpen && (
-              <div className="absolute top-full left-0 mt-1.5 w-44 bg-[#1a2c38] border border-[#2f4553] rounded-xl shadow-2xl py-1 z-30 animate-in zoom-in-95 duration-150">
-                {CHANNELS.map((ch) => (
-                  <button
-                    key={ch.id}
-                    onClick={() => {
-                      setSelectedChannel(ch);
-                      setIsChannelDropdownOpen(false);
-                    }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-left transition-colors cursor-pointer ${
-                      selectedChannel.id === ch.id
-                        ? "bg-[#213743] text-[#00e701]"
-                        : "text-[#b1bad3] hover:bg-[#213743] hover:text-white"
-                    }`}
-                  >
-                    <span>{ch.flag}</span>
-                    <span>{ch.label}</span>
-                  </button>
-                ))}
-              </div>
-            )}
+              {/* Dropdown Menu */}
+              {isChannelDropdownOpen && (
+                <div className="absolute top-full left-0 mt-1.5 w-44 bg-[#1a2c38] border border-[#2f4553] rounded-xl shadow-2xl py-1 z-30 animate-in zoom-in-95 duration-150">
+                  {CHANNELS.map((ch) => (
+                    <button
+                      key={ch.id}
+                      onClick={() => {
+                        setSelectedChannel(ch);
+                        setIsChannelDropdownOpen(false);
+                      }}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-left transition-colors cursor-pointer ${
+                        selectedChannel.id === ch.id
+                          ? "bg-[#213743] text-[#00e701]"
+                          : "text-[#b1bad3] hover:bg-[#213743] hover:text-white"
+                      }`}
+                    >
+                      <span>{ch.flag}</span>
+                      <span>{ch.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Minimal Clean '✕' Dismiss Button */}
+            <button
+              onClick={toggleChat}
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer text-sm font-semibold"
+              aria-label="Close Chat"
+            >
+              ✕
+            </button>
           </div>
 
-          {/* Minimal Clean '✕' Dismiss Button */}
-          <button
-            onClick={toggleChat}
-            className="flex h-7 w-7 items-center justify-center rounded-lg text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer text-sm font-semibold"
-            aria-label="Close Chat"
-          >
-            ✕
-          </button>
-        </div>
-
-        {/* 2. Scrollable Message Cards (Isolated Bubbles matching Screenshot 18) */}
-        <div className="flex-1 overflow-y-auto px-3 py-2 space-y-1">
-          {messages.map((m) => (
-            <div
-              key={m.id}
-              className={`bg-[#1a2c38] rounded-xl p-3 my-1.5 border border-[#213743]/50 flex flex-col gap-1 text-xs sm:text-sm ${
-                m.isSelf ? "border-[#00e701]/40 shadow-[0_0_8px_rgba(0,231,1,0.05)]" : ""
-              }`}
-            >
-              {/* User Header Row */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <Star className="w-3.5 h-3.5 fill-[#00e701] text-[#00e701] shrink-0" />
-                  <span
-                    onClick={() => handleMentionUser(m.user)}
-                    className="font-bold text-white mr-1.5 hover:underline cursor-pointer tracking-tight"
-                  >
-                    {m.user}:
+          {/* 2. Scrollable Message Cards (Isolated Bubbles matching Screenshot 18) */}
+          <div className="flex-1 overflow-y-auto min-h-0 px-3 py-2 space-y-1">
+            {messages.map((m) => (
+              <div
+                key={m.id}
+                className={`bg-[#1a2c38] rounded-xl p-3 my-1.5 border border-[#213743]/50 flex flex-col gap-1 text-xs sm:text-sm ${
+                  m.isSelf ? "border-[#00e701]/40 shadow-[0_0_8px_rgba(0,231,1,0.05)]" : ""
+                }`}
+              >
+                {/* User Header Row */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <Star className="w-3.5 h-3.5 fill-[#00e701] text-[#00e701] shrink-0" />
+                    <span
+                      onClick={() => handleMentionUser(m.user)}
+                      className="font-bold text-white mr-1.5 hover:underline cursor-pointer tracking-tight"
+                    >
+                      {m.user}:
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-[#b1bad3]/60 font-mono shrink-0">
+                    {m.time}
                   </span>
                 </div>
-                <span className="text-[10px] text-[#b1bad3]/60 font-mono shrink-0">
-                  {m.time}
-                </span>
+
+                {/* Message Text with authentic Stake @mention pills */}
+                <p className="text-[#d5dceb] leading-relaxed break-words font-normal">
+                  {renderMessageText(m.text)}
+                </p>
               </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
 
-              {/* Message Text with authentic Stake @mention pills */}
-              <p className="text-[#d5dceb] leading-relaxed break-words font-normal">
-                {renderMessageText(m.text)}
-              </p>
-            </div>
-          ))}
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* 3. Input Bar & Bottom Action Row matching Screenshots 18, 19, 20 */}
-        <div className="relative border-t border-[#213743] p-3 bg-[#14232f] shrink-0 space-y-2">
+          {/* 3. Input Bar & Bottom Action Row matching Screenshots 18, 19, 20 */}
+          <div className="relative z-30 shrink-0 w-full border-t border-[#213743] p-3 bg-[#1a2c38] space-y-2">
           {/* Full Emoji Picker Popover */}
           {showEmojiPicker && (
             <div className="absolute bottom-full mb-2 left-2 right-2 bg-[#1a2c38] border border-[#2f4553] rounded-2xl shadow-2xl p-3 z-30 animate-in zoom-in-95 duration-150">
@@ -451,6 +452,7 @@ export default function CommunityChat() {
               </div>
             </div>
           </form>
+        </div>
         </div>
       </aside>
 

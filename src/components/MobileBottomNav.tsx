@@ -58,10 +58,10 @@ export default function MobileBottomNav() {
           aria-label="Toggle Navigation Drawer"
           className="flex flex-col items-center justify-center flex-1 py-1 transition-colors bg-transparent hover:bg-transparent active:bg-transparent cursor-pointer"
         >
-          <div className="flex h-8.5 w-8.5 items-center justify-center bg-transparent">
+          <div className="flex h-9 w-9 items-center justify-center bg-transparent">
             <svg
-              width="26"
-              height="26"
+              width="27"
+              height="27"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"

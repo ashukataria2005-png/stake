@@ -30,7 +30,7 @@ export default function MainLayoutShell({
         <main
           className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out ${
             isSidebarOpen ? "lg:pl-64" : "lg:pl-16"
-          } ${isChatOpen ? "xl:pr-[350px]" : ""} pb-24 sm:pb-28 lg:pb-10 min-h-[calc(100dvh-3.5rem)]`}
+          } ${isChatOpen ? "xl:pr-[350px]" : ""} pb-[74px] sm:pb-[80px] lg:pb-10 min-h-[calc(100vh-60px)]`}
         >
           <div className="flex-1 pb-10 sm:pb-12 lg:pb-0">
             {children}

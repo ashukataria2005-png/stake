@@ -125,10 +125,10 @@ export const GAME_THUMBNAILS: Record<string, string> = {
   aviator: "https://mediumrare.imgix.net/cc520b0414708118c9237f5550a2c26fe29c638dc3bd020113700589cf0ffed0?w=180&h=236&fit=min&auto=format",
   "mine-drop-2": "https://mediumrare.imgix.net/7c081582227033d342013a7293d2a41435578ed90511a45aca53a33deeb9816e?w=180&h=236&fit=min&auto=format",
   jetx: "https://mediumrare.imgix.net/10c2a40012742664be4b80048607391a86cf48b34455a59fcfed57ba4f152c09?w=180&h=236&fit=min&auto=format",
-  spaceman: "https://mediumrare.imgix.net/fbf4038ed2862c3503a5d39263d1321e8d9361d730eacfbb2403fd1e5894525c?w=180&h=236&fit=min&auto=format",
-  "high-flyer": "https://mediumrare.imgix.net/c2297ea432657e4e138a2e584fdf50aa738bca87bdf55f30e6ad65c5c1630b91?w=180&h=236&fit=min&auto=format",
+  spaceman: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQcJ9cblknVi1gXpb5jP1KSz9kY-0muNCvzIWw1XdocKg&s=10",
+  "high-flyer": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTRPvpe_PC_uxfLgY-m28EW3WcH_xtg9ccuBFIxsxRhfA&s=10",
   balloon: "https://mediumrare.imgix.net/85d0c2dc8ab5820abb82cb170ac357d5798513eaa9dcb585f3e5d1f7f986c730?w=180&h=236&fit=min&auto=format",
-  "comet-crash": "https://mediumrare.imgix.net/fbf4038ed2862c3503a5d39263d1321e8d9361d730eacfbb2403fd1e5894525c?w=180&h=236&fit=min&auto=format",
+  "comet-crash": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7PHaRTGtFYSqKlaGqPoVfCo_c6IQbDFfl3X7iblRkRA&s=10",
   "rocket-dice": "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?w=180&h=236&fit=min&auto=format",
 
   // ==========================================
