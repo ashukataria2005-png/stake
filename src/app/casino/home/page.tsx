@@ -19,7 +19,6 @@ import CasinoPromoCarousel from "@/components/casino/CasinoPromoCarousel";
 import CasinoCategoryPills from "@/components/casino/CasinoCategoryPills";
 import CasinoGameRow, { CasinoCardData } from "@/components/casino/CasinoGameRow";
 import CasinoLiveBets from "@/components/casino/CasinoLiveBets";
-import LiveStatusAndSearch from "@/components/LiveStatusAndSearch";
 import StakeGameArtwork from "@/components/casino/StakeGameArtwork";
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
@@ -41,8 +40,8 @@ export default function CasinoHomePage() {
   const [isSpinningSlot, setIsSpinningSlot] = useState<boolean>(false);
   const [slotLastWin, setSlotLastWin] = useState<number | null>(null);
 
-  // 1. Row 1: Stake Originals
-  const row1Originals: CasinoCardData[] = [
+  // 1. Stake Originals (9 Games)
+  const stakeOriginals: CasinoCardData[] = [
     {
       id: "dice",
       title: "Dice",
@@ -77,17 +76,6 @@ export default function CasinoHomePage() {
       bgGradient: "from-blue-950/80 via-[#1a2c38] to-[#0f212e]",
     },
     {
-      id: "keno",
-      title: "Keno",
-      provider: "Stake Originals",
-      playersCount: 1250,
-      badge: "ORIGINAL",
-      badgeColor: "bg-pink-500/20 text-pink-300 border-pink-500/30",
-      href: "/games/keno",
-      graphic: <StakeGameArtwork gameId="keno" className="w-16 h-16 sm:w-20 sm:h-20" />,
-      bgGradient: "from-pink-950/80 via-[#1a2c38] to-[#0f212e]",
-    },
-    {
       id: "crash",
       title: "Crash",
       provider: "Stake Originals",
@@ -109,10 +97,54 @@ export default function CasinoHomePage() {
       graphic: <StakeGameArtwork gameId="limbo" className="w-16 h-16 sm:w-20 sm:h-20" />,
       bgGradient: "from-yellow-950/80 via-[#1a2c38] to-[#0f212e]",
     },
+    {
+      id: "keno",
+      title: "Keno",
+      provider: "Stake Originals",
+      playersCount: 1250,
+      badge: "ORIGINAL",
+      badgeColor: "bg-pink-500/20 text-pink-300 border-pink-500/30",
+      href: "/games/keno",
+      graphic: <StakeGameArtwork gameId="keno" className="w-16 h-16 sm:w-20 sm:h-20" />,
+      bgGradient: "from-pink-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "blackjack",
+      title: "Blackjack",
+      provider: "Stake Originals",
+      playersCount: 1680,
+      badge: "TABLE",
+      badgeColor: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30",
+      href: "/games/blackjack",
+      graphic: <StakeGameArtwork gameId="blackjack" className="w-16 h-16 sm:w-20 sm:h-20" />,
+      bgGradient: "from-indigo-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "roulette",
+      title: "Roulette",
+      provider: "Stake Originals",
+      playersCount: 1430,
+      badge: "CLASSIC",
+      badgeColor: "bg-red-500/20 text-red-300 border-red-500/30",
+      href: "/games/roulette",
+      graphic: <StakeGameArtwork gameId="roulette" className="w-16 h-16 sm:w-20 sm:h-20" />,
+      bgGradient: "from-red-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "wheel",
+      title: "Wheel",
+      provider: "Stake Originals",
+      playersCount: 970,
+      badge: "ORIGINAL",
+      badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+      href: "/games/wheel",
+      graphic: <StakeGameArtwork gameId="wheel" className="w-16 h-16 sm:w-20 sm:h-20" />,
+      bgGradient: "from-emerald-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
   ];
 
-  // 2. Row 2: Slots
-  const row2Slots: CasinoCardData[] = [
+  // 2. Slots (9 Games)
+  const slotsGames: CasinoCardData[] = [
     {
       id: "gates-olympus-1000",
       title: "Gates of Olympus 1000",
@@ -122,16 +154,6 @@ export default function CasinoHomePage() {
       badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/30",
       graphic: <span className="text-3xl">⚡👑</span>,
       bgGradient: "from-amber-950/80 via-[#1a2c38] to-[#0f212e]",
-    },
-    {
-      id: "waylanders-forge",
-      title: "Waylanders Forge",
-      provider: "Stake Originals",
-      playersCount: 940,
-      badge: "ORIGINAL",
-      badgeColor: "bg-[#00e701]/20 text-[#00e701] border-[#00e701]/30",
-      graphic: <span className="text-3xl">⚔️🔥</span>,
-      bgGradient: "from-emerald-950/80 via-[#1a2c38] to-[#0f212e]",
     },
     {
       id: "sweet-bonanza-1000",
@@ -154,16 +176,6 @@ export default function CasinoHomePage() {
       bgGradient: "from-red-950/80 via-[#1a2c38] to-[#0f212e]",
     },
     {
-      id: "le-catcher",
-      title: "Le Catcher",
-      provider: "Hacksaw Gaming",
-      playersCount: 820,
-      badge: "MEGA BONUS",
-      badgeColor: "bg-purple-500/20 text-purple-300 border-purple-500/30",
-      graphic: <span className="text-3xl">🎩💎</span>,
-      bgGradient: "from-purple-950/80 via-[#1a2c38] to-[#0f212e]",
-    },
-    {
       id: "sugar-rush-1000",
       title: "Sugar Rush 1000",
       provider: "Pragmatic Play",
@@ -173,10 +185,60 @@ export default function CasinoHomePage() {
       graphic: <span className="text-3xl">🧁🐻</span>,
       bgGradient: "from-pink-950/80 via-[#1a2c38] to-[#0f212e]",
     },
+    {
+      id: "dork-unit",
+      title: "Dork Unit",
+      provider: "Hacksaw Gaming",
+      playersCount: 890,
+      badge: "GIFT BOX",
+      badgeColor: "bg-purple-500/20 text-purple-300 border-purple-500/30",
+      graphic: <span className="text-3xl">🤡🎁</span>,
+      bgGradient: "from-purple-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "rip-city",
+      title: "Rip City",
+      provider: "Hacksaw Gaming",
+      playersCount: 950,
+      badge: "FEATURED",
+      badgeColor: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30",
+      graphic: <span className="text-3xl">🐱🐭</span>,
+      bgGradient: "from-stone-900 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "chaos-crew-2",
+      title: "Chaos Crew 2",
+      provider: "Hacksaw Gaming",
+      playersCount: 780,
+      badge: "GRAFFITI",
+      badgeColor: "bg-lime-500/20 text-lime-300 border-lime-500/30",
+      graphic: <span className="text-3xl">🎨💀</span>,
+      bgGradient: "from-neutral-900 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "starlight-princess-1000",
+      title: "Starlight Princess 1000",
+      provider: "Pragmatic Play",
+      playersCount: 1240,
+      badge: "1,000X MULTI",
+      badgeColor: "bg-blue-500/20 text-blue-300 border-blue-500/30",
+      graphic: <span className="text-3xl">⭐👸</span>,
+      bgGradient: "from-blue-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "le-catcher",
+      title: "Le Catcher",
+      provider: "Hacksaw Gaming",
+      playersCount: 820,
+      badge: "MEGA BONUS",
+      badgeColor: "bg-purple-500/20 text-purple-300 border-purple-500/30",
+      graphic: <span className="text-3xl">🎩💎</span>,
+      bgGradient: "from-purple-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
   ];
 
-  // 3. Row 3: Publishers
-  const row3Publishers: CasinoCardData[] = [
+  // 3. Publishers (9 Providers)
+  const publishers: CasinoCardData[] = [
     {
       id: "pub-stake",
       title: "Stake Originals",
@@ -185,6 +247,8 @@ export default function CasinoHomePage() {
       badgeColor: "bg-[#00e701]/20 text-[#00e701] border-[#00e701]/30",
       graphic: <span className="font-black italic text-2xl text-white">stake</span>,
       bgGradient: "from-emerald-950 via-[#1a2c38] to-[#0f212e]",
+      isPublisherCard: true,
+      href: "/casino/group/stake-originals",
     },
     {
       id: "pub-pragmatic",
@@ -194,6 +258,8 @@ export default function CasinoHomePage() {
       badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/30",
       graphic: <span className="font-bold text-lg text-amber-400">PRAGMATIC</span>,
       bgGradient: "from-amber-950 via-[#1a2c38] to-[#0f212e]",
+      isPublisherCard: true,
+      href: "/casino/collection/providers",
     },
     {
       id: "pub-hacksaw",
@@ -203,15 +269,8 @@ export default function CasinoHomePage() {
       badgeColor: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30",
       graphic: <span className="font-mono font-bold text-lg text-yellow-400">HACKSAW</span>,
       bgGradient: "from-stone-900 via-[#1a2c38] to-[#0f212e]",
-    },
-    {
-      id: "pub-evolution",
-      title: "Evolution Live",
-      provider: "110 Games",
-      badge: "LIVE DEALERS",
-      badgeColor: "bg-blue-500/20 text-blue-300 border-blue-500/30",
-      graphic: <span className="font-bold text-lg text-blue-400">Evolution</span>,
-      bgGradient: "from-blue-950 via-[#1a2c38] to-[#0f212e]",
+      isPublisherCard: true,
+      href: "/casino/collection/providers",
     },
     {
       id: "pub-nolimit",
@@ -221,20 +280,274 @@ export default function CasinoHomePage() {
       badgeColor: "bg-red-500/20 text-red-300 border-red-500/30",
       graphic: <span className="font-black text-lg text-red-400">NOLIMIT</span>,
       bgGradient: "from-red-950 via-[#1a2c38] to-[#0f212e]",
+      isPublisherCard: true,
+      href: "/casino/collection/providers",
     },
     {
-      id: "pub-twist",
-      title: "Twist Gaming",
+      id: "pub-evolution",
+      title: "Evolution Live",
+      provider: "110 Games",
+      badge: "LIVE DEALERS",
+      badgeColor: "bg-blue-500/20 text-blue-300 border-blue-500/30",
+      graphic: <span className="font-bold text-lg text-blue-400">Evolution</span>,
+      bgGradient: "from-blue-950 via-[#1a2c38] to-[#0f212e]",
+      isPublisherCard: true,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "pub-push",
+      title: "Push Gaming",
       provider: "60 Games",
       badge: "VERIFIED",
       badgeColor: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
-      graphic: <span className="font-bold text-lg text-cyan-400">TWIST</span>,
+      graphic: <span className="font-bold text-lg text-cyan-400">PUSH</span>,
       bgGradient: "from-cyan-950 via-[#1a2c38] to-[#0f212e]",
+      isPublisherCard: true,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "pub-spribe",
+      title: "Spribe",
+      provider: "15 Games",
+      badge: "TURBO",
+      badgeColor: "bg-orange-500/20 text-orange-300 border-orange-500/30",
+      graphic: <span className="font-bold text-lg text-orange-400">SPRIBE</span>,
+      bgGradient: "from-orange-950 via-[#1a2c38] to-[#0f212e]",
+      isPublisherCard: true,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "pub-bgaming",
+      title: "BGaming",
+      provider: "85 Games",
+      badge: "TOP PICK",
+      badgeColor: "bg-purple-500/20 text-purple-300 border-purple-500/30",
+      graphic: <span className="font-bold text-lg text-purple-400">BGAMING</span>,
+      bgGradient: "from-purple-950 via-[#1a2c38] to-[#0f212e]",
+      isPublisherCard: true,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "pub-relax",
+      title: "Relax Gaming",
+      provider: "120 Games",
+      badge: "FEATURED",
+      badgeColor: "bg-teal-500/20 text-teal-300 border-teal-500/30",
+      graphic: <span className="font-bold text-lg text-teal-400">RELAX</span>,
+      bgGradient: "from-teal-950 via-[#1a2c38] to-[#0f212e]",
+      isPublisherCard: true,
+      href: "/casino/collection/providers",
     },
   ];
 
-  // 4. Row 4: Featured Publishers
-  const row4FeaturedPublishers: CasinoCardData[] = [
+  // 4. Live Casino (9 Games)
+  const liveCasinoGames: CasinoCardData[] = [
+    {
+      id: "lightning-roulette",
+      title: "Lightning Roulette",
+      provider: "Evolution Live",
+      playersCount: 3420,
+      badge: "500X MULTI",
+      badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+      href: "/casino/group/live-casino",
+      graphic: <span className="text-3xl">⚡🎡</span>,
+      bgGradient: "from-amber-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "live-blackjack",
+      title: "Live Blackjack",
+      provider: "Evolution Live",
+      playersCount: 4120,
+      badge: "POPULAR",
+      badgeColor: "bg-[#00e701]/20 text-[#00e701] border-[#00e701]/30",
+      href: "/casino/group/live-casino",
+      graphic: <span className="text-3xl">♠️♣️</span>,
+      bgGradient: "from-emerald-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "crazy-time",
+      title: "Crazy Time",
+      provider: "Evolution Live",
+      playersCount: 5890,
+      badge: "HOT",
+      badgeColor: "bg-red-500/20 text-red-300 border-red-500/30",
+      href: "/casino/group/live-casino",
+      graphic: <span className="text-3xl">🎡✨</span>,
+      bgGradient: "from-red-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "baccarat-live",
+      title: "Baccarat Live",
+      provider: "Evolution Live",
+      playersCount: 2150,
+      badge: "SPEED",
+      badgeColor: "bg-purple-500/20 text-purple-300 border-purple-500/30",
+      href: "/casino/group/live-casino",
+      graphic: <span className="text-3xl">🎴🎲</span>,
+      bgGradient: "from-purple-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "roulette-live",
+      title: "Roulette Live",
+      provider: "Evolution Live",
+      playersCount: 1890,
+      badge: "CLASSIC",
+      badgeColor: "bg-blue-500/20 text-blue-300 border-blue-500/30",
+      href: "/casino/group/live-casino",
+      graphic: <span className="text-3xl">🔴⚫</span>,
+      bgGradient: "from-blue-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "dragon-tiger",
+      title: "Dragon Tiger",
+      provider: "Evolution Live",
+      playersCount: 1430,
+      badge: "FAST",
+      badgeColor: "bg-orange-500/20 text-orange-300 border-orange-500/30",
+      href: "/casino/group/live-casino",
+      graphic: <span className="text-3xl">🐉🐯</span>,
+      bgGradient: "from-orange-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "extreme-texas-holdem",
+      title: "Extreme Texas Hold'em",
+      provider: "Evolution Live",
+      playersCount: 1120,
+      badge: "POKER",
+      badgeColor: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30",
+      href: "/casino/group/live-casino",
+      graphic: <span className="text-3xl">🃏🏆</span>,
+      bgGradient: "from-indigo-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "bac-bo",
+      title: "Bac Bo",
+      provider: "Evolution Live",
+      playersCount: 980,
+      badge: "DICE",
+      badgeColor: "bg-teal-500/20 text-teal-300 border-teal-500/30",
+      href: "/casino/group/live-casino",
+      graphic: <span className="text-3xl">🎲🎋</span>,
+      bgGradient: "from-teal-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "red-door-roulette",
+      title: "Red Door Roulette",
+      provider: "Evolution Live",
+      playersCount: 1340,
+      badge: "KEYS",
+      badgeColor: "bg-rose-500/20 text-rose-300 border-rose-500/30",
+      href: "/casino/group/live-casino",
+      graphic: <span className="text-3xl">🚪🔑</span>,
+      bgGradient: "from-rose-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+  ];
+
+  // 5. Game Shows (9 Games)
+  const gameShowsGames: CasinoCardData[] = [
+    {
+      id: "crazy-time",
+      title: "Crazy Time",
+      provider: "Evolution",
+      playersCount: 5890,
+      badge: "HOT",
+      badgeColor: "bg-red-500/20 text-red-300 border-red-500/30",
+      href: "/casino/group/game-shows",
+      graphic: <span className="text-3xl">🎡🎉</span>,
+      bgGradient: "from-red-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "monopoly-live",
+      title: "Monopoly Live",
+      provider: "Evolution",
+      playersCount: 3210,
+      badge: "3D ROLLS",
+      badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+      href: "/casino/group/game-shows",
+      graphic: <span className="text-3xl">🎩🎲</span>,
+      bgGradient: "from-amber-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "funky-time",
+      title: "Funky Time",
+      provider: "Evolution",
+      playersCount: 2840,
+      badge: "DISCO",
+      badgeColor: "bg-pink-500/20 text-pink-300 border-pink-500/30",
+      href: "/casino/group/game-shows",
+      graphic: <span className="text-3xl">🪩🕺</span>,
+      bgGradient: "from-pink-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "mega-ball",
+      title: "Mega Ball",
+      provider: "Evolution",
+      playersCount: 1920,
+      badge: "100X MULTI",
+      badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+      href: "/casino/group/game-shows",
+      graphic: <span className="text-3xl">🎱💰</span>,
+      bgGradient: "from-emerald-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "crazy-coin-flip",
+      title: "Crazy Coin Flip",
+      provider: "Evolution",
+      playersCount: 1680,
+      badge: "SLOT SHOW",
+      badgeColor: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30",
+      href: "/casino/group/game-shows",
+      graphic: <span className="text-3xl">🪙✨</span>,
+      bgGradient: "from-yellow-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "crazy-pachinko",
+      title: "Crazy Pachinko",
+      provider: "Evolution",
+      playersCount: 2140,
+      badge: "DROP BALL",
+      badgeColor: "bg-purple-500/20 text-purple-300 border-purple-500/30",
+      href: "/casino/group/game-shows",
+      graphic: <span className="text-3xl">🔮🎯</span>,
+      bgGradient: "from-purple-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "monopoly-big-baller",
+      title: "Monopoly Big Baller",
+      provider: "Evolution",
+      playersCount: 1820,
+      badge: "BINGO",
+      badgeColor: "bg-blue-500/20 text-blue-300 border-blue-500/30",
+      href: "/casino/group/game-shows",
+      graphic: <span className="text-3xl">🚢🎩</span>,
+      bgGradient: "from-blue-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "stock-market",
+      title: "Stock Market",
+      provider: "Evolution",
+      playersCount: 1450,
+      badge: "TRADING",
+      badgeColor: "bg-[#00e701]/20 text-[#00e701] border-[#00e701]/30",
+      href: "/casino/group/game-shows",
+      graphic: <span className="text-3xl">📈💹</span>,
+      bgGradient: "from-emerald-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "lightning-dice",
+      title: "Lightning Dice",
+      provider: "Evolution",
+      playersCount: 1210,
+      badge: "1,000X",
+      badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+      href: "/casino/group/game-shows",
+      graphic: <span className="text-3xl">⚡🎲</span>,
+      bgGradient: "from-amber-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+  ];
+
+  // 6. Featured Publishers (9 Studios)
+  const featuredPublishers: CasinoCardData[] = [
     {
       id: "fpub-evoslot",
       title: "evoslot",
@@ -244,6 +557,8 @@ export default function CasinoHomePage() {
       badgeColor: "bg-purple-500/20 text-purple-300 border-purple-500/30",
       graphic: <span className="font-black text-xl text-purple-400">EVOSLOT</span>,
       bgGradient: "from-purple-950 via-[#1a2c38] to-[#0f212e]",
+      isPublisherCard: true,
+      href: "/casino/collection/providers",
     },
     {
       id: "fpub-no2ap",
@@ -254,6 +569,8 @@ export default function CasinoHomePage() {
       badgeColor: "bg-teal-500/20 text-teal-300 border-teal-500/30",
       graphic: <span className="font-mono font-bold text-lg text-teal-300">NO2AP LABS</span>,
       bgGradient: "from-teal-950 via-[#1a2c38] to-[#0f212e]",
+      isPublisherCard: true,
+      href: "/casino/collection/providers",
     },
     {
       id: "fpub-ovryx",
@@ -264,18 +581,92 @@ export default function CasinoHomePage() {
       badgeColor: "bg-blue-500/20 text-blue-300 border-blue-500/30",
       graphic: <span className="font-black text-2xl text-blue-400">OVRYX</span>,
       bgGradient: "from-blue-950 via-[#1a2c38] to-[#0f212e]",
+      isPublisherCard: true,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "fpub-titan",
+      title: "TITAN GAMING",
+      provider: "High-Roller Studio",
+      playersCount: 2540,
+      badge: "HIGH VOL",
+      badgeColor: "bg-red-500/20 text-red-300 border-red-500/30",
+      graphic: <span className="font-black text-xl text-red-400">TITAN</span>,
+      bgGradient: "from-red-950 via-[#1a2c38] to-[#0f212e]",
+      isPublisherCard: true,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "fpub-apex",
+      title: "APEX LABS",
+      provider: "Multiplier Studio",
+      playersCount: 3110,
+      badge: "TOP MATH",
+      badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+      graphic: <span className="font-black text-xl text-amber-400">APEX</span>,
+      bgGradient: "from-amber-950 via-[#1a2c38] to-[#0f212e]",
+      isPublisherCard: true,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "fpub-spinpulse",
+      title: "SPINPULSE",
+      provider: "Action Slots",
+      playersCount: 2780,
+      badge: "FAST SPIN",
+      badgeColor: "bg-pink-500/20 text-pink-300 border-pink-500/30",
+      graphic: <span className="font-black text-xl text-pink-400">SPINPULSE</span>,
+      bgGradient: "from-pink-950 via-[#1a2c38] to-[#0f212e]",
+      isPublisherCard: true,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "fpub-volt",
+      title: "VOLT PLAY",
+      provider: "Lightning Games",
+      playersCount: 1980,
+      badge: "TURBO",
+      badgeColor: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30",
+      graphic: <span className="font-black text-xl text-yellow-400">VOLT</span>,
+      bgGradient: "from-yellow-950 via-[#1a2c38] to-[#0f212e]",
+      isPublisherCard: true,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "fpub-quant",
+      title: "QUANTUM REELS",
+      provider: "Next-Gen Math",
+      playersCount: 2350,
+      badge: "CASCADE",
+      badgeColor: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
+      graphic: <span className="font-black text-xl text-cyan-400">QUANTUM</span>,
+      bgGradient: "from-cyan-950 via-[#1a2c38] to-[#0f212e]",
+      isPublisherCard: true,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "fpub-hyper",
+      title: "HYPER X",
+      provider: "Extreme Volatility",
+      playersCount: 3450,
+      badge: "XTREME",
+      badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+      graphic: <span className="font-black text-xl text-emerald-400">HYPER X</span>,
+      bgGradient: "from-emerald-950 via-[#1a2c38] to-[#0f212e]",
+      isPublisherCard: true,
+      href: "/casino/collection/providers",
     },
   ];
 
-  // 5. Row 5: Only on Stake with '2x VIP' badge
-  const row5OnlyOnStake: CasinoCardData[] = [
+  // 7. Only on Stake with '2x VIP' badge (9 Games)
+  const onlyOnStakeGames: CasinoCardData[] = [
     {
       id: "sharks",
       title: "Sharks!",
       provider: "Push Gaming",
       playersCount: 1840,
       badge: "2X VIP",
-      badgeColor: "bg-blue-500/20 text-blue-300 border-blue-500/40",
+      badgeColor: "bg-cyan-500/20 text-cyan-300 border-cyan-400/40",
       graphic: <span className="text-3xl">🦈🌊</span>,
       bgGradient: "from-cyan-950/80 via-[#1a2c38] to-[#0f212e]",
     },
@@ -285,7 +676,7 @@ export default function CasinoHomePage() {
       provider: "Only on Stake",
       playersCount: 920,
       badge: "2X VIP",
-      badgeColor: "bg-blue-500/20 text-blue-300 border-blue-500/40",
+      badgeColor: "bg-cyan-500/20 text-cyan-300 border-cyan-400/40",
       graphic: <span className="text-3xl">😈🎃</span>,
       bgGradient: "from-purple-950/80 via-[#1a2c38] to-[#0f212e]",
     },
@@ -295,7 +686,7 @@ export default function CasinoHomePage() {
       provider: "Only on Stake",
       playersCount: 760,
       badge: "2X VIP",
-      badgeColor: "bg-blue-500/20 text-blue-300 border-blue-500/40",
+      badgeColor: "bg-cyan-500/20 text-cyan-300 border-cyan-400/40",
       graphic: <span className="text-3xl">👅🍬</span>,
       bgGradient: "from-pink-950/80 via-[#1a2c38] to-[#0f212e]",
     },
@@ -305,14 +696,64 @@ export default function CasinoHomePage() {
       provider: "Only on Stake",
       playersCount: 680,
       badge: "2X VIP",
-      badgeColor: "bg-blue-500/20 text-blue-300 border-blue-500/40",
+      badgeColor: "bg-cyan-500/20 text-cyan-300 border-cyan-400/40",
       graphic: <span className="text-3xl">⚓⛵</span>,
       bgGradient: "from-sky-950/80 via-[#1a2c38] to-[#0f212e]",
     },
+    {
+      id: "dracs-stacks",
+      title: "Dracs Stacks",
+      provider: "Only on Stake",
+      playersCount: 850,
+      badge: "2X VIP",
+      badgeColor: "bg-cyan-500/20 text-cyan-300 border-cyan-400/40",
+      graphic: <span className="text-3xl">🧛‍♂️🏰</span>,
+      bgGradient: "from-purple-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "nuukd",
+      title: "Nuukd",
+      provider: "Only on Stake",
+      playersCount: 910,
+      badge: "2X VIP",
+      badgeColor: "bg-cyan-500/20 text-cyan-300 border-cyan-400/40",
+      graphic: <span className="text-3xl">☣️⚡</span>,
+      bgGradient: "from-yellow-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "skyscraper-crash",
+      title: "Skyscraper Crash",
+      provider: "Only on Stake",
+      playersCount: 1120,
+      badge: "2X VIP",
+      badgeColor: "bg-cyan-500/20 text-cyan-300 border-cyan-400/40",
+      graphic: <span className="text-3xl">🏙️💥</span>,
+      bgGradient: "from-amber-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "waylanders-forge",
+      title: "Waylanders Forge",
+      provider: "Only on Stake",
+      playersCount: 1040,
+      badge: "2X VIP",
+      badgeColor: "bg-cyan-500/20 text-cyan-300 border-cyan-400/40",
+      graphic: <span className="text-3xl">⚔️🔥</span>,
+      bgGradient: "from-emerald-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "odins-vault",
+      title: "Odins Vault",
+      provider: "Only on Stake",
+      playersCount: 880,
+      badge: "2X VIP",
+      badgeColor: "bg-cyan-500/20 text-cyan-300 border-cyan-400/40",
+      graphic: <span className="text-3xl">🛡️⚡</span>,
+      bgGradient: "from-blue-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
   ];
 
-  // 6. Row 6: Burst Games
-  const row6BurstGames: CasinoCardData[] = [
+  // 8. Burst Games (9 Games)
+  const burstGames: CasinoCardData[] = [
     {
       id: "aviator",
       title: "Aviator",
@@ -336,29 +777,8 @@ export default function CasinoHomePage() {
       bgGradient: "from-emerald-950/80 via-[#1a2c38] to-[#0f212e]",
     },
     {
-      id: "keno-xtreme",
-      title: "Keno Xtreme",
-      provider: "Stake Originals",
-      playersCount: 890,
-      badge: "BURST",
-      badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/30",
-      href: "/games/keno",
-      graphic: <span className="text-3xl">🎯✨</span>,
-      bgGradient: "from-amber-950/80 via-[#1a2c38] to-[#0f212e]",
-    },
-    {
-      id: "aviamasters",
-      title: "Aviamasters",
-      provider: "BGaming",
-      playersCount: 1120,
-      badge: "BURST",
-      badgeColor: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
-      graphic: <span className="text-3xl">🚀🌌</span>,
-      bgGradient: "from-cyan-950/80 via-[#1a2c38] to-[#0f212e]",
-    },
-    {
-      id: "jet-x",
-      title: "Jet X",
+      id: "jetx",
+      title: "JetX",
       provider: "SmartSoft",
       playersCount: 2210,
       badge: "BURST",
@@ -368,54 +788,75 @@ export default function CasinoHomePage() {
       bgGradient: "from-yellow-950/80 via-[#1a2c38] to-[#0f212e]",
     },
     {
-      id: "angry-balls",
-      title: "Angry Balls",
+      id: "crash",
+      title: "Crash",
       provider: "Stake Originals",
-      playersCount: 1450,
+      playersCount: 5120,
       badge: "BURST",
-      badgeColor: "bg-orange-500/20 text-orange-300 border-orange-500/30",
-      href: "/games/plinko",
-      graphic: <span className="text-3xl">🔴💥</span>,
-      bgGradient: "from-orange-950/80 via-[#1a2c38] to-[#0f212e]",
-    },
-  ];
-
-  // 7. Row 7: Top Picks
-  const row7TopPicks: CasinoCardData[] = [
-    {
-      id: "hot-chili-chica",
-      title: "Hot Chili Chica",
-      provider: "Stake Exclusive",
-      playersCount: 2310,
-      badge: "HOT",
-      badgeColor: "bg-red-500/20 text-red-300 border-red-500/30",
-      graphic: <span className="text-3xl">🌶️🔥</span>,
-      bgGradient: "from-red-950/80 via-[#1a2c38] to-[#0f212e]",
-    },
-    {
-      id: "moles-gone-wild",
-      title: "Moles Gone Wild",
-      provider: "Hacksaw Gaming",
-      playersCount: 1780,
-      badge: "FEATURED",
       badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/30",
-      graphic: <span className="text-3xl">🦔💰</span>,
+      href: "/games/crash",
+      graphic: <span className="text-3xl">🚀📈</span>,
       bgGradient: "from-amber-950/80 via-[#1a2c38] to-[#0f212e]",
     },
     {
-      id: "blind-viking",
-      title: "Blind Viking",
-      provider: "NoLimit City",
-      playersCount: 1640,
-      badge: "VIKING REELS",
+      id: "spaceman",
+      title: "Spaceman",
+      provider: "Pragmatic Play",
+      playersCount: 2450,
+      badge: "BURST",
       badgeColor: "bg-blue-500/20 text-blue-300 border-blue-500/30",
-      graphic: <span className="text-3xl">🛡️🪓</span>,
+      href: "/games/crash",
+      graphic: <span className="text-3xl">👨‍🚀🌌</span>,
       bgGradient: "from-blue-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "high-flyer",
+      title: "High Flyer",
+      provider: "Pragmatic Play",
+      playersCount: 1320,
+      badge: "BURST",
+      badgeColor: "bg-purple-500/20 text-purple-300 border-purple-500/30",
+      href: "/games/crash",
+      graphic: <span className="text-3xl">🎈☁️</span>,
+      bgGradient: "from-purple-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "balloon",
+      title: "Balloon",
+      provider: "SmartSoft",
+      playersCount: 1490,
+      badge: "BURST",
+      badgeColor: "bg-pink-500/20 text-pink-300 border-pink-500/30",
+      href: "/games/crash",
+      graphic: <span className="text-3xl">🎈💥</span>,
+      bgGradient: "from-pink-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "comet-crash",
+      title: "Comet Crash",
+      provider: "Spribe",
+      playersCount: 1680,
+      badge: "BURST",
+      badgeColor: "bg-orange-500/20 text-orange-300 border-orange-500/30",
+      href: "/games/crash",
+      graphic: <span className="text-3xl">☄️🔥</span>,
+      bgGradient: "from-orange-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "rocket-dice",
+      title: "Rocket Dice",
+      provider: "Stake Originals",
+      playersCount: 1120,
+      badge: "BURST",
+      badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+      href: "/games/dice",
+      graphic: <span className="text-3xl">🚀🎲</span>,
+      bgGradient: "from-emerald-950/80 via-[#1a2c38] to-[#0f212e]",
     },
   ];
 
-  // 8. Row 8: New Releases
-  const row8NewReleases: CasinoCardData[] = [
+  // 9. New Releases (9 Games)
+  const newReleasesGames: CasinoCardData[] = [
     {
       id: "gates-olympus-2500",
       title: "Gates of Olympus 2500",
@@ -445,6 +886,66 @@ export default function CasinoHomePage() {
       badgeColor: "bg-pink-500/20 text-pink-300 border-pink-500/30",
       graphic: <span className="text-3xl">🤡🎪</span>,
       bgGradient: "from-pink-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "big-bass-vegas-1000",
+      title: "Big Bass Vegas 1000",
+      provider: "Pragmatic Play",
+      playersCount: 2150,
+      badge: "NEW",
+      badgeColor: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
+      graphic: <span className="text-3xl">🐟🎰</span>,
+      bgGradient: "from-cyan-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "super-scatter-olympus",
+      title: "Super Scatter Olympus",
+      provider: "Pragmatic Play",
+      playersCount: 1870,
+      badge: "NEW",
+      badgeColor: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30",
+      graphic: <span className="text-3xl">⚡✨</span>,
+      bgGradient: "from-yellow-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "blind-viking",
+      title: "Blind Viking",
+      provider: "NoLimit City",
+      playersCount: 1640,
+      badge: "NEW",
+      badgeColor: "bg-blue-500/20 text-blue-300 border-blue-500/30",
+      graphic: <span className="text-3xl">🛡️🪓</span>,
+      bgGradient: "from-blue-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "hot-chili-chica",
+      title: "Hot Chili Chica",
+      provider: "Stake Exclusive",
+      playersCount: 2310,
+      badge: "NEW",
+      badgeColor: "bg-red-500/20 text-red-300 border-red-500/30",
+      graphic: <span className="text-3xl">🌶️🔥</span>,
+      bgGradient: "from-red-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "moles-gone-wild",
+      title: "Moles Gone Wild",
+      provider: "Hacksaw Gaming",
+      playersCount: 1780,
+      badge: "NEW",
+      badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+      graphic: <span className="text-3xl">🦔💰</span>,
+      bgGradient: "from-amber-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "rotten",
+      title: "Rotten",
+      provider: "Hacksaw Gaming",
+      playersCount: 1520,
+      badge: "NEW",
+      badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+      graphic: <span className="text-3xl">🧟☣️</span>,
+      bgGradient: "from-emerald-950/80 via-[#1a2c38] to-[#0f212e]",
     },
   ];
 
@@ -504,7 +1005,7 @@ export default function CasinoHomePage() {
 
   return (
     <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 space-y-6 select-none">
-      {/* 1. TOP PROMOTIONAL BANNER CAROUSEL */}
+      {/* 1. TOP PROMOTIONAL HERO BANNER CAROUSEL */}
       <CasinoPromoCarousel />
 
       {/* 2. AUTHENTIC BOLD SEARCH BAR */}
@@ -519,89 +1020,98 @@ export default function CasinoHomePage() {
         />
       </div>
 
-      {/* 3. HORIZONTAL CATEGORY NAVIGATION PILLS */}
+      {/* 3. HORIZONTAL CATEGORY NAVIGATION PILLS: [Casino Home | My Casino | Favorites] */}
       <CasinoCategoryPills
         activeCategory={activeCategory}
         onSelectCategory={setActiveCategory}
       />
 
-      {/* 4. LIVE STATUS & SEARCH SUB-HEADER */}
-      <LiveStatusAndSearch
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        showSearch={false}
-      />
-
-      {/* 5. STRUCTURED GAME ROWS & CAROUSELS */}
-      {/* Row 1: 🔥 Stake Originals > */}
+      {/* 4. STAKE ORIGINALS > */}
       <CasinoGameRow
-        title="🔥 Stake Originals"
+        title="Stake Originals"
         linkHref="/casino/group/stake-originals"
-        cards={row1Originals}
+        cards={stakeOriginals}
         onCardClick={handleCardClick}
+        sectionId="stake-originals"
       />
 
-      {/* Row 2: Slots > */}
+      {/* 5. SLOTS > */}
       <CasinoGameRow
         title="Slots"
         linkHref="/casino/group/slots"
-        cards={row2Slots}
+        cards={slotsGames}
         onCardClick={handleCardClick}
+        sectionId="slots"
       />
 
-      {/* Row 3: Publishers > */}
+      {/* 6. PUBLISHERS > (Stake, Pragmatic Play, Hacksaw Gaming...) */}
       <CasinoGameRow
         title="Publishers"
         linkHref="/casino/collection/providers"
-        cards={row3Publishers}
+        cards={publishers}
         onCardClick={handleCardClick}
+        sectionId="publishers"
       />
 
-      {/* Row 4: Featured Publishers > */}
+      {/* 7. LIVE CASINO > */}
+      <CasinoGameRow
+        title="Live Casino"
+        linkHref="/casino/group/live-casino"
+        cards={liveCasinoGames}
+        onCardClick={handleCardClick}
+        sectionId="live-casino"
+      />
+
+      {/* 8. GAME SHOWS > */}
+      <CasinoGameRow
+        title="Game Shows"
+        linkHref="/casino/group/game-shows"
+        cards={gameShowsGames}
+        onCardClick={handleCardClick}
+        sectionId="game-shows"
+      />
+
+      {/* 9. FEATURED PUBLISHERS > */}
       <CasinoGameRow
         title="Featured Publishers"
         linkHref="/casino/collection/providers"
-        cards={row4FeaturedPublishers}
+        cards={featuredPublishers}
         onCardClick={handleCardClick}
+        sectionId="featured-publishers"
       />
 
-      {/* Row 5: Only on Stake > with '2x VIP' badge */}
+      {/* 10. ONLY ON STAKE > with '2x VIP' cyan badge */}
       <CasinoGameRow
         title="Only on Stake"
         linkHref="/casino/group/stake-originals"
         rowBadge="2x VIP"
-        cards={row5OnlyOnStake}
+        cards={onlyOnStakeGames}
         onCardClick={handleCardClick}
+        sectionId="only-on-stake"
       />
 
-      {/* Row 6: Burst Games > */}
+      {/* 11. BURST GAMES > (Aviator, Mine Drop 2, JetX...) */}
       <CasinoGameRow
         title="Burst Games"
         linkHref="#burst-games"
-        cards={row6BurstGames}
+        cards={burstGames}
         onCardClick={handleCardClick}
+        sectionId="burst-games"
       />
 
-      {/* Row 7: Top Picks > */}
-      <CasinoGameRow
-        title="Top Picks"
-        linkHref="#top-picks"
-        cards={row7TopPicks}
-        onCardClick={handleCardClick}
-      />
-
-      {/* Row 8: New Releases > */}
+      {/* 12. NEW RELEASES > */}
       <CasinoGameRow
         title="New Releases"
         linkHref="#new-releases"
-        cards={row8NewReleases}
+        cards={newReleasesGames}
         onCardClick={handleCardClick}
+        sectionId="new-releases"
       />
 
-      {/* 5. CONTEXTUAL CASINO LIVE BETS TICKER */}
+      {/* 13. BETS FEED TICKER: Tabs for [ My Bets | All Bets | High Rollers ] + Live Table (Game | Payout) */}
       <CasinoLiveBets />
 
-      {/* 6. INTERACTIVE SLOT DEMO PLAYER MODAL */}
+      {/* INTERACTIVE SLOT DEMO PLAYER MODAL */}
       {activeSlotModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
           <div className="w-full max-w-xl rounded-2xl border border-[#213743] bg-[#1a2c38] shadow-2xl overflow-hidden space-y-4">
@@ -646,38 +1156,38 @@ export default function CasinoHomePage() {
               </div>
 
               {slotLastWin !== null && (
-                <div
-                  className={`text-sm font-bold uppercase tracking-wider ${
-                    slotLastWin > 0 ? "text-[#00e701]" : "text-[#b1bad3]"
-                  }`}
-                >
-                  {slotLastWin > 0
-                    ? `Won +$${slotLastWin.toFixed(2)} ${currency}!`
-                    : "No win this tumble. Spin again!"}
+                <div className="text-center font-mono animate-in zoom-in-95 duration-150">
+                  {slotLastWin > 0 ? (
+                    <span className="text-[#00e701] font-extrabold text-base sm:text-lg">
+                      WIN +₹{slotLastWin.toFixed(2)}!
+                    </span>
+                  ) : (
+                    <span className="text-[#b1bad3] text-sm">No win this spin</span>
+                  )}
                 </div>
               )}
-            </div>
 
-            <div className="p-4 flex items-center justify-between gap-4 border-t border-[#213743]">
-              <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] px-3 py-2 w-40">
-                <span className="text-sm font-bold text-[#00e701] mr-1">$</span>
-                <input
-                  type="number"
+              <div className="w-full flex items-center justify-between gap-3 pt-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-semibold text-[#b1bad3]">Bet:</span>
+                  <input
+                    type="number"
+                    min="1"
+                    max="1000"
+                    value={slotBet}
+                    onChange={(e) => setSlotBet(Math.max(1, Number(e.target.value)))}
+                    className="w-20 rounded-lg bg-[#14232f] border border-[#213743] px-2 py-1 text-sm font-bold text-white text-center focus:border-[#00e701] outline-none"
+                  />
+                </div>
+
+                <button
+                  onClick={() => spinSlotDemo(activeSlotModal)}
                   disabled={isSpinningSlot}
-                  value={slotBet}
-                  onChange={(e) => setSlotBet(Math.max(1, parseFloat(e.target.value) || 0))}
-                  className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono"
-                />
+                  className="rounded-xl bg-[#00e701] hover:bg-[#00c701] disabled:opacity-50 text-[#0f212e] font-black text-sm px-6 py-2.5 shadow-lg shadow-[#00e701]/25 transition-transform active:scale-95 cursor-pointer"
+                >
+                  {isSpinningSlot ? "Spinning..." : "SPIN"}
+                </button>
               </div>
-
-              <button
-                onClick={() => spinSlotDemo(activeSlotModal)}
-                disabled={isSpinningSlot || slotBet > balance || slotBet <= 0}
-                className="flex-1 rounded-xl bg-[#00e701] py-3 text-sm font-extrabold text-[#0f212e] shadow-lg shadow-[#00e701]/30 hover:bg-[#00c701] active:scale-95 disabled:opacity-50 transition-all flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Sparkles className={`h-4 w-4 ${isSpinningSlot ? "animate-spin" : ""}`} />
-                <span>{isSpinningSlot ? "Tumbling..." : "Spin Demo"}</span>
-              </button>
             </div>
           </div>
         </div>

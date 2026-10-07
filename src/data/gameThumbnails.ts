@@ -118,6 +118,27 @@ export const GAME_THUMBNAILS: Record<string, string> = {
   "fan-tan": "https://mediumrare.imgix.net/9e3cfc61aac9d12bf2583c902f980b47f7e185ce4de9f3ce68f41e7f89793dec?w=180&h=236&fit=min&auto=format",
   "lightning-baccarat": "https://mediumrare.imgix.net/ff0a14692fa8c96201ee4a73e4ba56f92078ddae91133b86cf166bfa9555a483?w=180&h=236&fit=min&auto=format",
   "caribbean-stud": "https://mediumrare.imgix.net/7ceb40f042851f55b9aebef86bf770c64467fc24852b3ab0f1187b1d4dbffc37?w=180&h=236&fit=min&auto=format",
+
+  // ==========================================
+  // BURST & CRASH GAMES
+  // ==========================================
+  aviator: "https://mediumrare.imgix.net/c2297ea432657e4e138a2e584fdf50aa738bca87bdf55f30e6ad65c5c1630b91?w=180&h=236&fit=min&auto=format",
+  "mine-drop-2": "https://mediumrare.imgix.net/3b470acf1e794ecb437a535c35a20f12e8f7caf1a1153b6601dab4a2d34607e4?w=180&h=236&fit=min&auto=format",
+  jetx: "https://mediumrare.imgix.net/fbf4038ed2862c3503a5d39263d1321e8d9361d730eacfbb2403fd1e5894525c?w=180&h=236&fit=min&auto=format",
+  spaceman: "https://mediumrare.imgix.net/fbf4038ed2862c3503a5d39263d1321e8d9361d730eacfbb2403fd1e5894525c?w=180&h=236&fit=min&auto=format",
+  "high-flyer": "https://mediumrare.imgix.net/c2297ea432657e4e138a2e584fdf50aa738bca87bdf55f30e6ad65c5c1630b91?w=180&h=236&fit=min&auto=format",
+  balloon: "https://mediumrare.imgix.net/8c1768b783a43931a4ebc8784ce64085e39139d262e6bb50da242b9f3fda70da?w=180&h=236&fit=min&auto=format",
+  "comet-crash": "https://mediumrare.imgix.net/fbf4038ed2862c3503a5d39263d1321e8d9361d730eacfbb2403fd1e5894525c?w=180&h=236&fit=min&auto=format",
+  "rocket-dice": "https://mediumrare.imgix.net/edfa399c2e46da7e0593a0e543ba66b129e306bdc6c77a8632c320fec8a04bed?w=180&h=236&fit=min&auto=format",
+
+  // ==========================================
+  // TOP PICKS & NEW RELEASES
+  // ==========================================
+  "hot-chili-chica": "https://mediumrare.imgix.net/9ff267150fab30e5f0cff7f09456fa2e5e966015c7fe65969104f4c4c442a746?w=180&h=236&fit=min&auto=format",
+  "moles-gone-wild": "https://mediumrare.imgix.net/5e6f7bb02df67a02a9182aab05d0976a9abbac7f45997975eed765332a8b7d73?w=180&h=236&fit=min&auto=format",
+  "blind-viking": "https://mediumrare.imgix.net/40f3f2cfeadebaa5169a9636218f289a34209bd6e91d44de733ecdf69b4b93fe?w=180&h=236&fit=min&auto=format",
+  rotten: "https://mediumrare.imgix.net/68de73960353c4369158541fe0555128f13e4afb769ccc421a0472a04dba784f?w=180&h=236&fit=min&auto=format",
+  "super-scatter-olympus": "https://mediumrare.imgix.net/73318f9e220e1637c4b11338d10f377cd997d0232636f5f5a1940167ad0451cd?w=180&h=236&fit=min&auto=format",
 };
 
 /**

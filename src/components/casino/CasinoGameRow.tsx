@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { Play, ArrowRight } from "lucide-react";
+import { Play } from "lucide-react";
 
 import StakeGameArtwork from "@/components/casino/StakeGameArtwork";
 import { getGameThumbnail } from "@/data/gameThumbnails";
@@ -27,6 +27,9 @@ interface CasinoGameRowProps {
   rowBadge?: string;
   cards: CasinoCardData[];
   onCardClick?: (card: CasinoCardData) => void;
+  sectionId?: string;
+  isExpanded?: boolean;
+  onToggleExpand?: (sectionId?: string) => void;
 }
 
 export default function CasinoGameRow({
@@ -35,8 +38,23 @@ export default function CasinoGameRow({
   rowBadge,
   cards,
   onCardClick,
+  sectionId,
+  isExpanded: controlledExpanded,
+  onToggleExpand,
 }: CasinoGameRowProps) {
-  const displayedCards = cards.slice(0, 15);
+  const [localExpanded, setLocalExpanded] = useState<boolean>(false);
+  const isExpanded = controlledExpanded !== undefined ? controlledExpanded : localExpanded;
+
+  const toggleLoadMore = () => {
+    if (onToggleExpand) {
+      onToggleExpand(sectionId);
+    } else {
+      setLocalExpanded(!localExpanded);
+    }
+  };
+
+  // 3 items by default, expands to 9 items (revealing 2 extra rows)
+  const displayedCards = isExpanded ? cards.slice(0, 9) : cards.slice(0, 3);
 
   return (
     <section className="space-y-3.5 my-7">
@@ -57,8 +75,8 @@ export default function CasinoGameRow({
         </Link>
       </div>
 
-      {/* 3-Card Responsive Horizontal Scroll Carousel */}
-      <div className="flex gap-2.5 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory py-1 px-1">
+      {/* Exact 3-Item Layout Grid */}
+      <div className="grid grid-cols-3 gap-2.5 sm:gap-3.5 w-full">
         {displayedCards.map((card) => {
           const thumb = getGameThumbnail(card.id, card.image);
 
@@ -94,10 +112,7 @@ export default function CasinoGameRow({
             );
 
             return (
-              <div
-                key={card.id}
-                className="w-[calc(33.333%-7px)] min-w-[110px] sm:min-w-[150px] md:w-[150px] lg:w-[165px] flex-shrink-0 snap-start"
-              >
+              <div key={card.id} className="w-full">
                 {card.href ? (
                   <Link href={card.href} className="block">
                     {pubContent}
@@ -109,7 +124,7 @@ export default function CasinoGameRow({
             );
           }
 
-          // Full-Bleed Game Card
+          // Full-Bleed Game Card with crisp uppercase title, subtitle/provider, and pulsing counter
           const content = (
             <div
               onClick={() => onCardClick && onCardClick(card)}
@@ -121,7 +136,7 @@ export default function CasinoGameRow({
                   <img
                     src={thumb}
                     alt={card.title}
-                    className="w-full h-full object-cover rounded-xl"
+                    className="w-full h-full object-cover object-center rounded-xl"
                     loading="lazy"
                     onError={(e) => {
                       (e.currentTarget as HTMLElement).style.display = "none";
@@ -141,12 +156,15 @@ export default function CasinoGameRow({
                 </div>
               </div>
 
-              {/* Under-Card Title & Player Count */}
+              {/* Under-Card Title, Subtitle / Provider & Pulsing Live Player Count */}
               <div className="flex flex-col mt-1.5 px-0.5">
-                <span className="font-black uppercase tracking-wider text-sm sm:text-base text-white truncate">
+                <span className="font-black uppercase tracking-wider text-xs sm:text-sm text-white truncate">
                   {card.title}
                 </span>
-                <div className="flex items-center gap-1 sm:gap-1.5 mt-0.5 text-xs sm:text-sm font-semibold text-[#b1bad3] truncate">
+                <span className="text-[9px] sm:text-[10px] uppercase font-bold text-white/70 truncate">
+                  {card.provider || "Stake Originals"}
+                </span>
+                <div className="flex items-center gap-1 sm:gap-1.5 mt-0.5 text-[10px] sm:text-xs font-semibold text-[#b1bad3] truncate">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] animate-pulse shrink-0" />
                   <span className="truncate">{(card.playersCount || 1250).toLocaleString("en-US")} playing</span>
                 </div>
@@ -155,10 +173,7 @@ export default function CasinoGameRow({
           );
 
           return (
-            <div
-              key={card.id}
-              className="w-[calc(33.333%-7px)] min-w-[110px] sm:min-w-[150px] md:w-[150px] lg:w-[165px] flex-shrink-0 snap-start"
-            >
+            <div key={card.id} className="w-full">
               {card.href ? (
                 <Link href={card.href} className="block">
                   {content}
@@ -169,18 +184,22 @@ export default function CasinoGameRow({
             </div>
           );
         })}
-
-        {/* Authentic "View All" End Card */}
-        <Link
-          href={linkHref}
-          className="w-[calc(33.333%-7px)] min-w-[110px] sm:min-w-[140px] md:w-[150px] lg:w-[165px] aspect-[3/4] rounded-xl bg-[#213743]/50 border border-[#2f4553] hover:border-[#213743] flex flex-col items-center justify-center gap-2 cursor-pointer transition-transform active:scale-95 text-[#b1bad3] hover:text-white flex-shrink-0 snap-start group"
-        >
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1a2c38] group-hover:bg-[#00e701] text-[#b1bad3] group-hover:text-[#0f212e] transition-colors shadow-md">
-            <ArrowRight className="h-5 w-5" />
-          </div>
-          <span className="text-xs sm:text-sm font-bold text-center px-1">View All {title}</span>
-        </Link>
       </div>
+
+      {/* Underneath each 3-game row: Centered Stake 'Load More' Divider Trigger */}
+      {cards.length > 3 && (
+        <div className="relative flex items-center justify-center my-3 w-full">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-[#213743]" />
+          </div>
+          <button
+            onClick={toggleLoadMore}
+            className="relative z-10 px-4 text-xs sm:text-sm font-bold text-[#b1bad3] hover:text-white transition-colors bg-[#0f212e] cursor-pointer"
+          >
+            {isExpanded ? "Show Less" : "Load More"}
+          </button>
+        </div>
+      )}
     </section>
   );
 }
