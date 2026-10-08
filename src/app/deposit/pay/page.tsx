@@ -134,7 +134,7 @@ function DepositPayContent() {
     setTimeout(() => {
       // 1. Credit wallet balance (amount in USD equivalent, rate 86.5 INR/USD)
       const creditedUsd = amountNumber / 86.5;
-      updateBalance(creditedUsd);
+      updateBalance(creditedUsd, true);
 
       // 2. Add notification to drawer & localStorage
       try {

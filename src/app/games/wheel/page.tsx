@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, CircleDot, ShieldCheck } from "lucide-react";
 import { useGame } from "@/context/GameContext";
@@ -8,11 +8,17 @@ import { sounds } from "@/utils/audio";
 import confetti from "canvas-confetti";
 
 export default function WheelPage() {
-  const { balance, updateBalance, currency, formatBalance } = useGame();
+  const { balance, updateBalance, currency, currencySymbol, formatBalance } = useGame();
+  const activeSym = currencySymbol || "$";
   const [betAmount, setBetAmount] = useState<number>(10);
+  const [betInput, setBetInput] = useState<string>("10");
   const [isSpinning, setIsSpinning] = useState<boolean>(false);
   const [rotation, setRotation] = useState<number>(0);
   const [resultMultiplier, setResultMultiplier] = useState<number | null>(null);
+
+  useEffect(() => {
+    setBetInput(betAmount.toString());
+  }, [betAmount]);
 
   const segments = [
     { mult: 0.0, color: "#1e293b" },
@@ -29,13 +35,15 @@ export default function WheelPage() {
 
   const spinWheel = () => {
     if (isSpinning) return;
-    if (betAmount > balance) {
+    const effectiveBet = betInput === "" ? betAmount : (parseFloat(betInput) || betAmount);
+    if (effectiveBet > balance) {
       alert("Insufficient demo balance! Please use the Wallet button.");
       return;
     }
-    if (betAmount <= 0) return;
+    if (effectiveBet <= 0) return;
 
-    updateBalance(-betAmount);
+    setBetAmount(effectiveBet);
+    updateBalance(-effectiveBet);
     setIsSpinning(true);
     setResultMultiplier(null);
     sounds.playDiceRoll();
@@ -104,15 +112,35 @@ export default function WheelPage() {
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs font-bold text-[#b1bad3]">
                 <span>Bet Amount</span>
-                <span className="text-[#00e701] font-mono">${formatBalance(balance)} {currency}</span>
+                <span className="text-[#00e701] font-mono">{activeSym}{formatBalance(balance)} {currency}</span>
               </div>
               <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] p-1 focus-within:border-[#00e701] transition-colors">
-                <span className="px-2 text-sm font-bold text-[#00e701]">$</span>
+                <span className="px-2 text-sm font-bold text-[#00e701]">{activeSym}</span>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="decimal"
                   disabled={isSpinning}
-                  value={betAmount}
-                  onChange={(e) => setBetAmount(Math.max(1, parseFloat(e.target.value) || 0))}
+                  value={betInput}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                      setBetInput(val);
+                      if (val !== "") {
+                        const num = parseFloat(val);
+                        if (!isNaN(num)) setBetAmount(num);
+                      }
+                    }
+                  }}
+                  onBlur={() => {
+                    if (betInput === "" || parseFloat(betInput) <= 0 || isNaN(parseFloat(betInput))) {
+                      setBetAmount(1);
+                      setBetInput("1");
+                    } else {
+                      const num = parseFloat(betInput);
+                      setBetAmount(num);
+                      setBetInput(num.toString());
+                    }
+                  }}
                   className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono"
                 />
               </div>

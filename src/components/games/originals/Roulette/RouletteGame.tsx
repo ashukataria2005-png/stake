@@ -8,8 +8,16 @@ import { sounds } from "@/utils/audio";
 import confetti from "canvas-confetti";
 
 export default function RouletteGame() {
-  const { balance, updateBalance, currency, formatBalance } = useGame();
+  const { balance, updateBalance, currency, formatBalance, currencySymbol } = useGame();
+  const activeSym = currencySymbol || "$";
   const [betAmount, setBetAmount] = useState<number>(10);
+  const [betInput, setBetInput] = useState<string>("10");
+
+  React.useEffect(() => {
+    if (betInput !== "" && parseFloat(betInput) === betAmount) return;
+    setBetInput(betAmount.toString());
+  }, [betAmount]);
+
   const [selectedBet, setSelectedBet] = useState<"red" | "black" | "even" | "odd" | "green">("red");
   const [lastNumber, setLastNumber] = useState<number | null>(null);
   const [isSpinning, setIsSpinning] = useState<boolean>(false);
@@ -19,13 +27,23 @@ export default function RouletteGame() {
 
   const spinRoulette = () => {
     if (isSpinning) return;
-    if (betAmount > balance) {
-      alert("Insufficient demo balance! Please use the Wallet button.");
+    const effectiveBet =
+      betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0
+        ? 1
+        : parseFloat(betInput);
+
+    if (betInput === "" || isNaN(parseFloat(betInput))) {
+      setBetInput(effectiveBet.toString());
+      setBetAmount(effectiveBet);
+    }
+
+    if (effectiveBet > balance) {
+      alert("Insufficient balance! Please use the Wallet button.");
       return;
     }
-    if (betAmount <= 0) return;
+    if (effectiveBet <= 0) return;
 
-    updateBalance(-betAmount);
+    updateBalance(-effectiveBet);
     setIsSpinning(true);
     setHasWon(null);
     sounds.playDiceRoll();
@@ -112,15 +130,34 @@ export default function RouletteGame() {
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs font-bold text-[#b1bad3]">
                 <span>Bet Amount</span>
-                <span className="text-[#00e701] font-mono">${formatBalance(balance)} {currency}</span>
+                <span className="text-[#00e701] font-mono">{activeSym}{formatBalance(balance)}</span>
               </div>
               <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] p-1 focus-within:border-[#00e701] transition-colors">
-                <span className="px-2 text-sm font-bold text-[#00e701]">$</span>
+                <span className="px-2 text-sm font-bold text-[#00e701]">{activeSym}</span>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="decimal"
                   disabled={isSpinning}
-                  value={betAmount}
-                  onChange={(e) => setBetAmount(Math.max(1, parseFloat(e.target.value) || 0))}
+                  value={betInput}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                      setBetInput(val);
+                      if (val !== "" && !isNaN(parseFloat(val))) {
+                        setBetAmount(parseFloat(val));
+                      }
+                    }
+                  }}
+                  onBlur={() => {
+                    if (betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0) {
+                      setBetInput("1");
+                      setBetAmount(1);
+                    } else {
+                      const num = parseFloat(betInput);
+                      setBetInput(num.toString());
+                      setBetAmount(num);
+                    }
+                  }}
                   className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono"
                 />
               </div>

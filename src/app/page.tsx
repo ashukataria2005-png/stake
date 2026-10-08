@@ -51,7 +51,8 @@ interface SlotModalGame {
 }
 
 export default function HomePage() {
-  const { balance, realBalance, hasVerifiedDeposit, updateBalance, currency, addRecentlyPlayedGame } = useGame();
+  const { balance, realBalance, hasVerifiedDeposit, updateBalance, currency, currencySymbol, addRecentlyPlayedGame } = useGame();
+  const activeSym = currencySymbol || "$";
 
   // Search state
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -64,6 +65,7 @@ export default function HomePage() {
   // Slot Demo Player Modal state
   const [activeSlotModal, setActiveSlotModal] = useState<SlotModalGame | null>(null);
   const [slotBet, setSlotBet] = useState<number>(10);
+  const [slotBetInput, setSlotBetInput] = useState<string>("10");
   const [slotReels, setSlotReels] = useState<string[][]>([
     ["⚡", "👑", "💎", "⭐", "🏺"],
     ["💎", "⚡", "👑", "🏺", "⭐"],
@@ -89,13 +91,15 @@ export default function HomePage() {
   // Slot Demo Spin Handler
   const spinSlotDemo = (game: SlotModalGame) => {
     if (isSpinningSlot) return;
-    if (slotBet > balance) {
+    const effectiveBet = slotBetInput === "" ? slotBet : (parseFloat(slotBetInput) || slotBet);
+    if (effectiveBet > balance) {
       alert("Insufficient demo balance! Please top up via the Wallet button.");
       return;
     }
-    if (slotBet <= 0) return;
+    if (effectiveBet <= 0) return;
 
-    updateBalance(-slotBet);
+    setSlotBet(effectiveBet);
+    updateBalance(-effectiveBet);
     setIsSpinningSlot(true);
     setSlotLastWin(null);
     sounds.playDiceRoll();
@@ -267,15 +271,6 @@ export default function HomePage() {
               <span>Stake Originals</span>
               <ChevronRight className="h-4 w-4 text-[#b1bad3] group-hover:translate-x-1 transition-transform" />
             </h2>
-            <span className="rounded-full bg-[#213743] px-2 py-0.5 text-[11px] font-bold text-[#00e701]">
-              31 Games
-            </span>
-          </Link>
-          <Link
-            href="/casino/group/stake-originals"
-            className="text-xs font-bold text-[#00e701] hover:underline"
-          >
-            View All 31 &gt;
           </Link>
         </div>
 
@@ -366,15 +361,6 @@ export default function HomePage() {
               <span>Live Casino</span>
               <ChevronRight className="h-4 w-4 text-[#b1bad3] group-hover:translate-x-1 transition-transform" />
             </h2>
-            <span className="rounded-full bg-[#213743] px-2 py-0.5 text-[11px] font-bold text-red-400">
-              Live Dealers
-            </span>
-          </Link>
-          <Link
-            href="/casino/group/live-casino"
-            className="text-xs font-bold text-red-400 hover:underline"
-          >
-            View All Live &gt;
           </Link>
         </div>
 
@@ -474,15 +460,6 @@ export default function HomePage() {
               <span>Ezugi</span>
               <ChevronRight className="h-4 w-4 text-[#b1bad3] group-hover:translate-x-1 transition-transform" />
             </h2>
-            <span className="rounded-full bg-[#213743] px-2 py-0.5 text-[11px] font-bold text-blue-400">
-              {EZUGI_GAMES.length} Games
-            </span>
-          </Link>
-          <Link
-            href="/casino/group/ezugi"
-            className="text-xs font-bold text-blue-400 hover:underline"
-          >
-            View All Ezugi &gt;
           </Link>
         </div>
 
@@ -589,15 +566,6 @@ export default function HomePage() {
               <span>Slots</span>
               <ChevronRight className="h-4 w-4 text-[#b1bad3] group-hover:translate-x-1 transition-transform" />
             </h2>
-            <span className="rounded-full bg-[#213743] px-2 py-0.5 text-[11px] font-bold text-amber-400">
-              {POPULAR_SLOTS.length} Games
-            </span>
-          </Link>
-          <Link
-            href="/casino/group/slots"
-            className="text-xs font-bold text-amber-400 hover:underline"
-          >
-            View All Slots &gt;
           </Link>
         </div>
 
@@ -695,15 +663,6 @@ export default function HomePage() {
               <span>Evolution</span>
               <ChevronRight className="h-4 w-4 text-[#b1bad3] group-hover:translate-x-1 transition-transform" />
             </h2>
-            <span className="rounded-full bg-[#213743] px-2 py-0.5 text-[11px] font-bold text-red-400">
-              {EVOLUTION_GAMES.length} Games
-            </span>
-          </Link>
-          <Link
-            href="/casino/group/evolution"
-            className="text-xs font-bold text-red-400 hover:underline"
-          >
-            View All Evolution &gt;
           </Link>
         </div>
 
@@ -797,15 +756,6 @@ export default function HomePage() {
               <span>Game Shows</span>
               <ChevronRight className="h-4 w-4 text-[#b1bad3] group-hover:translate-x-1 transition-transform" />
             </h2>
-            <span className="rounded-full bg-[#213743] px-2 py-0.5 text-[11px] font-bold text-purple-400">
-              {GAME_SHOWS_GAMES.length} Games
-            </span>
-          </Link>
-          <Link
-            href="/casino/group/game-shows"
-            className="text-xs font-bold text-purple-400 hover:underline"
-          >
-            View All Shows &gt;
           </Link>
         </div>
 
@@ -903,15 +853,6 @@ export default function HomePage() {
               <span>INOUT Games</span>
               <ChevronRight className="h-4 w-4 text-[#b1bad3] group-hover:translate-x-1 transition-transform" />
             </h2>
-            <span className="rounded-full bg-[#213743] px-2 py-0.5 text-[11px] font-bold text-[#00e701]">
-              {INOUT_GAMES.length} Games
-            </span>
-          </Link>
-          <Link
-            href="/casino/group/inout"
-            className="text-xs font-bold text-[#00e701] hover:underline"
-          >
-            View All INOUT &gt;
           </Link>
         </div>
 
@@ -1010,15 +951,6 @@ export default function HomePage() {
               <span>Hacksaw Gaming</span>
               <ChevronRight className="h-4 w-4 text-[#b1bad3] group-hover:translate-x-1 transition-transform" />
             </h2>
-            <span className="rounded-full bg-[#213743] px-2 py-0.5 text-[11px] font-bold text-blue-400">
-              {HACKSAW_GAMES.length} Games
-            </span>
-          </Link>
-          <Link
-            href="/casino/group/hacksaw-gaming"
-            className="text-xs font-bold text-blue-400 hover:underline"
-          >
-            View All Hacksaw &gt;
           </Link>
         </div>
 
@@ -1116,15 +1048,6 @@ export default function HomePage() {
               <span>Spribe</span>
               <ChevronRight className="h-4 w-4 text-[#b1bad3] group-hover:translate-x-1 transition-transform" />
             </h2>
-            <span className="rounded-full bg-[#213743] px-2 py-0.5 text-[11px] font-bold text-red-400">
-              {SPRIBE_GAMES.length} Games
-            </span>
-          </Link>
-          <Link
-            href="/casino/group/spribe"
-            className="text-xs font-bold text-red-400 hover:underline"
-          >
-            View All Spribe &gt;
           </Link>
         </div>
 
@@ -1227,15 +1150,6 @@ export default function HomePage() {
               <span>Jili Games</span>
               <ChevronRight className="h-4 w-4 text-[#b1bad3] group-hover:translate-x-1 transition-transform" />
             </h2>
-            <span className="rounded-full bg-[#213743] px-2 py-0.5 text-[11px] font-bold text-yellow-400">
-              {JILI_GAMES.length} Games
-            </span>
-          </Link>
-          <Link
-            href="/casino/group/jili"
-            className="text-xs font-bold text-yellow-400 hover:underline"
-          >
-            View All Jili Games &gt;
           </Link>
         </div>
 
@@ -1338,15 +1252,6 @@ export default function HomePage() {
               <span>100 HP Gaming</span>
               <ChevronRight className="h-4 w-4 text-[#b1bad3] group-hover:translate-x-1 transition-transform" />
             </h2>
-            <span className="rounded-full bg-[#213743] px-2 py-0.5 text-[11px] font-bold text-orange-400">
-              {HP100_GAMES.length} Games
-            </span>
-          </Link>
-          <Link
-            href="/casino/group/100hp"
-            className="text-xs font-bold text-orange-400 hover:underline"
-          >
-            View All 100 HP Gaming &gt;
           </Link>
         </div>
 
@@ -1539,7 +1444,7 @@ export default function HomePage() {
                   }`}
                 >
                   {slotLastWin > 0
-                    ? `Won +$${slotLastWin.toFixed(2)} ${currency}!`
+                    ? `Won +${activeSym}${slotLastWin.toFixed(2)} ${currency}!`
                     : "No win this tumble. Spin again!"}
                 </div>
               )}
@@ -1548,12 +1453,32 @@ export default function HomePage() {
             {/* Modal Controls */}
             <div className="p-4 flex items-center justify-between gap-4 border-t border-[#213743]">
               <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] px-3 py-2 w-40">
-                <span className="text-sm font-bold text-[#00e701] mr-1">$</span>
+                <span className="text-sm font-bold text-[#00e701] mr-1">{activeSym}</span>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="decimal"
                   disabled={isSpinningSlot}
-                  value={slotBet}
-                  onChange={(e) => setSlotBet(Math.max(1, parseFloat(e.target.value) || 0))}
+                  value={slotBetInput}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                      setSlotBetInput(val);
+                      if (val !== "") {
+                        const num = parseFloat(val);
+                        if (!isNaN(num)) setSlotBet(num);
+                      }
+                    }
+                  }}
+                  onBlur={() => {
+                    if (slotBetInput === "" || parseFloat(slotBetInput) <= 0 || isNaN(parseFloat(slotBetInput))) {
+                      setSlotBet(10);
+                      setSlotBetInput("10");
+                    } else {
+                      const num = parseFloat(slotBetInput);
+                      setSlotBet(num);
+                      setSlotBetInput(num.toString());
+                    }
+                  }}
                   className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono"
                 />
               </div>

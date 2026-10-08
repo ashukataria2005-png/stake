@@ -79,10 +79,18 @@ interface FloatingPayout {
 }
 
 export default function PlinkoGame() {
-  const { balance, updateBalance, currency, formatBalance } = useGame();
+  const { balance, updateBalance, currency, formatBalance, currencySymbol } = useGame();
+  const activeSym = currencySymbol || "$";
 
   // Settings
   const [betAmount, setBetAmount] = useState<number>(10);
+  const [betInput, setBetInput] = useState<string>("10");
+
+  useEffect(() => {
+    if (betInput !== "" && parseFloat(betInput) === betAmount) return;
+    setBetInput(betAmount.toString());
+  }, [betAmount]);
+
   const [risk, setRisk] = useState<"low" | "medium" | "high">("medium");
   const [rows, setRows] = useState<number>(16);
   const [autoBetting, setAutoBetting] = useState<boolean>(false);
@@ -135,33 +143,47 @@ export default function PlinkoGame() {
   // Math buttons
   const handleHalfBet = () => {
     sounds.playClick();
-    setBetAmount((prev) => Math.max(1, parseFloat((prev / 2).toFixed(2))));
+    const next = Math.max(0.01, parseFloat((betAmount / 2).toFixed(2)));
+    setBetAmount(next);
+    setBetInput(next.toString());
   };
 
   const handleDoubleBet = () => {
     sounds.playClick();
-    setBetAmount((prev) => {
-      const next = parseFloat((prev * 2).toFixed(2));
-      return Math.min(next, Math.max(1, parseFloat(balance.toFixed(2))));
-    });
+    const next = parseFloat((betAmount * 2).toFixed(2));
+    const capped = Math.min(next, Math.max(1, parseFloat(balance.toFixed(2))));
+    setBetAmount(capped);
+    setBetInput(capped.toString());
   };
 
   const handleMaxBet = () => {
     sounds.playClick();
-    setBetAmount(Math.max(1, parseFloat(balance.toFixed(2))));
+    const next = Math.max(1, parseFloat(balance.toFixed(2)));
+    setBetAmount(next);
+    setBetInput(next.toString());
   };
 
   // Drop a single Plinko Ball
   const dropBall = useCallback(() => {
-    if (betAmount > balance) {
-      alert("Insufficient demo balance! Please use the Wallet button to top up.");
+    const effectiveBet =
+      betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0
+        ? 1
+        : parseFloat(betInput);
+
+    if (betInput === "" || isNaN(parseFloat(betInput))) {
+      setBetInput(effectiveBet.toString());
+      setBetAmount(effectiveBet);
+    }
+
+    if (effectiveBet > balance) {
+      alert("Insufficient balance! Please use the Wallet button to top up.");
       setAutoBetting(false);
       return;
     }
-    if (betAmount <= 0) return;
+    if (effectiveBet <= 0) return;
 
     // Deduct bet amount from demo balance immediately
-    updateBalance(-betAmount);
+    updateBalance(-effectiveBet);
     setNonce((n) => n + 1);
 
     const canvas = canvasRef.current;
@@ -179,11 +201,11 @@ export default function PlinkoGame() {
       vx: (Math.random() - 0.5) * 1.5,
       vy: Math.random() * 0.5,
       radius: 5.5,
-      betAmount: betAmount,
+      betAmount: effectiveBet,
       color: chosenColor,
       hasLanded: false,
     });
-  }, [balance, betAmount, updateBalance]);
+  }, [balance, betAmount, betInput, updateBalance]);
 
   // Autobet interval loop
   useEffect(() => {
@@ -603,19 +625,34 @@ export default function PlinkoGame() {
               <div className="flex items-center justify-between text-xs font-bold text-[#b1bad3]">
                 <span>Bet Amount</span>
                 <span className="font-mono text-[#00e701]">
-                  ${formatBalance(balance)} {currency}
+                  {activeSym}{formatBalance(balance)}
                 </span>
               </div>
               <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] p-1 focus-within:border-[#00e701] transition-colors">
-                <span className="px-2 text-sm font-bold text-[#00e701]">$</span>
+                <span className="px-2 text-sm font-bold text-[#00e701]">{activeSym}</span>
                 <input
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  value={betAmount}
-                  onChange={(e) =>
-                    setBetAmount(Math.max(0, parseFloat(e.target.value) || 0))
-                  }
+                  type="text"
+                  inputMode="decimal"
+                  value={betInput}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                      setBetInput(val);
+                      if (val !== "" && !isNaN(parseFloat(val))) {
+                        setBetAmount(parseFloat(val));
+                      }
+                    }
+                  }}
+                  onBlur={() => {
+                    if (betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0) {
+                      setBetInput("1");
+                      setBetAmount(1);
+                    } else {
+                      const num = parseFloat(betInput);
+                      setBetInput(num.toString());
+                      setBetAmount(num);
+                    }
+                  }}
                   className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono"
                 />
                 <button

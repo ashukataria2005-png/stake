@@ -60,7 +60,12 @@ interface GameContextType {
   setHideZeroBalances: (hide: boolean) => void;
   setDisplayCryptoInFiat: (display: boolean) => void;
   setSelectedFiat: (fiat: string) => void;
-  updateBalance: (amountUsd: number) => boolean;
+  activeCurrencyCode: string;
+  activeCurrencySymbol: string;
+  currencySymbol: string;
+  activeCurrencyRate: number;
+  isFiatMode: boolean;
+  updateBalance: (amount: number, inUsd?: boolean) => boolean;
   resetBalance: () => void;
   formatBalance: (val?: number) => string;
   formatDisplayBalance: (valUsd?: number) => DisplayBalanceInfo;
@@ -321,11 +326,45 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     setFunBalance(DEFAULT_FUN_BALANCE);
   };
 
-  const updateBalance = (amountUsd: number): boolean => {
-    // Strictly mutate authentic unified real wallet balance & persist to localStorage
+  // Active currency resolution
+  const isFiatMode = displayCryptoInFiat;
+  const activeCurrencyCode = displayCryptoInFiat ? selectedFiat : currency;
+  const currentFiatObj = ALL_FIAT_CURRENCIES.find((f) => f.code === selectedFiat);
+  const currentCryptoObj = CRYPTO_CURRENCIES.find((c) => c.id === currency);
+
+  const activeCurrencySymbol = displayCryptoInFiat
+    ? (currentFiatObj?.symbol || "₹")
+    : (currentCryptoObj?.symbol || "$");
+
+  const activeCurrencyRate = displayCryptoInFiat
+    ? (currentFiatObj?.ratePerUsd || 86.5)
+    : (currentCryptoObj?.rateUsd || 1.0);
+
+  // Active user balance in units of the currently active currency
+  const activeBalance = displayCryptoInFiat
+    ? parseFloat((realBalance * activeCurrencyRate).toFixed(2))
+    : (currency === "USDT"
+        ? parseFloat(realBalance.toFixed(2))
+        : (cryptoBalances[currency] !== undefined
+            ? cryptoBalances[currency]
+            : parseFloat((realBalance / activeCurrencyRate).toFixed(6))));
+
+  const updateBalance = (amount: number, inUsd: boolean = false): boolean => {
     let success = false;
+    let amountUsd = amount;
+
+    if (!inUsd) {
+      if (displayCryptoInFiat) {
+        // Amount is in active fiat units (e.g. INR ₹10). Convert to USD for underlying wallet storage.
+        amountUsd = amount / activeCurrencyRate;
+      } else {
+        // Amount is in crypto units
+        amountUsd = currency === "USDT" ? amount : (amount * activeCurrencyRate);
+      }
+    }
+
     setRealBalance((prev) => {
-      const next = Math.max(0, parseFloat((prev + amountUsd).toFixed(2)));
+      const next = Math.max(0, parseFloat((prev + amountUsd).toFixed(4)));
       try {
         localStorage.setItem(BALANCE_STORAGE_KEY, next.toString());
       } catch {
@@ -383,20 +422,17 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     setIsChatOpen(open);
   };
 
-  // Active balance is strictly authentic unified realBalance
-  const activeBalance = realBalance;
-
   const formatBalance = (val?: number): string => {
     const target = val !== undefined ? val : activeBalance;
     return target.toLocaleString("en-US", {
       minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+      maximumFractionDigits: displayCryptoInFiat ? 2 : (currentCryptoObj?.decimals || 2),
     });
   };
 
   // Formats display balance based on user fiat settings or crypto
   const formatDisplayBalance = (valUsd?: number): DisplayBalanceInfo => {
-    const usdAmount = valUsd !== undefined ? valUsd : activeBalance;
+    const usdAmount = valUsd !== undefined ? valUsd : realBalance;
 
     if (displayCryptoInFiat) {
       const fiatObj = ALL_FIAT_CURRENCIES.find((f) => f.code === selectedFiat);
@@ -449,6 +485,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         hideZeroBalances,
         displayCryptoInFiat,
         selectedFiat,
+        activeCurrencyCode,
+        activeCurrencySymbol,
+        currencySymbol: activeCurrencySymbol,
+        activeCurrencyRate,
+        isFiatMode,
         isSidebarOpen,
         isChatOpen,
         isMounted,

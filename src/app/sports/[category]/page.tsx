@@ -27,10 +27,12 @@ interface MatchEvent {
 export default function SportCategoryPage() {
   const params = useParams();
   const categorySlug = (params?.category as string) || "soccer";
-  const { balance, updateBalance, currency } = useGame();
+  const { balance, updateBalance, currency, currencySymbol } = useGame();
+  const activeSym = currencySymbol || "$";
 
   const [selectedBet, setSelectedBet] = useState<{ matchId: string; pick: string; odd: number } | null>(null);
   const [betAmount, setBetAmount] = useState<number>(10);
+  const [betInput, setBetInput] = useState<string>("10");
   const [betSuccessMsg, setBetSuccessMsg] = useState<string | null>(null);
 
   const sport: SportItem =
@@ -81,13 +83,16 @@ export default function SportCategoryPage() {
 
   const handlePlaceBet = () => {
     if (!selectedBet) return;
-    if (betAmount > balance) {
+    const effectiveBet = betInput === "" ? betAmount : (parseFloat(betInput) || betAmount);
+    if (effectiveBet > balance) {
       alert("Insufficient balance!");
       return;
     }
-    updateBalance(-betAmount);
+    if (effectiveBet <= 0) return;
+    setBetAmount(effectiveBet);
+    updateBalance(-effectiveBet);
     sounds.playDiceWin();
-    setBetSuccessMsg(`Bet Placed: $${betAmount} on ${selectedBet.pick} @ ${selectedBet.odd.toFixed(2)}x`);
+    setBetSuccessMsg(`Bet Placed: ${activeSym}${effectiveBet} on ${selectedBet.pick} @ ${selectedBet.odd.toFixed(2)}x`);
     setTimeout(() => setBetSuccessMsg(null), 3500);
   };
 
@@ -232,11 +237,31 @@ export default function SportCategoryPage() {
 
           <div className="flex items-center gap-2">
             <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] px-2.5 py-1.5 flex-1">
-              <span className="text-xs text-[#00e701] mr-1">$</span>
+              <span className="text-xs text-[#00e701] mr-1">{activeSym}</span>
               <input
-                type="number"
-                value={betAmount}
-                onChange={(e) => setBetAmount(Math.max(1, parseFloat(e.target.value) || 0))}
+                type="text"
+                inputMode="decimal"
+                value={betInput}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                    setBetInput(val);
+                    if (val !== "") {
+                      const num = parseFloat(val);
+                      if (!isNaN(num)) setBetAmount(num);
+                    }
+                  }
+                }}
+                onBlur={() => {
+                  if (betInput === "" || parseFloat(betInput) <= 0 || isNaN(parseFloat(betInput))) {
+                    setBetAmount(10);
+                    setBetInput("10");
+                  } else {
+                    const num = parseFloat(betInput);
+                    setBetAmount(num);
+                    setBetInput(num.toString());
+                  }
+                }}
                 className="w-full bg-transparent text-xs font-bold text-white focus:outline-none font-mono"
               />
             </div>
@@ -244,7 +269,7 @@ export default function SportCategoryPage() {
               onClick={handlePlaceBet}
               className="rounded-xl bg-[#00e701] hover:bg-[#00c701] px-4 py-2 text-xs font-black text-[#0f212e] active:scale-95 transition-all shadow-md"
             >
-              Place Bet (${(betAmount * selectedBet.odd).toFixed(2)})
+              Place Bet ({activeSym}{(betAmount * selectedBet.odd).toFixed(2)})
             </button>
           </div>
         </div>

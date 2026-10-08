@@ -193,7 +193,10 @@ export default function WalletSettingsModal({ isOpen, onClose }: WalletSettingsM
                       return (
                         <button
                           key={fiat.code}
-                          onClick={() => setSelectedFiat(fiat.code)}
+                          onClick={() => {
+                            setSelectedFiat(fiat.code);
+                            setDisplayCryptoInFiat(true);
+                          }}
                           className={`flex items-center justify-between p-2.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer ${
                             isSelected
                               ? "bg-[#00e701]/10 border-[#00e701] text-white shadow-sm"
@@ -233,7 +236,10 @@ export default function WalletSettingsModal({ isOpen, onClose }: WalletSettingsM
                           return (
                             <button
                               key={fiat.code}
-                              onClick={() => setSelectedFiat(fiat.code)}
+                              onClick={() => {
+                                setSelectedFiat(fiat.code);
+                                setDisplayCryptoInFiat(true);
+                              }}
                               className={`flex items-center justify-between p-2 rounded-lg border text-xs font-semibold transition-all cursor-pointer ${
                                 isSelected
                                   ? "bg-[#00e701]/10 border-[#00e701] text-white"

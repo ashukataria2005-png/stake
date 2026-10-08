@@ -36,13 +36,27 @@ interface TrailParticle {
 }
 
 export default function CrashGame() {
-  const { balance, updateBalance, currency, formatBalance } = useGame();
+  const { balance, updateBalance, currency, formatBalance, currencySymbol } = useGame();
+  const activeSym = currencySymbol || "$";
 
   // Mode: Manual or Auto
   const [mode, setMode] = useState<"manual" | "auto">("manual");
   const [betAmount, setBetAmount] = useState<number>(10);
+  const [betInput, setBetInput] = useState<string>("10");
+
+  useEffect(() => {
+    if (betInput !== "" && parseFloat(betInput) === betAmount) return;
+    setBetInput(betAmount.toString());
+  }, [betAmount]);
+
   const [autoCashout, setAutoCashout] = useState<number>(2.0);
+  const [autoCashoutInput, setAutoCashoutInput] = useState<string>("2.00");
   const [autoCashoutEnabled, setAutoCashoutEnabled] = useState<boolean>(true);
+
+  useEffect(() => {
+    if (autoCashoutInput !== "" && parseFloat(autoCashoutInput) === autoCashout) return;
+    setAutoCashoutInput(autoCashout.toFixed(2));
+  }, [autoCashout]);
 
   // Round Phases: "countdown" | "flying" | "crashed"
   const [phase, setPhase] = useState<"countdown" | "flying" | "crashed">("countdown");
@@ -104,20 +118,24 @@ export default function CrashGame() {
   // Math action buttons
   const handleHalfBet = () => {
     sounds.playClick();
-    setBetAmount((prev) => Math.max(1, parseFloat((prev / 2).toFixed(2))));
+    const next = Math.max(0.01, parseFloat((betAmount / 2).toFixed(2)));
+    setBetAmount(next);
+    setBetInput(next.toString());
   };
 
   const handleDoubleBet = () => {
     sounds.playClick();
-    setBetAmount((prev) => {
-      const next = parseFloat((prev * 2).toFixed(2));
-      return Math.min(next, Math.max(1, parseFloat(balance.toFixed(2))));
-    });
+    const next = parseFloat((betAmount * 2).toFixed(2));
+    const capped = Math.min(next, Math.max(1, parseFloat(balance.toFixed(2))));
+    setBetAmount(capped);
+    setBetInput(capped.toString());
   };
 
   const handleMaxBet = () => {
     sounds.playClick();
-    setBetAmount(Math.max(1, parseFloat(balance.toFixed(2))));
+    const next = Math.max(1, parseFloat(balance.toFixed(2)));
+    setBetAmount(next);
+    setBetInput(next.toString());
   };
 
   // Queue or toggle bet for next round
@@ -127,11 +145,21 @@ export default function CrashGame() {
       // Cancel queued bet
       setHasBetNextRound(false);
     } else {
-      if (betAmount > balance) {
+      const effectiveBet =
+        betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0
+          ? 1
+          : parseFloat(betInput);
+
+      if (betInput === "" || isNaN(parseFloat(betInput))) {
+        setBetInput(effectiveBet.toString());
+        setBetAmount(effectiveBet);
+      }
+
+      if (effectiveBet > balance) {
         alert("Insufficient balance! Please use the Wallet button to top up.");
         return;
       }
-      if (betAmount <= 0) return;
+      if (effectiveBet <= 0) return;
       setHasBetNextRound(true);
     }
   };
@@ -558,20 +586,35 @@ export default function CrashGame() {
               <div className="flex items-center justify-between text-xs font-bold text-[#b1bad3]">
                 <span>Bet Amount</span>
                 <span className="font-mono text-[#00e701]">
-                  ${formatBalance(balance)} {currency}
+                  {activeSym}{formatBalance(balance)}
                 </span>
               </div>
               <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] p-1 focus-within:border-[#00e701] transition-colors">
-                <span className="px-2 text-sm font-bold text-[#00e701]">$</span>
+                <span className="px-2 text-sm font-bold text-[#00e701]">{activeSym}</span>
                 <input
-                  type="number"
-                  step="0.01"
-                  min="0.01"
+                  type="text"
+                  inputMode="decimal"
                   disabled={phase === "flying" && activeBetAmount > 0}
-                  value={betAmount}
-                  onChange={(e) =>
-                    setBetAmount(Math.max(0, parseFloat(e.target.value) || 0))
-                  }
+                  value={betInput}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                      setBetInput(val);
+                      if (val !== "" && !isNaN(parseFloat(val))) {
+                        setBetAmount(parseFloat(val));
+                      }
+                    }
+                  }}
+                  onBlur={() => {
+                    if (betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0) {
+                      setBetInput("1");
+                      setBetAmount(1);
+                    } else {
+                      const num = parseFloat(betInput);
+                      setBetInput(num.toString());
+                      setBetAmount(num);
+                    }
+                  }}
                   className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono"
                 />
                 <button
@@ -617,14 +660,32 @@ export default function CrashGame() {
               </div>
               <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] p-2">
                 <input
-                  type="number"
-                  step="0.1"
-                  min="1.01"
+                  type="text"
+                  inputMode="decimal"
                   disabled={!autoCashoutEnabled}
-                  value={autoCashout}
-                  onChange={(e) =>
-                    setAutoCashout(Math.max(1.01, parseFloat(e.target.value) || 1.01))
-                  }
+                  value={autoCashoutInput}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                      setAutoCashoutInput(val);
+                      if (val !== "") {
+                        const num = parseFloat(val);
+                        if (!isNaN(num) && num >= 1.01) {
+                          setAutoCashout(num);
+                        }
+                      }
+                    }
+                  }}
+                  onBlur={() => {
+                    if (autoCashoutInput === "" || parseFloat(autoCashoutInput) < 1.01 || isNaN(parseFloat(autoCashoutInput))) {
+                      setAutoCashout(2.0);
+                      setAutoCashoutInput("2.00");
+                    } else {
+                      const num = parseFloat(autoCashoutInput);
+                      setAutoCashout(num);
+                      setAutoCashoutInput(num.toFixed(2));
+                    }
+                  }}
                   className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono disabled:opacity-50"
                 />
                 <span className="text-xs font-bold text-[#b1bad3]">x</span>

@@ -1384,7 +1384,6 @@ const RAW_EVOLUTION_GAMES: GameItem[] = [
   }
 ];
 export const EVOLUTION_GAMES: GameItem[] = RAW_EVOLUTION_GAMES.map(attachThumbnail);
-export const LIVE_CASINO_GAMES: GameItem[] = EVOLUTION_GAMES;
 
 // ==========================================
 // POPULAR SLOTS
@@ -5098,6 +5097,59 @@ const masterGameMap = new Map<string, GameItem>();
 });
 
 export const ALL_GAMES: GameItem[] = Array.from(masterGameMap.values());
+
+// ==========================================
+// DYNAMIC MULTI-PROVIDER LIVE CASINO AGGREGATION
+// ==========================================
+export const LIVE_CASINO_GAMES: GameItem[] = (() => {
+  const isTrueLiveGame = (g: GameItem) => {
+    const cat = (g.category || "").toLowerCase();
+    const type = ((g as any).type || "").toLowerCase();
+    const prov = (g.provider || "").toLowerCase();
+
+    // Must be from dedicated live dealer providers OR explicitly tagged live
+    const isLiveProvider =
+      prov === "evolution" ||
+      prov === "ezugi" ||
+      prov === "pragmatic live" ||
+      prov === "pragmatic play live";
+    const hasLiveTag =
+      g.isLive === true ||
+      cat === "live" ||
+      cat === "live casino" ||
+      type === "live" ||
+      type === "live casino";
+
+    if (!isLiveProvider && !hasLiveTag) return false;
+
+    // Strictly exclude slots, crash, burst, or RNG arcade/table games
+    const isExcluded =
+      cat === "slots" ||
+      cat === "burst" ||
+      cat === "crash" ||
+      cat === "instant" ||
+      type === "slot" ||
+      type === "slots" ||
+      type === "crash" ||
+      type === "burst";
+    return !isExcluded;
+  };
+
+  const liveMap = new Map<string, GameItem>();
+
+  // 1. Evolution live games
+  EVOLUTION_GAMES.filter(isTrueLiveGame).forEach((g) => liveMap.set(g.id, g));
+  // 2. Ezugi live games
+  EZUGI_GAMES.filter(isTrueLiveGame).forEach((g) => {
+    if (!liveMap.has(g.id)) liveMap.set(g.id, g);
+  });
+  // 3. Dynamic multi-provider live games from master catalog
+  ALL_GAMES.filter(isTrueLiveGame).forEach((g) => {
+    if (!liveMap.has(g.id)) liveMap.set(g.id, g);
+  });
+
+  return Array.from(liveMap.values());
+})();
 
 // ==========================================
 // 20 PUBLISHERS / GAME STUDIOS

@@ -31,19 +31,10 @@ export default function TrendingSports() {
             <span>Trending Sports</span>
             <ChevronRight className="h-4 w-4 text-[#b1bad3] group-hover:translate-x-1 transition-transform" />
           </h2>
-          <span className="rounded-full bg-[#213743] px-2 py-0.5 text-[11px] font-bold text-[#00e701]">
-            {TRENDING_SPORTS.length} Sports
-          </span>
         </Link>
 
-        {/* Right Header Navigation & Link */}
+        {/* Right Header Navigation */}
         <div className="flex items-center gap-2">
-          <Link
-            href="/sports"
-            className="text-xs font-bold text-[#00e701] hover:underline hidden sm:inline-block"
-          >
-            View All Sports &gt;
-          </Link>
           <div className="flex items-center gap-1">
             <button
               onClick={() => scroll("left")}

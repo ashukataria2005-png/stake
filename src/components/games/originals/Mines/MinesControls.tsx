@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Sparkles, Dices, ChevronDown, Infinity as InfinityIcon, Sliders } from "lucide-react";
 import { sounds } from "@/utils/audio";
+import { useGame } from "@/context/GameContext";
 import MinesMultiplierTrack from "./MinesMultiplierTrack";
 
 interface MinesControlsProps {
@@ -73,7 +74,16 @@ export default function MinesControls({
   stopOnLoss,
   setStopOnLoss,
 }: MinesControlsProps) {
+  const { currencySymbol } = useGame();
+  const activeSym = currencySymbol || "$";
   const [showAdvancedAuto, setShowAdvancedAuto] = useState(false);
+  const [betInput, setBetInput] = useState<string>(betAmount.toString());
+
+  // Synchronize betInput when betAmount is updated externally
+  useEffect(() => {
+    if (betInput !== "" && parseFloat(betInput) === betAmount) return;
+    setBetInput(betAmount.toString());
+  }, [betAmount]);
 
   const gemsCount = 25 - minesCount;
   const cashoutValue = betAmount * currentMultiplier;
@@ -81,12 +91,32 @@ export default function MinesControls({
   // Half & Double bet helpers
   const handleHalfBet = () => {
     sounds.playClick();
-    setBetAmount(Math.max(0.01, parseFloat((betAmount / 2).toFixed(2))));
+    const next = Math.max(0.01, parseFloat((betAmount / 2).toFixed(2)));
+    setBetAmount(next);
+    setBetInput(next.toString());
   };
 
   const handleDoubleBet = () => {
     sounds.playClick();
-    setBetAmount(Math.min(balance || 100000, parseFloat((betAmount * 2).toFixed(2))));
+    const next = Math.min(balance || 100000, parseFloat((betAmount * 2).toFixed(2)));
+    setBetAmount(next);
+    setBetInput(next.toString());
+  };
+
+  const handleBetClick = () => {
+    if (betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0) {
+      setBetInput("1");
+      setBetAmount(1);
+    }
+    onBet();
+  };
+
+  const handleStartAutoClick = () => {
+    if (betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0) {
+      setBetInput("1");
+      setBetAmount(1);
+    }
+    onStartAuto();
   };
 
   return (
@@ -142,7 +172,7 @@ export default function MinesControls({
           !isPlaying ? (
             <button
               type="button"
-              onClick={onBet}
+              onClick={handleBetClick}
               disabled={betAmount > balance || betAmount <= 0}
               className="w-full py-4 text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
             >
@@ -160,13 +190,13 @@ export default function MinesControls({
                   : "bg-[#00e701] hover:bg-[#00c701] text-black shadow-[0_0_20px_rgba(0,231,1,0.4)]"
               }`}
             >
-              <span>Cashout ${cashoutValue.toFixed(2)}</span>
+              <span>Cashout {activeSym}{cashoutValue.toFixed(2)}</span>
             </button>
           )
         ) : !isAutoRunning ? (
           <button
             type="button"
-            onClick={onStartAuto}
+            onClick={handleStartAutoClick}
             disabled={betAmount > balance || betAmount <= 0}
             className="w-full py-4 text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
           >
@@ -200,19 +230,36 @@ export default function MinesControls({
         <div className="flex items-center justify-between text-xs">
           <span className="font-bold text-[#b1bad3]">Bet Amount</span>
           <span className="font-mono text-[11px] text-[#b1bad3]">
-            Bal: ${balance.toFixed(2)}
+            Bal: {activeSym}{balance.toFixed(2)}
           </span>
         </div>
         <div className="flex rounded-xl bg-[#0f212e] border border-[#213743] focus-within:border-[#2f4553] p-1">
           <div className="flex flex-1 items-center px-2.5">
-            <span className="text-xs font-bold text-[#b1bad3] mr-1.5">$</span>
+            <span className="text-xs font-bold text-[#b1bad3] mr-1.5">{activeSym}</span>
             <input
-              type="number"
-              step="any"
-              min="0.01"
+              type="text"
+              inputMode="decimal"
               disabled={isPlaying || isAutoRunning}
-              value={betAmount}
-              onChange={(e) => setBetAmount(Math.max(0, parseFloat(e.target.value) || 0))}
+              value={betInput}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                  setBetInput(val);
+                  if (val !== "" && !isNaN(parseFloat(val))) {
+                    setBetAmount(parseFloat(val));
+                  }
+                }
+              }}
+              onBlur={() => {
+                if (betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0) {
+                  setBetInput("1");
+                  setBetAmount(1);
+                } else {
+                  const num = parseFloat(betInput);
+                  setBetInput(num.toString());
+                  setBetAmount(num);
+                }
+              }}
               className="w-full bg-transparent text-sm font-bold text-white outline-none"
             />
           </div>

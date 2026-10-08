@@ -28,17 +28,42 @@ interface RollHistoryItem {
 }
 
 export default function DiceGame() {
-  const { balance, updateBalance, currency, formatBalance } = useGame();
+  const { balance, updateBalance, currency, formatBalance, currencySymbol } = useGame();
+  const activeSym = currencySymbol || "$";
 
   // Mode & Betting State
   const [betAmount, setBetAmount] = useState<number>(10);
+  const [betInput, setBetInput] = useState<string>("10");
+
+  useEffect(() => {
+    if (betInput !== "" && parseFloat(betInput) === betAmount) return;
+    setBetInput(betAmount.toString());
+  }, [betAmount]);
+
   const [isRollOver, setIsRollOver] = useState<boolean>(true);
   const [target, setTarget] = useState<number>(50.5);
 
   // Derived 99% RTP Math State
-  // Multiplier = 99 / winChance
   const [multiplier, setMultiplier] = useState<number>(2.0);
   const [winChance, setWinChance] = useState<number>(49.5);
+  const [multInput, setMultInput] = useState<string>("2.0000");
+  const [targetInput, setTargetInput] = useState<string>("50.50");
+  const [winChanceInput, setWinChanceInput] = useState<string>("49.50");
+
+  useEffect(() => {
+    if (multInput !== "" && parseFloat(multInput) === multiplier) return;
+    setMultInput(multiplier.toString());
+  }, [multiplier]);
+
+  useEffect(() => {
+    if (targetInput !== "" && parseFloat(targetInput) === target) return;
+    setTargetInput(target.toString());
+  }, [target]);
+
+  useEffect(() => {
+    if (winChanceInput !== "" && parseFloat(winChanceInput) === winChance) return;
+    setWinChanceInput(winChance.toString());
+  }, [winChance]);
 
   // Roll Execution State
   const [isRolling, setIsRolling] = useState<boolean>(false);
@@ -133,33 +158,47 @@ export default function DiceGame() {
   // Quick Bet Math Actions
   const handleHalfBet = () => {
     sounds.playClick();
-    setBetAmount((prev) => Math.max(1, parseFloat((prev / 2).toFixed(2))));
+    const next = Math.max(0.01, parseFloat((betAmount / 2).toFixed(2)));
+    setBetAmount(next);
+    setBetInput(next.toString());
   };
 
   const handleDoubleBet = () => {
     sounds.playClick();
-    setBetAmount((prev) => {
-      const next = parseFloat((prev * 2).toFixed(2));
-      return Math.min(next, Math.max(1, parseFloat(balance.toFixed(2))));
-    });
+    const next = parseFloat((betAmount * 2).toFixed(2));
+    const capped = Math.min(next, Math.max(1, parseFloat(balance.toFixed(2))));
+    setBetAmount(capped);
+    setBetInput(capped.toString());
   };
 
   const handleMaxBet = () => {
     sounds.playClick();
-    setBetAmount(Math.max(1, parseFloat(balance.toFixed(2))));
+    const next = Math.max(1, parseFloat(balance.toFixed(2)));
+    setBetAmount(next);
+    setBetInput(next.toString());
   };
 
   // Roll Dice Execution
   const rollDice = useCallback(() => {
     if (isRolling) return;
-    if (betAmount > balance) {
-      alert("Insufficient demo balance! Please use the Wallet button to top up.");
+    const effectiveBet =
+      betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0
+        ? 1
+        : parseFloat(betInput);
+
+    if (betInput === "" || isNaN(parseFloat(betInput))) {
+      setBetInput(effectiveBet.toString());
+      setBetAmount(effectiveBet);
+    }
+
+    if (effectiveBet > balance) {
+      alert("Insufficient balance! Please use the Wallet button to top up.");
       return;
     }
-    if (betAmount <= 0) return;
+    if (effectiveBet <= 0) return;
 
     // Deduct bet amount immediately
-    updateBalance(-betAmount);
+    updateBalance(-effectiveBet);
     setNonce((n) => n + 1);
     setIsRolling(true);
     setHasWon(null);
@@ -292,20 +331,35 @@ export default function DiceGame() {
               <div className="flex items-center justify-between text-xs font-bold text-[#b1bad3]">
                 <span>Bet Amount</span>
                 <span className="font-mono text-[#00e701]">
-                  ${formatBalance(balance)} {currency}
+                  {activeSym}{formatBalance(balance)}
                 </span>
               </div>
               <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] p-1 focus-within:border-[#00e701] transition-colors">
-                <span className="px-2 text-sm font-bold text-[#00e701]">$</span>
+                <span className="px-2 text-sm font-bold text-[#00e701]">{activeSym}</span>
                 <input
-                  type="number"
-                  step="0.01"
-                  min="0.01"
+                  type="text"
+                  inputMode="decimal"
                   disabled={isRolling}
-                  value={betAmount}
-                  onChange={(e) =>
-                    setBetAmount(Math.max(0, parseFloat(e.target.value) || 0))
-                  }
+                  value={betInput}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                      setBetInput(val);
+                      if (val !== "" && !isNaN(parseFloat(val))) {
+                        setBetAmount(parseFloat(val));
+                      }
+                    }
+                  }}
+                  onBlur={() => {
+                    if (betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0) {
+                      setBetInput("1");
+                      setBetAmount(1);
+                    } else {
+                      const num = parseFloat(betInput);
+                      setBetInput(num.toString());
+                      setBetAmount(num);
+                    }
+                  }}
                   className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono"
                 />
                 <button
@@ -340,11 +394,11 @@ export default function DiceGame() {
               <div className="flex justify-between text-xs font-bold text-[#b1bad3]">
                 <span>Profit on Win</span>
                 <span className="font-mono text-[#00e701]">
-                  +${(betAmount * (multiplier - 1)).toFixed(2)} {currency}
+                  +{activeSym}{(betAmount * (multiplier - 1)).toFixed(2)} {currency}
                 </span>
               </div>
               <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] px-3 py-2 text-sm font-mono font-bold text-white">
-                ${(betAmount * multiplier).toFixed(2)}
+                {activeSym}{(betAmount * multiplier).toFixed(2)}
               </div>
             </div>
 
@@ -357,13 +411,32 @@ export default function DiceGame() {
                 </label>
                 <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] px-3 py-2 focus-within:border-[#00e701] transition-colors">
                   <input
-                    type="number"
-                    step="0.01"
-                    min="1.0102"
-                    max="49.5"
+                    type="text"
+                    inputMode="decimal"
                     disabled={isRolling}
-                    value={multiplier}
-                    onChange={(e) => updateFromMultiplier(parseFloat(e.target.value) || 2.0)}
+                    value={multInput}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                        setMultInput(val);
+                        if (val !== "") {
+                          const num = parseFloat(val);
+                          if (!isNaN(num) && num >= 1.0102) {
+                            updateFromMultiplier(num);
+                          }
+                        }
+                      }
+                    }}
+                    onBlur={() => {
+                      if (multInput === "" || parseFloat(multInput) < 1.0102 || isNaN(parseFloat(multInput))) {
+                        updateFromMultiplier(2.0);
+                        setMultInput("2.0000");
+                      } else {
+                        const num = parseFloat(multInput);
+                        updateFromMultiplier(num);
+                        setMultInput(num.toString());
+                      }
+                    }}
                     className="w-full bg-transparent text-xs font-mono font-bold text-white focus:outline-none"
                   />
                   <span className="text-xs font-bold text-[#b1bad3]">×</span>
@@ -385,13 +458,32 @@ export default function DiceGame() {
                 </div>
                 <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] px-3 py-2 focus-within:border-[#00e701] transition-colors">
                   <input
-                    type="number"
-                    step="0.01"
-                    min="2"
-                    max="98"
+                    type="text"
+                    inputMode="decimal"
                     disabled={isRolling}
-                    value={target}
-                    onChange={(e) => updateFromTarget(parseFloat(e.target.value) || 50.0, isRollOver)}
+                    value={targetInput}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                        setTargetInput(val);
+                        if (val !== "") {
+                          const num = parseFloat(val);
+                          if (!isNaN(num) && num >= 2 && num <= 98) {
+                            updateFromTarget(num, isRollOver);
+                          }
+                        }
+                      }
+                    }}
+                    onBlur={() => {
+                      if (targetInput === "" || isNaN(parseFloat(targetInput))) {
+                        updateFromTarget(50.0, isRollOver);
+                        setTargetInput("50.00");
+                      } else {
+                        const num = parseFloat(targetInput);
+                        updateFromTarget(num, isRollOver);
+                        setTargetInput(num.toString());
+                      }
+                    }}
                     className="w-full bg-transparent text-xs font-mono font-bold text-white focus:outline-none"
                   />
                   <span className="text-xs font-bold text-[#b1bad3]">
@@ -407,13 +499,32 @@ export default function DiceGame() {
                 </label>
                 <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] px-3 py-2 focus-within:border-[#00e701] transition-colors">
                   <input
-                    type="number"
-                    step="0.01"
-                    min="2"
-                    max="98"
+                    type="text"
+                    inputMode="decimal"
                     disabled={isRolling}
-                    value={winChance}
-                    onChange={(e) => updateFromWinChance(parseFloat(e.target.value) || 49.5)}
+                    value={winChanceInput}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                        setWinChanceInput(val);
+                        if (val !== "") {
+                          const num = parseFloat(val);
+                          if (!isNaN(num) && num >= 2 && num <= 98) {
+                            updateFromWinChance(num);
+                          }
+                        }
+                      }
+                    }}
+                    onBlur={() => {
+                      if (winChanceInput === "" || isNaN(parseFloat(winChanceInput))) {
+                        updateFromWinChance(49.5);
+                        setWinChanceInput("49.50");
+                      } else {
+                        const num = parseFloat(winChanceInput);
+                        updateFromWinChance(num);
+                        setWinChanceInput(num.toString());
+                      }
+                    }}
                     className="w-full bg-transparent text-xs font-mono font-bold text-[#00e701] focus:outline-none"
                   />
                   <span className="text-xs font-bold text-[#b1bad3]">%</span>

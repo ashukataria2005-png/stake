@@ -198,7 +198,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
     setTimeout(() => {
       // Deduct balance in USD equivalent
       const deductionUsd = num / 86.5;
-      updateBalance(-deductionUsd);
+      updateBalance(-deductionUsd, true);
       sounds.playCashout();
       setIsSubmittingWithdraw(false);
 
@@ -265,7 +265,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
     setTimeout(() => {
       // Credit balance
       const creditedUsd = order.amountINR / 86.5;
-      updateBalance(creditedUsd);
+      updateBalance(creditedUsd, true);
 
       // Update order status in ledger
       const updated = depositOrders.map((o) =>

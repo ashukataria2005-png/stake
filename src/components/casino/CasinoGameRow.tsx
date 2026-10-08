@@ -79,11 +79,6 @@ export default function CasinoGameRow({
               &gt;
             </span>
           </h2>
-          {rowBadge && (
-            <span className="rounded-md bg-blue-500/20 text-blue-300 border border-blue-400/40 px-2 py-0.5 text-xs font-black uppercase tracking-wider">
-              {rowBadge}
-            </span>
-          )}
         </Link>
       </div>
 
