@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Sparkles, RotateCcw, Trash2, Trophy } from "lucide-react";
+import MinesMultiplierTrack from "./MinesMultiplierTrack";
 
 interface MinesGridProps {
   revealedTiles: number[];
@@ -128,15 +129,15 @@ export default function MinesGrid({
                 type="button"
                 onClick={() => onTileClick(index)}
                 disabled={(!isPlaying && mode !== "auto") || (isPlaying && (isRevealed || isGameOver))}
-                className={`relative rounded-xl flex items-center justify-center transition-all select-none duration-150 cursor-pointer ${
+                className={`relative rounded-xl flex items-center justify-center transition-all select-none duration-150 cursor-pointer overflow-visible ${
                   isRevealed && !isMine
-                    ? "bg-[#1a2c38] border border-[#00e701]/50 shadow-[0_0_18px_rgba(0,231,1,0.3)]"
+                    ? "bg-[#1a2c38] border border-[#00e701]/60 shadow-[0_0_20px_rgba(0,231,1,0.35)]"
                     : isExplodedMine
-                    ? "bg-red-950/80 border-2 border-red-500 shadow-[0_0_24px_rgba(239,68,68,0.7)]"
+                    ? "bg-red-950/90 border-2 border-[#fe2247] shadow-[0_0_28px_rgba(254,34,71,0.9)] animate-pulse scale-105 z-20"
                     : isDimmedHiddenMine
-                    ? "bg-[#1a2c38]/50 border border-red-900/40 opacity-40 cursor-default"
+                    ? "bg-[#1a2c38]/60 border border-[#fe2247]/30 cursor-default"
                     : isDimmedUntouchedGem
-                    ? "bg-[#1a2c38]/50 border border-[#213743] opacity-35 cursor-default"
+                    ? "bg-[#1a2c38]/60 border border-[#00e701]/25 cursor-default"
                     : isAutoSelected
                     ? "bg-[#00e701]/20 border-2 border-[#00e701] shadow-[0_0_12px_rgba(0,231,1,0.3)]"
                     : isPlaying
@@ -153,85 +154,134 @@ export default function MinesGrid({
                   </span>
                 )}
 
-                {/* 1. Revealed Sparkling Green GEM 💎 */}
+                {/* 1. Revealed Active Sparkling Green GEM 💎 (Stake Emerald Diamond Parity) */}
                 {isRevealed && !isMine && (
                   <svg
-                    viewBox="0 0 48 48"
-                    className={`h-7 w-7 sm:h-9 sm:w-9 drop-shadow-[0_0_12px_rgba(0,231,1,0.8)] ${
+                    viewBox="0 0 64 64"
+                    className={`h-8 w-8 sm:h-10 sm:w-10 drop-shadow-[0_0_14px_rgba(0,231,1,0.85)] ${
                       animations ? "animate-gem-pop" : ""
                     }`}
                     fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
                   >
-                    <polygon
-                      points="24,6 40,16 34,40 14,40 8,16"
-                      fill="url(#gemGrad)"
-                      stroke="#00e701"
-                      strokeWidth="1.5"
-                    />
-                    <polygon
-                      points="24,6 40,16 24,24 8,16"
-                      fill="#00ff01"
-                      fillOpacity="0.4"
-                    />
-                    <polygon
-                      points="24,24 40,16 34,40"
-                      fill="#00b301"
-                      fillOpacity="0.6"
-                    />
-                    <polygon
-                      points="24,24 8,16 14,40"
-                      fill="#008001"
-                      fillOpacity="0.6"
-                    />
-                    <circle cx="24" cy="14" r="2.5" fill="#ffffff" opacity="0.9" />
                     <defs>
-                      <linearGradient id="gemGrad" x1="24" y1="6" x2="24" y2="40" gradientUnits="userSpaceOnUse">
-                        <stop stopColor="#00e701" />
-                        <stop offset="0.6" stopColor="#00a301" />
-                        <stop offset="1" stopColor="#004d00" />
+                      <radialGradient id={`gemUnderGlow-${index}`} cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stopColor="#00e701" stopOpacity="0.8" />
+                        <stop offset="60%" stopColor="#00c701" stopOpacity="0.25" />
+                        <stop offset="100%" stopColor="#000000" stopOpacity="0" />
+                      </radialGradient>
+                      <linearGradient id={`gemCrown-${index}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#75ff91" />
+                        <stop offset="50%" stopColor="#00e701" />
+                        <stop offset="100%" stopColor="#00a301" />
+                      </linearGradient>
+                      <linearGradient id={`gemFacetL-${index}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#00ff66" />
+                        <stop offset="100%" stopColor="#008001" />
+                      </linearGradient>
+                      <linearGradient id={`gemFacetR-${index}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#00a301" />
+                        <stop offset="100%" stopColor="#004d00" />
                       </linearGradient>
                     </defs>
+
+                    {/* Ambient Green Underglow */}
+                    <circle cx="32" cy="34" r="24" fill={`url(#gemUnderGlow-${index})`} />
+
+                    {/* Faceted Emerald Gem Silhouette */}
+                    <polygon points="32,8 16,22 32,32" fill={`url(#gemFacetL-${index})`} stroke="#a3ffb0" strokeWidth="0.75" />
+                    <polygon points="32,8 48,22 32,32" fill={`url(#gemFacetR-${index})`} stroke="#a3ffb0" strokeWidth="0.75" />
+                    <polygon points="32,8 42,16 32,24 22,16" fill={`url(#gemCrown-${index})`} stroke="#ffffff" strokeWidth="0.8" />
+
+                    {/* Lower Pavilion Tapering */}
+                    <polygon points="16,22 32,32 32,56" fill={`url(#gemFacetL-${index})`} stroke="#00e701" strokeWidth="0.75" />
+                    <polygon points="48,22 32,32 32,56" fill={`url(#gemFacetR-${index})`} stroke="#00e701" strokeWidth="0.75" />
+                    <polygon points="22,16 32,24 32,56 16,22" fill="#00c701" fillOpacity="0.45" />
+                    <polygon points="42,16 32,24 32,56 48,22" fill="#008f01" fillOpacity="0.45" />
+
+                    {/* Crisp Bevel Highlights */}
+                    <line x1="32" y1="8" x2="32" y2="56" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.7" />
+                    <line x1="16" y1="22" x2="48" y2="22" stroke="#ffffff" strokeWidth="0.8" strokeOpacity="0.6" />
+
+                    {/* Sparkling Glint Star */}
+                    <polygon points="32,6 33.5,11 38,11 34.5,13.5 36,18 32,15 28,18 29.5,13.5 26,11 30.5,11" fill="#ffffff" fillOpacity="0.95" />
                   </svg>
                 )}
 
-                {/* 2. Exploded Red Bomb 💣 */}
+                {/* 2. Exploded Active Red Bomb 💣 (Stake Crimson-Charcoal Sphere with Ignited Fuse) */}
                 {isExplodedMine && (
                   <svg
-                    viewBox="0 0 48 48"
-                    className={`h-7 w-7 sm:h-9 sm:w-9 drop-shadow-[0_0_16px_rgba(239,68,68,0.9)] ${
+                    viewBox="0 0 64 64"
+                    className={`h-8 w-8 sm:h-10 sm:w-10 drop-shadow-[0_0_20px_rgba(254,34,71,0.95)] ${
                       animations ? "animate-bomb-shake" : ""
                     }`}
                     fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
                   >
-                    <circle cx="22" cy="26" r="15" fill="url(#bombGrad)" stroke="#ef4444" strokeWidth="1.5" />
-                    <circle cx="17" cy="20" r="3" fill="#ffffff" opacity="0.4" />
-                    <rect x="18" y="8" width="8" height="4" rx="1" fill="#475569" stroke="#334155" strokeWidth="1" />
-                    <path d="M22 8 C 22 2, 30 5, 34 3" stroke="#eab308" strokeWidth="2.5" strokeLinecap="round" />
-                    <polygon points="34,1 36,4 39,2 37,5 40,7 36,7 35,10 33,7 29,7 32,5 30,2 33,4" fill="#ef4444" />
-                    <circle cx="34" cy="3" r="2.5" fill="#facc15" />
                     <defs>
-                      <radialGradient id="bombGrad" cx="30%" cy="30%" r="70%">
-                        <stop offset="0%" stopColor="#450a0a" />
-                        <stop offset="60%" stopColor="#1c1917" />
-                        <stop offset="100%" stopColor="#000000" />
+                      <radialGradient id={`bombBody-${index}`} cx="35%" cy="35%" r="65%">
+                        <stop offset="0%" stopColor="#4a1520" />
+                        <stop offset="35%" stopColor="#250910" />
+                        <stop offset="70%" stopColor="#14070a" />
+                        <stop offset="100%" stopColor="#080204" />
+                      </radialGradient>
+                      <radialGradient id={`bombRedGlow-${index}`} cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stopColor="#fe2247" stopOpacity="0.9" />
+                        <stop offset="60%" stopColor="#fe2247" stopOpacity="0.3" />
+                        <stop offset="100%" stopColor="#000000" stopOpacity="0" />
+                      </radialGradient>
+                      <radialGradient id={`fuseSpark-${index}`} cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stopColor="#ffffff" />
+                        <stop offset="35%" stopColor="#ffea00" />
+                        <stop offset="70%" stopColor="#ff5400" />
+                        <stop offset="100%" stopColor="#fe2247" />
                       </radialGradient>
                     </defs>
+
+                    {/* Ambient Crimson Particle Glow */}
+                    <circle cx="28" cy="36" r="24" fill={`url(#bombRedGlow-${index})`} />
+
+                    {/* Crimson-Charcoal Sphere Body */}
+                    <circle cx="28" cy="36" r="20" fill={`url(#bombBody-${index})`} stroke="#fe2247" strokeWidth="1.5" strokeOpacity="0.85" />
+                    <ellipse cx="22" cy="28" rx="6" ry="3.5" transform="rotate(-30 22 28)" fill="#ffffff" fillOpacity="0.25" />
+                    <circle cx="19" cy="25" r="2" fill="#ffffff" fillOpacity="0.45" />
+
+                    {/* Metal Collar Neck */}
+                    <rect x="23" y="13" width="10" height="5" rx="1.5" fill="#334155" stroke="#fe2247" strokeWidth="1" />
+
+                    {/* Curved Rope Fuse */}
+                    <path d="M28 13 C 28 6, 38 9, 44 6" stroke="#d97706" strokeWidth="2.5" strokeLinecap="round" />
+
+                    {/* Ignited Fuse Flame Particles */}
+                    <circle cx="44" cy="6" r="5" fill={`url(#fuseSpark-${index})`} />
+                    <polygon points="44,0 46,5 51,4 47,8 50,12 45,9 41,12 43,8 39,5 44,5" fill="#ffd166" />
+                    <circle cx="44" cy="6" r="2" fill="#ffffff" />
                   </svg>
                 )}
 
-                {/* 3. Dimmed Mine on Game Over */}
+                {/* 3. Translucent Muted Red Bomb on Game Over (Matching Screenshot 37) */}
                 {isDimmedHiddenMine && (
-                  <svg viewBox="0 0 48 48" className="h-6 w-6 sm:h-7 sm:w-7 opacity-35" fill="none">
-                    <circle cx="24" cy="26" r="12" fill="#ef4444" opacity="0.6" />
-                    <rect x="21" y="10" width="6" height="3" rx="1" fill="#991b1b" />
-                  </svg>
+                  <div className="opacity-55 flex items-center justify-center">
+                    <svg viewBox="0 0 48 48" className="h-7 w-7 drop-shadow-[0_0_8px_rgba(254,34,71,0.5)]" fill="none">
+                      <circle cx="22" cy="26" r="14" fill="#3a0d14" stroke="#fe2247" strokeWidth="1.2" />
+                      <ellipse cx="18" cy="20" rx="3.5" ry="2" fill="#ffffff" fillOpacity="0.2" />
+                      <rect x="18" y="9" width="8" height="4" rx="1" fill="#475569" stroke="#991b1b" strokeWidth="0.8" />
+                      <path d="M22 9 C 22 4, 28 6, 32 4" stroke="#b45309" strokeWidth="2" strokeLinecap="round" />
+                      <circle cx="32" cy="4" r="2" fill="#fe2247" />
+                    </svg>
+                  </div>
                 )}
 
-                {/* 4. Dimmed Gem on Game Over */}
+                {/* 4. Translucent Muted Emerald Gem on Game Over (Matching Screenshot 37) */}
                 {isDimmedUntouchedGem && (
-                  <svg viewBox="0 0 48 48" className="h-6 w-6 sm:h-7 sm:w-7 opacity-25" fill="none">
-                    <polygon points="24,10 36,18 32,36 16,36 12,18" fill="#00e701" opacity="0.5" />
-                  </svg>
+                  <div className="opacity-45 flex items-center justify-center">
+                    <svg viewBox="0 0 48 48" className="h-7 w-7 drop-shadow-[0_0_8px_rgba(0,231,1,0.4)]" fill="none">
+                      <polygon points="24,6 38,16 32,38 16,38 10,16" fill="#003800" stroke="#00e701" strokeWidth="1" />
+                      <polygon points="24,6 38,16 24,24 10,16" fill="#00e701" fillOpacity="0.25" />
+                      <polygon points="24,24 38,16 32,38" fill="#00a301" fillOpacity="0.3" />
+                      <line x1="24" y1="6" x2="24" y2="38" stroke="#ffffff" strokeWidth="0.8" strokeOpacity="0.4" />
+                    </svg>
+                  </div>
                 )}
 
                 {/* 5. Auto Mode Selection Indicator */}
@@ -243,6 +293,17 @@ export default function MinesGrid({
           })}
         </div>
       </div>
+
+      {/* Live In-Game Multiplier Progression Track (Rendered below grid when active) */}
+      {isPlaying && (
+        <div className="w-full max-w-[430px] my-1 sm:my-2 z-10 animate-in fade-in duration-200">
+          <MinesMultiplierTrack
+            minesCount={minesCount}
+            revealedGemsCount={currentGemsOpened}
+            isPlaying={isPlaying}
+          />
+        </div>
+      )}
 
       {/* Bottom Status Ticker */}
       <div className="w-full flex items-center justify-between text-xs text-[#b1bad3] z-10 pt-2 border-t border-[#213743]">

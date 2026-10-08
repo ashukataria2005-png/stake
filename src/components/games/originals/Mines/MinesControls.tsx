@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Sparkles, Dices, ChevronDown, Infinity as InfinityIcon, Sliders } from "lucide-react";
 import { sounds } from "@/utils/audio";
+import MinesMultiplierTrack from "./MinesMultiplierTrack";
 
 interface MinesControlsProps {
   mode: "manual" | "auto";
@@ -123,6 +124,17 @@ export default function MinesControls({
           Auto
         </button>
       </div>
+
+      {/* Live In-Game Multiplier Progression Track (Screenshot 38-43 parity above Cashout button) */}
+      {isPlaying && (
+        <div className="w-full -mt-1 mb-1 animate-in fade-in duration-200">
+          <MinesMultiplierTrack
+            minesCount={minesCount}
+            revealedGemsCount={currentGemsOpened}
+            isPlaying={isPlaying}
+          />
+        </div>
+      )}
 
       {/* PRIMARY ACTION BUTTON */}
       <div className="w-full">

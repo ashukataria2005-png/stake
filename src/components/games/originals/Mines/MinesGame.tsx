@@ -22,6 +22,7 @@ import MinesGrid from "./MinesGrid";
 import MinesControls from "./MinesControls";
 import MinesSettingsPopover from "./MinesSettingsPopover";
 import MinesGamesForYou from "./MinesGamesForYou";
+import { getMinesMultiplier } from "./minesMultipliers";
 
 interface MultiplierHistoryItem {
   id: string;
@@ -29,23 +30,19 @@ interface MultiplierHistoryItem {
   isWin: boolean;
 }
 
-// Multiplier calculation matching Stake formula: 0.99 * product((25 - i) / (25 - mines - i))
+// Multiplier calculation backed by editable MINES_MULTIPLIERS_MAP registry
 function calculateMultiplier(mines: number, gemsOpened: number): number {
-  if (gemsOpened === 0) return 1.0;
-  let mult = 0.99;
-  for (let i = 0; i < gemsOpened; i++) {
-    mult *= (25 - i) / (25 - mines - i);
-  }
-  return parseFloat(mult.toFixed(2));
+  return getMinesMultiplier(mines, gemsOpened);
 }
 
 function calculateMaxMultiplier(mines: number): number {
   const totalGems = 25 - mines;
-  return calculateMultiplier(mines, totalGems);
+  return getMinesMultiplier(mines, totalGems);
 }
 
 export default function MinesGame() {
-  const { balance, updateBalance, currency, addRecentlyPlayedGame } = useGame();
+  const { balance, realBalance, hasVerifiedDeposit, playMode, updateBalance, currency, addRecentlyPlayedGame } = useGame();
+  const isDemo = playMode === "fun" || !hasVerifiedDeposit;
 
   // Mode: Manual or Auto
   const [mode, setMode] = useState<"manual" | "auto">("manual");
@@ -177,7 +174,28 @@ export default function MinesGame() {
 
       if (!isPlaying || revealedTiles.includes(index) || isGameOver) return;
 
-      const isMine = mineLocations.includes(index);
+      let currentMines = [...mineLocations];
+      const gemsRevealedSoFar = revealedTiles.filter((t) => !currentMines.includes(t)).length;
+
+      // Demo High-Win Algorithm Integration (75%-80% Win Rate)
+      // When in demo mode:
+      // 1. First 4 picks (gemsRevealedSoFar < 4): Never hit a bomb! If clicked tile has a mine, dynamically relocate it to an unrevealed slot.
+      // 2. Picks 5 and beyond: 70% bias protection so the overall session win rate naturally hits 75%-80%.
+      if (isDemo && currentMines.includes(index)) {
+        const isProtectedPick = gemsRevealedSoFar < 4 || Math.random() < 0.70;
+        if (isProtectedPick) {
+          const availableSlots = Array.from({ length: 25 }, (_, i) => i).filter(
+            (i) => i !== index && !revealedTiles.includes(i) && !currentMines.includes(i)
+          );
+          if (availableSlots.length > 0) {
+            const newMineSlot = availableSlots[Math.floor(Math.random() * availableSlots.length)];
+            currentMines = currentMines.map((m) => (m === index ? newMineSlot : m));
+            setMineLocations(currentMines);
+          }
+        }
+      }
+
+      const isMine = currentMines.includes(index);
       const nextRevealed = [...revealedTiles, index];
       setRevealedTiles(nextRevealed);
       setLastRoundTiles(nextRevealed);
@@ -193,7 +211,7 @@ export default function MinesGame() {
         ]);
       } else {
         // Safe Gem!
-        const nextGemsCount = nextRevealed.filter((t) => !mineLocations.includes(t)).length;
+        const nextGemsCount = nextRevealed.filter((t) => !currentMines.includes(t)).length;
         const nextMult = calculateMultiplier(minesCount, nextGemsCount);
         sounds.playGem(nextGemsCount);
 
@@ -208,7 +226,7 @@ export default function MinesGame() {
         }
       }
     },
-    [cashout, isGameOver, isPlaying, mineLocations, minesCount, mode, revealedTiles]
+    [cashout, isDemo, isGameOver, isPlaying, mineLocations, minesCount, mode, revealedTiles]
   );
 
   // Random Pick an unrevealed tile
@@ -280,8 +298,19 @@ export default function MinesGame() {
           ? selectedAutoTiles
           : [shuffled.find((idx) => !mines.includes(idx)) || 0];
 
-      const hitMine = picks.some((p) => mines.includes(p));
-      setMineLocations(mines);
+      let effectiveMines = [...mines];
+      let hitMine = picks.some((p) => effectiveMines.includes(p));
+
+      // Demo High-Win Algorithm for Autobet (75%-80% Win Rate)
+      if (isDemo && hitMine && Math.random() < 0.78) {
+        const safeSlots = allIndices.filter((idx) => !picks.includes(idx));
+        if (safeSlots.length >= minesCount) {
+          effectiveMines = safeSlots.slice(0, minesCount);
+          hitMine = false;
+        }
+      }
+
+      setMineLocations(effectiveMines);
       setRevealedTiles(picks);
 
       if (hitMine) {
@@ -324,6 +353,7 @@ export default function MinesGame() {
     betAmount,
     instantBet,
     isAutoRunning,
+    isDemo,
     minesCount,
     onLossAction,
     onLossPercent,
