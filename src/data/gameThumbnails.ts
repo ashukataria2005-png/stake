@@ -46,8 +46,54 @@ export const INOUT_GAME_THUMBNAILS: Record<string, string> = {
   "diver": "https://mediumrare.imgix.net/410bbb5d2dbff46a13b4fbd490917a36bef3a7b07fcaf2bd89d3bee04bb865d5?w=180&h=236&fit=min&auto=format",
 };
 
+// ==========================================
+// ISOLATED EZUGI GAMES THUMBNAIL REGISTRY (Task 28)
+// Flagship Live Dealer Games from Ezugi
+// ==========================================
+export const EZUGI_GAME_THUMBNAILS: Record<string, string> = {
+  "ezugi-andar-bahar": "https://mediumrare.imgix.net/80c8d79b206bc0c2bfc5c03fc020b4737fa8ef3933cadd500ab40f731c5b4cf7?w=180&h=236&fit=min&auto=format",
+  "andar-bahar": "https://mediumrare.imgix.net/80c8d79b206bc0c2bfc5c03fc020b4737fa8ef3933cadd500ab40f731c5b4cf7?w=180&h=236&fit=min&auto=format",
+  "ezugi-teen-patti": "https://mediumrare.imgix.net/3b5657b0287e1ace45ffdce21f89bf0df2a4a607b6b00537f10242c5011ceec0?w=180&h=236&fit=min&auto=format",
+  "teen-patti": "https://mediumrare.imgix.net/3b5657b0287e1ace45ffdce21f89bf0df2a4a607b6b00537f10242c5011ceec0?w=180&h=236&fit=min&auto=format",
+  "ezugi-lucky-7": "https://mediumrare.imgix.net/90fbc8abe43e60bf09c6a2554b3b6b1e0664ffb9a7d1a0a7b966a1f44e8ede6e?w=180&h=236&fit=min&auto=format",
+  "lucky-7": "https://mediumrare.imgix.net/90fbc8abe43e60bf09c6a2554b3b6b1e0664ffb9a7d1a0a7b966a1f44e8ede6e?w=180&h=236&fit=min&auto=format",
+  "ezugi-bet-on-teen-patti": "https://mediumrare.imgix.net/e6adff012fe96c1b11eb2790e18b4244b1e0e1bee0e64c768dbef53d99ac29bd?w=180&h=236&fit=min&auto=format",
+  "ezugi-dragon-tiger": "https://mediumrare.imgix.net/c2f44dddceb673a4cd6205670ceabe0572d04c16e290af6a2427631220111eed?w=180&h=236&fit=min&auto=format",
+  "ezugi-cricket-war": "https://mediumrare.imgix.net/090713957939b0a6f2b39eb2f6fc4a631941996d80dcdbd0d377e4144ba593db?w=180&h=236&fit=min&auto=format",
+  "ezugi-namaste-roulette": "https://mediumrare.imgix.net/323d8b0ff8f6749a76c49f2cccd09cab6db7da6510e51296fee2da086bcfb926?w=180&h=236&fit=min&auto=format",
+  "ezugi-one-day-teen-patti": "https://mediumrare.imgix.net/7ceb40f042851f55b9aebef86bf770c64467fc24852b3ab0f1187b1d4dbffc37?w=180&h=236&fit=min&auto=format",
+  "ezugi-speed-baccarat": "https://mediumrare.imgix.net/5e3e937e6d0694a8dce0576719c3db0e66b126d5adf7c4096e4dfe1a39907fdf?w=180&h=236&fit=min&auto=format",
+  "ezugi-unlimited-blackjack": "https://mediumrare.imgix.net/ceb29aff91c7ba3033e44ee289d2eeb4e85088cdb56daac04d2e82a886542b05?w=180&h=236&fit=min&auto=format",
+  "ezugi-roulette-360": "https://mediumrare.imgix.net/7612d391022b3c63ccbba72179d2622f6177d14dd95687c8811292d2336fa7f5?w=180&h=236&fit=min&auto=format",
+  "ezugi-auto-roulette": "https://mediumrare.imgix.net/c5996d604ffd3f6e1e34d94425948d29f78bbd0a96c9611a78b12de8b4ff7677?w=180&h=236&fit=min&auto=format",
+  "ezugi-ultimate-sic-bo": "https://mediumrare.imgix.net/e8ed07116e4adbd29e5e03fcc1389337c74ab24d9fce59e52548f371582567e7?w=180&h=236&fit=min&auto=format",
+  "ezugi-fiesta-baccarat": "https://mediumrare.imgix.net/ff0a14692fa8c96201ee4a73e4ba56f92078ddae91133b86cf166bfa9555a483?w=180&h=236&fit=min&auto=format",
+  "ezugi-marina-casino-baccarat": "https://mediumrare.imgix.net/8bb40aa27b0e8bcc8b21b11e292b55d66c01d434c2dee3ee79c3f39a344f996b?w=180&h=236&fit=min&auto=format",
+  "ezugi-salsa-baccarat": "https://mediumrare.imgix.net/a531dd40ee12884b7a8c818667c7d511a50d2e0973248ae0e1839d0b29b5a04c?w=180&h=236&fit=min&auto=format",
+  "ezugi-royal-poker": "https://mediumrare.imgix.net/8bff73ce9955a02f1d16a8be6b2e9a6b28a1903bf0d9b7b8ac3003738af2f079?w=180&h=236&fit=min&auto=format",
+  "ezugi-video-blackjack": "https://mediumrare.imgix.net/3a536fa64023f92764ddccad1b80102d1b32b23a2e3dac4dff52394a612fc005?w=180&h=236&fit=min&auto=format",
+  "ezugi-russian-poker": "https://mediumrare.imgix.net/b9bf9a6c2a9edfe36599ab345efdcec33e61777ddf4546a88dad061e8b01bce5?w=180&h=236&fit=min&auto=format",
+  "ezugi-32-cards": "https://mediumrare.imgix.net/9e3cfc61aac9d12bf2583c902f980b47f7e185ce4de9f3ce68f41e7f89793dec?w=180&h=236&fit=min&auto=format",
+  "ezugi-knockout-baccarat": "https://mediumrare.imgix.net/5e3e937e6d0694a8dce0576719c3db0e66b126d5adf7c4096e4dfe1a39907fdf?w=180&h=236&fit=min&auto=format",
+  "ezugi-diamond-roulette": "https://mediumrare.imgix.net/bbba7c81cef8f3bfe9df0ea527476247356256e9ebe519d576a5295719e697f6?w=180&h=236&fit=min&auto=format",
+  "ezugi-blackjack-salon-prive": "https://mediumrare.imgix.net/ceb29aff91c7ba3033e44ee289d2eeb4e85088cdb56daac04d2e82a886542b05?w=180&h=236&fit=min&auto=format",
+  "ezugi-prestige-auto-roulette": "https://mediumrare.imgix.net/7612d391022b3c63ccbba72179d2622f6177d14dd95687c8811292d2336fa7f5?w=180&h=236&fit=min&auto=format",
+  "ezugi-baccarat-super-6": "https://mediumrare.imgix.net/8bb40aa27b0e8bcc8b21b11e292b55d66c01d434c2dee3ee79c3f39a344f996b?w=180&h=236&fit=min&auto=format",
+  "ezugi-casino-holdem": "https://mediumrare.imgix.net/8bff73ce9955a02f1d16a8be6b2e9a6b28a1903bf0d9b7b8ac3003738af2f079?w=180&h=236&fit=min&auto=format",
+  "ezugi-golden-baccarat-super-6": "https://mediumrare.imgix.net/ff0a14692fa8c96201ee4a73e4ba56f92078ddae91133b86cf166bfa9555a483?w=180&h=236&fit=min&auto=format",
+  "ezugi-vip-surrender-blackjack": "https://mediumrare.imgix.net/ceb29aff91c7ba3033e44ee289d2eeb4e85088cdb56daac04d2e82a886542b05?w=180&h=236&fit=min&auto=format",
+  "ezugi-italian-roulette": "https://mediumrare.imgix.net/323d8b0ff8f6749a76c49f2cccd09cab6db7da6510e51296fee2da086bcfb926?w=180&h=236&fit=min&auto=format",
+  "ezugi-ruleta-del-sol": "https://mediumrare.imgix.net/b40368dca8c59e3c834825be53985bcd692d0e4a372200509f0d93de4d96e318?w=180&h=236&fit=min&auto=format",
+  "ezugi-dream-catcher": "https://mediumrare.imgix.net/289c2a79f90e7903933d1ee6d61ae4eb450fe2ced952a663a960ff06da452af2?w=180&h=236&fit=min&auto=format",
+  "ezugi-turkish-roulette": "https://mediumrare.imgix.net/c5996d604ffd3f6e1e34d94425948d29f78bbd0a96c9611a78b12de8b4ff7677?w=180&h=236&fit=min&auto=format",
+  "ezugi-sic-bo": "https://mediumrare.imgix.net/e8ed07116e4adbd29e5e03fcc1389337c74ab24d9fce59e52548f371582567e7?w=180&h=236&fit=min&auto=format",
+  "ezugi-white-russian-blackjack": "https://mediumrare.imgix.net/ceb29aff91c7ba3033e44ee289d2eeb4e85088cdb56daac04d2e82a886542b05?w=180&h=236&fit=min&auto=format",
+  "ezugi-speed-roulette": "https://mediumrare.imgix.net/7612d391022b3c63ccbba72179d2622f6177d14dd95687c8811292d2336fa7f5?w=180&h=236&fit=min&auto=format",
+};
+
 export const GAME_THUMBNAILS: Record<string, string> = {
   ...INOUT_GAME_THUMBNAILS,
+  ...EZUGI_GAME_THUMBNAILS,
   // ==========================================
   // STAKE ORIGINALS (31 Games)
   // ==========================================
