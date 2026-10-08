@@ -32,6 +32,8 @@ export default function Navbar() {
     isMounted,
     isAuthenticated,
     user,
+    openSignIn,
+    openRegister,
     openOneTap,
     isWalletModalOpen,
     openWalletModal,
@@ -166,13 +168,13 @@ export default function Navbar() {
           /* Guest View: Sign In & Register Buttons */
           <div className="flex items-center gap-2 shrink-0">
             <button
-              onClick={openOneTap}
+              onClick={openSignIn}
               className="text-[#b1bad3] hover:text-white font-semibold text-sm sm:text-base px-3 py-2 transition-colors cursor-pointer"
             >
               Sign In
             </button>
             <button
-              onClick={openOneTap}
+              onClick={openRegister}
               className="bg-[#1475e1] hover:bg-[#1268c7] text-white font-bold text-sm sm:text-base px-3.5 py-2 rounded-xl shadow-sm transition-all cursor-pointer"
             >
               Register

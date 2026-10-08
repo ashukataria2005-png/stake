@@ -46,6 +46,8 @@ interface GameContextType {
   isAuthenticated: boolean;
   user: UserProfile | null;
   isOneTapOpen: boolean;
+  isAuthModalOpen: boolean;
+  authModalMode: "signin" | "register";
   isWalletModalOpen: boolean;
   isWalletSettingsOpen: boolean;
   recentlyPlayedGames: RecentlyPlayedGame[];
@@ -64,6 +66,10 @@ interface GameContextType {
   formatDisplayBalance: (valUsd?: number) => DisplayBalanceInfo;
   login: (userData?: Partial<UserProfile>) => void;
   logout: () => void;
+  openAuthModal: (mode?: "signin" | "register") => void;
+  closeAuthModal: () => void;
+  openSignIn: () => void;
+  openRegister: () => void;
   openOneTap: () => void;
   closeOneTap: () => void;
   openWalletModal: () => void;
@@ -116,6 +122,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
 
   const [isOneTapOpen, setIsOneTapOpen] = useState<boolean>(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
+  const [authModalMode, setAuthModalMode] = useState<"signin" | "register">("signin");
   const [isWalletModalOpen, setIsWalletModalOpen] = useState<boolean>(false);
   const [isWalletSettingsOpen, setIsWalletSettingsOpen] = useState<boolean>(false);
   const [recentlyPlayedGames, setRecentlyPlayedGames] = useState<RecentlyPlayedGame[]>([]);
@@ -235,6 +243,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     setRealBalance(DEFAULT_USD_BALANCE);
     setCryptoBalances(DEFAULT_CRYPTO_BALANCES);
     setIsOneTapOpen(false);
+    setIsAuthModalOpen(false);
 
     try {
       localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ isAuthenticated: true, user: profile }));
@@ -255,8 +264,16 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const openOneTap = () => setIsOneTapOpen(true);
-  const closeOneTap = () => setIsOneTapOpen(false);
+  const openAuthModal = (mode: "signin" | "register" = "signin") => {
+    setAuthModalMode(mode);
+    setIsAuthModalOpen(true);
+  };
+  const closeAuthModal = () => setIsAuthModalOpen(false);
+  const openSignIn = () => openAuthModal("signin");
+  const openRegister = () => openAuthModal("register");
+
+  const openOneTap = () => openAuthModal("signin");
+  const closeOneTap = () => closeAuthModal();
 
   const openWalletModal = () => setIsWalletModalOpen(true);
   const closeWalletModal = () => setIsWalletModalOpen(false);
@@ -438,6 +455,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         isAuthenticated,
         user,
         isOneTapOpen,
+        isAuthModalOpen,
+        authModalMode,
         isWalletModalOpen,
         isWalletSettingsOpen,
         recentlyPlayedGames,
@@ -456,6 +475,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         formatDisplayBalance,
         login,
         logout,
+        openAuthModal,
+        closeAuthModal,
+        openSignIn,
+        openRegister,
         openOneTap,
         closeOneTap,
         openWalletModal,

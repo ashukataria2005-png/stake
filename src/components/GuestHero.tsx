@@ -4,7 +4,7 @@ import React from "react";
 import { useGame } from "@/context/GameContext";
 
 export default function GuestHero() {
-  const { openOneTap } = useGame();
+  const { openRegister, openSignIn, openOneTap } = useGame();
 
   return (
     <section className="relative overflow-hidden rounded-2xl border border-[#213743] bg-gradient-to-b from-[#1a2c38] via-[#14232e] to-[#0f212e] p-6 sm:p-8 md:p-10 mb-8 shadow-2xl">
@@ -118,7 +118,7 @@ export default function GuestHero() {
         <div className="w-full max-w-md mx-auto mt-5">
           {/* Primary CTA Button */}
           <button
-            onClick={openOneTap}
+            onClick={openRegister}
             className="w-full bg-[#1475e1] text-white font-bold py-3.5 rounded-lg hover:brightness-110 active:scale-[0.99] transition-all text-base shadow-lg shadow-blue-600/30 cursor-pointer flex items-center justify-center gap-2 group"
           >
             <span>Register</span>

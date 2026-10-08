@@ -5,7 +5,7 @@ import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import CommunityChat from "@/components/CommunityChat";
-import GoogleOneTap from "@/components/GoogleOneTap";
+import AuthModal from "@/components/auth/AuthModal";
 import ScrollToTop from "@/components/ScrollToTop";
 import StakeFooter from "@/components/StakeFooter";
 import { useGame } from "@/context/GameContext";
@@ -48,8 +48,8 @@ export default function MainLayoutShell({
       {/* Mobile Fixed Bottom Navigation */}
       <MobileBottomNav />
 
-      {/* Google One-Tap Bottom Sheet Drawer */}
-      <GoogleOneTap />
+      {/* Authentic Stake Sign In & Register Modal */}
+      <AuthModal />
 
       {/* Floating Scroll-To-Top Button */}
       <ScrollToTop />
