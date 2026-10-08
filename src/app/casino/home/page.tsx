@@ -30,6 +30,8 @@ import {
   SMARTSOFT_GAMES,
   HP100_GAMES,
   JILI_GAMES,
+  EVOPLAY_GAMES,
+  TURBOGAMES_GAMES,
   PRAGMATIC_GAMES,
   HACKSAW_GAMES,
   GameItem,
@@ -876,6 +878,31 @@ export default function CasinoHomePage() {
     href: "/casino/group/jili",
     image: game.image,
     bgGradient: "from-yellow-950/80 via-[#1a2c38] to-[#0f212e]",
+  }));
+
+
+  const evoplayGames: CasinoCardData[] = EVOPLAY_GAMES.map((game) => ({
+    id: game.id,
+    title: game.title,
+    provider: "Evoplay",
+    playersCount: game.livePlayerCount || game.playersCount,
+    badge: game.badge,
+    badgeColor: game.badgeColor,
+    href: "/casino/group/evoplay",
+    image: game.image,
+    bgGradient: "from-emerald-950/80 via-[#1a2c38] to-[#0f212e]",
+  }));
+
+  const turboGames: CasinoCardData[] = TURBOGAMES_GAMES.map((game) => ({
+    id: game.id,
+    title: game.title,
+    provider: "Turbo Games",
+    playersCount: game.livePlayerCount || game.playersCount,
+    badge: game.badge,
+    badgeColor: game.badgeColor,
+    href: "/casino/group/turbogames",
+    image: game.image,
+    bgGradient: "from-orange-950/80 via-[#1a2c38] to-[#0f212e]",
   }));
 
   // 4.6. INOUT Games (30 Games strictly ordered by player count hierarchy)
@@ -1812,6 +1839,25 @@ export default function CasinoHomePage() {
         onCardClick={handleCardClick}
         sectionId="jili"
       />
+
+      {/* EVOPLAY */}
+      <CasinoGameRow
+        title="Evoplay"
+        linkHref="/casino/group/evoplay"
+        cards={evoplayGames}
+        onCardClick={handleCardClick}
+        sectionId="evoplay"
+      />
+
+      {/* TURBO GAMES */}
+      <CasinoGameRow
+        title="Turbo Games"
+        linkHref="/casino/group/turbogames"
+        cards={turboGames}
+        onCardClick={handleCardClick}
+        sectionId="turbogames"
+      />
+
 
 
             {/* 8. GAME SHOWS > */}

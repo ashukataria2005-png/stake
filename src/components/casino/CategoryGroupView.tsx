@@ -29,6 +29,8 @@ import {
   SMARTSOFT_GAMES,
   HP100_GAMES,
   JILI_GAMES,
+  EVOPLAY_GAMES,
+  TURBOGAMES_GAMES,
   POPULAR_SLOTS,
   PRAGMATIC_GAMES,
   HACKSAW_GAMES,
@@ -129,6 +131,32 @@ export default function CategoryGroupView({ slug }: CategoryGroupViewProps) {
           initialGames: HP100_GAMES,
           bannerBg: "from-orange-950/70 via-[#1a2c38] to-[#0f212e]",
           icon: <Flame className="w-6 h-6 text-orange-500" />,
+        };
+      case "evoplay":
+      case "evoplay-games":
+        return {
+          title: "Evoplay",
+          badge: "17 3D ACTION TITLES",
+          playersCount: "38,900",
+          stats: "17 Games • Evoplay Studio • Penalty Shootout, Table & 3D Action",
+          description:
+            "High-energy interactive 3D gameplay, world-famous penalty shootout titles, and European table classics engineered by Evoplay.",
+          initialGames: EVOPLAY_GAMES,
+          bannerBg: "from-emerald-950/70 via-[#1a2c38] to-[#0f212e]",
+          icon: <Activity className="w-6 h-6 text-emerald-400" />,
+        };
+      case "turbogames":
+      case "turbo-games":
+        return {
+          title: "Turbo Games",
+          badge: "20 INSTANT CRASH TITLES",
+          playersCount: "42,100",
+          stats: "20 Games • Turbo Games • Fast Plinko, Towers & Crash Mechanics",
+          description:
+            "Instant crash, multiplier ladder, and provably fair fast action games with ultra-rapid round resolutions and low house edge by Turbo Games.",
+          initialGames: TURBOGAMES_GAMES,
+          bannerBg: "from-orange-950/70 via-[#1a2c38] to-[#0f212e]",
+          icon: <Flame className="w-6 h-6 text-orange-400" />,
         };
       case "jili":
       case "jili-games":
