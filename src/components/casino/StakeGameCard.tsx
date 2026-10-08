@@ -28,12 +28,16 @@ export default function StakeGameCard({ game, onClick }: StakeGameCardProps) {
             src={thumbnailUrl}
             alt={game.title}
             onError={() => setImageError(true)}
-            className="w-full h-full object-cover rounded-xl"
+            className="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-105"
             loading="lazy"
+            decoding="async"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center p-3">
+          <div className="w-full h-full flex flex-col items-center justify-center p-3 bg-gradient-to-br from-[#1a2c38] to-[#0f212e] text-center select-none">
             <StakeGameArtwork gameId={game.slug || game.id} />
+            <span className="mt-2 text-xs font-bold text-white/90 line-clamp-2 px-1">
+              {game.title}
+            </span>
           </div>
         )}
 
