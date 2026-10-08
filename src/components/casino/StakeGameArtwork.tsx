@@ -1742,7 +1742,141 @@ export default function StakeGameArtwork({
         </svg>
       );
 
-          return (
+    // ==========================================
+    // TASK 31 BESPOKE & THEMED ARTWORK FALLBACKS
+    // ==========================================
+    case "ezugi-andar-bahar":
+    case "andar-bahar":
+      return (
+        <svg viewBox="0 0 200 200" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="100" cy="100" r="85" fill="#1e3a8a" opacity="0.6" />
+          <rect x="40" y="55" width="50" height="75" rx="6" fill="#f8fafc" stroke="#3b82f6" strokeWidth="2" />
+          <text x="65" y="100" textAnchor="middle" fill="#1e3a8a" fontSize="22" fontWeight="900">A</text>
+          <text x="65" y="120" textAnchor="middle" fill="#3b82f6" fontSize="8" fontWeight="bold">ANDAR</text>
+          <rect x="110" y="55" width="50" height="75" rx="6" fill="#f8fafc" stroke="#ef4444" strokeWidth="2" />
+          <text x="135" y="100" textAnchor="middle" fill="#dc2626" fontSize="22" fontWeight="900">B</text>
+          <text x="135" y="120" textAnchor="middle" fill="#ef4444" fontSize="8" fontWeight="bold">BAHAR</text>
+          <rect x="68" y="145" width="64" height="18" rx="9" fill="#00e701" />
+          <text x="100" y="157" textAnchor="middle" fill="#0f212e" fontSize="9" fontWeight="900">EZUGI LIVE</text>
+        </svg>
+      );
+
+    case "ezugi-teen-patti":
+    case "teen-patti":
+      return (
+        <svg viewBox="0 0 200 200" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="100" cy="100" r="85" fill="#7f1d1d" opacity="0.6" />
+          <g transform="translate(100, 95)">
+            <rect x="-42" y="-35" width="36" height="56" rx="4" fill="#ffffff" transform="rotate(-18)" stroke="#cbd5e1" />
+            <rect x="-18" y="-38" width="36" height="56" rx="4" fill="#ffffff" stroke="#cbd5e1" />
+            <rect x="6" y="-35" width="36" height="56" rx="4" fill="#ffffff" transform="rotate(18)" stroke="#cbd5e1" />
+            <text x="0" y="2" textAnchor="middle" fill="#dc2626" fontSize="18" fontWeight="900">A♠</text>
+          </g>
+          <rect x="65" y="145" width="70" height="18" rx="9" fill="#ef4444" />
+          <text x="100" y="157" textAnchor="middle" fill="#ffffff" fontSize="9" fontWeight="900">TEEN PATTI</text>
+        </svg>
+      );
+
+    case "spribe-aviator":
+    case "aviator":
+      return (
+        <svg viewBox="0 0 200 200" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="100" cy="100" r="85" fill="#450a0a" opacity="0.8" />
+          <circle cx="100" cy="95" r="45" fill="#1a1a2e" stroke="#dc2626" strokeWidth="4" />
+          <text x="100" y="105" textAnchor="middle" fill="#ffffff" fontSize="28">✈️</text>
+          <rect x="60" y="148" width="80" height="18" rx="9" fill="#dc2626" />
+          <text x="100" y="160" textAnchor="middle" fill="#ffffff" fontSize="8" fontWeight="900">SPRIBE</text>
+        </svg>
+      );
+
+    case "smartsoft-jetx":
+    case "jetx":
+      return (
+        <svg viewBox="0 0 200 200" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="100" cy="100" r="85" fill="#78350f" opacity="0.8" />
+          <circle cx="100" cy="95" r="45" fill="#1c1917" stroke="#f59e0b" strokeWidth="4" />
+          <text x="100" y="105" textAnchor="middle" fill="#fbbf24" fontSize="28">🚀</text>
+          <rect x="55" y="148" width="90" height="18" rx="9" fill="#f59e0b" />
+          <text x="100" y="160" textAnchor="middle" fill="#0f212e" fontSize="8" fontWeight="900">SMARTSOFT</text>
+        </svg>
+      );
+
+    case "hp100-astronaut":
+    case "astronaut":
+      return (
+        <svg viewBox="0 0 200 200" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="100" cy="100" r="85" fill="#1e1b4b" opacity="0.8" />
+          <circle cx="100" cy="95" r="45" fill="#0f172a" stroke="#ef4444" strokeWidth="4" />
+          <text x="100" y="105" textAnchor="middle" fill="#f87171" fontSize="28">👨‍🚀</text>
+          <rect x="60" y="148" width="80" height="18" rx="9" fill="#dc2626" />
+          <text x="100" y="160" textAnchor="middle" fill="#ffffff" fontSize="8" fontWeight="900">100HP</text>
+        </svg>
+      );
+
+    case "jili-super-ace":
+    case "super-ace":
+      return (
+        <svg viewBox="0 0 200 200" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="100" cy="100" r="85" fill="#713f12" opacity="0.8" />
+          <circle cx="100" cy="95" r="45" fill="#1c1917" stroke="#eab308" strokeWidth="4" />
+          <text x="100" y="105" textAnchor="middle" fill="#facc15" fontSize="28">👑</text>
+          <rect x="60" y="148" width="80" height="18" rx="9" fill="#eab308" />
+          <text x="100" y="160" textAnchor="middle" fill="#0f212e" fontSize="8" fontWeight="900">JILI GAMES</text>
+        </svg>
+      );
+
+    default:
+      if (key.startsWith("ezugi-")) {
+        return (
+          <svg viewBox="0 0 200 200" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="100" r="85" fill="#082542" />
+            <text x="100" y="105" textAnchor="middle" fill="#38bdf8" fontSize="28">♠️</text>
+            <rect x="60" y="148" width="80" height="18" rx="9" fill="#0284c7" />
+            <text x="100" y="160" textAnchor="middle" fill="#ffffff" fontSize="8" fontWeight="900">EZUGI LIVE</text>
+          </svg>
+        );
+      }
+      if (key.startsWith("spribe-")) {
+        return (
+          <svg viewBox="0 0 200 200" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="100" r="85" fill="#450a0a" />
+            <text x="100" y="105" textAnchor="middle" fill="#ef4444" fontSize="28">⚡</text>
+            <rect x="60" y="148" width="80" height="18" rx="9" fill="#dc2626" />
+            <text x="100" y="160" textAnchor="middle" fill="#ffffff" fontSize="8" fontWeight="900">SPRIBE</text>
+          </svg>
+        );
+      }
+      if (key.startsWith("smartsoft-")) {
+        return (
+          <svg viewBox="0 0 200 200" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="100" r="85" fill="#78350f" />
+            <text x="100" y="105" textAnchor="middle" fill="#f59e0b" fontSize="28">🎮</text>
+            <rect x="55" y="148" width="90" height="18" rx="9" fill="#f59e0b" />
+            <text x="100" y="160" textAnchor="middle" fill="#0f212e" fontSize="8" fontWeight="900">SMARTSOFT</text>
+          </svg>
+        );
+      }
+      if (key.startsWith("hp100-")) {
+        return (
+          <svg viewBox="0 0 200 200" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="100" r="85" fill="#1e1b4b" />
+            <text x="100" y="105" textAnchor="middle" fill="#ef4444" fontSize="28">🏁</text>
+            <rect x="60" y="148" width="80" height="18" rx="9" fill="#dc2626" />
+            <text x="100" y="160" textAnchor="middle" fill="#ffffff" fontSize="8" fontWeight="900">100HP</text>
+          </svg>
+        );
+      }
+      if (key.startsWith("jili-")) {
+        return (
+          <svg viewBox="0 0 200 200" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="100" r="85" fill="#713f12" />
+            <text x="100" y="105" textAnchor="middle" fill="#eab308" fontSize="28">💎</text>
+            <rect x="60" y="148" width="80" height="18" rx="9" fill="#eab308" />
+            <text x="100" y="160" textAnchor="middle" fill="#0f212e" fontSize="8" fontWeight="900">JILI GAMES</text>
+          </svg>
+        );
+      }
+      return (
         <svg viewBox="0 0 200 200" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <radialGradient id="stakeChipBg" cx="50%" cy="50%" r="50%">

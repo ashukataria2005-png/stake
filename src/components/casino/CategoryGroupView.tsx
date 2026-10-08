@@ -24,6 +24,11 @@ import {
   LIVE_CASINO_GAMES,
   EVOLUTION_GAMES,
   INOUT_GAMES,
+  EZUGI_GAMES,
+  SPRIBE_GAMES,
+  SMARTSOFT_GAMES,
+  HP100_GAMES,
+  JILI_GAMES,
   POPULAR_SLOTS,
   PRAGMATIC_GAMES,
   HACKSAW_GAMES,
@@ -73,6 +78,70 @@ export default function CategoryGroupView({ slug }: CategoryGroupViewProps) {
           initialGames: LIVE_CASINO_GAMES,
           bannerBg: "from-rose-950/70 via-[#1a2c38] to-[#0f212e]",
           icon: <Gamepad2 className="w-6 h-6 text-rose-400" />,
+        };
+      case "ezugi":
+      case "ezugi-games":
+        return {
+          title: "Ezugi Live Casino",
+          badge: "35 LIVE TABLES",
+          playersCount: "34,500",
+          stats: "35 Live Tables • Ezugi Gaming • Authentic Indian & International Live Studios",
+          description:
+            "Play authentic live dealer tables from Ezugi, featuring flagship Indian classics like Andar Bahar and Teen Patti alongside high-definition Roulette, Blackjack, and Baccarat suites.",
+          initialGames: EZUGI_GAMES,
+          bannerBg: "from-blue-950/70 via-[#1a2c38] to-[#0f212e]",
+          icon: <Activity className="w-6 h-6 text-blue-400" />,
+        };
+      case "spribe":
+        return {
+          title: "Spribe",
+          badge: "18 TURBO GAMES",
+          playersCount: "38,400",
+          stats: "18 Games • Spribe Studio • Home of Aviator, Plinko & Table Classics",
+          description:
+            "Fast-paced provably fair turbo titles from Spribe, led by the flagship global crash sensation Aviator alongside Mines, Dice, Goal, and Blackjack.",
+          initialGames: SPRIBE_GAMES,
+          bannerBg: "from-red-950/70 via-[#1a2c38] to-[#0f212e]",
+          icon: <Activity className="w-6 h-6 text-red-400" />,
+        };
+      case "smartsoft":
+      case "smartsoft-gaming":
+        return {
+          title: "SmartSoft Gaming",
+          badge: "19 X-SERIES GAMES",
+          playersCount: "29,800",
+          stats: "19 Games • SmartSoft • JetX, Balloon & Table Sensations",
+          description:
+            "Pioneering next-generation crash sensations and interactive arcade games, starring JetX, Balloon, CricketX, and SmartSoft Table Games.",
+          initialGames: SMARTSOFT_GAMES,
+          bannerBg: "from-amber-950/70 via-[#1a2c38] to-[#0f212e]",
+          icon: <Flame className="w-6 h-6 text-amber-500" />,
+        };
+      case "100hp":
+      case "hp100":
+        return {
+          title: "100 HP Gaming",
+          badge: "13 ARCADE TITLES",
+          playersCount: "18,900",
+          stats: "13 Games • 100 HP Gaming • Astronaut, Airjet & Turbo Table Series",
+          description:
+            "High-octane arcade excitement and retro racing slot machines engineered for instant high-speed thrills and exponential multipliers.",
+          initialGames: HP100_GAMES,
+          bannerBg: "from-orange-950/70 via-[#1a2c38] to-[#0f212e]",
+          icon: <Flame className="w-6 h-6 text-orange-500" />,
+        };
+      case "jili":
+      case "jili-games":
+        return {
+          title: "Jili Games",
+          badge: "20 TOP HIT GAMES",
+          playersCount: "42,100",
+          stats: "20 Games • Jili Games • Super Ace, Mines & Asian Table Hits",
+          description:
+            "Asia's hottest arcade and card slot phenomenon, starring Super Ace, Mines, GoRush, and Asian table classics with massive payout chains.",
+          initialGames: JILI_GAMES,
+          bannerBg: "from-yellow-950/70 via-[#1a2c38] to-[#0f212e]",
+          icon: <Sparkles className="w-6 h-6 text-yellow-400" />,
         };
       case "evolution":
         return {

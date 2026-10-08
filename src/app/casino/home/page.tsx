@@ -25,6 +25,11 @@ import {
   ALL_GAMES,
   EVOLUTION_GAMES,
   INOUT_GAMES,
+  EZUGI_GAMES,
+  SPRIBE_GAMES,
+  SMARTSOFT_GAMES,
+  HP100_GAMES,
+  JILI_GAMES,
   PRAGMATIC_GAMES,
   HACKSAW_GAMES,
   GameItem,
@@ -524,6 +529,18 @@ export default function CasinoHomePage() {
       href: "/casino/collection/providers",
     },
     {
+      id: "pub-spribe",
+      title: "Spribe",
+      provider: "18 Games",
+      badge: "TURBO",
+      badgeColor: "bg-red-500/20 text-red-300 border-red-500/30",
+      graphic: <span className="font-black tracking-wider text-xs sm:text-sm text-white">SPRIBE</span>,
+      bgGradient: "from-red-950 via-[#1a2c38] to-[#0f212e]",
+      isPublisherCard: true,
+      playersCount: 38400,
+      href: "/casino/group/spribe",
+    },
+    {
       id: "pub-bgaming",
       title: "BGaming",
       provider: "85 Games",
@@ -799,7 +816,69 @@ export default function CasinoHomePage() {
     bgGradient: "from-blue-950/80 via-[#1a2c38] to-[#0f212e]",
   }));
 
-    // 4.6. INOUT Games (30 Games strictly ordered by player count hierarchy)
+  
+  // Task 31 Card Mappings
+  const ezugiGames: CasinoCardData[] = EZUGI_GAMES.map((game) => ({
+    id: game.id,
+    title: game.title,
+    provider: "Ezugi",
+    playersCount: game.livePlayerCount || game.playersCount,
+    badge: game.badge,
+    badgeColor: game.badgeColor,
+    href: "/casino/live",
+    image: game.image,
+    bgGradient: "from-blue-950/80 via-[#1a2c38] to-[#0f212e]",
+  }));
+
+  const spribeGames: CasinoCardData[] = SPRIBE_GAMES.map((game) => ({
+    id: game.id,
+    title: game.title,
+    provider: "Spribe",
+    playersCount: game.livePlayerCount || game.playersCount,
+    badge: game.badge,
+    badgeColor: game.badgeColor,
+    href: "/casino/group/spribe",
+    image: game.image,
+    bgGradient: "from-red-950/80 via-[#1a2c38] to-[#0f212e]",
+  }));
+
+  const smartsoftGames: CasinoCardData[] = SMARTSOFT_GAMES.map((game) => ({
+    id: game.id,
+    title: game.title,
+    provider: "SmartSoft",
+    playersCount: game.livePlayerCount || game.playersCount,
+    badge: game.badge,
+    badgeColor: game.badgeColor,
+    href: "/casino/group/smartsoft",
+    image: game.image,
+    bgGradient: "from-amber-950/80 via-[#1a2c38] to-[#0f212e]",
+  }));
+
+  const hp100Games: CasinoCardData[] = HP100_GAMES.map((game) => ({
+    id: game.id,
+    title: game.title,
+    provider: "100hp Gaming",
+    playersCount: game.livePlayerCount || game.playersCount,
+    badge: game.badge,
+    badgeColor: game.badgeColor,
+    href: "/casino/group/100hp",
+    image: game.image,
+    bgGradient: "from-orange-950/80 via-[#1a2c38] to-[#0f212e]",
+  }));
+
+  const jiliGames: CasinoCardData[] = JILI_GAMES.map((game) => ({
+    id: game.id,
+    title: game.title,
+    provider: "Jili Games",
+    playersCount: game.livePlayerCount || game.playersCount,
+    badge: game.badge,
+    badgeColor: game.badgeColor,
+    href: "/casino/group/jili",
+    image: game.image,
+    bgGradient: "from-yellow-950/80 via-[#1a2c38] to-[#0f212e]",
+  }));
+
+  // 4.6. INOUT Games (30 Games strictly ordered by player count hierarchy)
   const inoutGames: CasinoCardData[] = INOUT_GAMES.map((game) => ({
     id: game.id,
     title: game.title,
@@ -1660,6 +1739,16 @@ export default function CasinoHomePage() {
         sectionId="evolution"
       />
 
+      {/* EZUGI LIVE CASINO */}
+      <CasinoGameRow
+        title="Ezugi"
+        linkHref="/casino/group/ezugi"
+        cards={ezugiGames}
+        onCardClick={handleCardClick}
+        sectionId="ezugi"
+      />
+
+
             {/* 7.6. INOUT GAMES > */}
       <CasinoGameRow
         title="INOUT Games"
@@ -1687,6 +1776,43 @@ export default function CasinoHomePage() {
         onCardClick={handleCardClick}
         sectionId="hacksaw-gaming"
       />
+
+      {/* SPRIBE TURBO */}
+      <CasinoGameRow
+        title="Spribe"
+        linkHref="/casino/group/spribe"
+        cards={spribeGames}
+        onCardClick={handleCardClick}
+        sectionId="spribe"
+      />
+
+      {/* SMARTSOFT GAMING */}
+      <CasinoGameRow
+        title="SmartSoft"
+        linkHref="/casino/group/smartsoft"
+        cards={smartsoftGames}
+        onCardClick={handleCardClick}
+        sectionId="smartsoft"
+      />
+
+      {/* 100 HP GAMING */}
+      <CasinoGameRow
+        title="100 HP Gaming"
+        linkHref="/casino/group/100hp"
+        cards={hp100Games}
+        onCardClick={handleCardClick}
+        sectionId="100hp"
+      />
+
+      {/* JILI GAMES */}
+      <CasinoGameRow
+        title="Jili Games"
+        linkHref="/casino/group/jili"
+        cards={jiliGames}
+        onCardClick={handleCardClick}
+        sectionId="jili"
+      />
+
 
             {/* 8. GAME SHOWS > */}
       <CasinoGameRow
