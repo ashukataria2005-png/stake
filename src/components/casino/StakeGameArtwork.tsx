@@ -1825,6 +1825,73 @@ export default function StakeGameArtwork({
           </svg>
         );
       }
+      if (key.startsWith("hp100-")) {
+        return (
+          <svg viewBox="0 0 200 200" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="100" r="85" fill="#1e1b4b" opacity="0.8" />
+            <circle cx="100" cy="95" r="45" fill="#0f172a" stroke="#ef4444" strokeWidth="4" />
+            <text x="100" y="98" textAnchor="middle" fill="#f87171" fontSize="22" fontWeight="900">100HP</text>
+            <text x="100" y="115" textAnchor="middle" fill="#facc15" fontSize="10" fontWeight="bold">TURBO</text>
+            <rect x="60" y="148" width="80" height="18" rx="9" fill="#dc2626" />
+            <text x="100" y="160" textAnchor="middle" fill="#ffffff" fontSize="8" fontWeight="900">100 HP GAMING</text>
+          </svg>
+        );
+      }
+      if (key.startsWith("spribe-") || key === "aviator") {
+        return (
+          <svg viewBox="0 0 200 200" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="100" r="85" fill="#450a0a" opacity="0.8" />
+            <circle cx="100" cy="95" r="45" fill="#1a1a2e" stroke="#dc2626" strokeWidth="4" />
+            <text x="100" y="105" textAnchor="middle" fill="#ffffff" fontSize="28">✈️</text>
+            <rect x="60" y="148" width="80" height="18" rx="9" fill="#dc2626" />
+            <text x="100" y="160" textAnchor="middle" fill="#ffffff" fontSize="8" fontWeight="900">SPRIBE</text>
+          </svg>
+        );
+      }
+      if (key.startsWith("smartsoft-") || key === "jetx" || key === "balloon" || key === "cricket-x") {
+        return (
+          <svg viewBox="0 0 200 200" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="100" r="85" fill="#78350f" opacity="0.8" />
+            <circle cx="100" cy="95" r="45" fill="#1c1917" stroke="#f59e0b" strokeWidth="4" />
+            <text x="100" y="105" textAnchor="middle" fill="#fbbf24" fontSize="28">🚀</text>
+            <rect x="55" y="148" width="90" height="18" rx="9" fill="#f59e0b" />
+            <text x="100" y="160" textAnchor="middle" fill="#0f212e" fontSize="8" fontWeight="900">SMARTSOFT</text>
+          </svg>
+        );
+      }
+      if (key.startsWith("jili-") || key === "super-ace" || key === "golden-empire" || key === "fortune-gems") {
+        return (
+          <svg viewBox="0 0 200 200" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="100" r="85" fill="#713f12" opacity="0.8" />
+            <circle cx="100" cy="95" r="45" fill="#1c1917" stroke="#eab308" strokeWidth="4" />
+            <text x="100" y="105" textAnchor="middle" fill="#facc15" fontSize="28">👑</text>
+            <rect x="60" y="148" width="80" height="18" rx="9" fill="#eab308" />
+            <text x="100" y="160" textAnchor="middle" fill="#0f212e" fontSize="8" fontWeight="900">JILI GAMES</text>
+          </svg>
+        );
+      }
+      if (key.startsWith("evoplay-") || key === "penalty-shoot-out" || key === "goblin-run") {
+        return (
+          <svg viewBox="0 0 200 200" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="100" r="85" fill="#064e3b" opacity="0.8" />
+            <circle cx="100" cy="95" r="45" fill="#062d23" stroke="#10b981" strokeWidth="4" />
+            <text x="100" y="105" textAnchor="middle" fill="#34d399" fontSize="28">⚔️</text>
+            <rect x="60" y="148" width="80" height="18" rx="9" fill="#10b981" />
+            <text x="100" y="160" textAnchor="middle" fill="#0f212e" fontSize="8" fontWeight="900">EVOPLAY</text>
+          </svg>
+        );
+      }
+      if (key.startsWith("turbo-") || key.startsWith("towers-") || key === "crash-x") {
+        return (
+          <svg viewBox="0 0 200 200" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="100" cy="100" r="85" fill="#7c2d12" opacity="0.8" />
+            <circle cx="100" cy="95" r="45" fill="#1f1815" stroke="#f97316" strokeWidth="4" />
+            <text x="100" y="105" textAnchor="middle" fill="#fb923c" fontSize="28">⚡</text>
+            <rect x="58" y="148" width="84" height="18" rx="9" fill="#ea580c" />
+            <text x="100" y="160" textAnchor="middle" fill="#ffffff" fontSize="8" fontWeight="900">TURBO GAMES</text>
+          </svg>
+        );
+      }
       return (
         <svg viewBox="0 0 200 200" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
