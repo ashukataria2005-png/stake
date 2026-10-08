@@ -8,19 +8,11 @@ export function generateStaticParams() {
     { slug: "slots" },
     { slug: "game-shows" },
     { slug: "evolution" },
-    { slug: "ezugi" },
     { slug: "inout" },
     { slug: "pragmatic" },
     { slug: "pragmatic-play" },
     { slug: "hacksaw" },
     { slug: "hacksaw-gaming" },
-    { slug: "100hp" },
-    { slug: "spribe" },
-    { slug: "smartsoft" },
-    { slug: "jili" },
-    { slug: "evoplay" },
-    { slug: "pragmatic-live" },
-    { slug: "turbogames" },
   ];
 }
 

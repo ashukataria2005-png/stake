@@ -46,7 +46,7 @@ export default function LiveCasinoPage() {
             Stake Live Casino
           </h1>
           <p className="text-xs sm:text-sm text-[#b1bad3] leading-relaxed">
-            Direct high-definition audio & video streams from Evolution Gaming and Pragmatic Play Live studios. Real dealers, authentic shoe cards, and instant table action.
+            Direct high-definition audio & video streams from Evolution Gaming studios. Real dealers, authentic shoe cards, and instant table action.
           </p>
         </div>
       </div>

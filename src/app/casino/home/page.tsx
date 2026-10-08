@@ -24,17 +24,9 @@ import { useGame } from "@/context/GameContext";
 import {
   ALL_GAMES,
   EVOLUTION_GAMES,
-  EZUGI_GAMES,
   INOUT_GAMES,
   PRAGMATIC_GAMES,
   HACKSAW_GAMES,
-  HP100_GAMES,
-  SPRIBE_GAMES,
-  SMARTSOFT_GAMES,
-  JILI_GAMES,
-  EVOPLAY_GAMES,
-  PRAGMATIC_LIVE_GAMES,
-  TURBOGAMES_GAMES,
   GameItem,
 } from "@/data/stakeGames";
 import { getGameThumbnail } from "@/data/gameThumbnails";
@@ -532,18 +524,6 @@ export default function CasinoHomePage() {
       href: "/casino/collection/providers",
     },
     {
-      id: "pub-spribe",
-      title: "Spribe",
-      provider: "15 Games",
-      badge: "TURBO",
-      badgeColor: "bg-orange-500/20 text-orange-300 border-orange-500/30",
-      graphic: <span className="font-black tracking-wider text-xs sm:text-sm text-white">SPRIBE</span>,
-      bgGradient: "from-orange-950 via-[#1a2c38] to-[#0f212e]",
-      isPublisherCard: true,
-      playersCount: 17400,
-      href: "/casino/collection/providers",
-    },
-    {
       id: "pub-bgaming",
       title: "BGaming",
       provider: "85 Games",
@@ -793,21 +773,7 @@ export default function CasinoHomePage() {
     bgGradient: game.bgGradient || "from-red-950/80 via-[#1a2c38] to-[#0f212e]",
   }));
 
-  // 4.55. Ezugi Live Casino Suite (35 Games strictly ordered by popularity hierarchy - Task 28)
-  const ezugiGames: CasinoCardData[] = EZUGI_GAMES.map((game) => ({
-    id: game.id,
-    title: game.title,
-    provider: "Ezugi",
-    playersCount: game.livePlayerCount || game.playersCount,
-    badge: game.badge,
-    badgeColor: game.badgeColor,
-    href: "/casino/live",
-    image: game.image,
-    bgGradient: game.bgGradient || "from-blue-950/80 via-[#1a2c38] to-[#0f212e]",
-  }));
-
-
-  // 4.61. Pragmatic Play Games (32 Games)
+    // 4.61. Pragmatic Play Games (32 Games)
   const pragmaticGames: CasinoCardData[] = PRAGMATIC_GAMES.map((game) => ({
     id: game.id,
     title: game.title,
@@ -833,98 +799,7 @@ export default function CasinoHomePage() {
     bgGradient: "from-blue-950/80 via-[#1a2c38] to-[#0f212e]",
   }));
 
-  // 4.63. 100 HP Gaming (30 Games)
-  const hp100Games: CasinoCardData[] = HP100_GAMES.map((game) => ({
-    id: game.id,
-    title: game.title,
-    provider: "100 HP Gaming",
-    playersCount: game.livePlayerCount || game.playersCount,
-    badge: game.badge,
-    badgeColor: game.badgeColor,
-    href: "/casino/group/100hp",
-    image: game.image,
-    bgGradient: "from-red-950/80 via-[#1a2c38] to-[#0f212e]",
-  }));
-
-  // 4.64. Spribe Turbo Arcade (30 Games)
-  const spribeGames: CasinoCardData[] = SPRIBE_GAMES.map((game) => ({
-    id: game.id,
-    title: game.title,
-    provider: "Spribe",
-    playersCount: game.livePlayerCount || game.playersCount,
-    badge: game.badge,
-    badgeColor: game.badgeColor,
-    href: "/casino/group/spribe",
-    image: game.image,
-    bgGradient: "from-red-950/80 via-[#1a2c38] to-[#0f212e]",
-  }));
-
-  // 4.65. SmartSoft Gaming (30 Games)
-  const smartsoftGames: CasinoCardData[] = SMARTSOFT_GAMES.map((game) => ({
-    id: game.id,
-    title: game.title,
-    provider: "SmartSoft",
-    playersCount: game.livePlayerCount || game.playersCount,
-    badge: game.badge,
-    badgeColor: game.badgeColor,
-    href: "/casino/group/smartsoft",
-    image: game.image,
-    bgGradient: "from-amber-950/80 via-[#1a2c38] to-[#0f212e]",
-  }));
-
-  // 4.66. Jili Games (30 Games)
-  const jiliGames: CasinoCardData[] = JILI_GAMES.map((game) => ({
-    id: game.id,
-    title: game.title,
-    provider: "Jili Games",
-    playersCount: game.livePlayerCount || game.playersCount,
-    badge: game.badge,
-    badgeColor: game.badgeColor,
-    href: "/casino/group/jili",
-    image: game.image,
-    bgGradient: "from-yellow-950/80 via-[#1a2c38] to-[#0f212e]",
-  }));
-
-  // 4.67. Evoplay (30 Games)
-  const evoplayGames: CasinoCardData[] = EVOPLAY_GAMES.map((game) => ({
-    id: game.id,
-    title: game.title,
-    provider: "Evoplay",
-    playersCount: game.livePlayerCount || game.playersCount,
-    badge: game.badge,
-    badgeColor: game.badgeColor,
-    href: "/casino/group/evoplay",
-    image: game.image,
-    bgGradient: "from-emerald-950/80 via-[#1a2c38] to-[#0f212e]",
-  }));
-
-  // 4.68. Pragmatic Play Live (30 Games)
-  const pragmaticLiveGames: CasinoCardData[] = PRAGMATIC_LIVE_GAMES.map((game) => ({
-    id: game.id,
-    title: game.title,
-    provider: "Pragmatic Play Live",
-    playersCount: game.livePlayerCount || game.playersCount,
-    badge: game.badge,
-    badgeColor: game.badgeColor,
-    href: "/casino/group/pragmatic-live",
-    image: game.image,
-    bgGradient: "from-cyan-950/80 via-[#1a2c38] to-[#0f212e]",
-  }));
-
-  // 4.69. Turbo Games (30 Games)
-  const turboGames: CasinoCardData[] = TURBOGAMES_GAMES.map((game) => ({
-    id: game.id,
-    title: game.title,
-    provider: "Turbo Games",
-    playersCount: game.livePlayerCount || game.playersCount,
-    badge: game.badge,
-    badgeColor: game.badgeColor,
-    href: "/casino/group/turbogames",
-    image: game.image,
-    bgGradient: "from-orange-950/80 via-[#1a2c38] to-[#0f212e]",
-  }));
-
-  // 4.6. INOUT Games (30 Games strictly ordered by player count hierarchy)
+    // 4.6. INOUT Games (30 Games strictly ordered by player count hierarchy)
   const inoutGames: CasinoCardData[] = INOUT_GAMES.map((game) => ({
     id: game.id,
     title: game.title,
@@ -1359,7 +1234,7 @@ export default function CasinoHomePage() {
     {
       id: "aviator",
       title: "Aviator",
-      provider: "Spribe",
+      provider: "Stake Originals",
       playersCount: 3840,
       badge: "BURST",
       badgeColor: "bg-red-500/20 text-red-300 border-red-500/30",
@@ -1381,7 +1256,7 @@ export default function CasinoHomePage() {
     {
       id: "jetx",
       title: "JetX",
-      provider: "SmartSoft",
+      provider: "Stake Originals",
       playersCount: 2210,
       badge: "BURST",
       badgeColor: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30",
@@ -1425,7 +1300,7 @@ export default function CasinoHomePage() {
     {
       id: "balloon",
       title: "Balloon",
-      provider: "SmartSoft",
+      provider: "Stake Originals",
       playersCount: 1490,
       badge: "BURST",
       badgeColor: "bg-pink-500/20 text-pink-300 border-pink-500/30",
@@ -1436,7 +1311,7 @@ export default function CasinoHomePage() {
     {
       id: "comet-crash",
       title: "Comet Crash",
-      provider: "Spribe",
+      provider: "Stake Originals",
       playersCount: 1680,
       badge: "BURST",
       badgeColor: "bg-orange-500/20 text-orange-300 border-orange-500/30",
@@ -1785,16 +1660,7 @@ export default function CasinoHomePage() {
         sectionId="evolution"
       />
 
-      {/* 7.55. EZUGI > (Directly below Evolution - Task 28) */}
-      <CasinoGameRow
-        title="Ezugi"
-        linkHref="/casino/group/ezugi"
-        cards={ezugiGames}
-        onCardClick={handleCardClick}
-        sectionId="ezugi"
-      />
-
-      {/* 7.6. INOUT GAMES > */}
+            {/* 7.6. INOUT GAMES > */}
       <CasinoGameRow
         title="INOUT Games"
         linkHref="/casino/group/inout"
@@ -1822,70 +1688,7 @@ export default function CasinoHomePage() {
         sectionId="hacksaw-gaming"
       />
 
-      {/* 7.63. 100 HP GAMING > */}
-      <CasinoGameRow
-        title="100 HP Gaming"
-        linkHref="/casino/group/100hp"
-        cards={hp100Games}
-        onCardClick={handleCardClick}
-        sectionId="100hp"
-      />
-
-      {/* 7.64. SPRIBE > */}
-      <CasinoGameRow
-        title="Spribe"
-        linkHref="/casino/group/spribe"
-        cards={spribeGames}
-        onCardClick={handleCardClick}
-        sectionId="spribe"
-      />
-
-      {/* 7.65. SMARTSOFT > */}
-      <CasinoGameRow
-        title="SmartSoft"
-        linkHref="/casino/group/smartsoft"
-        cards={smartsoftGames}
-        onCardClick={handleCardClick}
-        sectionId="smartsoft"
-      />
-
-      {/* 7.66. JILI GAMES > */}
-      <CasinoGameRow
-        title="Jili Games"
-        linkHref="/casino/group/jili"
-        cards={jiliGames}
-        onCardClick={handleCardClick}
-        sectionId="jili"
-      />
-
-      {/* 7.67. EVOPLAY > */}
-      <CasinoGameRow
-        title="Evoplay"
-        linkHref="/casino/group/evoplay"
-        cards={evoplayGames}
-        onCardClick={handleCardClick}
-        sectionId="evoplay"
-      />
-
-      {/* 7.68. PRAGMATIC PLAY LIVE > */}
-      <CasinoGameRow
-        title="Pragmatic Play Live"
-        linkHref="/casino/group/pragmatic-live"
-        cards={pragmaticLiveGames}
-        onCardClick={handleCardClick}
-        sectionId="pragmatic-live"
-      />
-
-      {/* 7.69. TURBO GAMES > */}
-      <CasinoGameRow
-        title="Turbo Games"
-        linkHref="/casino/group/turbogames"
-        cards={turboGames}
-        onCardClick={handleCardClick}
-        sectionId="turbogames"
-      />
-
-      {/* 8. GAME SHOWS > */}
+            {/* 8. GAME SHOWS > */}
       <CasinoGameRow
         title="Game Shows"
         linkHref="/casino/group/game-shows"

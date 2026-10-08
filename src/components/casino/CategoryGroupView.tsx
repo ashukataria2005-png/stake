@@ -23,18 +23,10 @@ import {
   STAKE_ORIGINALS,
   LIVE_CASINO_GAMES,
   EVOLUTION_GAMES,
-  EZUGI_GAMES,
   INOUT_GAMES,
   POPULAR_SLOTS,
   PRAGMATIC_GAMES,
   HACKSAW_GAMES,
-  HP100_GAMES,
-  SPRIBE_GAMES,
-  SMARTSOFT_GAMES,
-  JILI_GAMES,
-  EVOPLAY_GAMES,
-  PRAGMATIC_LIVE_GAMES,
-  TURBOGAMES_GAMES,
   PROVIDERS_LIST,
   GameItem,
 } from "@/data/stakeGames";
@@ -94,19 +86,6 @@ export default function CategoryGroupView({ slug }: CategoryGroupViewProps) {
           bannerBg: "from-red-950/70 via-[#1a2c38] to-[#0f212e]",
           icon: <Activity className="w-6 h-6 text-red-500" />,
         };
-      case "ezugi":
-      case "ezugi-games":
-        return {
-          title: "Ezugi Live Casino",
-          badge: "35 LIVE TABLES",
-          playersCount: "14,850",
-          stats: "35 Live Tables • Ezugi Gaming • Flagship Indian & International Live Studios",
-          description:
-            "Play authentic live dealer tables from Ezugi, featuring flagship Indian classics like Andar Bahar and Teen Patti alongside high-definition Roulette, Blackjack, and Baccarat suites.",
-          initialGames: EZUGI_GAMES,
-          bannerBg: "from-blue-950/70 via-[#1a2c38] to-[#0f212e]",
-          icon: <Activity className="w-6 h-6 text-blue-400" />,
-        };
       case "inout":
       case "inout-games":
         return {
@@ -159,95 +138,6 @@ export default function CategoryGroupView({ slug }: CategoryGroupViewProps) {
           initialGames: HACKSAW_GAMES,
           bannerBg: "from-blue-950/70 via-[#1a2c38] to-[#0f212e]",
           icon: <Sparkles className="w-6 h-6 text-blue-400" />,
-        };
-      case "100hp":
-      case "hp100":
-        return {
-          title: "100 HP Gaming",
-          badge: "30 RETRO TURBO GAMES",
-          playersCount: "16,840",
-          stats: "30 Games • 100 HP Gaming • Retro Turbo Reels & Multiplier Blast Series",
-          description:
-            "High-octane arcade excitement and retro racing slot machines engineered for instant high-speed thrills and exponential multipliers.",
-          initialGames: HP100_GAMES,
-          bannerBg: "from-red-950/70 via-[#1a2c38] to-[#0f212e]",
-          icon: <Flame className="w-6 h-6 text-red-500" />,
-        };
-      case "spribe":
-        return {
-          title: "Spribe",
-          badge: "30 TURBO ARCADE GAMES",
-          playersCount: "38,940",
-          stats: "30 Games • Spribe Studio • Home of Aviator, Turbo Mines & Crash Series",
-          description:
-            "Fast-paced provably fair turbo titles from Spribe, led by the flagship global crash phenomenon Aviator alongside Mines, Dice, and Goal.",
-          initialGames: SPRIBE_GAMES,
-          bannerBg: "from-red-950/70 via-[#1a2c38] to-[#0f212e]",
-          icon: <Activity className="w-6 h-6 text-red-400" />,
-        };
-      case "smartsoft":
-      case "smartsoft-gaming":
-        return {
-          title: "SmartSoft Gaming",
-          badge: "30 X-SERIES GAMES",
-          playersCount: "22,150",
-          stats: "30 Games • SmartSoft • JetX, Balloon & Cricket X Sensation",
-          description:
-            "Pioneering next-generation crash sensations and interactive arcade games, starring JetX, Balloon, Football X, and Cappadocia.",
-          initialGames: SMARTSOFT_GAMES,
-          bannerBg: "from-amber-950/70 via-[#1a2c38] to-[#0f212e]",
-          icon: <Flame className="w-6 h-6 text-amber-500" />,
-        };
-      case "jili":
-      case "jili-games":
-        return {
-          title: "Jili Games",
-          badge: "30 TOP HIT GAMES",
-          playersCount: "25,480",
-          stats: "30 Games • Jili Games • Super Ace, Golden Empire & Fortune Gems",
-          description:
-            "Asia's hottest arcade and card slot phenomenon, starring Super Ace, Golden Empire, Fortune Gems, and Boxing King with massive payout chains.",
-          initialGames: JILI_GAMES,
-          bannerBg: "from-yellow-950/70 via-[#1a2c38] to-[#0f212e]",
-          icon: <Sparkles className="w-6 h-6 text-yellow-400" />,
-        };
-      case "evoplay":
-        return {
-          title: "Evoplay",
-          badge: "30 3D ACTION GAMES",
-          playersCount: "19,820",
-          stats: "30 Games • Evoplay Studio • Penalty Shoot-out & 3D RPG Slots",
-          description:
-            "Immersive 3D casino action, instant penalty shootout showdowns, and cinematic slot adventures engineered by Evoplay.",
-          initialGames: EVOPLAY_GAMES,
-          bannerBg: "from-emerald-950/70 via-[#1a2c38] to-[#0f212e]",
-          icon: <Activity className="w-6 h-6 text-emerald-400" />,
-        };
-      case "pragmatic-live":
-      case "pragmatic-play-live":
-        return {
-          title: "Pragmatic Play Live",
-          badge: "30 LIVE DEALER TABLES",
-          playersCount: "28,640",
-          stats: "30 Live Tables • Pragmatic Play Live • Mega Wheel & Sweet Bonanza Candyland",
-          description:
-            "Real 24/7 streaming dealers, interactive studio game shows, and high-stakes VIP Blackjack and Roulette from Pragmatic Play Live.",
-          initialGames: PRAGMATIC_LIVE_GAMES,
-          bannerBg: "from-cyan-950/70 via-[#1a2c38] to-[#0f212e]",
-          icon: <Activity className="w-6 h-6 text-cyan-400" />,
-        };
-      case "turbogames":
-      case "turbo-games":
-        return {
-          title: "Turbo Games",
-          badge: "30 FAST CRASH TITLES",
-          playersCount: "21,390",
-          stats: "30 Games • Turbo Games • CrashX, Towers & Hamster Run",
-          description:
-            "Instant crash, multiplier ladder, and provably fair action games with ultra-fast round resolutions and high RTP engineered by Turbo Games.",
-          initialGames: TURBOGAMES_GAMES,
-          bannerBg: "from-orange-950/70 via-[#1a2c38] to-[#0f212e]",
-          icon: <Flame className="w-6 h-6 text-orange-400" />,
         };
       case "slots":
       default:
