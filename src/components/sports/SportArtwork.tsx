@@ -25,11 +25,11 @@ export default function SportArtwork({
           alt={currentSport.name}
           className="w-full h-full object-cover pointer-events-none"
         />
-        <div className="absolute inset-x-0 bottom-0 p-2.5 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
+        {/*<div className="absolute inset-x-0 bottom-0 p-2.5 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
           <span className="font-black text-white text-xs uppercase tracking-wider block text-center truncate">
             {currentSport.name}
           </span>
-        </div>
+        </div>*/}
       </div>
     );
   }
