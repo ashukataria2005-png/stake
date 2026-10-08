@@ -1,17 +1,38 @@
 "use client";
 
 import React from "react";
+import { TRENDING_SPORTS, TrendingSport } from "@/data/trendingSports";
 
 interface SportArtworkProps {
   sportId: string;
+  sport?: TrendingSport;
   className?: string;
 }
 
 export default function SportArtwork({
   sportId,
+  sport,
   className = "w-full h-full",
 }: SportArtworkProps) {
   const id = (sportId || "").toLowerCase().trim();
+  const currentSport = sport || TRENDING_SPORTS.find((s) => s.id === id || s.slug === id);
+
+  if (currentSport?.image && currentSport.image.trim() !== "") {
+    return (
+      <div className={`relative w-full h-full overflow-hidden rounded-2xl bg-[#0f212e] ${className}`}>
+        <img
+          src={currentSport.image}
+          alt={currentSport.name}
+          className="w-full h-full object-cover pointer-events-none"
+        />
+        <div className="absolute inset-x-0 bottom-0 p-2.5 bg-gradient-to-t from-black/90 via-black/40 to-transparent">
+          <span className="font-black text-white text-xs uppercase tracking-wider block text-center truncate">
+            {currentSport.name}
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   // Common stadium light and background gradient definitions
   return (

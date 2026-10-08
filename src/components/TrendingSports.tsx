@@ -82,16 +82,7 @@ export default function TrendingSports() {
                   className={`relative aspect-[3/4] w-full overflow-hidden rounded-2xl bg-[#0f212e] border border-[#213743] ${sport.accentBorder} transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-xl shadow-md`}
                 >
                   {/* Full-bleed Cut-Out Character Graphic Poster */}
-                  {sport.image ? (
-                    <img
-                      src={sport.image}
-                      alt={sport.name}
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <SportArtwork sportId={sport.id} />
-                  )}
+                  <SportArtwork sportId={sport.id} sport={sport} />
 
                   {/* Top Live Matches Counter Badge */}
                   <div className="absolute top-2 left-2 z-20 flex items-center">
@@ -102,11 +93,13 @@ export default function TrendingSports() {
                   </div>
 
                   {/* Bottom Dark Scrim Gradient & Prominent Uppercase White Bold Typography */}
-                  <div className="absolute inset-x-0 bottom-0 z-20 p-2 sm:p-2.5 pt-8 bg-gradient-to-t from-[#0b1622] via-[#0b1622]/85 to-transparent text-center flex flex-col items-center justify-end">
-                    <h3 className="text-[10px] sm:text-xs font-black tracking-wider text-white group-hover:text-[#00e701] transition-colors truncate uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] max-w-full">
-                      {sport.displayName || sport.name}
-                    </h3>
-                  </div>
+                  {(!sport.image || sport.image.trim() === "") && (
+                    <div className="absolute inset-x-0 bottom-0 z-20 p-2 sm:p-2.5 pt-8 bg-gradient-to-t from-[#0b1622] via-[#0b1622]/85 to-transparent text-center flex flex-col items-center justify-end">
+                      <h3 className="text-[10px] sm:text-xs font-black tracking-wider text-white group-hover:text-[#00e701] transition-colors truncate uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] max-w-full">
+                        {sport.displayName || sport.name}
+                      </h3>
+                    </div>
+                  )}
                 </div>
               </Link>
             </div>

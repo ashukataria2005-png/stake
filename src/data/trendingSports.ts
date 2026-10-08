@@ -1,24 +1,27 @@
-export interface SportItem {
+export interface TrendingSport {
   id: string;
   name: string;
-  displayName: string;
   slug: string;
-  emoji: string;
-  liveMatches: number;
-  bgGradient: string;
-  accentBorder: string;
-  accentColor: string;
-  category: "traditional" | "esports" | "racing" | "combat";
-  href: string;
   image?: string;
+  liveMatches: number;
+  accentColor: string;
+  displayName?: string;
+  emoji?: string;
+  bgGradient?: string;
+  accentBorder?: string;
+  category?: "traditional" | "esports" | "racing" | "combat";
+  href?: string;
 }
 
-export const TRENDING_SPORTS: SportItem[] = [
+export type SportItem = TrendingSport;
+
+export const TRENDING_SPORTS: TrendingSport[] = [
   {
     id: "soccer",
     name: "Soccer",
     displayName: "SOCCER",
     slug: "soccer",
+    image: "",
     emoji: "⚽",
     liveMatches: 142,
     bgGradient: "from-[#081e36] via-[#0d2847] to-[#0a1829]",
@@ -32,6 +35,7 @@ export const TRENDING_SPORTS: SportItem[] = [
     name: "Tennis",
     displayName: "TENNIS",
     slug: "tennis",
+    image: "",
     emoji: "🎾",
     liveMatches: 58,
     bgGradient: "from-[#0a233a] via-[#103152] to-[#08192b]",
@@ -45,6 +49,7 @@ export const TRENDING_SPORTS: SportItem[] = [
     name: "American Football",
     displayName: "AMERICAN FOOTBALL",
     slug: "american-football",
+    image: "",
     emoji: "🏈",
     liveMatches: 24,
     bgGradient: "from-[#091f38] via-[#122e50] to-[#071728]",
@@ -58,6 +63,7 @@ export const TRENDING_SPORTS: SportItem[] = [
     name: "Baseball",
     displayName: "BASEBALL",
     slug: "baseball",
+    image: "",
     emoji: "⚾",
     liveMatches: 36,
     bgGradient: "from-[#08223d] via-[#0f2e4f] to-[#061829]",
@@ -71,6 +77,7 @@ export const TRENDING_SPORTS: SportItem[] = [
     name: "Ice Hockey",
     displayName: "ICE HOCKEY",
     slug: "ice-hockey",
+    image: "",
     emoji: "🏒",
     liveMatches: 19,
     bgGradient: "from-[#082542] via-[#11385f] to-[#07192d]",
@@ -84,6 +91,7 @@ export const TRENDING_SPORTS: SportItem[] = [
     name: "Basketball",
     displayName: "BASKETBALL",
     slug: "basketball",
+    image: "",
     emoji: "🏀",
     liveMatches: 74,
     bgGradient: "from-[#0c223c] via-[#163354] to-[#091726]",
@@ -97,6 +105,7 @@ export const TRENDING_SPORTS: SportItem[] = [
     name: "Cricket",
     displayName: "CRICKET",
     slug: "cricket",
+    image: "",
     emoji: "🏏",
     liveMatches: 28,
     bgGradient: "from-[#07243c] via-[#0e3658] to-[#071a2b]",
@@ -110,6 +119,7 @@ export const TRENDING_SPORTS: SportItem[] = [
     name: "Horse Racing",
     displayName: "HORSE RACING",
     slug: "horse-racing",
+    image: "",
     emoji: "🏇",
     liveMatches: 14,
     bgGradient: "from-[#0b213a] via-[#143254] to-[#081829]",
@@ -123,6 +133,7 @@ export const TRENDING_SPORTS: SportItem[] = [
     name: "CS2",
     displayName: "CS2",
     slug: "cs2",
+    image: "",
     emoji: "🎯",
     liveMatches: 31,
     bgGradient: "from-[#0d233c] via-[#16375d] to-[#0a1b2d]",
@@ -136,6 +147,7 @@ export const TRENDING_SPORTS: SportItem[] = [
     name: "Dota 2",
     displayName: "DOTA 2",
     slug: "dota-2",
+    image: "",
     emoji: "⚔️",
     liveMatches: 17,
     bgGradient: "from-[#0b1f36] via-[#163152] to-[#09192b]",
@@ -149,6 +161,7 @@ export const TRENDING_SPORTS: SportItem[] = [
     name: "MMA",
     displayName: "MMA",
     slug: "mma",
+    image: "",
     emoji: "🥋",
     liveMatches: 11,
     bgGradient: "from-[#0a1e35] via-[#122e4e] to-[#081628]",
@@ -162,6 +175,7 @@ export const TRENDING_SPORTS: SportItem[] = [
     name: "Formula 1",
     displayName: "FORMULA 1",
     slug: "formula-1",
+    image: "",
     emoji: "🏎️",
     liveMatches: 8,
     bgGradient: "from-[#09223d] via-[#11355c] to-[#07192c]",
@@ -175,6 +189,7 @@ export const TRENDING_SPORTS: SportItem[] = [
     name: "League of Legends",
     displayName: "LEAGUE OF LEGENDS",
     slug: "league-of-legends",
+    image: "",
     emoji: "🛡️",
     liveMatches: 22,
     bgGradient: "from-[#082542] via-[#0f3b64] to-[#081e36]",
@@ -188,6 +203,7 @@ export const TRENDING_SPORTS: SportItem[] = [
     name: "Valorant",
     displayName: "VALORANT",
     slug: "valorant",
+    image: "",
     emoji: "💥",
     liveMatches: 16,
     bgGradient: "from-[#0a2038] via-[#153457] to-[#091829]",
@@ -201,6 +217,7 @@ export const TRENDING_SPORTS: SportItem[] = [
     name: "Golf",
     displayName: "GOLF",
     slug: "golf",
+    image: "",
     emoji: "⛳",
     liveMatches: 6,
     bgGradient: "from-[#07243c] via-[#0d3659] to-[#061b2e]",
@@ -214,6 +231,7 @@ export const TRENDING_SPORTS: SportItem[] = [
     name: "FIFA",
     displayName: "FIFA",
     slug: "fifa",
+    image: "",
     emoji: "🎮",
     liveMatches: 45,
     bgGradient: "from-[#08223c] via-[#10355d] to-[#081a2e]",
@@ -227,6 +245,7 @@ export const TRENDING_SPORTS: SportItem[] = [
     name: "NBA2K",
     displayName: "NBA2K",
     slug: "nba2k",
+    image: "",
     emoji: "🕹️",
     liveMatches: 29,
     bgGradient: "from-[#0c223c] via-[#15355a] to-[#09182a]",
@@ -240,6 +259,7 @@ export const TRENDING_SPORTS: SportItem[] = [
     name: "Table Tennis",
     displayName: "TABLE TENNIS",
     slug: "table-tennis",
+    image: "",
     emoji: "🏓",
     liveMatches: 38,
     bgGradient: "from-[#0a223a] via-[#133558] to-[#081a2c]",
@@ -253,6 +273,7 @@ export const TRENDING_SPORTS: SportItem[] = [
     name: "Badminton",
     displayName: "BADMINTON",
     slug: "badminton",
+    image: "",
     emoji: "🏸",
     liveMatches: 15,
     bgGradient: "from-[#082138] via-[#103356] to-[#08192a]",
@@ -266,6 +287,7 @@ export const TRENDING_SPORTS: SportItem[] = [
     name: "Boxing",
     displayName: "BOXING",
     slug: "boxing",
+    image: "",
     emoji: "🥊",
     liveMatches: 7,
     bgGradient: "from-[#0d1d33] via-[#182c47] to-[#091524]",

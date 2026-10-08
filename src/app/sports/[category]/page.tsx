@@ -121,7 +121,7 @@ export default function SportCategoryPage() {
         </div>
 
         <div className="w-24 sm:w-28 aspect-[3/4] shrink-0 rounded-xl overflow-hidden border border-[#213743] shadow-lg">
-          <SportArtwork sportId={sport.id} />
+          <SportArtwork sportId={sport.id} sport={sport} />
         </div>
       </div>
 

@@ -26,7 +26,7 @@ export default function SportsbookPage() {
     const matchesSearch =
       searchQuery.trim() === "" ||
       sport.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      sport.displayName.toLowerCase().includes(searchQuery.toLowerCase());
+      (sport.displayName ? sport.displayName.toLowerCase().includes(searchQuery.toLowerCase()) : false);
 
     return matchesFilter && matchesSearch;
   });
@@ -125,16 +125,7 @@ export default function SportsbookPage() {
               className={`relative aspect-[3/4] w-full overflow-hidden rounded-2xl bg-[#0f212e] border border-[#213743] ${sport.accentBorder} transition-all duration-300 group-hover:-translate-y-1.5 group-hover:shadow-2xl shadow-md`}
             >
               {/* Artwork Cutout Poster */}
-              {sport.image ? (
-                <img
-                  src={sport.image}
-                  alt={sport.name}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  loading="lazy"
-                />
-              ) : (
-                <SportArtwork sportId={sport.id} />
-              )}
+              <SportArtwork sportId={sport.id} sport={sport} />
 
               {/* Top Live Badge */}
               <div className="absolute top-2.5 left-2.5 z-20 flex items-center">
@@ -145,11 +136,13 @@ export default function SportsbookPage() {
               </div>
 
               {/* Bottom Scrim & Bold Typography */}
-              <div className="absolute inset-x-0 bottom-0 z-20 p-2.5 pt-8 bg-gradient-to-t from-[#0b1622] via-[#0b1622]/85 to-transparent text-center">
-                <h3 className="text-xs font-black tracking-wider text-white group-hover:text-[#00e701] transition-colors truncate uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
-                  {sport.displayName || sport.name}
-                </h3>
-              </div>
+              {(!sport.image || sport.image.trim() === "") && (
+                <div className="absolute inset-x-0 bottom-0 z-20 p-2.5 pt-8 bg-gradient-to-t from-[#0b1622] via-[#0b1622]/85 to-transparent text-center">
+                  <h3 className="text-xs font-black tracking-wider text-white group-hover:text-[#00e701] transition-colors truncate uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
+                    {sport.displayName || sport.name}
+                  </h3>
+                </div>
+              )}
             </div>
           </Link>
         ))}
