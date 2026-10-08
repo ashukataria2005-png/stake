@@ -23,6 +23,7 @@ import {
   STAKE_ORIGINALS,
   LIVE_CASINO_GAMES,
   EVOLUTION_GAMES,
+  EZUGI_GAMES,
   INOUT_GAMES,
   POPULAR_SLOTS,
   PROVIDERS_LIST,
@@ -83,6 +84,19 @@ export default function CategoryGroupView({ slug }: CategoryGroupViewProps) {
           initialGames: EVOLUTION_GAMES,
           bannerBg: "from-red-950/70 via-[#1a2c38] to-[#0f212e]",
           icon: <Activity className="w-6 h-6 text-red-500" />,
+        };
+      case "ezugi":
+      case "ezugi-games":
+        return {
+          title: "Ezugi Live Casino",
+          badge: "35 LIVE TABLES",
+          playersCount: "14,850",
+          stats: "35 Live Tables • Ezugi Gaming • Flagship Indian & International Live Studios",
+          description:
+            "Play authentic live dealer tables from Ezugi, featuring flagship Indian classics like Andar Bahar and Teen Patti alongside high-definition Roulette, Blackjack, and Baccarat suites.",
+          initialGames: EZUGI_GAMES,
+          bannerBg: "from-blue-950/70 via-[#1a2c38] to-[#0f212e]",
+          icon: <Activity className="w-6 h-6 text-blue-400" />,
         };
       case "inout":
       case "inout-games":

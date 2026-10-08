@@ -1742,8 +1742,89 @@ export default function StakeGameArtwork({
         </svg>
       );
 
+    // ==========================================
+    // EZUGI LIVE CASINO BESPOKE FALLBACKS (Task 28)
+    // ==========================================
+    case "ezugi-andar-bahar":
+    case "andar-bahar":
+      return (
+        <svg viewBox="0 0 200 200" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="100" cy="100" r="85" fill="#1e3a8a" opacity="0.6" />
+          <rect x="40" y="55" width="50" height="75" rx="6" fill="#f8fafc" stroke="#3b82f6" strokeWidth="2" />
+          <text x="65" y="100" textAnchor="middle" fill="#1e3a8a" fontSize="22" fontWeight="900">A</text>
+          <text x="65" y="120" textAnchor="middle" fill="#3b82f6" fontSize="8" fontWeight="bold">ANDAR</text>
+          <rect x="110" y="55" width="50" height="75" rx="6" fill="#f8fafc" stroke="#ef4444" strokeWidth="2" />
+          <text x="135" y="100" textAnchor="middle" fill="#dc2626" fontSize="22" fontWeight="900">B</text>
+          <text x="135" y="120" textAnchor="middle" fill="#ef4444" fontSize="8" fontWeight="bold">BAHAR</text>
+          <rect x="68" y="145" width="64" height="18" rx="9" fill="#00e701" />
+          <text x="100" y="157" textAnchor="middle" fill="#0f212e" fontSize="9" fontWeight="900">EZUGI LIVE</text>
+        </svg>
+      );
+
+    case "ezugi-teen-patti":
+    case "teen-patti":
+    case "ezugi-bet-on-teen-patti":
+    case "ezugi-one-day-teen-patti":
+      return (
+        <svg viewBox="0 0 200 200" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="100" cy="100" r="85" fill="#7f1d1d" opacity="0.6" />
+          <g transform="translate(100, 95)">
+            <rect x="-42" y="-35" width="36" height="56" rx="4" fill="#ffffff" transform="rotate(-18)" stroke="#cbd5e1" />
+            <rect x="-18" y="-38" width="36" height="56" rx="4" fill="#ffffff" stroke="#cbd5e1" />
+            <rect x="6" y="-35" width="36" height="56" rx="4" fill="#ffffff" transform="rotate(18)" stroke="#cbd5e1" />
+            <text x="0" y="2" textAnchor="middle" fill="#dc2626" fontSize="18" fontWeight="900">A♠</text>
+          </g>
+          <rect x="65" y="145" width="70" height="18" rx="9" fill="#ef4444" />
+          <text x="100" y="157" textAnchor="middle" fill="#ffffff" fontSize="9" fontWeight="900">TEEN PATTI</text>
+        </svg>
+      );
+
+    case "ezugi-lucky-7":
+    case "lucky-7":
+      return (
+        <svg viewBox="0 0 200 200" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="100" cy="100" r="85" fill="#b45309" opacity="0.6" />
+          <circle cx="100" cy="90" r="42" fill="#1a2c38" stroke="#f59e0b" strokeWidth="3" />
+          <text x="100" y="106" textAnchor="middle" fill="#f59e0b" fontSize="46" fontWeight="900">7</text>
+          <rect x="65" y="145" width="70" height="18" rx="9" fill="#f59e0b" />
+          <text x="100" y="157" textAnchor="middle" fill="#0f212e" fontSize="9" fontWeight="900">LUCKY 7</text>
+        </svg>
+      );
+
+    case "ezugi-dragon-tiger":
+      return (
+        <svg viewBox="0 0 200 200" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="100" cy="100" r="85" fill="#991b1b" opacity="0.6" />
+          <circle cx="70" cy="90" r="30" fill="#dc2626" />
+          <text x="70" y="97" textAnchor="middle" fill="#ffffff" fontSize="20" fontWeight="900">🐉</text>
+          <circle cx="130" cy="90" r="30" fill="#f59e0b" />
+          <text x="130" y="97" textAnchor="middle" fill="#ffffff" fontSize="20" fontWeight="900">🐯</text>
+          <rect x="58" y="145" width="84" height="18" rx="9" fill="#dc2626" />
+          <text x="100" y="157" textAnchor="middle" fill="#ffffff" fontSize="9" fontWeight="900">DRAGON TIGER</text>
+        </svg>
+      );
+
     // Default Fallback: Sleek Authentic Stake Medallion / Chip (NEVER dice or mines)
     default:
+      if (key.startsWith("ezugi-")) {
+        return (
+          <svg viewBox="0 0 200 200" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="ezugiLiveBg" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#082542" />
+                <stop offset="50%" stopColor="#11385f" />
+                <stop offset="100%" stopColor="#07192d" />
+              </linearGradient>
+            </defs>
+            <circle cx="100" cy="100" r="85" fill="url(#ezugiLiveBg)" />
+            <ellipse cx="100" cy="120" rx="55" ry="24" fill="#065f46" stroke="#34d399" strokeWidth="2" />
+            <circle cx="100" cy="85" r="28" fill="#1e293b" stroke="#38bdf8" strokeWidth="2" />
+            <text x="100" y="92" textAnchor="middle" fill="#38bdf8" fontSize="20">♠️</text>
+            <rect x="60" y="148" width="80" height="18" rx="9" fill="#0284c7" />
+            <text x="100" y="160" textAnchor="middle" fill="#ffffff" fontSize="8" fontWeight="900">EZUGI LIVE</text>
+          </svg>
+        );
+      }
       return (
         <svg viewBox="0 0 200 200" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>

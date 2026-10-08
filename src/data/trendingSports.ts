@@ -19,7 +19,7 @@ export const TRENDING_SPORTS: TrendingSport[] = [
   {
     id: "soccer",
     name: "Soccer",
-    displayName: "SOCCER",
+    //displayName: "SOCCER",
     slug: "soccer",
     image: "https://mediumrare.imgix.net/soccer-en.png?w=180&h=236&fit=min&auto=format",
     emoji: "⚽",
@@ -33,7 +33,7 @@ export const TRENDING_SPORTS: TrendingSport[] = [
   {
     id: "tennis",
     name: "Tennis",
-    displayName: "TENNIS",
+    //displayName: "TENNIS",
     slug: "tennis",
     image: "https://mediumrare.imgix.net/tennis-en.png?w=180&h=236&fit=min&auto=format",
     emoji: "🎾",
@@ -47,7 +47,7 @@ export const TRENDING_SPORTS: TrendingSport[] = [
   {
     id: "american-football",
     name: "American Football",
-    displayName: "AMERICAN FOOTBALL",
+    //displayName: "AMERICAN FOOTBALL",
     slug: "american-football",
     image: "https://mediumrare.imgix.net/american-football-en.png?w=180&h=236&fit=min&auto=format",
     emoji: "🏈",
@@ -61,7 +61,7 @@ export const TRENDING_SPORTS: TrendingSport[] = [
   {
     id: "baseball",
     name: "Baseball",
-    displayName: "BASEBALL",
+    //displayName: "BASEBALL",
     slug: "baseball",
     image: "https://mediumrare.imgix.net/baseball-en.png?w=180&h=236&fit=min&auto=format",
     emoji: "⚾",
@@ -75,7 +75,7 @@ export const TRENDING_SPORTS: TrendingSport[] = [
   {
     id: "ice-hockey",
     name: "Ice Hockey",
-    displayName: "ICE HOCKEY",
+    //displayName: "ICE HOCKEY",
     slug: "ice-hockey",
     image: "https://mediumrare.imgix.net/ice-hockey-en.png?w=180&h=236&fit=min&auto=format",
     emoji: "🏒",
@@ -89,7 +89,7 @@ export const TRENDING_SPORTS: TrendingSport[] = [
   {
     id: "basketball",
     name: "Basketball",
-    displayName: "BASKETBALL",
+    //displayName: "BASKETBALL",
     slug: "basketball",
     image: "https://mediumrare.imgix.net/basketball-en.png?w=180&h=236&fit=min&auto=format",
     emoji: "🏀",
@@ -103,7 +103,7 @@ export const TRENDING_SPORTS: TrendingSport[] = [
   {
     id: "cricket",
     name: "Cricket",
-    displayName: "CRICKET",
+    //displayName: "CRICKET",
     slug: "cricket",
     image: "https://mediumrare.imgix.net/cricket-en.png?w=180&h=236&fit=min&auto=format",
     emoji: "🏏",
@@ -117,7 +117,7 @@ export const TRENDING_SPORTS: TrendingSport[] = [
   {
     id: "horse-racing",
     name: "Horse Racing",
-    displayName: "HORSE RACING",
+    //displayName: "HORSE RACING",
     slug: "horse-racing",
     image: "https://mediumrare.imgix.net/horse-racing-en.png?w=180&h=236&fit=min&auto=format",
     emoji: "🏇",
@@ -131,7 +131,7 @@ export const TRENDING_SPORTS: TrendingSport[] = [
   {
     id: "cs2",
     name: "CS2",
-    displayName: "CS2",
+    //displayName: "CS2",
     slug: "cs2",
     image: "https://mediumrare.imgix.net/counter-strike-en.png?w=180&h=236&fit=min&auto=format",
     emoji: "🎯",
@@ -145,7 +145,7 @@ export const TRENDING_SPORTS: TrendingSport[] = [
   {
     id: "dota-2",
     name: "Dota 2",
-    displayName: "DOTA 2",
+    //displayName: "DOTA 2",
     slug: "dota-2",
     image: "https://mediumrare.imgix.net/dota-2-en.png?w=180&h=236&fit=min&auto=format",
     emoji: "⚔️",
@@ -159,7 +159,7 @@ export const TRENDING_SPORTS: TrendingSport[] = [
   {
     id: "mma",
     name: "MMA",
-    displayName: "MMA",
+    //displayName: "MMA",
     slug: "mma",
     image: "https://mediumrare.imgix.net/mma-en.png?w=180&h=236&fit=min&auto=format",
     emoji: "🥋",
@@ -173,7 +173,7 @@ export const TRENDING_SPORTS: TrendingSport[] = [
   {
     id: "formula-1",
     name: "Formula 1",
-    displayName: "FORMULA 1",
+    //displayName: "FORMULA 1",
     slug: "formula-1",
     image: "https://mediumrare.imgix.net/formula-1-en.png?w=180&h=236&fit=min&auto=format",
     emoji: "🏎️",
@@ -187,7 +187,7 @@ export const TRENDING_SPORTS: TrendingSport[] = [
   {
     id: "league-of-legends",
     name: "League of Legends",
-    displayName: "LEAGUE OF LEGENDS",
+    //displayName: "LEAGUE OF LEGENDS",
     slug: "league-of-legends",
     image: "https://mediumrare.imgix.net/league-of-legends-en.png?w=180&h=236&fit=min&auto=format",
     emoji: "🛡️",
@@ -201,7 +201,7 @@ export const TRENDING_SPORTS: TrendingSport[] = [
   {
     id: "valorant",
     name: "Valorant",
-    displayName: "VALORANT",
+    //displayName: "VALORANT",
     slug: "valorant",
     image: "https://mediumrare.imgix.net/valorant-en.png?w=180&h=236&fit=min&auto=format",
     emoji: "💥",
@@ -215,7 +215,7 @@ export const TRENDING_SPORTS: TrendingSport[] = [
   {
     id: "golf",
     name: "Golf",
-    displayName: "GOLF",
+    //displayName: "GOLF",
     slug: "golf",
     image: "https://mediumrare.imgix.net/golf-en.png?w=180&h=236&fit=min&auto=format",
     emoji: "⛳",
@@ -229,7 +229,7 @@ export const TRENDING_SPORTS: TrendingSport[] = [
   {
     id: "fifa",
     name: "FIFA",
-    displayName: "FIFA",
+    //displayName: "FIFA",
     slug: "fifa",
     image: "https://mediumrare.imgix.net/fifa-en.png?w=180&h=236&fit=min&auto=format",
     emoji: "🎮",
@@ -243,9 +243,9 @@ export const TRENDING_SPORTS: TrendingSport[] = [
   {
     id: "nba2k",
     name: "NBA2K",
-    displayName: "NBA2K",
+    //displayName: "NBA2K",
     slug: "nba2k",
-    image: "https://mediumrare.imgix.net/nba-2k-en.png?w=180&h=236&fit=min&auto=format",
+    image: "https://mediumrare.imgix.net/nba2k-en.png?w=180&h=236&fit=min&auto=format",
     emoji: "🕹️",
     liveMatches: 29,
     bgGradient: "from-[#0c223c] via-[#15355a] to-[#09182a]",
@@ -257,7 +257,7 @@ export const TRENDING_SPORTS: TrendingSport[] = [
   {
     id: "table-tennis",
     name: "Table Tennis",
-    displayName: "TABLE TENNIS",
+    //displayName: "TABLE TENNIS",
     slug: "table-tennis",
     image: "https://mediumrare.imgix.net/table-tennis-en.png?w=180&h=236&fit=min&auto=format",
     emoji: "🏓",
@@ -271,7 +271,7 @@ export const TRENDING_SPORTS: TrendingSport[] = [
   {
     id: "badminton",
     name: "Badminton",
-    displayName: "BADMINTON",
+    //displayName: "BADMINTON",
     slug: "badminton",
     image: "https://mediumrare.imgix.net/badminton-en.png?w=180&h=236&fit=min&auto=format",
     emoji: "🏸",
@@ -285,7 +285,7 @@ export const TRENDING_SPORTS: TrendingSport[] = [
   {
     id: "boxing",
     name: "Boxing",
-    displayName: "BOXING",
+    //displayName: "BOXING",
     slug: "boxing",
     image: "https://mediumrare.imgix.net/boxing-en.png?w=180&h=236&fit=min&auto=format",
     emoji: "🥊",

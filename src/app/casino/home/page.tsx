@@ -21,7 +21,7 @@ import CasinoGameRow, { CasinoCardData } from "@/components/casino/CasinoGameRow
 import CasinoLiveBets from "@/components/casino/CasinoLiveBets";
 import StakeGameArtwork from "@/components/casino/StakeGameArtwork";
 import { useGame } from "@/context/GameContext";
-import { ALL_GAMES, EVOLUTION_GAMES, INOUT_GAMES, GameItem } from "@/data/stakeGames";
+import { ALL_GAMES, EVOLUTION_GAMES, EZUGI_GAMES, INOUT_GAMES, GameItem } from "@/data/stakeGames";
 import { getGameThumbnail } from "@/data/gameThumbnails";
 import { sounds } from "@/utils/audio";
 import confetti from "canvas-confetti";
@@ -776,6 +776,19 @@ export default function CasinoHomePage() {
     href: "/casino/live",
     image: game.image,
     bgGradient: game.bgGradient || "from-red-950/80 via-[#1a2c38] to-[#0f212e]",
+  }));
+
+  // 4.55. Ezugi Live Casino Suite (35 Games strictly ordered by popularity hierarchy - Task 28)
+  const ezugiGames: CasinoCardData[] = EZUGI_GAMES.map((game) => ({
+    id: game.id,
+    title: game.title,
+    provider: "Ezugi",
+    playersCount: game.livePlayerCount || game.playersCount,
+    badge: game.badge,
+    badgeColor: game.badgeColor,
+    href: "/casino/live",
+    image: game.image,
+    bgGradient: game.bgGradient || "from-blue-950/80 via-[#1a2c38] to-[#0f212e]",
   }));
 
   // 4.6. INOUT Games (30 Games strictly ordered by player count hierarchy)
@@ -1637,6 +1650,15 @@ export default function CasinoHomePage() {
         cards={evolutionGames}
         onCardClick={handleCardClick}
         sectionId="evolution"
+      />
+
+      {/* 7.55. EZUGI > (Directly below Evolution - Task 28) */}
+      <CasinoGameRow
+        title="Ezugi"
+        linkHref="/casino/group/ezugi"
+        cards={ezugiGames}
+        onCardClick={handleCardClick}
+        sectionId="ezugi"
       />
 
       {/* 7.6. INOUT GAMES > */}
