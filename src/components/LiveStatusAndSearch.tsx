@@ -97,6 +97,16 @@ export default function LiveStatusAndSearch({
             placeholder="Search Stake.com"
             className="font-bold text-white placeholder:font-semibold placeholder-[#b1bad3] tracking-wide text-sm sm:text-base outline-none bg-transparent w-full"
           />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="text-[#b1bad3] hover:text-white p-1 text-xs cursor-pointer rounded hover:bg-[#213743] shrink-0"
+              aria-label="Clear search"
+            >
+              ✕
+            </button>
+          )}
           <kbd className="hidden md:flex items-center text-xs font-bold text-[#b1bad3] bg-[#1a2c38] px-2 py-0.5 rounded border border-[#2f4553] select-none flex-shrink-0">
             Ctrl + K
           </kbd>

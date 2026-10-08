@@ -180,16 +180,16 @@ export default function Navbar() {
           </div>
         ) : (
           <div className="flex items-center gap-2 shrink-0">
-            {/* Notification Bell (Visible on Both Mobile & Desktop) */}
+            {/* Notification Bell (Visible on Both Mobile & Desktop - Border-free per Screenshots 7-15) */}
             <button
               onClick={() => setIsNotificationsOpen(true)}
               title="Notifications"
               aria-label="Notifications"
-              className="relative w-10 h-10 rounded-xl bg-[#213743]/60 hover:bg-[#213743] flex items-center justify-center text-[#b1bad3] hover:text-white transition-colors cursor-pointer shrink-0"
+              className="relative p-2 text-[#b1bad3] hover:text-white transition-colors bg-transparent border-none outline-none cursor-pointer flex items-center justify-center shrink-0"
             >
-              <Bell className="w-5 h-5 text-[#b1bad3]" />
+              <Bell className="w-5 h-5" />
               {unreadNotifsCount > 0 && (
-                <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-[#1a2c38] shadow-[0_0_6px_#ef4444]" />
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#fe2247] rounded-full" />
               )}
             </button>
 
@@ -288,7 +288,7 @@ export default function Navbar() {
                 className="flex items-center gap-1.5 p-0.5 rounded-full hover:ring-2 hover:ring-[#2f4553] transition-all cursor-pointer"
                 aria-label="User Profile Menu"
               >
-                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center font-bold text-sm sm:text-base text-white shadow-md">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#2f4553] flex items-center justify-center text-white text-xs sm:text-sm font-bold hover:brightness-110 transition-all border border-[#213743]">
                   {user?.name?.[0] || "A"}
                 </div>
                 <ChevronDown

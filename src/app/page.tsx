@@ -20,14 +20,21 @@ import LiveStatusAndSearch from "@/components/LiveStatusAndSearch";
 import VIPProgressCard from "@/components/VIPProgressCard";
 import ContinuePlayingSlider from "@/components/ContinuePlayingSlider";
 import GamesForYou from "@/components/GamesForYou";
-import TrendingGames from "@/components/TrendingGames";
 import TrendingSports from "@/components/TrendingSports";
 import RacesAndRafflesWidget from "@/components/RacesAndRafflesWidget";
 import LiveBetsFeed from "@/components/LiveBetsFeed";
 import StakeGameArtwork from "@/components/casino/StakeGameArtwork";
 import LiveCasinoGateModal from "@/components/casino/LiveCasinoGateModal";
 import { getGameThumbnail } from "@/data/gameThumbnails";
-import { STAKE_ORIGINALS, LIVE_CASINO_GAMES, GameItem } from "@/data/stakeGames";
+import {
+  STAKE_ORIGINALS,
+  LIVE_CASINO_GAMES,
+  POPULAR_SLOTS,
+  GAME_SHOWS_GAMES,
+  INOUT_GAMES,
+  ALL_GAMES,
+  GameItem,
+} from "@/data/stakeGames";
 
 interface SlotModalGame {
   id: string;
@@ -59,13 +66,18 @@ export default function HomePage() {
   const [isSpinningSlot, setIsSpinningSlot] = useState<boolean>(false);
   const [slotLastWin, setSlotLastWin] = useState<number | null>(null);
 
-  // Filter games when user types in global search
+  // Instant real-time search across ALL_GAMES
   const isSearching = searchQuery.trim().length > 0;
   const searchResults: GameItem[] = isSearching
-    ? [...STAKE_ORIGINALS, ...LIVE_CASINO_GAMES].filter((g) =>
-        g.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        g.provider.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+    ? ALL_GAMES.filter((g) => {
+        const q = searchQuery.trim().toLowerCase();
+        return (
+          g.title.toLowerCase().includes(q) ||
+          (g.name && g.name.toLowerCase().includes(q)) ||
+          g.provider.toLowerCase().includes(q) ||
+          (g.category && g.category.toLowerCase().includes(q))
+        );
+      })
     : [];
 
   // Slot Demo Spin Handler
@@ -131,29 +143,43 @@ export default function HomePage() {
         showPills={false}
       />
 
-      {/* Search Results Overlay (If user is actively typing in search) */}
-      {isSearching && (
-        <section className="space-y-3 bg-[#14232d] p-4 rounded-2xl border border-[#213743]">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold text-white flex items-center gap-2">
-              <Search className="h-4 w-4 text-[#00e701]" />
-              <span>Search Results for &quot;{searchQuery}&quot; ({searchResults.length})</span>
+      {/* Search Results Grid (Replaces default lobby when actively searching) */}
+      {isSearching ? (
+        <section className="space-y-4 bg-[#14232d] p-4 sm:p-6 rounded-2xl border border-[#213743]">
+          <div className="flex items-center justify-between pb-3 border-b border-[#213743]">
+            <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+              <Search className="h-5 w-5 text-[#00e701]" />
+              <span>
+                Search Results for &ldquo;{searchQuery}&rdquo; ({searchResults.length} games found)
+              </span>
             </h2>
             <button
               onClick={() => setSearchQuery("")}
-              className="text-xs text-[#b1bad3] hover:text-white"
+              className="text-xs sm:text-sm font-bold text-[#00e701] hover:underline cursor-pointer"
             >
-              Clear
+              Clear Search
             </button>
           </div>
 
           {searchResults.length === 0 ? (
-            <div className="py-8 text-center text-xs text-[#b1bad3]">
-              No games found matching your search.
+            <div className="py-16 text-center">
+              <div className="w-14 h-14 mx-auto mb-3 rounded-full bg-[#1a2c38] flex items-center justify-center text-2xl">
+                🔍
+              </div>
+              <p className="text-white font-bold text-base">No games found</p>
+              <p className="text-xs text-[#b1bad3] mt-1">
+                We couldn&apos;t find any games matching &ldquo;{searchQuery}&rdquo;
+              </p>
+              <button
+                onClick={() => setSearchQuery("")}
+                className="mt-4 px-5 py-2 rounded-xl bg-[#213743] hover:bg-[#2f4553] text-xs sm:text-sm font-bold text-white transition-colors cursor-pointer"
+              >
+                Clear Search
+              </button>
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-2 sm:gap-3 md:grid-cols-4 lg:grid-cols-6">
-              {searchResults.slice(0, 12).map((game) => {
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2.5 sm:gap-3.5">
+              {searchResults.map((game) => {
                 const thumb = getGameThumbnail(game.slug || game.id, game.image);
                 const gameHref = game.href || `/games/${game.slug || game.id}`;
                 return (
@@ -194,9 +220,17 @@ export default function HomePage() {
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1 sm:gap-1.5 mt-1.5 sm:mt-2 px-0.5 text-[10px] sm:text-[11px] font-semibold text-[#b1bad3] truncate">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] animate-pulse shrink-0" />
-                      <span className="truncate">{(game.playersCount || 2450).toLocaleString("en-US")} playing</span>
+                    <div className="flex flex-col mt-1.5 px-0.5">
+                      <span className="font-bold text-xs sm:text-sm text-white truncate group-hover:text-[#00e701] transition-colors">
+                        {game.title}
+                      </span>
+                      <span className="text-[10px] uppercase font-bold text-[#b1bad3] truncate">
+                        {game.provider}
+                      </span>
+                      <div className="flex items-center gap-1 mt-0.5 text-[10px] sm:text-xs font-semibold text-[#b1bad3] truncate">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] shrink-0" />
+                        <span className="truncate">{(game.playersCount || 2450).toLocaleString("en-US")} playing</span>
+                      </div>
                     </div>
                   </Link>
                 );
@@ -204,7 +238,8 @@ export default function HomePage() {
             </div>
           )}
         </section>
-      )}
+      ) : (
+        <>
 
       {/* 3. VIP PROGRESS CARD ("VIP Progress >", username, progress bar, Unranked -> Bronze) */}
       <VIPProgressCard />
@@ -240,7 +275,7 @@ export default function HomePage() {
 
         {/* 3-Card Responsive Horizontal Scroll Carousel for Stake Originals */}
         <div className="flex gap-2.5 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory py-1 px-1">
-          {STAKE_ORIGINALS.slice(0, 14).map((game) => {
+          {STAKE_ORIGINALS.map((game) => {
             const thumb = getGameThumbnail(game.slug || game.id, game.image);
             const gameHref = game.href || `/games/${game.slug || game.id}`;
             return (
@@ -339,7 +374,7 @@ export default function HomePage() {
 
         {/* 3:4 Full-Bleed Live Casino Cards Horizontal Carousel */}
         <div className="flex gap-2.5 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory py-1 px-1">
-          {LIVE_CASINO_GAMES.slice(0, 14).map((game) => {
+          {LIVE_CASINO_GAMES.map((game) => {
             const thumb = getGameThumbnail(game.slug || game.id, game.image);
             const gameHref = game.href || `/games/blackjack`;
             const isRestricted = realBalance <= 0 && !hasVerifiedDeposit;
@@ -422,12 +457,323 @@ export default function HomePage() {
       {/* 7. GAMES FOR YOU > (Drac's Stacks, Skyscraper Crash, Nuukd with "Load More" button) */}
       <GamesForYou />
 
-      {/* 8. SLOTS > (Trending Games: Gates of Olympus 2500, Gates of Olympus Super Scatter, Sharks! with "Load More" button) */}
-      <TrendingGames
-        title="Slots"
-        categoryHref="/casino/group/slots"
-        onSelectGame={(g) => setActiveSlotModal(g as SlotModalGame)}
-      />
+      {/* 8. SLOTS > (Full master collection from POPULAR_SLOTS) */}
+      <section className="space-y-3.5">
+        <div className="flex items-center justify-between">
+          <Link
+            href="/casino/group/slots"
+            className="flex items-center gap-2 group cursor-pointer"
+          >
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/15 text-amber-400">
+              <Sparkles className="h-4 w-4" />
+            </div>
+            <h2 className="text-base sm:text-xl font-black text-white group-hover:text-amber-400 transition-colors flex items-center gap-1.5">
+              <span>Slots</span>
+              <ChevronRight className="h-4 w-4 text-[#b1bad3] group-hover:translate-x-1 transition-transform" />
+            </h2>
+            <span className="rounded-full bg-[#213743] px-2 py-0.5 text-[11px] font-bold text-amber-400">
+              {POPULAR_SLOTS.length} Games
+            </span>
+          </Link>
+          <Link
+            href="/casino/group/slots"
+            className="text-xs font-bold text-amber-400 hover:underline"
+          >
+            View All Slots &gt;
+          </Link>
+        </div>
+
+        <div className="flex gap-2.5 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory py-1 px-1">
+          {POPULAR_SLOTS.map((game) => {
+            const thumb = getGameThumbnail(game.slug || game.id, game.image);
+            const gameHref = game.href || `/casino/home`;
+            return (
+              <div
+                key={game.id}
+                className="w-[calc(33.333%-7px)] min-w-[110px] sm:min-w-[150px] md:w-[150px] lg:w-[165px] flex-shrink-0 snap-start"
+              >
+                <div
+                  onClick={() => {
+                    addRecentlyPlayedGame({
+                      id: game.id,
+                      slug: game.slug,
+                      title: game.title,
+                      href: gameHref,
+                      image: thumb,
+                      playersCount: game.playersCount,
+                    });
+                    setActiveSlotModal({
+                      id: game.id,
+                      title: game.title,
+                      provider: game.provider,
+                      rtp: "96.50% RTP",
+                    });
+                  }}
+                  className="group relative flex flex-col select-none cursor-pointer"
+                >
+                  <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-[#1a2c38] border border-[#213743] hover:border-[#2f4553] transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg">
+                    {thumb ? (
+                      <img
+                        src={thumb}
+                        alt={game.title}
+                        className="w-full h-full object-cover rounded-xl"
+                        loading="lazy"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLElement).style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center p-3">
+                        <StakeGameArtwork gameId={game.slug || game.id} />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#00e701] text-[#0f212e] shadow-lg shadow-[#00e701]/50 transform scale-75 group-hover:scale-100 transition-transform">
+                        <Play className="h-5 w-5 fill-current ml-0.5" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col mt-1.5 px-0.5">
+                    <span className="font-bold text-xs sm:text-sm text-white truncate group-hover:text-amber-400 transition-colors">
+                      {game.title}
+                    </span>
+                    <span className="text-[10px] uppercase font-bold text-[#b1bad3] truncate">
+                      {game.provider}
+                    </span>
+                    <div className="flex items-center gap-1 mt-0.5 text-[10px] sm:text-xs font-semibold text-[#b1bad3] truncate">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] shrink-0" />
+                      <span className="truncate">{(game.playersCount || 2150).toLocaleString("en-US")} playing</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Authentic "View All" End Card for Slots */}
+          <Link
+            href="/casino/group/slots"
+            className="w-[calc(33.333%-7px)] min-w-[110px] sm:min-w-[140px] md:w-[150px] lg:w-[165px] aspect-[3/4] rounded-xl bg-[#213743]/50 border border-[#2f4553] hover:border-[#213743] flex flex-col items-center justify-center gap-2 cursor-pointer transition-transform active:scale-95 text-[#b1bad3] hover:text-white flex-shrink-0 snap-start group"
+          >
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1a2c38] group-hover:bg-amber-400 text-[#b1bad3] group-hover:text-[#0f212e] transition-colors shadow-md">
+              <ArrowRight className="h-5 w-5" />
+            </div>
+            <span className="text-xs font-bold text-center px-1">View All Slots</span>
+          </Link>
+        </div>
+      </section>
+
+      {/* 8.5. GAME SHOWS > (Full master collection from GAME_SHOWS_GAMES) */}
+      <section className="space-y-3.5">
+        <div className="flex items-center justify-between">
+          <Link
+            href="/casino/group/game-shows"
+            className="flex items-center gap-2 group cursor-pointer"
+          >
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-500/15 text-purple-400">
+              <span className="text-sm">🎁</span>
+            </div>
+            <h2 className="text-base sm:text-xl font-black text-white group-hover:text-purple-400 transition-colors flex items-center gap-1.5">
+              <span>Game Shows</span>
+              <ChevronRight className="h-4 w-4 text-[#b1bad3] group-hover:translate-x-1 transition-transform" />
+            </h2>
+            <span className="rounded-full bg-[#213743] px-2 py-0.5 text-[11px] font-bold text-purple-400">
+              {GAME_SHOWS_GAMES.length} Games
+            </span>
+          </Link>
+          <Link
+            href="/casino/group/game-shows"
+            className="text-xs font-bold text-purple-400 hover:underline"
+          >
+            View All Shows &gt;
+          </Link>
+        </div>
+
+        <div className="flex gap-2.5 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory py-1 px-1">
+          {GAME_SHOWS_GAMES.map((game) => {
+            const thumb = getGameThumbnail(game.slug || game.id, game.image);
+            const gameHref = game.href || `/casino/home`;
+            return (
+              <div
+                key={game.id}
+                className="w-[calc(33.333%-7px)] min-w-[110px] sm:min-w-[150px] md:w-[150px] lg:w-[165px] flex-shrink-0 snap-start"
+              >
+                <div
+                  onClick={() => {
+                    addRecentlyPlayedGame({
+                      id: game.id,
+                      slug: game.slug,
+                      title: game.title,
+                      href: gameHref,
+                      image: thumb,
+                      playersCount: game.playersCount,
+                    });
+                    setActiveSlotModal({
+                      id: game.id,
+                      title: game.title,
+                      provider: game.provider,
+                      rtp: "96.08% RTP",
+                    });
+                  }}
+                  className="group relative flex flex-col select-none cursor-pointer"
+                >
+                  <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-[#1a2c38] border border-[#213743] hover:border-[#2f4553] transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg">
+                    {thumb ? (
+                      <img
+                        src={thumb}
+                        alt={game.title}
+                        className="w-full h-full object-cover rounded-xl"
+                        loading="lazy"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLElement).style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center p-3">
+                        <StakeGameArtwork gameId={game.slug || game.id} />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#00e701] text-[#0f212e] shadow-lg shadow-[#00e701]/50 transform scale-75 group-hover:scale-100 transition-transform">
+                        <Play className="h-5 w-5 fill-current ml-0.5" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col mt-1.5 px-0.5">
+                    <span className="font-bold text-xs sm:text-sm text-white truncate group-hover:text-purple-400 transition-colors">
+                      {game.title}
+                    </span>
+                    <span className="text-[10px] uppercase font-bold text-[#b1bad3] truncate">
+                      {game.provider}
+                    </span>
+                    <div className="flex items-center gap-1 mt-0.5 text-[10px] sm:text-xs font-semibold text-[#b1bad3] truncate">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] shrink-0" />
+                      <span className="truncate">{(game.playersCount || 1840).toLocaleString("en-US")} playing</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Authentic "View All" End Card for Game Shows */}
+          <Link
+            href="/casino/group/game-shows"
+            className="w-[calc(33.333%-7px)] min-w-[110px] sm:min-w-[140px] md:w-[150px] lg:w-[165px] aspect-[3/4] rounded-xl bg-[#213743]/50 border border-[#2f4553] hover:border-[#213743] flex flex-col items-center justify-center gap-2 cursor-pointer transition-transform active:scale-95 text-[#b1bad3] hover:text-white flex-shrink-0 snap-start group"
+          >
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1a2c38] group-hover:bg-purple-500 text-[#b1bad3] group-hover:text-white transition-colors shadow-md">
+              <ArrowRight className="h-5 w-5" />
+            </div>
+            <span className="text-xs font-bold text-center px-1">View All Shows</span>
+          </Link>
+        </div>
+      </section>
+
+      {/* 8.6. INOUT GAMES > (Full master collection from INOUT_GAMES) */}
+      <section className="space-y-3.5">
+        <div className="flex items-center justify-between">
+          <Link
+            href="/casino/group/inout"
+            className="flex items-center gap-2 group cursor-pointer"
+          >
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/15 text-[#00e701]">
+              <span className="text-sm">🔥</span>
+            </div>
+            <h2 className="text-base sm:text-xl font-black text-white group-hover:text-[#00e701] transition-colors flex items-center gap-1.5">
+              <span>INOUT Games</span>
+              <ChevronRight className="h-4 w-4 text-[#b1bad3] group-hover:translate-x-1 transition-transform" />
+            </h2>
+            <span className="rounded-full bg-[#213743] px-2 py-0.5 text-[11px] font-bold text-[#00e701]">
+              {INOUT_GAMES.length} Games
+            </span>
+          </Link>
+          <Link
+            href="/casino/group/inout"
+            className="text-xs font-bold text-[#00e701] hover:underline"
+          >
+            View All INOUT &gt;
+          </Link>
+        </div>
+
+        <div className="flex gap-2.5 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory py-1 px-1">
+          {INOUT_GAMES.map((game) => {
+            const thumb = getGameThumbnail(game.slug || game.id, game.image);
+            const gameHref = game.href || `/casino/home`;
+            return (
+              <div
+                key={game.id}
+                className="w-[calc(33.333%-7px)] min-w-[110px] sm:min-w-[150px] md:w-[150px] lg:w-[165px] flex-shrink-0 snap-start"
+              >
+                <div
+                  onClick={() => {
+                    addRecentlyPlayedGame({
+                      id: game.id,
+                      slug: game.slug,
+                      title: game.title,
+                      href: gameHref,
+                      image: thumb,
+                      playersCount: game.playersCount,
+                    });
+                    setActiveSlotModal({
+                      id: game.id,
+                      title: game.title,
+                      provider: game.provider,
+                      rtp: "96.50% RTP",
+                    });
+                  }}
+                  className="group relative flex flex-col select-none cursor-pointer"
+                >
+                  <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-[#1a2c38] border border-[#213743] hover:border-[#2f4553] transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg">
+                    {thumb ? (
+                      <img
+                        src={thumb}
+                        alt={game.title}
+                        className="w-full h-full object-cover rounded-xl"
+                        loading="lazy"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLElement).style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center p-3">
+                        <StakeGameArtwork gameId={game.slug || game.id} />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#00e701] text-[#0f212e] shadow-lg shadow-[#00e701]/50 transform scale-75 group-hover:scale-100 transition-transform">
+                        <Play className="h-5 w-5 fill-current ml-0.5" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col mt-1.5 px-0.5">
+                    <span className="font-bold text-xs sm:text-sm text-white truncate group-hover:text-[#00e701] transition-colors">
+                      {game.title}
+                    </span>
+                    <span className="text-[10px] uppercase font-bold text-[#b1bad3] truncate">
+                      {game.provider}
+                    </span>
+                    <div className="flex items-center gap-1 mt-0.5 text-[10px] sm:text-xs font-semibold text-[#b1bad3] truncate">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] shrink-0" />
+                      <span className="truncate">{(game.playersCount || 2300).toLocaleString("en-US")} playing</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Authentic "View All" End Card for INOUT Games */}
+          <Link
+            href="/casino/group/inout"
+            className="w-[calc(33.333%-7px)] min-w-[110px] sm:min-w-[140px] md:w-[150px] lg:w-[165px] aspect-[3/4] rounded-xl bg-[#213743]/50 border border-[#2f4553] hover:border-[#213743] flex flex-col items-center justify-center gap-2 cursor-pointer transition-transform active:scale-95 text-[#b1bad3] hover:text-white flex-shrink-0 snap-start group"
+          >
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1a2c38] group-hover:bg-[#00e701] text-[#b1bad3] group-hover:text-[#0f212e] transition-colors shadow-md">
+              <ArrowRight className="h-5 w-5" />
+            </div>
+            <span className="text-xs font-bold text-center px-1">View All INOUT</span>
+          </Link>
+        </div>
+      </section>
 
       {/* 9. TRENDING SPORTS > (Soccer, Tennis, American Football cards with "Load More" button) */}
       <TrendingSports />
@@ -472,6 +818,8 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+    </>
+  )}
 
       {/* Interactive Slot / Live Game Demo Player Modal */}
       {activeSlotModal && (

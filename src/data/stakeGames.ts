@@ -1947,6 +1947,278 @@ const RAW_INOUT_GAMES: GameItem[] = [
 export const INOUT_GAMES: StakeGame[] = RAW_INOUT_GAMES.map(attachThumbnail);
 
 // ==========================================
+// GAME SHOWS COLLECTION
+// ==========================================
+const RAW_GAME_SHOWS: GameItem[] = [
+  {
+    id: "crazy-time",
+    title: "Crazy Time",
+    slug: "crazy-time",
+    provider: "Evolution",
+    playersCount: 5890,
+    badge: "HOT SHOW",
+    badgeColor: "bg-pink-500/20 text-pink-300 border-pink-500/30",
+    category: "game-shows",
+    isLive: true,
+    isPlayable: true,
+    bgGradient: "from-red-950/90 via-[#1a2c38] to-[#0f212e]",
+  },
+  {
+    id: "monopoly-live",
+    title: "Monopoly Live",
+    slug: "monopoly-live",
+    provider: "Evolution",
+    playersCount: 3210,
+    badge: "3D ROLLS",
+    badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+    category: "game-shows",
+    isLive: true,
+    isPlayable: true,
+    bgGradient: "from-amber-950/90 via-[#1a2c38] to-[#0f212e]",
+  },
+  {
+    id: "funky-time",
+    title: "Funky Time",
+    slug: "funky-time",
+    provider: "Evolution",
+    playersCount: 2840,
+    badge: "DISCO",
+    badgeColor: "bg-pink-500/20 text-pink-300 border-pink-500/30",
+    category: "game-shows",
+    isLive: true,
+    isPlayable: true,
+    bgGradient: "from-pink-950/90 via-[#1a2c38] to-[#0f212e]",
+  },
+  {
+    id: "mega-ball",
+    title: "Mega Ball",
+    slug: "mega-ball",
+    provider: "Evolution",
+    playersCount: 1920,
+    badge: "100X MULTI",
+    badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+    category: "game-shows",
+    isLive: true,
+    isPlayable: true,
+    bgGradient: "from-emerald-950/90 via-[#1a2c38] to-[#0f212e]",
+  },
+  {
+    id: "crazy-coin-flip",
+    title: "Crazy Coin Flip",
+    slug: "crazy-coin-flip",
+    provider: "Evolution",
+    playersCount: 1680,
+    badge: "SLOT SHOW",
+    badgeColor: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30",
+    category: "game-shows",
+    isLive: true,
+    isPlayable: true,
+    bgGradient: "from-yellow-950/90 via-[#1a2c38] to-[#0f212e]",
+  },
+  {
+    id: "crazy-pachinko",
+    title: "Crazy Pachinko",
+    slug: "crazy-pachinko",
+    provider: "Evolution",
+    playersCount: 2140,
+    badge: "DROP BALL",
+    badgeColor: "bg-purple-500/20 text-purple-300 border-purple-500/30",
+    category: "game-shows",
+    isLive: true,
+    isPlayable: true,
+    bgGradient: "from-purple-950/90 via-[#1a2c38] to-[#0f212e]",
+  },
+  {
+    id: "monopoly-big-baller",
+    title: "Monopoly Big Baller",
+    slug: "monopoly-big-baller",
+    provider: "Evolution",
+    playersCount: 1820,
+    badge: "BINGO",
+    badgeColor: "bg-blue-500/20 text-blue-300 border-blue-500/30",
+    category: "game-shows",
+    isLive: true,
+    isPlayable: true,
+    bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
+  },
+  {
+    id: "stock-market",
+    title: "Stock Market",
+    slug: "stock-market",
+    provider: "Evolution",
+    playersCount: 1450,
+    badge: "TRADING",
+    badgeColor: "bg-[#00e701]/20 text-[#00e701] border-[#00e701]/30",
+    category: "game-shows",
+    isLive: true,
+    isPlayable: true,
+    bgGradient: "from-emerald-950/90 via-[#1a2c38] to-[#0f212e]",
+  },
+  {
+    id: "lightning-dice",
+    title: "Lightning Dice",
+    slug: "lightning-dice",
+    provider: "Evolution",
+    playersCount: 1210,
+    badge: "1,000X",
+    badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+    category: "game-shows",
+    isLive: true,
+    isPlayable: true,
+    bgGradient: "from-amber-950/90 via-[#1a2c38] to-[#0f212e]",
+  },
+];
+
+export const GAME_SHOWS_GAMES: GameItem[] = RAW_GAME_SHOWS.map(attachThumbnail);
+export const GAME_SHOWS: GameItem[] = GAME_SHOWS_GAMES;
+
+// ==========================================
+// BURST / CRASH GAMES COLLECTION
+// ==========================================
+const RAW_BURST_GAMES: GameItem[] = [
+  {
+    id: "aviator",
+    title: "Aviator",
+    slug: "aviator",
+    provider: "Spribe",
+    playersCount: 3840,
+    badge: "BURST",
+    badgeColor: "bg-red-500/20 text-red-300 border-red-500/30",
+    href: "/games/crash",
+    category: "originals",
+    bgGradient: "from-red-950/80 via-[#1a2c38] to-[#0f212e]",
+    isPlayable: true,
+  },
+  {
+    id: "mine-drop-2",
+    title: "Mine Drop 2",
+    slug: "mine-drop-2",
+    provider: "Stake Originals",
+    playersCount: 1940,
+    badge: "BURST",
+    badgeColor: "bg-[#00e701]/20 text-[#00e701] border-[#00e701]/30",
+    href: "/games/mines",
+    category: "originals",
+    bgGradient: "from-emerald-950/80 via-[#1a2c38] to-[#0f212e]",
+    isPlayable: true,
+  },
+  {
+    id: "jetx",
+    title: "JetX",
+    slug: "jetx",
+    provider: "SmartSoft",
+    playersCount: 2210,
+    badge: "BURST",
+    badgeColor: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30",
+    href: "/games/crash",
+    category: "originals",
+    bgGradient: "from-yellow-950/80 via-[#1a2c38] to-[#0f212e]",
+    isPlayable: true,
+  },
+  {
+    id: "crash",
+    title: "Crash",
+    slug: "crash",
+    provider: "Stake Originals",
+    playersCount: 5120,
+    badge: "BURST",
+    badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+    href: "/games/crash",
+    category: "originals",
+    bgGradient: "from-amber-950/80 via-[#1a2c38] to-[#0f212e]",
+    isPlayable: true,
+  },
+  {
+    id: "spaceman",
+    title: "Spaceman",
+    slug: "spaceman",
+    provider: "Pragmatic Play",
+    playersCount: 2450,
+    badge: "BURST",
+    badgeColor: "bg-blue-500/20 text-blue-300 border-blue-500/30",
+    href: "/games/crash",
+    category: "slots",
+    bgGradient: "from-blue-950/80 via-[#1a2c38] to-[#0f212e]",
+    isPlayable: true,
+  },
+  {
+    id: "high-flyer",
+    title: "High Flyer",
+    slug: "high-flyer",
+    provider: "Pragmatic Play",
+    playersCount: 1680,
+    badge: "BURST",
+    badgeColor: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
+    href: "/games/crash",
+    category: "slots",
+    bgGradient: "from-cyan-950/80 via-[#1a2c38] to-[#0f212e]",
+    isPlayable: true,
+  },
+  {
+    id: "balloon",
+    title: "Balloon",
+    slug: "balloon",
+    provider: "SmartSoft",
+    playersCount: 1320,
+    badge: "BURST",
+    badgeColor: "bg-purple-500/20 text-purple-300 border-purple-500/30",
+    href: "/games/crash",
+    category: "originals",
+    bgGradient: "from-purple-950/80 via-[#1a2c38] to-[#0f212e]",
+    isPlayable: true,
+  },
+  {
+    id: "comet-crash",
+    title: "Comet Crash",
+    slug: "comet-crash",
+    provider: "Stake Originals",
+    playersCount: 1540,
+    badge: "BURST",
+    badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+    href: "/games/crash",
+    category: "originals",
+    bgGradient: "from-amber-950/80 via-[#1a2c38] to-[#0f212e]",
+    isPlayable: true,
+  },
+  {
+    id: "rocket-dice",
+    title: "Rocket Dice",
+    slug: "rocket-dice",
+    provider: "BGaming",
+    playersCount: 1120,
+    badge: "BURST",
+    badgeColor: "bg-rose-500/20 text-rose-300 border-rose-500/30",
+    href: "/games/dice",
+    category: "originals",
+    bgGradient: "from-rose-950/80 via-[#1a2c38] to-[#0f212e]",
+    isPlayable: true,
+  },
+];
+
+export const BURST_GAMES: GameItem[] = RAW_BURST_GAMES.map(attachThumbnail);
+export const SLOTS_GAMES: GameItem[] = POPULAR_SLOTS;
+
+// ==========================================
+// MASTER GAME CATALOG (ALL_GAMES)
+// Centralized Single Source of Truth for Search & Parity
+// ==========================================
+const masterGameMap = new Map<string, GameItem>();
+[
+  ...STAKE_ORIGINALS,
+  ...POPULAR_SLOTS,
+  ...EVOLUTION_GAMES,
+  ...INOUT_GAMES,
+  ...GAME_SHOWS_GAMES,
+  ...BURST_GAMES,
+].forEach((game) => {
+  if (!masterGameMap.has(game.id)) {
+    masterGameMap.set(game.id, game);
+  }
+});
+
+export const ALL_GAMES: GameItem[] = Array.from(masterGameMap.values());
+
+// ==========================================
 // 20 PUBLISHERS / GAME STUDIOS
 // ==========================================
 export const PROVIDERS_LIST: ProviderItem[] = [

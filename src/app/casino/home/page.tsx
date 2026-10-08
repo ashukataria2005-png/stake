@@ -21,7 +21,8 @@ import CasinoGameRow, { CasinoCardData } from "@/components/casino/CasinoGameRow
 import CasinoLiveBets from "@/components/casino/CasinoLiveBets";
 import StakeGameArtwork from "@/components/casino/StakeGameArtwork";
 import { useGame } from "@/context/GameContext";
-import { EVOLUTION_GAMES, INOUT_GAMES } from "@/data/stakeGames";
+import { ALL_GAMES, EVOLUTION_GAMES, INOUT_GAMES, GameItem } from "@/data/stakeGames";
+import { getGameThumbnail } from "@/data/gameThumbnails";
 import { sounds } from "@/utils/audio";
 import confetti from "canvas-confetti";
 
@@ -29,6 +30,20 @@ export default function CasinoHomePage() {
   const { balance, updateBalance, currency } = useGame();
   const [activeCategory, setActiveCategory] = useState<string>("home");
   const [searchQuery, setSearchQuery] = useState<string>("");
+
+  // Real-time instant search across ALL_GAMES (title, name, provider, category)
+  const isSearching = searchQuery.trim().length > 0;
+  const searchResults: GameItem[] = isSearching
+    ? ALL_GAMES.filter((g) => {
+        const q = searchQuery.trim().toLowerCase();
+        return (
+          g.title.toLowerCase().includes(q) ||
+          (g.name && g.name.toLowerCase().includes(q)) ||
+          g.provider.toLowerCase().includes(q) ||
+          (g.category && g.category.toLowerCase().includes(q))
+        );
+      })
+    : [];
 
   // Slot Demo Player Modal State
   const [activeSlotModal, setActiveSlotModal] = useState<any | null>(null);
@@ -1459,13 +1474,125 @@ export default function CasinoHomePage() {
           placeholder="Search Stake.com"
           className="font-bold text-white placeholder:font-semibold placeholder-[#b1bad3] tracking-wide text-sm sm:text-base outline-none bg-transparent w-full"
         />
+        {searchQuery.trim().length > 0 && (
+          <button
+            onClick={() => setSearchQuery("")}
+            className="p-1 text-[#b1bad3] hover:text-white transition-colors cursor-pointer ml-2"
+            title="Clear Search"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
-      {/* 3. HORIZONTAL CATEGORY NAVIGATION PILLS: [Casino Home | My Casino | Favorites] */}
-      <CasinoCategoryPills
-        activeCategory={activeCategory}
-        onSelectCategory={setActiveCategory}
-      />
+      {isSearching ? (
+        /* DYNAMIC LIVE SEARCH RESULTS VIEW */
+        <section className="space-y-4 my-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+              <Search className="h-4 w-4 text-[#00e701]" />
+              <span>
+                Search Results for &quot;{searchQuery}&quot; ({searchResults.length} {searchResults.length === 1 ? "game" : "games"} found)
+              </span>
+            </h2>
+            <button
+              onClick={() => setSearchQuery("")}
+              className="text-xs font-bold text-[#b1bad3] hover:text-white px-2.5 py-1 rounded-lg bg-[#213743] hover:bg-[#2a4454] transition-colors cursor-pointer"
+            >
+              Clear Search
+            </button>
+          </div>
+
+          {searchResults.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 px-4 rounded-2xl bg-[#14232d] border border-[#213743] text-center space-y-3">
+              <div className="w-12 h-12 rounded-full bg-[#213743] flex items-center justify-center text-[#b1bad3]">
+                <Search className="w-6 h-6" />
+              </div>
+              <h3 className="text-base sm:text-lg font-bold text-white">
+                No games found for &quot;{searchQuery}&quot;
+              </h3>
+              <p className="text-xs sm:text-sm text-[#b1bad3] max-w-sm">
+                Try searching with another keyword, provider (e.g. Pragmatic, Evolution, INOUT, Hacksaw), or category.
+              </p>
+              <button
+                onClick={() => setSearchQuery("")}
+                className="mt-2 px-4 py-2 rounded-xl bg-[#00e701] text-[#0f212e] font-black text-xs sm:text-sm hover:brightness-110 transition-all cursor-pointer shadow-lg shadow-[#00e701]/20"
+              >
+                Clear Search
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2.5 sm:gap-3.5">
+              {searchResults.map((game) => {
+                const thumb = getGameThumbnail(game.slug || game.id, game.image);
+                const gameHref = game.href || `/games/${game.slug || game.id}`;
+                return (
+                  <div
+                    key={game.id}
+                    onClick={() => {
+                      if (!game.href) {
+                        handleCardClick({
+                          id: game.id,
+                          title: game.title,
+                          provider: game.provider,
+                          playersCount: game.playersCount,
+                          badge: game.badge,
+                          badgeColor: game.badgeColor,
+                          image: thumb,
+                        });
+                      }
+                    }}
+                    className="group relative flex flex-col select-none cursor-pointer"
+                  >
+                    <Link href={gameHref} className="block">
+                      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-[#1a2c38] border border-[#213743] hover:border-[#2f4553] transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg">
+                        {thumb ? (
+                          <img
+                            src={thumb}
+                            alt={game.title}
+                            className="w-full h-full object-cover object-center rounded-xl"
+                            loading="lazy"
+                            onError={(e) => {
+                              (e.currentTarget as HTMLElement).style.display = "none";
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center p-3">
+                            <StakeGameArtwork gameId={game.slug || game.id} />
+                          </div>
+                        )}
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#00e701] text-[#0f212e] shadow-lg shadow-[#00e701]/40 transform scale-75 group-hover:scale-100 transition-transform">
+                            <Play className="h-4 w-4 fill-current ml-0.5" />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-col mt-1.5 px-0.5">
+                        <span className="font-black uppercase tracking-wider text-xs sm:text-sm text-white truncate">
+                          {game.title}
+                        </span>
+                        <span className="text-[9px] sm:text-[10px] uppercase font-bold text-white/70 truncate">
+                          {game.provider}
+                        </span>
+                        <div className="flex items-center gap-1 sm:gap-1.5 mt-0.5 text-[10px] sm:text-xs font-semibold text-[#b1bad3] truncate">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] animate-pulse shrink-0" />
+                          <span className="truncate">{(game.playersCount || 1250).toLocaleString("en-US")} playing</span>
+                        </div>
+                      </div>
+                    </Link>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
+      ) : (
+        <>
+          {/* 3. HORIZONTAL CATEGORY NAVIGATION PILLS: [Casino Home | My Casino | Favorites] */}
+          <CasinoCategoryPills
+            activeCategory={activeCategory}
+            onSelectCategory={setActiveCategory}
+          />
 
       {/* 4. STAKE ORIGINALS > */}
       <CasinoGameRow
@@ -1569,6 +1696,8 @@ export default function CasinoHomePage() {
 
       {/* 13. BETS FEED TICKER: Tabs for [ My Bets | All Bets | High Rollers ] + Live Table (Game | Payout) */}
       <CasinoLiveBets />
+        </>
+      )}
 
       {/* INTERACTIVE SLOT DEMO PLAYER MODAL */}
       {activeSlotModal && (

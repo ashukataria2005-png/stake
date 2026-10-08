@@ -34,6 +34,9 @@ import {
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import StakeLogo from "@/components/StakeLogo";
+import { ALL_GAMES, GameItem } from "@/data/stakeGames";
+import { getGameThumbnail } from "@/data/gameThumbnails";
+import StakeGameArtwork from "@/components/casino/StakeGameArtwork";
 
 interface NavEntry {
   name: string;
@@ -48,6 +51,20 @@ export default function Sidebar() {
   const { isSidebarOpen, setSidebarOpen, toggleChat } = useGame();
   const [activeDrawerTab, setActiveDrawerTab] = useState<"casino" | "sports">("casino");
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Instant real-time search across ALL_GAMES
+  const isSearching = searchQuery.trim().length > 0;
+  const searchResults: GameItem[] = isSearching
+    ? ALL_GAMES.filter((g) => {
+        const q = searchQuery.trim().toLowerCase();
+        return (
+          g.title.toLowerCase().includes(q) ||
+          (g.name && g.name.toLowerCase().includes(q)) ||
+          g.provider.toLowerCase().includes(q) ||
+          (g.category && g.category.toLowerCase().includes(q))
+        );
+      })
+    : [];
 
   // Collapsible sections
   const [isPromosOpen, setIsPromosOpen] = useState(false);
@@ -173,13 +190,13 @@ export default function Sidebar() {
               </button>
             </div>
 
-            {/* Top Controls: Search Stake.com input with clean ✕ close button */}
+            {/* Top Controls: Search games, providers... input with clean ✕ button */}
             <div className="p-3 border-b border-[#213743]">
               <div className="relative flex items-center">
                 <Search className="absolute left-3 w-4 h-4 text-[#b1bad3]" />
                 <input
                   type="text"
-                  placeholder="Search Stake.com"
+                  placeholder="Search games, providers..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full bg-[#1a2c38] border border-[#213743] focus:border-[#2f4553] text-sm font-bold text-white placeholder:font-semibold placeholder-[#b1bad3] pl-9 pr-8 py-2 rounded-xl outline-none"
@@ -188,6 +205,7 @@ export default function Sidebar() {
                   <button
                     onClick={() => setSearchQuery("")}
                     className="absolute right-2.5 text-[#b1bad3] hover:text-white p-1 text-xs cursor-pointer"
+                    aria-label="Clear Search"
                   >
                     ✕
                   </button>
@@ -195,6 +213,7 @@ export default function Sidebar() {
                   <button
                     onClick={() => setSidebarOpen(false)}
                     className="absolute right-2.5 text-[#b1bad3] hover:text-white p-1 text-xs cursor-pointer"
+                    aria-label="Close Drawer"
                   >
                     ✕
                   </button>
@@ -202,8 +221,95 @@ export default function Sidebar() {
               </div>
             </div>
 
-            {/* Segmented Toggle: [ 🎰 Casino | ⚽ Sports ] (blue gradient capsule active state) */}
-            <div className="px-3 pt-2.5 pb-2 border-b border-[#213743]">
+            {isSearching ? (
+              /* Dynamic Search Results View */
+              <div className="flex-1 px-3 py-3 overflow-y-auto space-y-2">
+                <div className="flex items-center justify-between px-1 pb-2 border-b border-[#213743]">
+                  <span className="text-xs font-black uppercase tracking-wider text-[#b1bad3]">
+                    Search Results ({searchResults.length})
+                  </span>
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="text-xs font-bold text-[#00e701] hover:underline cursor-pointer"
+                  >
+                    Clear Search
+                  </button>
+                </div>
+
+                {searchResults.length === 0 ? (
+                  <div className="py-12 px-4 text-center">
+                    <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[#1a2c38] flex items-center justify-center text-xl">
+                      🔍
+                    </div>
+                    <p className="text-white font-bold text-sm">No games found</p>
+                    <p className="text-xs text-[#b1bad3] mt-1">
+                      No results for &ldquo;{searchQuery}&rdquo;
+                    </p>
+                    <button
+                      onClick={() => setSearchQuery("")}
+                      className="mt-4 px-4 py-1.5 rounded-lg bg-[#213743] hover:bg-[#2f4553] text-xs font-bold text-white transition-colors cursor-pointer"
+                    >
+                      Clear Search
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-1.5">
+                    {searchResults.map((game) => {
+                      const thumb = getGameThumbnail(game.slug || game.id) || game.image;
+                      const gameHref =
+                        game.href ||
+                        (game.category === "originals"
+                          ? `/games/${game.slug || game.id}`
+                          : `/casino/home`);
+                      return (
+                        <Link
+                          key={game.id}
+                          href={gameHref}
+                          onClick={handleMobileNavClick}
+                          className="flex items-center gap-3 p-2 rounded-xl bg-[#1a2c38]/70 hover:bg-[#213743] border border-[#213743]/60 hover:border-[#2f4553] transition-all cursor-pointer group"
+                        >
+                          <div className="relative w-11 h-11 shrink-0 rounded-lg overflow-hidden bg-[#0f212e] border border-[#213743]">
+                            {thumb ? (
+                              <img
+                                src={thumb}
+                                alt={game.title}
+                                className="w-full h-full object-cover"
+                                loading="lazy"
+                                onError={(e) => {
+                                  (e.currentTarget as HTMLElement).style.display = "none";
+                                }}
+                              />
+                            ) : (
+                              <div className="w-full h-full p-1 flex items-center justify-center">
+                                <StakeGameArtwork gameId={game.slug || game.id} />
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-bold text-white truncate group-hover:text-[#00e701] transition-colors">
+                              {game.title}
+                            </div>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="text-[10px] font-bold text-[#b1bad3] uppercase truncate bg-[#213743] px-1.5 py-0.5 rounded border border-[#2f4553]/50">
+                                {game.provider}
+                              </span>
+                              <span className="flex items-center gap-1 text-[11px] font-semibold text-[#b1bad3]">
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shrink-0" />
+                                {(game.playersCount || 1200).toLocaleString("en-US")}
+                              </span>
+                            </div>
+                          </div>
+                          <ChevronRight className="w-4 h-4 text-[#b1bad3] group-hover:text-white shrink-0" />
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                {/* Segmented Toggle: [ 🎰 Casino | ⚽ Sports ] (blue gradient capsule active state) */}
+                <div className="px-3 pt-2.5 pb-2 border-b border-[#213743]">
               <div className="grid grid-cols-2 bg-[#1a2c38] p-1 rounded-xl border border-[#213743]">
                 <button
                   onClick={() => setActiveDrawerTab("casino")}
@@ -453,6 +559,8 @@ export default function Sidebar() {
                 </div>
               </div>
             </div>
+          </>
+        )}
           </div>
         </div>
       )}
