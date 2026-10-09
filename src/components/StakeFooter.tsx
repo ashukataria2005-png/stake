@@ -14,7 +14,7 @@ import {
   ShieldCheck,
   Award,
 } from "lucide-react";
-import StakeLogo from "@/components/common/StakeLogo";
+import { StakeLogo } from "@/components/common/StakeLogo";
 
 interface FooterLink {
   label: string;
@@ -428,7 +428,7 @@ export default function StakeFooter() {
         {/* 8. STAKE CENTERED LARGE BRAND WORDMARK */}
         <div className="flex justify-center pt-4 pb-2">
           <Link href="/" className="inline-block group cursor-pointer" aria-label="Stake Home">
-            <StakeLogo className="h-10 sm:h-12 w-auto text-white/30 group-hover:text-white transition-colors duration-300" />
+            <StakeLogo className="h-10 sm:h-12 w-auto text-white/30 group-hover:text-white transition-colors duration-300" collapsed={false} />
           </Link>
         </div>
 

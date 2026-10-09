@@ -16,7 +16,7 @@ import CurrencyDropdown from "@/components/CurrencyDropdown";
 import ProfileDropdown from "@/components/ProfileDropdown";
 import CryptoIcon from "@/components/CryptoIcon";
 import FiatCoinIcon from "@/components/FiatCoinIcon";
-import StakeLogo from "@/components/common/StakeLogo";
+import { StakeLogo } from "@/components/common/StakeLogo";
 import NotificationsDrawer from "@/components/NotificationsDrawer";
 
 export default function Navbar() {
@@ -75,10 +75,8 @@ export default function Navbar() {
             className="flex items-center focus:outline-none"
             aria-label="Stake Home"
           >
-            {/* Mobile cursive 'S' emblem with zero dead whitespace */}
-            <StakeLogo collapsed className="h-8 sm:h-9 w-auto text-white fill-current sm:hidden" />
-            {/* Desktop full cursive Stake logo */}
-            <StakeLogo className="h-8 sm:h-9 w-auto text-white hover:opacity-90 transition-opacity hidden sm:block" />
+            {/* Official Stake Logo */}
+            <StakeLogo className="h-7 sm:h-8 w-auto text-white hover:opacity-90 transition-opacity" collapsed={false} />
           </Link>
         </div>
 

@@ -33,7 +33,7 @@ import {
   Award,
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
-import StakeLogo from "@/components/common/StakeLogo";
+import { StakeLogo } from "@/components/common/StakeLogo";
 import { ALL_GAMES, GameItem } from "@/data/stakeGames";
 import { getGameThumbnail } from "@/data/gameThumbnails";
 import StakeGameArtwork from "@/components/casino/StakeGameArtwork";
@@ -179,7 +179,7 @@ export default function Sidebar() {
                 onClick={handleMobileNavClick}
                 className="flex items-center gap-2 focus:outline-none"
               >
-                <StakeLogo className="h-6 w-auto text-white" />
+                <StakeLogo className="h-7 w-auto text-white" collapsed={false} />
               </Link>
               <button
                 onClick={() => setSidebarOpen(false)}

@@ -27,7 +27,7 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${inter.className} h-full antialiased dark`}
     >
-      <body className={`${inter.className} min-h-full bg-[#0f212e] text-white font-sans selection:bg-[#00e701] selection:text-[#0f212e]`}>
+      <body className={`${inter.variable} ${inter.className} min-h-full bg-[#0f212e] text-white font-sans selection:bg-[#00e701] selection:text-[#0f212e]`}>
         <GameProvider>
           <MainLayoutShell>{children}</MainLayoutShell>
         </GameProvider>
