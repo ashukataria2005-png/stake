@@ -15,11 +15,11 @@ export const HOME_PAGE_CATEGORIES: CategoryLayoutConfig[] = [
     enabled: true,
     viewAllLink: "/casino/group/stake-originals",
     orderedGameSlugs: [
-      "plinko",
       "mines",
       "crash",
-      "dice",
+      "plinko",
       "limbo",
+      "dice",
       "hilo",
       "keno",
       "wheel",
@@ -35,7 +35,7 @@ export const HOME_PAGE_CATEGORIES: CategoryLayoutConfig[] = [
       "tome-of-life",
     ],
   },
-  
+
   {
     id: "live-casino",
     title: "Live Casino",
