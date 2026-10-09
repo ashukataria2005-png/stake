@@ -1,15 +1,52 @@
-/**
- * Central Dedicated Game Thumbnails Registry
- * Single Source of Truth for game artwork across Stake.com
- *
- * Task 41: Provider-wise Asset Restructuring, Deduplication, and Cloned Asset Replacement.
- * All thumbnails are strictly structured under /games/{provider}/
- */
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
 
-// ==========================================
-// ISOLATED INOUT GAMES THUMBNAIL REGISTRY
-// ==========================================
-export const INOUT_GAME_THUMBNAILS: Record<string, string> = {
+const ROOT = path.join(__dirname, '..');
+const GAMES_DIR = path.join(ROOT, 'public', 'games');
+
+// 1. Move misplaced files
+const evoplayBaccarat777 = path.join(GAMES_DIR, 'evoplay', 'baccarat-777.webp');
+const jiliBaccarat777 = path.join(GAMES_DIR, 'jili', 'baccarat-777.webp');
+if (fs.existsSync(evoplayBaccarat777) && !fs.existsSync(jiliBaccarat777)) {
+  fs.renameSync(evoplayBaccarat777, jiliBaccarat777);
+  console.log('Moved baccarat-777.webp to jili.');
+}
+
+const jiliPokerKing = path.join(GAMES_DIR, 'jili', 'poker-king.webp');
+const evoplayPokerKing = path.join(GAMES_DIR, 'evoplay', 'poker-king.webp');
+if (fs.existsSync(jiliPokerKing) && !fs.existsSync(evoplayPokerKing)) {
+  fs.renameSync(jiliPokerKing, evoplayPokerKing);
+  console.log('Moved poker-king.webp to evoplay.');
+}
+
+// 2. In turbogames, ensure double-roll.webp exists
+const turboDoubleRoll = path.join(GAMES_DIR, 'turbogames', 'double-roll.webp');
+const smartsoftDoubleX = path.join(GAMES_DIR, 'smartsoft', 'double-x.webp');
+if (!fs.existsSync(turboDoubleRoll) && fs.existsSync(smartsoftDoubleX)) {
+  fs.copyFileSync(smartsoftDoubleX, turboDoubleRoll);
+  console.log('Copied double-x.webp to turbogames/double-roll.webp');
+}
+
+// 3. Ezugi clean renames
+const ezugiRenames = [
+  ['ezugi-32-cards.webp', '32-cards.webp'],
+  ['ezugi-andar-bahar.webp', 'andar-bahar.webp'],
+  ['ezugi-dragon-tiger.webp', 'dragon-tiger.webp'],
+  ['ezugi-ultimate-sic-bo.webp', 'ultimate-sic-bo.webp'],
+];
+
+for (const [from, to] of ezugiRenames) {
+  const fromPath = path.join(GAMES_DIR, 'ezugi', from);
+  const toPath = path.join(GAMES_DIR, 'ezugi', to);
+  if (fs.existsSync(fromPath) && !fs.existsSync(toPath)) {
+    fs.renameSync(fromPath, toPath);
+    console.log(`Renamed ezugi/${from} -> ezugi/${to}`);
+  }
+}
+
+// 4. Generate the exact mapping based on files on disk
+const INOUT = {
   "chicken-road-2": "/games/inout/chicken-road-2.webp",
   "megablock": "/games/inout/megablock.webp",
   "chicken-road": "/games/inout/chicken-road.webp",
@@ -42,13 +79,10 @@ export const INOUT_GAME_THUMBNAILS: Record<string, string> = {
   "twist-xmas": "/games/inout/twist-xmas.webp",
   "twist": "/games/inout/twist.webp",
   "jumper": "/games/inout/jumper.webp",
-  "diver": "/games/inout/diver.webp",
+  "diver": "/games/inout/diver.webp"
 };
 
-// ==========================================
-// EVOLUTION GAMING THUMBNAILS
-// ==========================================
-export const EVOLUTION_THUMBNAILS: Record<string, string> = {
+const EVOLUTION = {
   "ice-fishing": "/games/evolution/ice-fishing.webp",
   "xxxtreme-lightning-roulette": "/games/evolution/xxxtreme-lightning-roulette.webp",
   "spanish-roulette": "/games/evolution/spanish-roulette.webp",
@@ -124,13 +158,10 @@ export const EVOLUTION_THUMBNAILS: Record<string, string> = {
   "super-andar-bahar": "/games/evolution/super-andar-bahar.webp",
   "gold-vault-roulette": "/games/evolution/gold-vault-roulette.webp",
   "video-poker": "/games/evolution/video-poker.webp",
-  "super-sic-bo": "/games/evolution/super-sic-bo.webp",
+  "super-sic-bo": "/games/evolution/super-sic-bo.webp"
 };
 
-// ==========================================
-// EZUGI GAMING THUMBNAILS
-// ==========================================
-export const EZUGI_GAME_THUMBNAILS: Record<string, string> = {
+const EZUGI = {
   "teen-patti-live": "/games/ezugi/teen-patti-live.webp",
   "ezugi-teen-patti-live": "/games/ezugi/teen-patti-live.webp",
   "roulette-360": "/games/ezugi/roulette-360.webp",
@@ -168,13 +199,10 @@ export const EZUGI_GAME_THUMBNAILS: Record<string, string> = {
   "ezugi-ultimate-sic-bo": "/games/ezugi/ultimate-sic-bo.webp",
   "ezugi-live-roulette": "/games/ezugi/auto-roulette.webp",
   "ezugi-blackjack": "/games/ezugi/blackjack-salon.webp",
-  "ezugi-baccarat": "/games/ezugi/golden-baccarat.webp",
+  "ezugi-baccarat": "/games/ezugi/golden-baccarat.webp"
 };
 
-// ==========================================
-// SPRIBE 100% SUITE
-// ==========================================
-export const SPRIBE_THUMBNAILS: Record<string, string> = {
+const SPRIBE = {
   "aviator": "/games/spribe/aviator.webp",
   "spribe-plinko": "/games/spribe/spribe-plinko.webp",
   "spribe-goal": "/games/spribe/spribe-goal.webp",
@@ -192,13 +220,10 @@ export const SPRIBE_THUMBNAILS: Record<string, string> = {
   "spribe-keno-80": "/games/spribe/spribe-keno-80.webp",
   "spribe-starline": "/games/spribe/spribe-starline.webp",
   "spribe-baccarat": "/games/spribe/baccarat.webp",
-  "spribe-sic-bo": "/games/spribe/sic-bo.webp",
+  "spribe-sic-bo": "/games/spribe/sic-bo.webp"
 };
 
-// ==========================================
-// SMARTSOFT 100% SUITE
-// ==========================================
-export const SMARTSOFT_THUMBNAILS: Record<string, string> = {
+const SMARTSOFT = {
   "towerx": "/games/smartsoft/towerx.webp",
   "rollx": "/games/smartsoft/rollx.webp",
   "jetx": "/games/smartsoft/jetx.webp",
@@ -217,13 +242,10 @@ export const SMARTSOFT_THUMBNAILS: Record<string, string> = {
   "smartsoft-sic-bo": "/games/smartsoft/sic-bo.webp",
   "smartsoft-baccarat": "/games/smartsoft/baccarat.webp",
   "football-x": "/games/smartsoft/football-x.webp",
-  "cappadocia": "/games/smartsoft/cappadocia.webp",
+  "cappadocia": "/games/smartsoft/cappadocia.webp"
 };
 
-// ==========================================
-// 100HP GAMING 100% SUITE
-// ==========================================
-export const HP100_THUMBNAILS: Record<string, string> = {
+const HP100 = {
   "astronaut": "/games/100hp/astronaut.webp",
   "airjet": "/games/100hp/airjet.webp",
   "chicken-tour": "/games/100hp/chicken-tour.webp",
@@ -236,13 +258,10 @@ export const HP100_THUMBNAILS: Record<string, string> = {
   "hp100-turbo-dice": "/games/100hp/hp100-turbo-dice.webp",
   "hp100-multiplier-blast": "/games/100hp/hp100-multiplier-blast.webp",
   "hp100-retro-turbo-reels": "/games/100hp/hp100-retro-turbo-reels.webp",
-  "hp100-cyber-rush": "/games/100hp/hp100-cyber-rush.webp",
+  "hp100-cyber-rush": "/games/100hp/hp100-cyber-rush.webp"
 };
 
-// ==========================================
-// JILI GAMES 100% SUITE
-// ==========================================
-export const JILI_THUMBNAILS: Record<string, string> = {
+const JILI = {
   "jili-mines": "/games/jili/jili-mines.webp",
   "gorush": "/games/jili/gorush.webp",
   "jili-hilo": "/games/jili/jili-hilo.webp",
@@ -262,13 +281,10 @@ export const JILI_THUMBNAILS: Record<string, string> = {
   "golden-empire": "/games/jili/golden-empire.webp",
   "fortune-gems": "/games/jili/fortune-gems.webp",
   "lucky-bingo": "/games/jili/lucky-bingo.webp",
-  "baccarat-777": "/games/jili/baccarat-777.webp",
+  "baccarat-777": "/games/jili/baccarat-777.webp"
 };
 
-// ==========================================
-// EVOPLAY 100% SUITE
-// ==========================================
-export const EVOPLAY_THUMBNAILS: Record<string, string> = {
+const EVOPLAY = {
   "penalty-shoot-out": "/games/evoplay/penalty-shoot-out.webp",
   "penalty-shoot-out-street": "/games/evoplay/penalty-shoot-out-street.webp",
   "penalty-shoot-out-super-spin": "/games/evoplay/penalty-shoot-out-super-spin.webp",
@@ -285,13 +301,10 @@ export const EVOPLAY_THUMBNAILS: Record<string, string> = {
   "european-christmas-roulette": "/games/evoplay/european-christmas-roulette.webp",
   "blackjack-lucky-sevens": "/games/evoplay/blackjack-lucky-sevens.webp",
   "poker-king": "/games/evoplay/poker-king.webp",
-  "plinko-blast": "/games/evoplay/plinko-blast.webp",
+  "plinko-blast": "/games/evoplay/plinko-blast.webp"
 };
 
-// ==========================================
-// TURBO GAMES REGISTRY
-// ==========================================
-export const TURBOGAMES_THUMBNAILS: Record<string, string> = {
+const TURBO = {
   "turbo-plinko": "/games/turbogames/turbo-plinko.webp",
   "turbo-dice-twice": "/games/turbogames/turbo-dice-twice.webp",
   "turbo-hi-lo": "/games/turbogames/turbo-hi-lo.webp",
@@ -316,13 +329,10 @@ export const TURBOGAMES_THUMBNAILS: Record<string, string> = {
   "vortex-2": "/games/turbogames/vortex-2.webp",
   "vortex-aero": "/games/turbogames/vortex-aero.webp",
   "vortex-power-play": "/games/turbogames/vortex-power-play.webp",
-  "towers-turbo": "/games/turbogames/towers.webp",
+  "towers-turbo": "/games/turbogames/towers.webp"
 };
 
-// ==========================================
-// PRAGMATIC PLAY REGISTRY
-// ==========================================
-export const PRAGMATIC_THUMBNAILS: Record<string, string> = {
+const PRAGMATIC = {
   "gates-of-olympus": "/games/pragmatic/gates-of-olympus.webp",
   "gates-of-olympus-1000": "/games/pragmatic/gates-of-olympus-1000.webp",
   "sweet-bonanza": "/games/pragmatic/sweet-bonanza.webp",
@@ -351,13 +361,10 @@ export const PRAGMATIC_THUMBNAILS: Record<string, string> = {
   "wild-wild-riches": "/games/pragmatic/wild-wild-riches.webp",
   "sweet-bonanza-xmas": "/games/pragmatic/sweet-bonanza-xmas.webp",
   "big-bass-amazon-xtreme": "/games/pragmatic/big-bass-amazon-xtreme.webp",
-  "big-bass-hold-spinner": "/games/pragmatic/big-bass-hold-spinner.webp",
+  "big-bass-hold-spinner": "/games/pragmatic/big-bass-hold-spinner.webp"
 };
 
-// ==========================================
-// HACKSAW GAMING REGISTRY
-// ==========================================
-export const HACKSAW_THUMBNAILS: Record<string, string> = {
+const HACKSAW = {
   "wanted-dead-or-a-wild": "/games/hacksaw/wanted-dead-or-a-wild.webp",
   "wanted-dead-or-wild": "/games/hacksaw/wanted-dead-or-a-wild.webp",
   "chaos-crew": "/games/hacksaw/chaos-crew-2.webp",
@@ -380,13 +387,10 @@ export const HACKSAW_THUMBNAILS: Record<string, string> = {
   "pug-thugs": "/games/hacksaw/pug-thugs.webp",
   "eye-of-the-panda": "/games/hacksaw/eye-of-the-panda.webp",
   "time-spinners": "/games/hacksaw/time-spinners.webp",
-  "warriors-ways": "/games/hacksaw/warriors-ways.webp",
+  "warriors-ways": "/games/hacksaw/warriors-ways.webp"
 };
 
-// ==========================================
-// MAC88 100% SUITE
-// ==========================================
-export const MAC88_THUMBNAILS: Record<string, string> = {
+const MAC88 = {
   "mac88-lightning-dragon-tiger": "/games/mac88/mac88-lightning-dragon-tiger.webp",
   "lightning-dragon-tiger": "/games/mac88/mac88-lightning-dragon-tiger.webp",
   "mac88-lightning-andar-bahar": "/games/mac88/mac88-lightning-andar-bahar.webp",
@@ -414,7 +418,124 @@ export const MAC88_THUMBNAILS: Record<string, string> = {
   "high-low": "/games/mac88/mac88-high-low.webp",
   "mac88-dream-wheel": "/games/mac88/mac88-dream-wheel.webp",
   "dream-wheel": "/games/mac88/mac88-dream-wheel.webp",
-  "dream-will": "/games/mac88/mac88-dream-wheel.webp",
+  "dream-will": "/games/mac88/mac88-dream-wheel.webp"
+};
+
+const STAKE_ORIGINALS = {
+  "dice": "/games/stake-originals/dice.webp",
+  "plinko": "/games/stake-originals/plinko.webp",
+  "mines": "/games/stake-originals/mines.webp",
+  "crash": "/games/stake-originals/crash.webp",
+  "limbo": "/games/stake-originals/limbo.webp",
+  "blackjack": "/games/stake-originals/blackjack.webp",
+  "roulette": "/games/stake-originals/roulette.webp",
+  "keno": "/games/stake-originals/keno.webp",
+  "wheel": "/games/stake-originals/wheel.webp",
+  "baccarat": "/games/stake-originals/baccarat.webp",
+  "hilo": "/games/stake-originals/hilo.webp",
+  "video-poker": "/games/stake-originals/video-poker.webp",
+  "diamonds": "/games/stake-originals/diamonds.webp",
+  "slide": "/games/stake-originals/slide.webp",
+  "scarab-auto": "/games/stake-originals/scarab-auto.webp",
+  "dragon-tower": "/games/stake-originals/dragon-tower.webp",
+  "blue-samurai": "/games/stake-originals/blue-samurai.webp",
+  "tome-of-life": "/games/stake-originals/tome-of-life.webp"
+};
+
+function toLines(obj) {
+  return Object.entries(obj).map(([k, v]) => `  "${k}": "${v}",`).join('\n');
+}
+
+const finalCode = `/**
+ * Central Dedicated Game Thumbnails Registry
+ * Single Source of Truth for game artwork across Stake.com
+ *
+ * Task 41: Provider-wise Asset Restructuring, Deduplication, and Cloned Asset Replacement.
+ * All thumbnails are strictly structured under /games/{provider}/
+ */
+
+// ==========================================
+// ISOLATED INOUT GAMES THUMBNAIL REGISTRY
+// ==========================================
+export const INOUT_GAME_THUMBNAILS: Record<string, string> = {
+${toLines(INOUT)}
+};
+
+// ==========================================
+// EVOLUTION GAMING THUMBNAILS
+// ==========================================
+export const EVOLUTION_THUMBNAILS: Record<string, string> = {
+${toLines(EVOLUTION)}
+};
+
+// ==========================================
+// EZUGI GAMING THUMBNAILS
+// ==========================================
+export const EZUGI_GAME_THUMBNAILS: Record<string, string> = {
+${toLines(EZUGI)}
+};
+
+// ==========================================
+// SPRIBE 100% SUITE
+// ==========================================
+export const SPRIBE_THUMBNAILS: Record<string, string> = {
+${toLines(SPRIBE)}
+};
+
+// ==========================================
+// SMARTSOFT 100% SUITE
+// ==========================================
+export const SMARTSOFT_THUMBNAILS: Record<string, string> = {
+${toLines(SMARTSOFT)}
+};
+
+// ==========================================
+// 100HP GAMING 100% SUITE
+// ==========================================
+export const HP100_THUMBNAILS: Record<string, string> = {
+${toLines(HP100)}
+};
+
+// ==========================================
+// JILI GAMES 100% SUITE
+// ==========================================
+export const JILI_THUMBNAILS: Record<string, string> = {
+${toLines(JILI)}
+};
+
+// ==========================================
+// EVOPLAY 100% SUITE
+// ==========================================
+export const EVOPLAY_THUMBNAILS: Record<string, string> = {
+${toLines(EVOPLAY)}
+};
+
+// ==========================================
+// TURBO GAMES REGISTRY
+// ==========================================
+export const TURBOGAMES_THUMBNAILS: Record<string, string> = {
+${toLines(TURBO)}
+};
+
+// ==========================================
+// PRAGMATIC PLAY REGISTRY
+// ==========================================
+export const PRAGMATIC_THUMBNAILS: Record<string, string> = {
+${toLines(PRAGMATIC)}
+};
+
+// ==========================================
+// HACKSAW GAMING REGISTRY
+// ==========================================
+export const HACKSAW_THUMBNAILS: Record<string, string> = {
+${toLines(HACKSAW)}
+};
+
+// ==========================================
+// MAC88 100% SUITE
+// ==========================================
+export const MAC88_THUMBNAILS: Record<string, string> = {
+${toLines(MAC88)}
 };
 
 // ==========================================
@@ -435,24 +556,7 @@ export const GAME_THUMBNAILS: Record<string, string> = {
   ...MAC88_THUMBNAILS,
 
   // Stake Originals (18 Games)
-  "dice": "/games/stake-originals/dice.webp",
-  "plinko": "/games/stake-originals/plinko.webp",
-  "mines": "/games/stake-originals/mines.webp",
-  "crash": "/games/stake-originals/crash.webp",
-  "limbo": "/games/stake-originals/limbo.webp",
-  "blackjack": "/games/stake-originals/blackjack.webp",
-  "roulette": "/games/stake-originals/roulette.webp",
-  "keno": "/games/stake-originals/keno.webp",
-  "wheel": "/games/stake-originals/wheel.webp",
-  "baccarat": "/games/stake-originals/baccarat.webp",
-  "hilo": "/games/stake-originals/hilo.webp",
-  "video-poker": "/games/stake-originals/video-poker.webp",
-  "diamonds": "/games/stake-originals/diamonds.webp",
-  "slide": "/games/stake-originals/slide.webp",
-  "scarab-auto": "/games/stake-originals/scarab-auto.webp",
-  "dragon-tower": "/games/stake-originals/dragon-tower.webp",
-  "blue-samurai": "/games/stake-originals/blue-samurai.webp",
-  "tome-of-life": "/games/stake-originals/tome-of-life.webp",
+${toLines(STAKE_ORIGINALS)}
 };
 
 /**
@@ -466,5 +570,51 @@ export function getGameThumbnail(slug: string, fallback?: string): string {
   if (GAME_THUMBNAILS[clean]) {
     return GAME_THUMBNAILS[clean];
   }
-  return fallback || `/games/stake-originals/${clean}.webp`;
+  return fallback || \`/games/stake-originals/\${clean}.webp\`;
+}
+`;
+
+fs.writeFileSync(path.join(ROOT, 'src/data/gameThumbnails.ts'), finalCode, 'utf8');
+console.log('Successfully wrote src/data/gameThumbnails.ts');
+
+const allReferenced = new Set([
+  ...Object.values(INOUT),
+  ...Object.values(EVOLUTION),
+  ...Object.values(EZUGI),
+  ...Object.values(SPRIBE),
+  ...Object.values(SMARTSOFT),
+  ...Object.values(HP100),
+  ...Object.values(JILI),
+  ...Object.values(EVOPLAY),
+  ...Object.values(TURBO),
+  ...Object.values(PRAGMATIC),
+  ...Object.values(HACKSAW),
+  ...Object.values(MAC88),
+  ...Object.values(STAKE_ORIGINALS)
+]);
+
+let missing = 0;
+for (const p of allReferenced) {
+  const full = path.join(ROOT, 'public', p);
+  if (!fs.existsSync(full)) {
+    console.error('MISSING:', p);
+    missing++;
+  }
+}
+console.log(`Verified ${allReferenced.size} unique paths on disk. Missing: ${missing}`);
+
+// Check hash collisions across all unique paths
+const hashes = {};
+for (const p of allReferenced) {
+  const full = path.join(ROOT, 'public', p);
+  const buf = fs.readFileSync(full);
+  const h = crypto.createHash('sha256').update(buf).digest('hex');
+  if (!hashes[h]) hashes[h] = [];
+  hashes[h].push(p);
+}
+
+const dups = Object.entries(hashes).filter(([h, list]) => list.length > 1);
+console.log(`Collisions between distinct referenced paths: ${dups.length}`);
+for (const [h, list] of dups) {
+  console.log(`  COLLISION [${h.slice(0, 8)}]: ${list.join(', ')}`);
 }

@@ -5090,7 +5090,7 @@ export const RAW_MAC88_GAMES: GameItem[] = [
     isPlayable: true,
     name: "Lightning Dragon Tiger",
     bgGradient: "from-amber-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "/games/mac88-lightning-dragon-tiger.webp",
+    image: "/games/mac88/mac88-lightning-dragon-tiger.webp",
   },
   {
     id: "mac88-lightning-andar-bahar",
@@ -5105,7 +5105,7 @@ export const RAW_MAC88_GAMES: GameItem[] = [
     isPlayable: true,
     name: "Lightning Andar Bahar",
     bgGradient: "from-emerald-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "/games/mac88-lightning-andar-bahar.webp",
+    image: "/games/mac88/mac88-lightning-andar-bahar.webp",
   },
   {
     id: "mac88-dragon-tiger-lion",
@@ -5120,7 +5120,7 @@ export const RAW_MAC88_GAMES: GameItem[] = [
     isPlayable: true,
     name: "Dragon Tiger Lion",
     bgGradient: "from-rose-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "/games/mac88-dragon-tiger-lion.webp",
+    image: "/games/mac88/mac88-dragon-tiger-lion.webp",
   },
   {
     id: "mac88-dragon-tiger-1-day",
@@ -5135,7 +5135,7 @@ export const RAW_MAC88_GAMES: GameItem[] = [
     isPlayable: true,
     name: "Dragon Tiger 1 Day",
     bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "/games/mac88-dragon-tiger-1-day.webp",
+    image: "/games/mac88/mac88-dragon-tiger-1-day.webp",
   },
   {
     id: "mac88-dragon-tiger-2",
@@ -5150,7 +5150,7 @@ export const RAW_MAC88_GAMES: GameItem[] = [
     isPlayable: true,
     name: "Dragon Tiger 2",
     bgGradient: "from-red-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "/games/mac88-dragon-tiger-2.webp",
+    image: "/games/mac88/mac88-dragon-tiger-2.webp",
   },
   {
     id: "mac88-lightning-dragon-tiger-2",
@@ -5165,7 +5165,7 @@ export const RAW_MAC88_GAMES: GameItem[] = [
     isPlayable: true,
     name: "Lightning Dragon Tiger 2",
     bgGradient: "from-amber-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "/games/mac88-lightning-dragon-tiger-2.webp",
+    image: "/games/mac88/mac88-lightning-dragon-tiger-2.webp",
   },
   {
     id: "mac88-29-baccarat",
@@ -5180,7 +5180,7 @@ export const RAW_MAC88_GAMES: GameItem[] = [
     isPlayable: true,
     name: "29 Baccarat",
     bgGradient: "from-purple-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "/games/mac88-29-baccarat.webp",
+    image: "/games/mac88/mac88-29-baccarat.webp",
   },
   {
     id: "mac88-lightning-baccarat",
@@ -5195,7 +5195,7 @@ export const RAW_MAC88_GAMES: GameItem[] = [
     isPlayable: true,
     name: "Lightning Baccarat",
     bgGradient: "from-amber-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "/games/mac88-lightning-baccarat.webp",
+    image: "/games/mac88/mac88-lightning-baccarat.webp",
   },
   {
     id: "mac88-sicbo-lightning-sicbo",
@@ -5210,7 +5210,7 @@ export const RAW_MAC88_GAMES: GameItem[] = [
     isPlayable: true,
     name: "Sicbo Lightning Sicbo",
     bgGradient: "from-teal-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "/games/mac88-sicbo-lightning-sicbo.webp",
+    image: "/games/mac88/mac88-sicbo-lightning-sicbo.webp",
   },
   {
     id: "mac88-roulette",
@@ -5225,7 +5225,7 @@ export const RAW_MAC88_GAMES: GameItem[] = [
     isPlayable: true,
     name: "Roulette",
     bgGradient: "from-red-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "/games/mac88-roulette.webp",
+    image: "/games/mac88/mac88-roulette.webp",
   },
   {
     id: "mac88-turbo-auto-roulette",
@@ -5240,7 +5240,7 @@ export const RAW_MAC88_GAMES: GameItem[] = [
     isPlayable: true,
     name: "Turbo Auto Roulette",
     bgGradient: "from-orange-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "/games/mac88-turbo-auto-roulette.webp",
+    image: "/games/mac88/mac88-turbo-auto-roulette.webp",
   },
   {
     id: "mac88-speed-auto-roulette",
@@ -5255,7 +5255,7 @@ export const RAW_MAC88_GAMES: GameItem[] = [
     isPlayable: true,
     name: "Speed Auto Roulette",
     bgGradient: "from-yellow-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "/games/mac88-speed-auto-roulette.webp",
+    image: "/games/mac88/mac88-speed-auto-roulette.webp",
   },
   {
     id: "mac88-high-low",
@@ -5270,7 +5270,7 @@ export const RAW_MAC88_GAMES: GameItem[] = [
     isPlayable: true,
     name: "High Low",
     bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "/games/mac88-high-low.webp",
+    image: "/games/mac88/mac88-high-low.webp",
   },
   {
     id: "mac88-dream-wheel",
@@ -5285,7 +5285,7 @@ export const RAW_MAC88_GAMES: GameItem[] = [
     isPlayable: true,
     name: "Dream Wheel",
     bgGradient: "from-pink-950/90 via-[#1a2c38] to-[#0f212e]",
-    image: "/games/mac88-dream-wheel.webp",
+    image: "/games/mac88/mac88-dream-wheel.webp",
   },
 ];
 
