@@ -37,7 +37,10 @@ import {
   PRAGMATIC_GAMES,
   HACKSAW_GAMES,
   GameItem,
+  masterGameMap,
+  getGameItem,
 } from "@/data/stakeGames";
+import { CASINO_LOBBY_CATEGORIES } from "@/config/layoutConfig";
 import { getGameThumbnail } from "@/data/gameThumbnails";
 import { sounds } from "@/utils/audio";
 import confetti from "canvas-confetti";
@@ -1640,25 +1643,39 @@ export default function CasinoHomePage() {
             onSelectCategory={setActiveCategory}
           />
 
-      {/* 4. STAKE ORIGINALS > */}
-      <CasinoGameRow
-        title="Stake Originals"
-        linkHref="/casino/group/stake-originals"
-        cards={stakeOriginals}
-        onCardClick={handleCardClick}
-        sectionId="stake-originals"
-      />
+      {/* Dynamic Category Rows from layoutConfig */}
+      {CASINO_LOBBY_CATEGORIES.filter((cat) => cat.enabled).map((cat) => {
+        const cards: CasinoCardData[] = [];
+        for (const slug of cat.orderedGameSlugs) {
+          const game = masterGameMap.get(slug) || getGameItem(slug);
+          if (game) {
+            cards.push({
+              id: game.slug || game.id,
+              title: game.title || (game as any).name || slug,
+              provider: game.provider,
+              playersCount: game.playersCount,
+              badge: game.badge,
+              badgeColor: game.badgeColor,
+              href: game.href || `/casino/games/${game.slug || game.id}`,
+              image: getGameThumbnail(game.slug || game.id, game.image),
+              bgGradient: game.bgGradient,
+            });
+          }
+        }
 
-      {/* 5. SLOTS > */}
-      <CasinoGameRow
-        title="Slots"
-        linkHref="/casino/group/slots"
-        cards={slotsGames}
-        onCardClick={handleCardClick}
-        sectionId="slots"
-      />
+        return (
+          <CasinoGameRow
+            key={cat.id}
+            title={cat.title}
+            linkHref={cat.viewAllLink || `/casino/group/${cat.id}`}
+            cards={cards}
+            onCardClick={handleCardClick}
+            sectionId={cat.id}
+          />
+        );
+      })}
 
-      {/* 6. PUBLISHERS > (Stake, Pragmatic Play, Hacksaw Gaming...) */}
+      {/* PUBLISHERS > (Stake, Pragmatic Play, Hacksaw Gaming...) */}
       <CasinoGameRow
         title="Publishers"
         linkHref="/casino/collection/providers"
@@ -1667,16 +1684,7 @@ export default function CasinoHomePage() {
         sectionId="publishers"
       />
 
-      {/* 7. LIVE CASINO > */}
-      <CasinoGameRow
-        title="Live Casino"
-        linkHref="/casino/group/live-casino"
-        cards={liveCasinoGames}
-        onCardClick={handleCardClick}
-        sectionId="live-casino"
-      />
-
-      {/* 7.5. EVOLUTION > */}
+      {/* EVOLUTION > */}
       <CasinoGameRow
         title="Evolution"
         linkHref="/casino/group/evolution"
@@ -1694,17 +1702,7 @@ export default function CasinoHomePage() {
         sectionId="ezugi"
       />
 
-      {/* MAC88 INDIAN CARD SUITE */}
-      <CasinoGameRow
-        title="Mac88"
-        linkHref="/casino/group/mac88"
-        cards={mac88Games}
-        onCardClick={handleCardClick}
-        sectionId="mac88"
-      />
-
-
-            {/* 7.6. INOUT GAMES > */}
+      {/* INOUT GAMES > */}
       <CasinoGameRow
         title="INOUT Games"
         linkHref="/casino/group/inout"
@@ -1713,8 +1711,7 @@ export default function CasinoHomePage() {
         sectionId="inout-games"
       />
 
-
-      {/* 7.61. PRAGMATIC PLAY > */}
+      {/* PRAGMATIC PLAY > */}
       <CasinoGameRow
         title="Pragmatic Play"
         linkHref="/casino/group/pragmatic-play"
@@ -1723,31 +1720,13 @@ export default function CasinoHomePage() {
         sectionId="pragmatic-play"
       />
 
-      {/* 7.62. HACKSAW GAMING > */}
+      {/* HACKSAW GAMING > */}
       <CasinoGameRow
         title="Hacksaw Gaming"
         linkHref="/casino/group/hacksaw-gaming"
         cards={hacksawGames}
         onCardClick={handleCardClick}
         sectionId="hacksaw-gaming"
-      />
-
-      {/* SPRIBE TURBO */}
-      <CasinoGameRow
-        title="Spribe"
-        linkHref="/casino/group/spribe"
-        cards={spribeGames}
-        onCardClick={handleCardClick}
-        sectionId="spribe"
-      />
-
-      {/* SMARTSOFT GAMING */}
-      <CasinoGameRow
-        title="SmartSoft"
-        linkHref="/casino/group/smartsoft"
-        cards={smartsoftGames}
-        onCardClick={handleCardClick}
-        sectionId="smartsoft"
       />
 
       {/* 100 HP GAMING */}

@@ -5191,7 +5191,7 @@ export const RAW_MAC88_GAMES: GameItem[] = [
 
 export const MAC88_GAMES: GameItem[] = RAW_MAC88_GAMES.map(attachThumbnail);
 
-const masterGameMap = new Map<string, GameItem>();
+export const masterGameMap = new Map<string, GameItem>();
 [
   ...STAKE_ORIGINALS,
   ...POPULAR_SLOTS,
@@ -5210,10 +5210,53 @@ const masterGameMap = new Map<string, GameItem>();
   ...GAME_SHOWS_GAMES,
   ...BURST_GAMES,
 ].forEach((game) => {
-  if (!masterGameMap.has(game.id)) {
+  if (game.id && !masterGameMap.has(game.id)) {
     masterGameMap.set(game.id, game);
   }
+  if (game.slug && !masterGameMap.has(game.slug)) {
+    masterGameMap.set(game.slug, game);
+  }
 });
+
+export function getGameItem(slug: string): GameItem {
+  const existing = masterGameMap.get(slug);
+  if (existing) return existing;
+
+  const dashed = slug.replace(/x$/, "-x");
+  if (masterGameMap.has(dashed)) return masterGameMap.get(dashed)!;
+
+  const noDash = slug.replace(/-/g, "");
+  if (masterGameMap.has(noDash)) return masterGameMap.get(noDash)!;
+
+  const title = slug
+    .replace(/^mac88-/, "")
+    .replace(/^spribe-/, "")
+    .replace(/-/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+
+  const fallbackGame: GameItem = {
+    id: slug,
+    slug: slug,
+    title: title,
+    name: title,
+    provider: slug.startsWith("mac88")
+      ? "Mac88"
+      : slug.startsWith("spribe")
+      ? "Spribe"
+      : slug.includes("roulette") || slug.includes("blackjack")
+      ? "Evolution"
+      : "Stake",
+    category: "live",
+    playersCount: 2500,
+    isLive: true,
+    isPlayable: true,
+    href: `/casino/games/${slug}`,
+    image: getGameThumbnail(slug),
+  };
+
+  masterGameMap.set(slug, fallbackGame);
+  return fallbackGame;
+}
 
 export const ALL_GAMES: GameItem[] = Array.from(masterGameMap.values());
 

@@ -35,6 +35,7 @@ export const HOME_PAGE_CATEGORIES: CategoryLayoutConfig[] = [
       "tome-of-life",
     ],
   },
+  
   {
     id: "live-casino",
     title: "Live Casino",
