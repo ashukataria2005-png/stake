@@ -49,8 +49,8 @@ export const INOUT_GAME_THUMBNAILS: Record<string, string> = {
 // EVOLUTION GAMING THUMBNAILS
 // ==========================================
 export const EVOLUTION_THUMBNAILS: Record<string, string> = {
-  "ice-fishing": "/games/evolution/ice-fishing-live.webp",
   "balloon-race": "/games/evolution/balloon-race.webp",
+  "ice-fishing": "/games/evolution/ice-fishing-live.webp",
   "baccarat-first-person": "/games/evolution/baccarat-first-person.webp",
   "golden-wealth-baccarat": "/games/evolution/golden-wealth-baccarat.webp",
   "three-card-poker": "/games/evolution/three-card-poker.webp",
@@ -411,7 +411,7 @@ export const MAC88_THUMBNAILS: Record<string, string> = {
   "mac88-29-baccarat": "/games/mac88/mac88-29-baccarat.webp",
   "29-baccarat": "/games/mac88/mac88-29-baccarat.webp",
   "mac88-lightning-baccarat": "/games/mac88/mac88-lightning-baccarat.webp",
-  "lightning-baccarat": "/games/mac88/mac88-lightning-baccarat.webp",
+
   "mac88-sicbo-lightning-sicbo": "/games/mac88/mac88-sicbo-lightning-sicbo.webp",
   "sicbo-lightning-sicbo": "/games/mac88/mac88-sicbo-lightning-sicbo.webp",
   "mac88-roulette": "/games/mac88/mac88-roulette.webp",

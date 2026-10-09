@@ -443,20 +443,7 @@ const RAW_EVOLUTION_GAMES: GameItem[] = [
     "name": "Live Roulette",
     "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
   },
-  {
-    "id": "ice-fishing-live",
-    "title": "Ice Fishing Live",
-    "slug": "ice-fishing-live",
-    "provider": "Evolution",
-    "playersCount": 9850,
-    "badge": "NEW",
-    "badgeColor": "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
-    "category": "live",
-    "isLive": true,
-    "isPlayable": true,
-    "name": "Ice Fishing Live",
-    "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
-  },
+
   {
     "id": "live-baccarat",
     "title": "Live Baccarat",
@@ -469,6 +456,20 @@ const RAW_EVOLUTION_GAMES: GameItem[] = [
     "isLive": true,
     "isPlayable": true,
     "name": "Live Baccarat",
+    "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
+  },
+  {
+    "id": "ice-fishing",
+    "title": "Ice Fishing",
+    "slug": "ice-fishing",
+    "provider": "Evolution",
+    "playersCount": 9420,
+    "badge": "HOT",
+    "badgeColor": "bg-red-500/20 text-red-300 border-red-500/30",
+    "category": "live",
+    "isLive": true,
+    "isPlayable": true,
+    "name": "Ice Fishing",
     "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
   },
   {
