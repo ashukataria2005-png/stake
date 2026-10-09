@@ -50,7 +50,7 @@ export const INOUT_GAME_THUMBNAILS: Record<string, string> = {
 // ==========================================
 export const EVOLUTION_THUMBNAILS: Record<string, string> = {
   "balloon-race": "/games/evolution/balloon-race.webp",
-  
+
   "baccarat-first-person": "/games/evolution/baccarat-first-person.webp",
   "golden-wealth-baccarat": "/games/evolution/golden-wealth-baccarat.webp",
   "three-card-poker": "/games/evolution/three-card-poker.webp",
@@ -170,7 +170,7 @@ export const EZUGI_GAME_THUMBNAILS: Record<string, string> = {
   "ezugi-salsa-baccarat": "/games/ezugi/salsa-baccarat.webp",
   "blackjack-salon": "/games/ezugi/blackjack-salon.webp",
   "ezugi-blackjack-salon": "/games/ezugi/blackjack-salon.webp",
-  "ezugi-lucky-7": "/games/ezugi/lucky-7.webp",
+  "ezugi-lucky-7": "/games/ezugi/ezugi-lucky-7",
   "ezugi-32-cards": "/games/ezugi/32-cards.webp",
   "ezugi-andar-bahar": "/games/ezugi/andar-bahar.webp",
   "ezugi-dragon-tiger": "/games/ezugi/dragon-tiger.webp",
@@ -178,6 +178,13 @@ export const EZUGI_GAME_THUMBNAILS: Record<string, string> = {
   "ezugi-live-roulette": "/games/ezugi/auto-roulette.webp",
   "ezugi-blackjack": "/games/ezugi/blackjack-salon.webp",
   "ezugi-baccarat": "/games/ezugi/golden-baccarat.webp",
+
+  "ezugi-namaste-roulette": "/games/ezugi/ezugi-namaste-roulette.webp",
+  "ezugi-bet-on-teen-patti": "/games/ezugi/ezugi-bet-on-teen-patti.webp",
+  "ezugi-speed-baccarat": "/games/ezugi/ezugi-speed-baccarat.webp",
+  "ezugi-video-blackjack": "/games/ezugi/ezugi-video-blackjack.webp",
+  
+
 };
 
 // ==========================================
