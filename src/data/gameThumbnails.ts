@@ -164,11 +164,11 @@ export const EZUGI_GAME_THUMBNAILS: Record<string, string> = {
   "ruleta-del-sol": "/games/ezugi/ruleta-del-sol.webp",
 
   "golden-baccarat": "/games/ezugi/golden-baccarat.webp",
-  
+
   "salsa-baccarat": "/games/ezugi/salsa-baccarat.webp",
-  
+
   "blackjack-salon": "/games/ezugi/blackjack-salon.webp",
-  "ezugi-blackjack-salon": "/games/ezugi/blackjack-salon.webp",
+
 
 
 
@@ -179,12 +179,12 @@ export const EZUGI_GAME_THUMBNAILS: Record<string, string> = {
   "ezugi-bet-on-teen-patti": "/games/ezugi/ezugi-bet-on-teen-patti.webp",
   "ezugi-speed-baccarat": "/games/ezugi/ezugi-speed-baccarat.webp",
   "ezugi-video-blackjack": "/games/ezugi/ezugi-video-blackjack.webp",
-  "ezugi-lucky-7": "/games/ezugi/ezugi-lucky-7",
+  "ezugi-lucky-7": "/games/ezugi/ezugi-lucky-7.webp",
   "ezugi-andar-bahar": "/games/ezugi/andar-bahar.webp",
-  "ezugi-dragon-tiger": "/games/ezugi/dragon-tiger.webp",
+  "ezugi-dragon-tiger": "/games/ezugi/ezugi-dragon-tiger.webp",
   "ezugi-ultimate-sic-bo": "/games/ezugi/ultimate-sic-bo.webp",
   "ezugi-live-roulette": "/games/ezugi/auto-roulette.webp",
-  "ezugi-cricket-war": "/games/ezugi/cricket-war.webp",
+  "ezugi-cricket-war": "/games/ezugi/ezugi-cricket-war.webp",
   "ezugi-vip-surrender-blackjack": "/games/ezugi/ezugi-vip-surrender-blackjack.webp",
   "ezugi-oracle-casino-roulette-360": "/games/ezugi/ezugi-oracle-casino-roulette-360.webp",
   "ezugi-russian-poker": "/games/ezugi/ezugi-russian-poker.webp",
@@ -193,7 +193,7 @@ export const EZUGI_GAME_THUMBNAILS: Record<string, string> = {
   "ezugi-white-russian-blackjack": "/games/ezugi/ezugi-white-russian-blackjack.webp",
   "ezugi-sic-bo": "/games/ezugi/ezugi-sic-bo.webp",
   "ezugi-speed-roulette": "/games/ezugi/ezugi-speed-roulette.webp",
-  "ezugi-marina-casino-baccarat": "/games/ezugi/marina-casino-baccarat.webp",
+  "ezugi-marina-casino-baccarat": "/games/ezugi/ezugi-marina-casino-baccarat.webp",
   "ezugi-auto-roulette": "/games/ezugi/ezugi-auto-roulette.webp",
   "ezugi-casino-holdem": "/games/ezugi/ezugi-casino-holdem.webp",
   "ezugi-turkish-roulette": "/games/ezugi/ezugi-turkish-roulette.webp",
@@ -208,6 +208,8 @@ export const EZUGI_GAME_THUMBNAILS: Record<string, string> = {
   "ezugi-prestige-auto-roulette": "/games/ezugi/ezugi-prestige-auto-roulette.webp",
   "ezugi-fortune-baccarat": "/games/ezugi/ezugi-fortune-baccarat.webp",
   "ezugi-golden-baccarat": "/games/ezugi/ezugi-golden-baccarat.webp",
+  "ezugi-unlimited-blackjack": "/games/ezugi/ezugi-unlimited-blackjack.webp",
+  "ezugi-blackjack-salon": "/games/ezugi/ezugi-blackjack-salon.webp",
 
 
 
