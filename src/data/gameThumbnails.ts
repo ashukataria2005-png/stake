@@ -50,13 +50,13 @@ export const INOUT_GAME_THUMBNAILS: Record<string, string> = {
 // ==========================================
 export const EVOLUTION_THUMBNAILS: Record<string, string> = {
   // Task 40 Specific Targets with English Display Aliases
-  "ice-fishing": "/games/ice-fishing.webp",
+  "ice-fishing": "",
   "xxxtreme-lightning-roulette": "/games/xxxtreme-lightning-roulette.webp",
   "spanish-roulette": "/games/spanish-roulette.webp",
   "ruleta-en-espanol": "/games/spanish-roulette.webp",
   "disco-roulette": "/games/disco-roulette.webp",
   "crazy-balls": "/games/crazy-balls.webp",
-  "live-roulette": "/games/live-roulette.webp",
+  "live-roulette": "/https://files.mac444cache.com/document/game/auto-roulette_1759912108476.2192.jpg",
   "roleta-ao-vivo": "/games/live-roulette.webp",
   "lucky-baccarat": "/games/lucky-baccarat.webp",
   "infinite-free-bet-roulette": "/games/infinite-free-bet-roulette.webp",
