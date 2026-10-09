@@ -14,7 +14,7 @@ import {
   ShieldCheck,
   Award,
 } from "lucide-react";
-import StakeLogo from "@/components/StakeLogo";
+import StakeLogo from "@/components/common/StakeLogo";
 
 interface FooterLink {
   label: string;

@@ -40,7 +40,7 @@ import {
   masterGameMap,
   getGameItem,
 } from "@/data/stakeGames";
-import { CASINO_LOBBY_CATEGORIES } from "@/config/layoutConfig";
+import { CASINO_LAYOUT_CATEGORIES, CASINO_LOBBY_CATEGORIES } from "@/config/casinoLayoutConfig";
 import { getGameThumbnail } from "@/data/gameThumbnails";
 import { sounds } from "@/utils/audio";
 import confetti from "canvas-confetti";

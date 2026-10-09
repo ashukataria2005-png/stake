@@ -26,7 +26,7 @@ import LiveBetsFeed from "@/components/LiveBetsFeed";
 import StakeGameArtwork from "@/components/casino/StakeGameArtwork";
 import LiveCasinoGateModal from "@/components/casino/LiveCasinoGateModal";
 import CasinoGameRow, { CasinoCardData } from "@/components/casino/CasinoGameRow";
-import { HOME_PAGE_CATEGORIES } from "@/config/layoutConfig";
+import { HOME_PAGE_CATEGORIES } from "@/config/homeLayoutConfig";
 import { getGameThumbnail } from "@/data/gameThumbnails";
 import {
   STAKE_ORIGINALS,

@@ -5,10 +5,10 @@ import { GameProvider } from "@/context/GameContext";
 import MainLayoutShell from "@/components/MainLayoutShell";
 
 const inter = Inter({
-  variable: "--font-inter",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--font-stake",
   display: "swap",
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -25,9 +25,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} h-full antialiased dark`}
+      className={`${inter.variable} ${inter.className} h-full antialiased dark`}
     >
-      <body className="min-h-full bg-[#0f212e] text-white font-sans selection:bg-[#00e701] selection:text-[#0f212e]">
+      <body className={`${inter.className} min-h-full bg-[#0f212e] text-white font-sans selection:bg-[#00e701] selection:text-[#0f212e]`}>
         <GameProvider>
           <MainLayoutShell>{children}</MainLayoutShell>
         </GameProvider>

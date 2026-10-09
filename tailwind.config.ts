@@ -11,6 +11,7 @@ const config: Config = {
     extend: {
       fontFamily: {
         sans: [
+          "var(--font-stake)",
           "var(--font-inter)",
           "Inter",
           "-apple-system",

@@ -33,7 +33,7 @@ import {
   Award,
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
-import StakeLogo from "@/components/StakeLogo";
+import StakeLogo from "@/components/common/StakeLogo";
 import { ALL_GAMES, GameItem } from "@/data/stakeGames";
 import { getGameThumbnail } from "@/data/gameThumbnails";
 import StakeGameArtwork from "@/components/casino/StakeGameArtwork";
