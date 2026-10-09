@@ -2253,9 +2253,9 @@ const RAW_EZUGI_GAMES: GameItem[] = [
     bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
   },
   {
-    id: "ezugi-roulette-360",
-    title: "Roulette 360",
-    slug: "ezugi-roulette-360",
+    id: "ezugi-oracle-casino-roulette-360",
+    title: "Oracle Casino Roulette 360",
+    slug: "ezugi-oracle-casino-roulette-360",
     provider: "Ezugi",
     playersCount: 2670,
     livePlayerCount: 2670,

@@ -142,8 +142,7 @@ export const EVOLUTION_THUMBNAILS: Record<string, string> = {
 export const EZUGI_GAME_THUMBNAILS: Record<string, string> = {
   "teen-patti-live": "/games/ezugi/teen-patti-live.webp",
   "ezugi-teen-patti-live": "/games/ezugi/teen-patti-live.webp",
-  "roulette-360": "/games/ezugi/roulette-360.webp",
-  "ezugi-roulette-360": "/games/ezugi/roulette-360.webp",
+
   "royal-poker": "/games/ezugi/royal-poker.webp",
   "ezugi-royal-poker": "/games/ezugi/royal-poker.webp",
   "one-day-teen-patti": "/games/ezugi/one-day-teen-patti.webp",
@@ -170,12 +169,9 @@ export const EZUGI_GAME_THUMBNAILS: Record<string, string> = {
   "ezugi-salsa-baccarat": "/games/ezugi/salsa-baccarat.webp",
   "blackjack-salon": "/games/ezugi/blackjack-salon.webp",
   "ezugi-blackjack-salon": "/games/ezugi/blackjack-salon.webp",
-  "ezugi-lucky-7": "/games/ezugi/ezugi-lucky-7",
+
   "ezugi-32-cards": "/games/ezugi/32-cards.webp",
-  "ezugi-andar-bahar": "/games/ezugi/andar-bahar.webp",
-  "ezugi-dragon-tiger": "/games/ezugi/dragon-tiger.webp",
-  "ezugi-ultimate-sic-bo": "/games/ezugi/ultimate-sic-bo.webp",
-  "ezugi-live-roulette": "/games/ezugi/auto-roulette.webp",
+
   "ezugi-blackjack": "/games/ezugi/blackjack-salon.webp",
   "ezugi-baccarat": "/games/ezugi/golden-baccarat.webp",
 
@@ -183,7 +179,16 @@ export const EZUGI_GAME_THUMBNAILS: Record<string, string> = {
   "ezugi-bet-on-teen-patti": "/games/ezugi/ezugi-bet-on-teen-patti.webp",
   "ezugi-speed-baccarat": "/games/ezugi/ezugi-speed-baccarat.webp",
   "ezugi-video-blackjack": "/games/ezugi/ezugi-video-blackjack.webp",
-  
+  "ezugi-lucky-7": "/games/ezugi/ezugi-lucky-7",
+  "ezugi-andar-bahar": "/games/ezugi/andar-bahar.webp",
+  "ezugi-dragon-tiger": "/games/ezugi/dragon-tiger.webp",
+  "ezugi-ultimate-sic-bo": "/games/ezugi/ultimate-sic-bo.webp",
+  "ezugi-live-roulette": "/games/ezugi/auto-roulette.webp",
+  "ezugi-cricket-war": "/games/ezugi/cricket-war.webp",
+  "ezugi-vip-surrender-blackjack": "/games/ezugi/ezugi-vip-surrender-blackjack.webp",
+  "ezugi-oracle-casino-roulette-360": "/games/ezugi/ezugi-oracle-casino-roulette-360.webp",
+  "ezugi-russian-poker": "/games/ezugi/ezugi-russian-poker.webp",
+  "ezugi-dream-catcher": "/games/ezugi/ezugi-dream-catcher.webp",
 
 };
 
