@@ -34,6 +34,7 @@ import {
   GAME_SHOWS_GAMES,
   INOUT_GAMES,
   EZUGI_GAMES,
+  MAC88_GAMES,
   SPRIBE_GAMES,
   JILI_GAMES,
   HP100_GAMES,
@@ -237,10 +238,6 @@ export default function HomePage() {
                       <span className="text-[10px] uppercase font-bold text-[#b1bad3] truncate">
                         {game.provider}
                       </span>
-                      <div className="flex items-center gap-1 mt-0.5 text-[10px] sm:text-xs font-semibold text-[#b1bad3] truncate">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] shrink-0" />
-                        <span className="truncate">{(game.playersCount || 2450).toLocaleString("en-US")} playing</span>
-                      </div>
                     </div>
                   </Link>
                 );
@@ -324,11 +321,6 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  {/* Under-Card Player Count (ONLY green live player status pill) */}
-                  <div className="flex items-center gap-1 sm:gap-1.5 mt-1.5 sm:mt-2 px-0.5 text-[10px] sm:text-[11px] font-semibold text-[#b1bad3] truncate">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] animate-pulse shrink-0" />
-                    <span className="truncate">{(game.playersCount || 2450).toLocaleString("en-US")} playing</span>
-                  </div>
                 </Link>
               </div>
             );
@@ -424,10 +416,6 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1 sm:gap-1.5 mt-1.5 sm:mt-2 px-0.5 text-[10px] sm:text-[11px] font-semibold text-[#b1bad3] truncate">
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_6px_#ef4444] animate-pulse shrink-0" />
-                    <span className="truncate">{(game.playersCount || 1920).toLocaleString("en-US")} playing</span>
-                  </div>
                 </div>
               </div>
             );
@@ -525,10 +513,6 @@ export default function HomePage() {
                     <span className="text-[10px] uppercase font-bold text-[#b1bad3] truncate">
                       {game.provider}
                     </span>
-                    <div className="flex items-center gap-1 mt-0.5 text-[10px] sm:text-xs font-semibold text-[#b1bad3] truncate">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] shrink-0" />
-                      <span className="truncate">{(game.playersCount || 1950).toLocaleString("en-US")} playing</span>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -544,6 +528,109 @@ export default function HomePage() {
               <ArrowRight className="h-5 w-5" />
             </div>
             <span className="text-xs font-bold text-center px-1">View All Ezugi</span>
+          </Link>
+        </div>
+      </section>
+
+      {/* MAC88 INDIAN CARD SUITE */}
+      <section className="space-y-3.5">
+        <div className="flex items-center justify-between">
+          <Link
+            href="/casino/group/mac88"
+            className="flex items-center gap-2 group cursor-pointer"
+          >
+            <h2 className="text-base sm:text-lg font-extrabold text-white flex items-center gap-1.5 tracking-tight hover:text-[#00e701] transition-colors">
+              <span>Mac88</span>
+              <span className="text-[#b1bad3] text-sm sm:text-base group-hover:translate-x-1 transition-transform">
+                &gt;
+              </span>
+            </h2>
+          </Link>
+          <Link
+            href="/casino/group/mac88"
+            className="text-xs font-bold text-[#00e701] hover:underline"
+          >
+            View All &gt;
+          </Link>
+        </div>
+
+        <div className="flex gap-2.5 overflow-x-auto no-scrollbar scroll-smooth snap-x snap-mandatory py-1 px-1">
+          {MAC88_GAMES.map((game) => {
+            const thumb = getGameThumbnail(game.id, game.image);
+            const gameHref = game.href || "/casino/group/mac88";
+            return (
+              <div
+                key={game.id}
+                className="w-[calc(33.333%-7px)] min-w-[110px] sm:min-w-[150px] md:w-[150px] lg:w-[165px] flex-shrink-0 snap-start"
+              >
+                <div
+                  onClick={() => {
+                    addRecentlyPlayedGame({
+                      id: game.id,
+                      slug: game.slug,
+                      title: game.title,
+                      href: gameHref,
+                      image: thumb,
+                      playersCount: game.playersCount,
+                    });
+                    if (game.category === "Live Casino" || game.isLive) {
+                      setGateTableName(game.title);
+                      setIsLiveGateOpen(true);
+                    } else {
+                      setActiveSlotModal({
+                        id: game.id,
+                        title: game.title,
+                        provider: game.provider,
+                      });
+                    }
+                  }}
+                  className="group relative flex flex-col select-none cursor-pointer"
+                >
+                  <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-[#1a2c38] border border-[#213743] hover:border-[#2f4553] transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg">
+                    {thumb ? (
+                      <img
+                        src={thumb}
+                        alt={game.title}
+                        className="w-full h-full object-cover rounded-xl"
+                        loading="lazy"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLElement).style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center p-3">
+                        <StakeGameArtwork gameId={game.id} />
+                      </div>
+                    )}
+
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#00e701] text-[#0f212e] shadow-lg shadow-[#00e701]/40 transform scale-75 group-hover:scale-100 transition-transform">
+                        <Play className="h-4 w-4 fill-current ml-0.5" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col mt-1.5 px-0.5">
+                    <span className="font-bold text-xs sm:text-sm text-white truncate group-hover:text-[#00e701] transition-colors">
+                      {game.title}
+                    </span>
+                    <span className="text-[10px] uppercase font-bold text-[#b1bad3] truncate">
+                      {game.provider}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+
+          <Link
+            href="/casino/group/mac88"
+            className="w-[calc(33.333%-7px)] min-w-[110px] sm:min-w-[140px] md:w-[150px] lg:w-[165px] aspect-[3/4] rounded-xl bg-[#213743]/50 border border-[#2f4553] hover:border-[#213743] flex flex-col items-center justify-center gap-2 cursor-pointer transition-transform active:scale-95 text-[#b1bad3] hover:text-white flex-shrink-0 snap-start group"
+          >
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1a2c38] group-hover:bg-[#00e701] text-[#b1bad3] group-hover:text-[#0f212e] transition-colors shadow-md">
+              <ArrowRight className="h-5 w-5" />
+            </div>
+            <span className="text-xs font-bold text-center px-1">View All Mac88</span>
           </Link>
         </div>
       </section>
@@ -626,10 +713,6 @@ export default function HomePage() {
                     <span className="text-[10px] uppercase font-bold text-[#b1bad3] truncate">
                       {game.provider}
                     </span>
-                    <div className="flex items-center gap-1 mt-0.5 text-[10px] sm:text-xs font-semibold text-[#b1bad3] truncate">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] shrink-0" />
-                      <span className="truncate">{(game.playersCount || 2150).toLocaleString("en-US")} playing</span>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -719,10 +802,6 @@ export default function HomePage() {
                     <span className="text-[10px] uppercase font-bold text-[#b1bad3] truncate">
                       {game.provider}
                     </span>
-                    <div className="flex items-center gap-1 mt-0.5 text-[10px] sm:text-xs font-semibold text-[#b1bad3] truncate">
-                      <span className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_6px_#ef4444] animate-pulse shrink-0" />
-                      <span className="truncate">{(game.playersCount || 2150).toLocaleString("en-US")} playing</span>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -816,10 +895,6 @@ export default function HomePage() {
                     <span className="text-[10px] uppercase font-bold text-[#b1bad3] truncate">
                       {game.provider}
                     </span>
-                    <div className="flex items-center gap-1 mt-0.5 text-[10px] sm:text-xs font-semibold text-[#b1bad3] truncate">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] shrink-0" />
-                      <span className="truncate">{(game.playersCount || 1840).toLocaleString("en-US")} playing</span>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -913,10 +988,6 @@ export default function HomePage() {
                     <span className="text-[10px] uppercase font-bold text-[#b1bad3] truncate">
                       {game.provider}
                     </span>
-                    <div className="flex items-center gap-1 mt-0.5 text-[10px] sm:text-xs font-semibold text-[#b1bad3] truncate">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] shrink-0" />
-                      <span className="truncate">{(game.playersCount || 2300).toLocaleString("en-US")} playing</span>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -1011,10 +1082,6 @@ export default function HomePage() {
                     <span className="text-[10px] uppercase font-bold text-[#b1bad3] truncate">
                       {game.provider}
                     </span>
-                    <div className="flex items-center gap-1 mt-0.5 text-[10px] sm:text-xs font-semibold text-[#b1bad3] truncate">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] shrink-0" />
-                      <span className="truncate">{(game.playersCount || 2450).toLocaleString("en-US")} playing</span>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -1113,10 +1180,6 @@ export default function HomePage() {
                     <span className="text-[10px] uppercase font-bold text-[#b1bad3] truncate">
                       {game.provider}
                     </span>
-                    <div className="flex items-center gap-1 mt-0.5 text-[10px] sm:text-xs font-semibold text-[#b1bad3] truncate">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] shrink-0" />
-                      <span className="truncate">{(game.playersCount || 1950).toLocaleString("en-US")} playing</span>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -1215,10 +1278,6 @@ export default function HomePage() {
                     <span className="text-[10px] uppercase font-bold text-[#b1bad3] truncate">
                       {game.provider}
                     </span>
-                    <div className="flex items-center gap-1 mt-0.5 text-[10px] sm:text-xs font-semibold text-[#b1bad3] truncate">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] shrink-0" />
-                      <span className="truncate">{(game.playersCount || 1950).toLocaleString("en-US")} playing</span>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -1317,10 +1376,6 @@ export default function HomePage() {
                     <span className="text-[10px] uppercase font-bold text-[#b1bad3] truncate">
                       {game.provider}
                     </span>
-                    <div className="flex items-center gap-1 mt-0.5 text-[10px] sm:text-xs font-semibold text-[#b1bad3] truncate">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] shrink-0" />
-                      <span className="truncate">{(game.playersCount || 1950).toLocaleString("en-US")} playing</span>
-                    </div>
                   </div>
                 </div>
               </div>

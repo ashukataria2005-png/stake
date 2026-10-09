@@ -27,6 +27,7 @@ import {
   EVOLUTION_GAMES,
   INOUT_GAMES,
   EZUGI_GAMES,
+  MAC88_GAMES,
   SPRIBE_GAMES,
   SMARTSOFT_GAMES,
   HP100_GAMES,
@@ -729,7 +730,7 @@ export default function CasinoHomePage() {
   }));
 
   
-  // Task 31 Card Mappings
+  // Task 31 & 37 Card Mappings
   const ezugiGames: CasinoCardData[] = EZUGI_GAMES.map((game) => ({
     id: game.id,
     title: game.title,
@@ -740,6 +741,18 @@ export default function CasinoHomePage() {
     href: "/casino/live",
     image: game.image,
     bgGradient: "from-blue-950/80 via-[#1a2c38] to-[#0f212e]",
+  }));
+
+  const mac88Games: CasinoCardData[] = MAC88_GAMES.map((game) => ({
+    id: game.id,
+    title: game.title,
+    provider: "Mac88",
+    playersCount: game.livePlayerCount || game.playersCount,
+    badge: game.badge,
+    badgeColor: game.badgeColor,
+    href: "/casino/group/mac88",
+    image: game.image,
+    bgGradient: "from-emerald-950/80 via-[#1a2c38] to-[#0f212e]",
   }));
 
   const spribeGames: CasinoCardData[] = SPRIBE_GAMES.map((game) => ({
@@ -1611,10 +1624,6 @@ export default function CasinoHomePage() {
                         <span className="text-[9px] sm:text-[10px] uppercase font-bold text-white/70 truncate">
                           {game.provider}
                         </span>
-                        <div className="flex items-center gap-1 sm:gap-1.5 mt-0.5 text-[10px] sm:text-xs font-semibold text-[#b1bad3] truncate">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] animate-pulse shrink-0" />
-                          <span className="truncate">{(game.playersCount || 1250).toLocaleString("en-US")} playing</span>
-                        </div>
                       </div>
                     </Link>
                   </div>
@@ -1683,6 +1692,15 @@ export default function CasinoHomePage() {
         cards={ezugiGames}
         onCardClick={handleCardClick}
         sectionId="ezugi"
+      />
+
+      {/* MAC88 INDIAN CARD SUITE */}
+      <CasinoGameRow
+        title="Mac88"
+        linkHref="/casino/group/mac88"
+        cards={mac88Games}
+        onCardClick={handleCardClick}
+        sectionId="mac88"
       />
 
 

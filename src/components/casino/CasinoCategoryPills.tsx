@@ -23,7 +23,7 @@ export default function CasinoCategoryPills({
 
   const handlePillClick = (id: string) => {
     onSelectCategory(id);
-    if (["stake-originals", "slots", "live-casino", "game-shows", "evolution", "inout"].includes(id)) {
+    if (["stake-originals", "slots", "live-casino", "game-shows", "evolution", "ezugi", "mac88", "inout"].includes(id)) {
       router.push(`/casino/group/${id}`);
     } else if (id === "providers") {
       router.push("/casino/collection/providers");
@@ -85,6 +85,15 @@ export default function CasinoCategoryPills({
         <svg className="w-4 h-4 fill-current shrink-0" viewBox="0 0 24 24">
           <path d="M7.7 8.3L2 12l5.7 3.7c1.3.8 3 .5 4-.6l.3-.4.3.4c1 1.1 2.7 1.4 4 .6L22 12l-5.7-3.7c-1.3-.8-3-.5-4 .6l-.3.4-.3-.4c-1-1.1-2.7-1.4-4-.6zM12 13.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z" />
         </svg>
+      ),
+    },
+    {
+      id: "mac88",
+      label: "Mac88",
+      icon: (
+        <span className="font-black text-xs text-emerald-400 tracking-tighter shrink-0">
+          M88
+        </span>
       ),
     },
     {

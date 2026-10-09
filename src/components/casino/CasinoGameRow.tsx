@@ -105,12 +105,6 @@ export default function CasinoGameRow({
                     </span>
                   )}
                 </div>
-                <div className="flex items-center justify-center gap-1 mt-1 text-[11px] font-semibold text-[#b1bad3] text-center truncate">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] animate-pulse shrink-0" />
-                  <span className="truncate">
-                    {(card.playersCount || 14200).toLocaleString("en-US")} playing
-                  </span>
-                </div>
               </div>
             );
 
@@ -159,7 +153,7 @@ export default function CasinoGameRow({
                 </div>
               </div>
 
-              {/* Under-Card Title, Subtitle / Provider & Pulsing Live Player Count */}
+              {/* Under-Card Title, Subtitle / Provider */}
               <div className="flex flex-col mt-1.5 px-0.5">
                 <span className="font-black uppercase tracking-wider text-xs sm:text-sm text-white truncate">
                   {card.title}
@@ -167,10 +161,6 @@ export default function CasinoGameRow({
                 <span className="text-[9px] sm:text-[10px] uppercase font-bold text-white/70 truncate">
                   {card.provider || "Stake Originals"}
                 </span>
-                <div className="flex items-center gap-1 sm:gap-1.5 mt-0.5 text-[10px] sm:text-xs font-semibold text-[#b1bad3] truncate">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] animate-pulse shrink-0" />
-                  <span className="truncate">{(card.playersCount || 1250).toLocaleString("en-US")} playing</span>
-                </div>
               </div>
             </div>
           );

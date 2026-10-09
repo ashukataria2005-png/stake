@@ -541,14 +541,14 @@ const RAW_EVOLUTION_GAMES: GameItem[] = [
   },
   {
     "id": "ruleta-en-espanol",
-    "title": "Ruleta en Espanol",
+    "title": "Spanish Roulette",
     "slug": "ruleta-en-espanol",
     "provider": "Evolution",
     "playersCount": 5980,
     "category": "live",
     "isLive": true,
     "isPlayable": true,
-    "name": "Ruleta en Espanol",
+    "name": "Spanish Roulette",
     "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
   },
   {
@@ -616,14 +616,14 @@ const RAW_EVOLUTION_GAMES: GameItem[] = [
   },
   {
     "id": "roleta-ao-vivo",
-    "title": "Roleta ao Vivo",
+    "title": "Live Roulette",
     "slug": "roleta-ao-vivo",
     "provider": "Evolution",
     "playersCount": 4850,
     "category": "live",
     "isLive": true,
     "isPlayable": true,
-    "name": "Roleta ao Vivo",
+    "name": "Live Roulette",
     "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
   },
   {
@@ -1000,38 +1000,38 @@ const RAW_EVOLUTION_GAMES: GameItem[] = [
   },
   {
     "id": "bac-bo-ao-vivo",
-    "title": "Bac Bo ao Vivo",
+    "title": "Live Bac Bo",
     "slug": "bac-bo-ao-vivo",
     "provider": "Evolution",
     "playersCount": 2120,
     "category": "live",
     "isLive": true,
     "isPlayable": true,
-    "name": "Bac Bo ao Vivo",
+    "name": "Live Bac Bo",
     "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
   },
   {
     "id": "futbol-studio",
-    "title": "Futbol Studio",
+    "title": "Football Studio",
     "slug": "futbol-studio",
     "provider": "Evolution",
     "playersCount": 2060,
     "category": "live",
     "isLive": true,
     "isPlayable": true,
-    "name": "Futbol Studio",
+    "name": "Football Studio",
     "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
   },
   {
     "id": "turkce-rulet",
-    "title": "Turkce Rulet",
+    "title": "Turkish Roulette",
     "slug": "turkce-rulet",
     "provider": "Evolution",
     "playersCount": 2010,
     "category": "live",
     "isLive": true,
     "isPlayable": true,
-    "name": "Turkce Rulet",
+    "name": "Turkish Roulette",
     "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
   },
   {
@@ -1204,14 +1204,14 @@ const RAW_EVOLUTION_GAMES: GameItem[] = [
   },
   {
     "id": "ruleta-bola-rapida-en-vivo",
-    "title": "Ruleta Bola Rapida en Vivo",
+    "title": "Speed Auto Roulette",
     "slug": "ruleta-bola-rapida-en-vivo",
     "provider": "Evolution",
     "playersCount": 1350,
     "category": "live",
     "isLive": true,
     "isPlayable": true,
-    "name": "Ruleta Bola Rapida en Vivo",
+    "name": "Speed Auto Roulette",
     "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
   },
   {
@@ -1240,14 +1240,14 @@ const RAW_EVOLUTION_GAMES: GameItem[] = [
   },
   {
     "id": "mega-bola",
-    "title": "Mega Bola",
+    "title": "Mega Ball",
     "slug": "mega-bola",
     "provider": "Evolution",
     "playersCount": 1240,
     "category": "game-shows",
     "isLive": true,
     "isPlayable": true,
-    "name": "Mega Bola",
+    "name": "Mega Ball",
     "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
   },
   {
@@ -1336,26 +1336,26 @@ const RAW_EVOLUTION_GAMES: GameItem[] = [
   },
   {
     "id": "mega-bola-da-sorte",
-    "title": "Mega Bola da Sorte",
+    "title": "Mega Ball",
     "slug": "mega-bola-da-sorte",
     "provider": "Evolution",
     "playersCount": 940,
     "category": "game-shows",
     "isLive": true,
     "isPlayable": true,
-    "name": "Mega Bola da Sorte",
+    "name": "Mega Ball",
     "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
   },
   {
     "id": "turkce-futbol-studyosu",
-    "title": "Turkce Futbol Studyosu",
+    "title": "Turkish Football Studio",
     "slug": "turkce-futbol-studyosu",
     "provider": "Evolution",
     "playersCount": 910,
     "category": "live",
     "isLive": true,
     "isPlayable": true,
-    "name": "Turkce Futbol Studyosu",
+    "name": "Turkish Football Studio",
     "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
   },
   {
@@ -5073,12 +5073,246 @@ const RAW_HACKSAW_GAMES: GameItem[] = [
 
 export const HACKSAW_GAMES: StakeGame[] = RAW_HACKSAW_GAMES.map(attachThumbnail);
 
+// ==========================================
+// MAC88 PROVIDER & INDIAN CARD SUITE (Task 37)
+// ==========================================
+export const RAW_MAC88_GAMES: GameItem[] = [
+  {
+    id: "mac88-3-cards-judgement",
+    title: "3 Cards Judgement",
+    slug: "mac88-3-cards-judgement",
+    provider: "Mac88",
+    playersCount: 7850,
+    badge: "INDIAN SUITE",
+    badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+    category: "live",
+    isLive: true,
+    isPlayable: true,
+    name: "3 Cards Judgement",
+    bgGradient: "from-emerald-950/90 via-[#1a2c38] to-[#0f212e]",
+    image: "/games/mac88-3-cards-judgement.webp",
+  },
+  {
+    id: "mac88-muflis-teen-patti",
+    title: "Muflis Teen Patti",
+    slug: "mac88-muflis-teen-patti",
+    provider: "Mac88",
+    playersCount: 9240,
+    badge: "ROYAL CARD",
+    badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+    category: "live",
+    isLive: true,
+    isPlayable: true,
+    name: "Muflis Teen Patti",
+    bgGradient: "from-emerald-950/90 via-[#1a2c38] to-[#0f212e]",
+    image: "/games/mac88-muflis-teen-patti.webp",
+  },
+  {
+    id: "mac88-amar-akbar-anthony",
+    title: "Amar Akbar Anthony",
+    slug: "mac88-amar-akbar-anthony",
+    provider: "Mac88",
+    playersCount: 11400,
+    badge: "BOLLYWOOD HIT",
+    badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+    category: "live",
+    isLive: true,
+    isPlayable: true,
+    name: "Amar Akbar Anthony",
+    bgGradient: "from-emerald-950/90 via-[#1a2c38] to-[#0f212e]",
+    image: "/games/mac88-amar-akbar-anthony.webp",
+  },
+  {
+    id: "mac88-andar-bahar",
+    title: "Andar Bahar",
+    slug: "mac88-andar-bahar",
+    provider: "Mac88",
+    playersCount: 14200,
+    badge: "TOP LIVE",
+    badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+    category: "live",
+    isLive: true,
+    isPlayable: true,
+    name: "Andar Bahar",
+    bgGradient: "from-emerald-950/90 via-[#1a2c38] to-[#0f212e]",
+    image: "/games/mac88-andar-bahar.webp",
+  },
+  {
+    id: "mac88-dragon-tiger",
+    title: "Dragon Tiger",
+    slug: "mac88-dragon-tiger",
+    provider: "Mac88",
+    playersCount: 8900,
+    badge: "POPULAR",
+    badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+    category: "live",
+    isLive: true,
+    isPlayable: true,
+    name: "Dragon Tiger",
+    bgGradient: "from-emerald-950/90 via-[#1a2c38] to-[#0f212e]",
+    image: "/games/mac88-dragon-tiger.webp",
+  },
+  {
+    id: "mac88-7-up-7-down",
+    title: "7 Up 7 Down",
+    slug: "mac88-7-up-7-down",
+    provider: "Mac88",
+    playersCount: 6540,
+    badge: "FAST TABLE",
+    badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+    category: "live",
+    isLive: true,
+    isPlayable: true,
+    name: "7 Up 7 Down",
+    bgGradient: "from-emerald-950/90 via-[#1a2c38] to-[#0f212e]",
+    image: "/games/mac88-7-up-7-down.webp",
+  },
+  {
+    id: "mac88-baccarat",
+    title: "Baccarat",
+    slug: "mac88-baccarat",
+    provider: "Mac88",
+    playersCount: 7120,
+    badge: "TABLE VIP",
+    badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+    category: "live",
+    isLive: true,
+    isPlayable: true,
+    name: "Baccarat",
+    bgGradient: "from-emerald-950/90 via-[#1a2c38] to-[#0f212e]",
+    image: "/games/mac88-baccarat.webp",
+  },
+  {
+    id: "mac88-worli-matka",
+    title: "Worli Matka",
+    slug: "mac88-worli-matka",
+    provider: "Mac88",
+    playersCount: 12500,
+    badge: "CLASSIC",
+    badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+    category: "live",
+    isLive: true,
+    isPlayable: true,
+    name: "Worli Matka",
+    bgGradient: "from-emerald-950/90 via-[#1a2c38] to-[#0f212e]",
+    image: "/games/mac88-worli-matka.webp",
+  },
+  {
+    id: "mac88-queen-race",
+    title: "Queen Race",
+    slug: "mac88-queen-race",
+    provider: "Mac88",
+    playersCount: 8430,
+    badge: "NEW",
+    badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+    category: "live",
+    isLive: true,
+    isPlayable: true,
+    name: "Queen Race",
+    bgGradient: "from-emerald-950/90 via-[#1a2c38] to-[#0f212e]",
+    image: "/games/mac88-queen-race.webp",
+  },
+  {
+    id: "mac88-lucky-7",
+    title: "Lucky 7",
+    slug: "mac88-lucky-7",
+    provider: "Mac88",
+    playersCount: 9600,
+    badge: "HOT PICK",
+    badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+    category: "live",
+    isLive: true,
+    isPlayable: true,
+    name: "Lucky 7",
+    bgGradient: "from-emerald-950/90 via-[#1a2c38] to-[#0f212e]",
+    image: "/games/mac88-lucky-7.webp",
+  },
+  {
+    id: "mac88-32-cards-live",
+    title: "32 Cards Live",
+    slug: "mac88-32-cards-live",
+    provider: "Mac88",
+    playersCount: 6890,
+    badge: "LIVE DEALER",
+    badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+    category: "live",
+    isLive: true,
+    isPlayable: true,
+    name: "32 Cards Live",
+    bgGradient: "from-emerald-950/90 via-[#1a2c38] to-[#0f212e]",
+    image: "/games/mac88-32-cards-live.webp",
+  },
+  {
+    id: "mac88-teen-patti-t20",
+    title: "Teen Patti T20",
+    slug: "mac88-teen-patti-t20",
+    provider: "Mac88",
+    playersCount: 13900,
+    badge: "FAST 20",
+    badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+    category: "live",
+    isLive: true,
+    isPlayable: true,
+    name: "Teen Patti T20",
+    bgGradient: "from-emerald-950/90 via-[#1a2c38] to-[#0f212e]",
+    image: "/games/mac88-teen-patti-t20.webp",
+  },
+  {
+    id: "mac88-race-to-17",
+    title: "Race to 17",
+    slug: "mac88-race-to-17",
+    provider: "Mac88",
+    playersCount: 7420,
+    badge: "ACTION",
+    badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+    category: "live",
+    isLive: true,
+    isPlayable: true,
+    name: "Race to 17",
+    bgGradient: "from-emerald-950/90 via-[#1a2c38] to-[#0f212e]",
+    image: "/games/mac88-race-to-17.webp",
+  },
+  {
+    id: "mac88-teen-patti-open",
+    title: "Teen Patti Open",
+    slug: "mac88-teen-patti-open",
+    provider: "Mac88",
+    playersCount: 10800,
+    badge: "OPEN CARDS",
+    badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+    category: "live",
+    isLive: true,
+    isPlayable: true,
+    name: "Teen Patti Open",
+    bgGradient: "from-emerald-950/90 via-[#1a2c38] to-[#0f212e]",
+    image: "/games/mac88-teen-patti-open.webp",
+  },
+  {
+    id: "mac88-casino-war",
+    title: "Casino War",
+    slug: "mac88-casino-war",
+    provider: "Mac88",
+    playersCount: 8200,
+    badge: "CLASH",
+    badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+    category: "live",
+    isLive: true,
+    isPlayable: true,
+    name: "Casino War",
+    bgGradient: "from-emerald-950/90 via-[#1a2c38] to-[#0f212e]",
+    image: "/games/mac88-casino-war.webp",
+  },
+];
+
+export const MAC88_GAMES: GameItem[] = RAW_MAC88_GAMES.map(attachThumbnail);
+
 const masterGameMap = new Map<string, GameItem>();
 [
   ...STAKE_ORIGINALS,
   ...POPULAR_SLOTS,
   ...EVOLUTION_GAMES,
   ...EZUGI_GAMES,
+  ...MAC88_GAMES,
   ...SPRIBE_GAMES,
   ...SMARTSOFT_GAMES,
   ...HP100_GAMES,
@@ -5099,7 +5333,7 @@ const masterGameMap = new Map<string, GameItem>();
 export const ALL_GAMES: GameItem[] = Array.from(masterGameMap.values());
 
 // ==========================================
-// DYNAMIC MULTI-PROVIDER LIVE CASINO AGGREGATION
+// DYNAMIC MULTI-PROVIDER LIVE CASINO AGGREGATION & INTERLEAVED ORDER (Task 37)
 // ==========================================
 export const LIVE_CASINO_GAMES: GameItem[] = (() => {
   const isTrueLiveGame = (g: GameItem) => {
@@ -5111,6 +5345,7 @@ export const LIVE_CASINO_GAMES: GameItem[] = (() => {
     const isLiveProvider =
       prov === "evolution" ||
       prov === "ezugi" ||
+      prov === "mac88" ||
       prov === "pragmatic live" ||
       prov === "pragmatic play live";
     const hasLiveTag =
@@ -5135,26 +5370,60 @@ export const LIVE_CASINO_GAMES: GameItem[] = (() => {
     return !isExcluded;
   };
 
-  const liveMap = new Map<string, GameItem>();
+  const evoList = EVOLUTION_GAMES.filter(isTrueLiveGame);
+  const ezugiList = EZUGI_GAMES.filter(isTrueLiveGame);
+  const mac88List = MAC88_GAMES.filter(isTrueLiveGame);
 
-  // 1. Evolution live games
-  EVOLUTION_GAMES.filter(isTrueLiveGame).forEach((g) => liveMap.set(g.id, g));
-  // 2. Ezugi live games
-  EZUGI_GAMES.filter(isTrueLiveGame).forEach((g) => {
-    if (!liveMap.has(g.id)) liveMap.set(g.id, g);
-  });
-  // 3. Dynamic multi-provider live games from master catalog
-  ALL_GAMES.filter(isTrueLiveGame).forEach((g) => {
-    if (!liveMap.has(g.id)) liveMap.set(g.id, g);
-  });
+  const seenIds = new Set<string>([
+    ...evoList.map((g) => g.id),
+    ...ezugiList.map((g) => g.id),
+    ...mac88List.map((g) => g.id),
+  ]);
+  const otherList = ALL_GAMES.filter((g) => isTrueLiveGame(g) && !seenIds.has(g.id));
 
-  return Array.from(liveMap.values());
+  // Round-robin / interleaved sorting:
+  // Sequence: 1 Evolution -> 1 Ezugi -> 1 Mac88 / other provider -> Repeat pattern
+  const interleaved: GameItem[] = [];
+  const addedIds = new Set<string>();
+
+  const addGame = (g?: GameItem) => {
+    if (g && !addedIds.has(g.id)) {
+      addedIds.add(g.id);
+      interleaved.push(g);
+    }
+  };
+
+  const maxLen = Math.max(evoList.length, ezugiList.length, mac88List.length, otherList.length);
+  for (let i = 0; i < maxLen; i++) {
+    addGame(evoList[i]);
+    addGame(ezugiList[i]);
+    if (mac88List[i]) {
+      addGame(mac88List[i]);
+    } else if (otherList[i]) {
+      addGame(otherList[i]);
+    }
+    if (mac88List[i] && otherList[i]) {
+      addGame(otherList[i]);
+    }
+  }
+
+  return interleaved;
 })();
 
 // ==========================================
-// 20 PUBLISHERS / GAME STUDIOS
+// 21 PUBLISHERS / GAME STUDIOS (Task 37)
 // ==========================================
 export const PROVIDERS_LIST: ProviderItem[] = [
+  {
+    id: "mac88",
+    name: "Mac88",
+    slug: "mac88",
+    gamesCount: 15,
+    playersCount: 45200,
+    badge: "INDIAN CARD SUITE",
+    logoBg: "bg-emerald-500/10 border-emerald-500/30",
+    accentColor: "#10b981",
+  },
   {
     id: "evoplay",
     name: "Evoplay",

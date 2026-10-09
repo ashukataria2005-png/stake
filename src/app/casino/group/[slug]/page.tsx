@@ -9,6 +9,7 @@ export function generateStaticParams() {
     { slug: "game-shows" },
     { slug: "evolution" },
     { slug: "ezugi" },
+    { slug: "mac88" },
     { slug: "spribe" },
     { slug: "smartsoft" },
     { slug: "100hp" },

@@ -25,6 +25,7 @@ import {
   EVOLUTION_GAMES,
   INOUT_GAMES,
   EZUGI_GAMES,
+  MAC88_GAMES,
   SPRIBE_GAMES,
   SMARTSOFT_GAMES,
   HP100_GAMES,
@@ -93,6 +94,19 @@ export default function CategoryGroupView({ slug }: CategoryGroupViewProps) {
           initialGames: EZUGI_GAMES,
           bannerBg: "from-blue-950/70 via-[#1a2c38] to-[#0f212e]",
           icon: <Activity className="w-6 h-6 text-blue-400" />,
+        };
+      case "mac88":
+      case "mac88-games":
+        return {
+          title: "Mac88 Indian Card Suite",
+          badge: "15 LIVE TABLES",
+          playersCount: "45,200",
+          stats: "15 Live Tables • Mac88 • Authentic Indian Card Games & Asian Tables",
+          description:
+            "Immerse yourself in authentic Indian live card gaming with Mac88, featuring 3 Cards Judgement, Muflis Teen Patti, Amar Akbar Anthony, Worli Matka, Andar Bahar, and Casino War.",
+          initialGames: MAC88_GAMES,
+          bannerBg: "from-emerald-950/70 via-[#1a2c38] to-[#0f212e]",
+          icon: <Activity className="w-6 h-6 text-emerald-400" />,
         };
       case "spribe":
         return {
@@ -381,10 +395,17 @@ export default function CategoryGroupView({ slug }: CategoryGroupViewProps) {
                 className="bg-transparent text-xs text-white outline-none cursor-pointer pr-4 appearance-none"
               >
                 <option value="all" className="bg-[#1a2c38]">All Publishers</option>
+                <option value="mac88" className="bg-[#1a2c38]">Mac88</option>
+                <option value="evolution" className="bg-[#1a2c38]">Evolution Live</option>
+                <option value="ezugi" className="bg-[#1a2c38]">Ezugi</option>
                 <option value="stake originals" className="bg-[#1a2c38]">Stake Originals</option>
                 <option value="pragmatic" className="bg-[#1a2c38]">Pragmatic Play</option>
                 <option value="hacksaw" className="bg-[#1a2c38]">Hacksaw Gaming</option>
-                <option value="evolution" className="bg-[#1a2c38]">Evolution Live</option>
+                <option value="spribe" className="bg-[#1a2c38]">Spribe</option>
+                <option value="smartsoft" className="bg-[#1a2c38]">SmartSoft</option>
+                <option value="jili" className="bg-[#1a2c38]">Jili Games</option>
+                <option value="evoplay" className="bg-[#1a2c38]">Evoplay</option>
+                <option value="turbogames" className="bg-[#1a2c38]">Turbo Games</option>
                 <option value="nolimit" className="bg-[#1a2c38]">Nolimit City</option>
               </select>
               <ChevronDown className="w-3 h-3 text-[#7a889b] pointer-events-none -ml-3" />

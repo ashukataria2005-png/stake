@@ -57,7 +57,13 @@ export const EVOLUTION_THUMBNAILS: Record<string, string> = {
   "crazy-time": "/games/crazy-time.webp",
   "live-roulette": "/games/live-roulette.webp",
   "roulette-live": "/games/roulette-live.webp",
-  "ice-fishing-live": "/games/ice-fishing-live.jpg",
+  "ice-fishing-live": "/games/ice-fishing-live.webp",
+  "ice-fishing": "/games/ice-fishing-live.webp",
+  "spanish-roulette": "/games/ruleta-en-espanol.webp",
+  "live-bac-bo": "/games/bac-bo.webp",
+  "turkish-roulette": "/games/turkce-rulet.webp",
+  "speed-auto-roulette": "/games/ruleta-bola-rapida-en-vivo.webp",
+  "turkish-football-studio": "/games/turkce-futbol-studyosu.webp",
   "live-baccarat": "/games/live-baccarat.webp",
   "baccarat-live": "/games/baccarat-live.webp",
   "lightning-roulette": "/games/lightning-roulette.webp",
@@ -435,6 +441,41 @@ export const HACKSAW_THUMBNAILS: Record<string, string> = {
   "dork-show": "/games/dork-show.webp",
 };
 
+// ==========================================
+// MAC88 PROVIDER & INDIAN CARD SUITE (Task 37)
+// ==========================================
+export const MAC88_THUMBNAILS: Record<string, string> = {
+  "mac88-3-cards-judgement": "/games/mac88-3-cards-judgement.webp",
+  "3-cards-judgement": "/games/mac88-3-cards-judgement.webp",
+  "mac88-muflis-teen-patti": "/games/mac88-muflis-teen-patti.webp",
+  "muflis-teen-patti": "/games/mac88-muflis-teen-patti.webp",
+  "mac88-amar-akbar-anthony": "/games/mac88-amar-akbar-anthony.webp",
+  "amar-akbar-anthony": "/games/mac88-amar-akbar-anthony.webp",
+  "mac88-andar-bahar": "/games/mac88-andar-bahar.webp",
+  "andar-bahar": "/games/mac88-andar-bahar.webp",
+  "mac88-dragon-tiger": "/games/mac88-dragon-tiger.webp",
+  "mac88-7-up-7-down": "/games/mac88-7-up-7-down.webp",
+  "mac88-baccarat": "/games/mac88-baccarat.webp",
+  "mac88-worli-matka": "/games/mac88-worli-matka.webp",
+  "worli-matka": "/games/mac88-worli-matka.webp",
+  "mac88-queen-race": "/games/mac88-queen-race.webp",
+  "queen-race": "/games/mac88-queen-race.webp",
+  "mac88-lucky-7": "/games/mac88-lucky-7.webp",
+  "mac88-32-cards-live": "/games/mac88-32-cards-live.webp",
+  "32-cards-live": "/games/mac88-32-cards-live.webp",
+  "mac88-teen-patti-t20": "/games/mac88-teen-patti-t20.webp",
+  "teen-patti-t20": "/games/mac88-teen-patti-t20.webp",
+  "mac88-race-to-17": "/games/mac88-race-to-17.webp",
+  "race-to-17": "/games/mac88-race-to-17.webp",
+  "mac88-teen-patti-open": "/games/mac88-teen-patti-open.webp",
+  "teen-patti-open": "/games/mac88-teen-patti-open.webp",
+  "mac88-casino-war": "/games/mac88-casino-war.webp",
+  "casino-war": "/games/mac88-casino-war.webp",
+  "mac88": "/games/mac88.webp",
+  "mac88-indian-cards": "/games/mac88-indian-cards.webp",
+  "mac88-card-games": "/games/mac88-card-games.webp",
+};
+
 export const GAME_THUMBNAILS: Record<string, string> = {
   ...INOUT_GAME_THUMBNAILS,
   ...EVOLUTION_THUMBNAILS,
@@ -447,6 +488,7 @@ export const GAME_THUMBNAILS: Record<string, string> = {
   ...TURBOGAMES_THUMBNAILS,
   ...PRAGMATIC_THUMBNAILS,
   ...HACKSAW_THUMBNAILS,
+  ...MAC88_THUMBNAILS,
   // ==========================================
   // STAKE ORIGINALS (31 Games)
   // ==========================================
