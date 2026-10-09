@@ -539,18 +539,7 @@ const RAW_EVOLUTION_GAMES: GameItem[] = [
     "name": "Immersive Roulette",
     "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
   },
-  {
-    "id": "ruleta-en-espanol",
-    "title": "Spanish Roulette",
-    "slug": "ruleta-en-espanol",
-    "provider": "Evolution",
-    "playersCount": 5980,
-    "category": "live",
-    "isLive": true,
-    "isPlayable": true,
-    "name": "Spanish Roulette",
-    "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
-  },
+
   {
     "id": "lightning-storm",
     "title": "Lightning Storm",
@@ -614,18 +603,7 @@ const RAW_EVOLUTION_GAMES: GameItem[] = [
     "name": "Funky Time",
     "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
   },
-  {
-    "id": "roleta-ao-vivo",
-    "title": "Live Roulette",
-    "slug": "roleta-ao-vivo",
-    "provider": "Evolution",
-    "playersCount": 4850,
-    "category": "live",
-    "isLive": true,
-    "isPlayable": true,
-    "name": "Live Roulette",
-    "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
-  },
+
   {
     "id": "lucky-baccarat",
     "title": "Lucky Baccarat",
@@ -998,18 +976,7 @@ const RAW_EVOLUTION_GAMES: GameItem[] = [
     "name": "Easy Blackjack",
     "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
   },
-  {
-    "id": "bac-bo-ao-vivo",
-    "title": "Live Bac Bo",
-    "slug": "bac-bo-ao-vivo",
-    "provider": "Evolution",
-    "playersCount": 2120,
-    "category": "live",
-    "isLive": true,
-    "isPlayable": true,
-    "name": "Live Bac Bo",
-    "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
-  },
+
   {
     "id": "futbol-studio",
     "title": "Football Studio",
@@ -1022,18 +989,7 @@ const RAW_EVOLUTION_GAMES: GameItem[] = [
     "name": "Football Studio",
     "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
   },
-  {
-    "id": "turkce-rulet",
-    "title": "Turkish Roulette",
-    "slug": "turkce-rulet",
-    "provider": "Evolution",
-    "playersCount": 2010,
-    "category": "live",
-    "isLive": true,
-    "isPlayable": true,
-    "name": "Turkish Roulette",
-    "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
-  },
+
   {
     "id": "xxxtreme-lightning-baccarat",
     "title": "XXXtreme Lightning Baccarat",
@@ -1202,18 +1158,7 @@ const RAW_EVOLUTION_GAMES: GameItem[] = [
     "name": "War Live",
     "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
   },
-  {
-    "id": "ruleta-bola-rapida-en-vivo",
-    "title": "Speed Auto Roulette",
-    "slug": "ruleta-bola-rapida-en-vivo",
-    "provider": "Evolution",
-    "playersCount": 1350,
-    "category": "live",
-    "isLive": true,
-    "isPlayable": true,
-    "name": "Speed Auto Roulette",
-    "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
-  },
+
   {
     "id": "lightning-sic-bo",
     "title": "Lightning Sic Bo",
@@ -1238,18 +1183,7 @@ const RAW_EVOLUTION_GAMES: GameItem[] = [
     "name": "Caribbean Stud Poker",
     "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
   },
-  {
-    "id": "mega-bola",
-    "title": "Mega Ball",
-    "slug": "mega-bola",
-    "provider": "Evolution",
-    "playersCount": 1240,
-    "category": "game-shows",
-    "isLive": true,
-    "isPlayable": true,
-    "name": "Mega Ball",
-    "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
-  },
+
   {
     "id": "balloon-race",
     "title": "Balloon Race",
@@ -1299,15 +1233,15 @@ const RAW_EVOLUTION_GAMES: GameItem[] = [
     "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
   },
   {
-    "id": "stake-baccarat-first-person",
-    "title": "Stake Baccarat First Person",
-    "slug": "stake-baccarat-first-person",
+    "id": "baccarat-first-person",
+    "title": "Baccarat First Person",
+    "slug": "baccarat-first-person",
     "provider": "Evolution",
     "playersCount": 1050,
     "category": "live",
     "isLive": true,
     "isPlayable": true,
-    "name": "Stake Baccarat First Person",
+    "name": "Baccarat First Person",
     "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
   },
   {
@@ -1334,30 +1268,8 @@ const RAW_EVOLUTION_GAMES: GameItem[] = [
     "name": "Emperor Sic Bo",
     "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
   },
-  {
-    "id": "mega-bola-da-sorte",
-    "title": "Mega Ball",
-    "slug": "mega-bola-da-sorte",
-    "provider": "Evolution",
-    "playersCount": 940,
-    "category": "game-shows",
-    "isLive": true,
-    "isPlayable": true,
-    "name": "Mega Ball",
-    "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
-  },
-  {
-    "id": "turkce-futbol-studyosu",
-    "title": "Turkish Football Studio",
-    "slug": "turkce-futbol-studyosu",
-    "provider": "Evolution",
-    "playersCount": 910,
-    "category": "live",
-    "isLive": true,
-    "isPlayable": true,
-    "name": "Turkish Football Studio",
-    "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
-  },
+
+
   {
     "id": "korean-powerball",
     "title": "Korean Powerball",
