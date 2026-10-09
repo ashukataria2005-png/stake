@@ -49,14 +49,14 @@ export const INOUT_GAME_THUMBNAILS: Record<string, string> = {
 // EVOLUTION GAMING THUMBNAILS
 // ==========================================
 export const EVOLUTION_THUMBNAILS: Record<string, string> = {
-  "ice-fishing": "/games/evolution/ice-fishing.webp",
+  "ice-fishing": "/games/evolution/ice-fishing-live.webp",
   "xxxtreme-lightning-roulette": "/games/evolution/xxxtreme-lightning-roulette.webp",
-  "spanish-roulette": "/games/evolution/spanish-roulette.webp",
-  "ruleta-en-espanol": "/games/evolution/spanish-roulette.webp",
+  
+  
   "disco-roulette": "/games/evolution/disco-roulette.webp",
   "crazy-balls": "/games/evolution/crazy-balls.webp",
   "live-roulette": "/games/evolution/live-roulette.webp",
-  "roleta-ao-vivo": "/games/evolution/live-roulette.webp",
+  
   "lucky-baccarat": "/games/evolution/lucky-baccarat.webp",
   "infinite-free-bet-roulette": "/games/evolution/infinite-free-bet-roulette.webp",
   "red-baron": "/games/evolution/red-baron.webp",
