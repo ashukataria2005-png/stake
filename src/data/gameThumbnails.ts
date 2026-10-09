@@ -148,11 +148,11 @@ export const EZUGI_GAME_THUMBNAILS: Record<string, string> = {
   "one-day-teen-patti": "/games/ezugi/one-day-teen-patti.webp",
   "ezugi-one-day-teen-patti": "/games/ezugi/one-day-teen-patti.webp",
   "sic-bo-live": "/games/ezugi/sic-bo-live.webp",
-  "ezugi-sic-bo-live": "/games/ezugi/sic-bo-live.webp",
+
   "marina-casino-baccarat": "/games/ezugi/marina-casino-baccarat.webp",
-  "ezugi-marina-casino-baccarat": "/games/ezugi/marina-casino-baccarat.webp",
+
   "auto-roulette": "/games/ezugi/auto-roulette.webp",
-  "ezugi-auto-roulette": "/games/ezugi/auto-roulette.webp",
+  
   "italian-roulette": "/games/ezugi/italian-roulette.webp",
   "ezugi-italian-roulette": "/games/ezugi/italian-roulette.webp",
   "baccarat-super-6": "/games/ezugi/baccarat-super-6.webp",
@@ -189,6 +189,14 @@ export const EZUGI_GAME_THUMBNAILS: Record<string, string> = {
   "ezugi-oracle-casino-roulette-360": "/games/ezugi/ezugi-oracle-casino-roulette-360.webp",
   "ezugi-russian-poker": "/games/ezugi/ezugi-russian-poker.webp",
   "ezugi-dream-catcher": "/games/ezugi/ezugi-dream-catcher.webp",
+  "ezugi-diamond-roulette": "/games/ezugi/ezugi-diamond-roulette.webp",
+  "ezugi-white-russian-blackjack": "/games/ezugi/ezugi-white-russian-blackjack.webp",
+  "ezugi-sic-bo": "/games/ezugi/ezugi-sic-bo.webp",
+  "ezugi-speed-roulette": "/games/ezugi/ezugi-speed-roulette.webp",
+  "ezugi-marina-casino-baccarat": "/games/ezugi/marina-casino-baccarat.webp",
+  "ezugi-auto-roulette": "/games/ezugi/ezugi-auto-roulette.webp",
+
+
 
 };
 
