@@ -141,36 +141,36 @@ export const EVOLUTION_THUMBNAILS: Record<string, string> = {
 // ==========================================
 export const EZUGI_GAME_THUMBNAILS: Record<string, string> = {
   "teen-patti-live": "/games/ezugi/teen-patti-live.webp",
-  "ezugi-teen-patti-live": "/games/ezugi/teen-patti-live.webp",
+
 
   "royal-poker": "/games/ezugi/royal-poker.webp",
   "ezugi-royal-poker": "/games/ezugi/royal-poker.webp",
   "one-day-teen-patti": "/games/ezugi/one-day-teen-patti.webp",
-  "ezugi-one-day-teen-patti": "/games/ezugi/one-day-teen-patti.webp",
+
   "sic-bo-live": "/games/ezugi/sic-bo-live.webp",
 
   "marina-casino-baccarat": "/games/ezugi/marina-casino-baccarat.webp",
 
   "auto-roulette": "/games/ezugi/auto-roulette.webp",
-  
+
   "italian-roulette": "/games/ezugi/italian-roulette.webp",
-  "ezugi-italian-roulette": "/games/ezugi/italian-roulette.webp",
+
   "baccarat-super-6": "/games/ezugi/baccarat-super-6.webp",
-  "ezugi-baccarat-super-6": "/games/ezugi/baccarat-super-6.webp",
+
   "knockout-baccarat": "/games/ezugi/knockout-baccarat.webp",
-  "ezugi-knockout-baccarat": "/games/ezugi/knockout-baccarat.webp",
+
   "prestige-auto-roulette": "/games/ezugi/prestige-auto-roulette.webp",
-  "ezugi-prestige-auto-roulette": "/games/ezugi/prestige-auto-roulette.webp",
+
   "ruleta-del-sol": "/games/ezugi/ruleta-del-sol.webp",
-  "ezugi-ruleta-del-sol": "/games/ezugi/ruleta-del-sol.webp",
+
   "golden-baccarat": "/games/ezugi/golden-baccarat.webp",
-  "ezugi-golden-baccarat": "/games/ezugi/golden-baccarat.webp",
+  
   "salsa-baccarat": "/games/ezugi/salsa-baccarat.webp",
-  "ezugi-salsa-baccarat": "/games/ezugi/salsa-baccarat.webp",
+  
   "blackjack-salon": "/games/ezugi/blackjack-salon.webp",
   "ezugi-blackjack-salon": "/games/ezugi/blackjack-salon.webp",
 
-  "ezugi-32-cards": "/games/ezugi/32-cards.webp",
+
 
   "ezugi-blackjack": "/games/ezugi/blackjack-salon.webp",
   "ezugi-baccarat": "/games/ezugi/golden-baccarat.webp",
@@ -195,6 +195,19 @@ export const EZUGI_GAME_THUMBNAILS: Record<string, string> = {
   "ezugi-speed-roulette": "/games/ezugi/ezugi-speed-roulette.webp",
   "ezugi-marina-casino-baccarat": "/games/ezugi/marina-casino-baccarat.webp",
   "ezugi-auto-roulette": "/games/ezugi/ezugi-auto-roulette.webp",
+  "ezugi-casino-holdem": "/games/ezugi/ezugi-casino-holdem.webp",
+  "ezugi-turkish-roulette": "/games/ezugi/ezugi-turkish-roulette.webp",
+  "ezugi-fiesta-baccarat": "/games/ezugi/ezugi-fiesta-baccarat.webp",
+  "ezugi-knockout-baccarat": "/games/ezugi/ezugi-knockout-baccarat.webp",
+  "ezugi-italian-roulette": "/games/ezugi/ezugi-italian-roulette.webp",
+  "ezugi-32-cards": "/games/ezugi/32-cards.webp",
+  "ezugi-baccarat-super-6": "/games/ezugi/ezugi-baccarat-super-6.webp",
+  "ezugi-teen-patti-live": "/games/ezugi/teen-patti-live.webp",
+  "ezugi-one-day-teen-patti": "/games/ezugi/one-day-teen-patti.webp",
+  "ezugi-skyline-roulette": "/games/ezugi/ezugi-skyline-roulette.webp",
+  "ezugi-prestige-auto-roulette": "/games/ezugi/ezugi-prestige-auto-roulette.webp",
+  "ezugi-fortune-baccarat": "/games/ezugi/ezugi-fortune-baccarat.webp",
+  "ezugi-golden-baccarat": "/games/ezugi/ezugi-golden-baccarat.webp",
 
 
 
