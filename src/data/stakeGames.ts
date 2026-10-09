@@ -907,7 +907,7 @@ const RAW_EVOLUTION_GAMES: GameItem[] = [
   {
     "id": "texas-holdem-bonus-poker",
     "title": "Texas Hold'em Bonus Poker",
-    "slug": "texas-holdem-bonus",
+    "slug": "texas-holdem-bonus-poker",
     "provider": "Evolution",
     "playersCount": 2470,
     "category": "live",
@@ -1174,7 +1174,7 @@ const RAW_EVOLUTION_GAMES: GameItem[] = [
   {
     "id": "caribbean-stud-poker",
     "title": "Caribbean Stud Poker",
-    "slug": "caribbean-stud",
+    "slug": "caribbean-stud-poker",
     "provider": "Evolution",
     "playersCount": 1280,
     "category": "live",
