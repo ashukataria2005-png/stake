@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String        @id @default(cuid())
+  username     String        @unique
+  email        String        @unique
+  passwordHash String
+  role         String        @default("USER")
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  wallets      Wallet[]
+  bets         Bet[]
+  transactions Transaction[]
+}
+
+model Wallet {
+  id            String   @id @default(cuid())
+  userId        String
+  currency      String
+  balance       Decimal  @default(0.00000000)
+  lockedBalance Decimal  @default(0.00000000)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, currency])
+}
+
+model Bet {
+  id         String   @id @default(cuid())
+  userId     String
+  gameSlug   String
+  provider   String
+  amount     Decimal
+  currency   String
+  multiplier Float    @default(0.0)
+  payout     Decimal  @default(0.0)
+  status     String
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Transaction {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  amount    Decimal
+  currency  String
+  status    String
+  method    String
+  txHash    String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

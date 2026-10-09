@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -10,44 +10,87 @@ import {
   ShieldCheck,
   Maximize2,
   Minimize2,
-  Sparkles,
   RefreshCw,
   X,
   Copy,
   Check,
   Play,
   Layers,
+  Settings,
+  BarChart2,
+  Heart,
+  Bookmark,
+  Share2,
+  ChevronDown,
+  Sparkles,
+  Zap,
+  TrendingUp,
+  Sliders,
+  RotateCcw,
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
 import confetti from "canvas-confetti";
+import { STAKE_ORIGINALS } from "@/data/stakeGames";
+import { GAME_THUMBNAILS } from "@/data/gameThumbnails";
 
-// Stake Symmetrical Multiplier Tables for Rows x Risk
-const MULTIPLIER_TABLES: Record<number, Record<"low" | "medium" | "high", number[]>> = {
+// Authentic Stake Multiplier Tables: Rows (8–16) × Risk (low, medium, high, expert)
+export type PlinkoDifficulty = "low" | "medium" | "high" | "expert";
+
+export const PLINKO_MULTIPLIER_TABLES: Record<number, Record<PlinkoDifficulty, number[]>> = {
   8: {
     low: [5.6, 2.1, 1.1, 1.0, 0.5, 1.0, 1.1, 2.1, 5.6],
     medium: [13, 3, 1.3, 0.7, 0.4, 0.7, 1.3, 3, 13],
     high: [29, 4, 1.5, 0.3, 0.2, 0.3, 1.5, 4, 29],
+    expert: [50, 15, 3, 0.5, 0.1, 0.5, 3, 15, 50],
+  },
+  9: {
+    low: [5.6, 2.0, 1.6, 1.0, 0.7, 0.7, 1.0, 1.6, 2.0, 5.6],
+    medium: [18, 4.0, 1.7, 0.9, 0.5, 0.5, 0.9, 1.7, 4.0, 18],
+    high: [43, 7.0, 2.0, 0.6, 0.2, 0.2, 0.6, 2.0, 7.0, 43],
+    expert: [100, 20, 5.0, 1.0, 0.1, 0.1, 1.0, 5.0, 20, 100],
   },
   10: {
     low: [8.9, 3.0, 1.4, 1.1, 1.0, 0.5, 1.0, 1.1, 1.4, 3.0, 8.9],
-    medium: [22, 5, 2, 1.4, 0.6, 0.4, 0.6, 1.4, 2, 5, 22],
-    high: [76, 10, 3, 0.9, 0.3, 0.2, 0.3, 0.9, 3, 10, 76],
+    medium: [22, 5.0, 2.0, 1.4, 0.6, 0.4, 0.6, 1.4, 2.0, 5.0, 22],
+    high: [76, 10, 3.0, 0.9, 0.3, 0.2, 0.3, 0.9, 3.0, 10, 76],
+    expert: [250, 45, 10, 2.0, 0.4, 0.1, 0.4, 2.0, 10, 45, 250],
+  },
+  11: {
+    low: [8.4, 3.0, 1.9, 1.3, 1.0, 0.7, 0.7, 1.0, 1.3, 1.9, 3.0, 8.4],
+    medium: [24, 6.0, 3.0, 1.8, 0.7, 0.5, 0.5, 0.7, 1.8, 3.0, 6.0, 24],
+    high: [120, 14, 4.2, 1.4, 0.4, 0.2, 0.2, 0.4, 1.4, 4.2, 14, 120],
+    expert: [500, 80, 18, 4.0, 0.8, 0.1, 0.1, 0.8, 4.0, 18, 80, 500],
   },
   12: {
     low: [8.4, 3.0, 1.6, 1.4, 1.1, 1.0, 0.5, 1.0, 1.1, 1.4, 1.6, 3.0, 8.4],
-    medium: [33, 11, 4, 2, 1.1, 0.6, 0.3, 0.6, 1.1, 2, 4, 11, 33],
-    high: [170, 24, 8.1, 2, 0.7, 0.2, 0.2, 0.2, 0.7, 2, 8.1, 24, 170],
+    medium: [33, 11, 4.0, 2.0, 1.1, 0.6, 0.3, 0.6, 1.1, 2.0, 4.0, 11, 33],
+    high: [170, 24, 8.1, 2.0, 0.7, 0.2, 0.2, 0.2, 0.7, 2.0, 8.1, 24, 170],
+    expert: [1000, 150, 35, 8.0, 1.5, 0.3, 0.1, 0.3, 1.5, 8.0, 35, 150, 1000],
+  },
+  13: {
+    low: [8.1, 4.0, 2.1, 1.3, 1.1, 1.0, 0.7, 0.7, 1.0, 1.1, 1.3, 2.1, 4.0, 8.1],
+    medium: [43, 13, 6.0, 3.0, 1.3, 0.7, 0.4, 0.4, 0.7, 1.3, 3.0, 6.0, 13, 43],
+    high: [260, 37, 11, 4.0, 1.0, 0.2, 0.2, 0.2, 0.2, 1.0, 4.0, 11, 37, 260],
+    expert: [2500, 300, 60, 15, 3.0, 0.5, 0.1, 0.1, 0.5, 3.0, 15, 60, 300, 2500],
   },
   14: {
     low: [7.1, 4.0, 1.9, 1.4, 1.3, 1.1, 1.0, 0.5, 1.0, 1.1, 1.3, 1.4, 1.9, 4.0, 7.1],
-    medium: [58, 15, 7, 4, 1.9, 1.3, 0.5, 0.2, 0.5, 1.3, 1.9, 4, 7, 15, 58],
-    high: [420, 56, 18, 5, 1.9, 0.3, 0.2, 0.2, 0.2, 0.3, 1.9, 5, 18, 56, 420],
+    medium: [58, 15, 7.0, 4.0, 1.9, 1.3, 0.5, 0.2, 0.5, 1.3, 1.9, 4.0, 7.0, 15, 58],
+    high: [420, 56, 18, 5.0, 1.9, 0.3, 0.2, 0.2, 0.2, 0.3, 1.9, 5.0, 18, 56, 420],
+    expert: [5000, 600, 120, 25, 5.0, 1.0, 0.2, 0.1, 0.2, 1.0, 5.0, 25, 120, 600, 5000],
+  },
+  15: {
+    low: [15, 8.0, 3.0, 2.0, 1.5, 1.1, 1.0, 0.5, 0.5, 1.0, 1.1, 1.5, 2.0, 3.0, 8.0, 15],
+    medium: [88, 25, 9.0, 4.5, 2.5, 1.4, 0.7, 0.3, 0.3, 0.7, 1.4, 2.5, 4.5, 9.0, 25, 88],
+    high: [620, 83, 24, 7.0, 2.8, 0.7, 0.2, 0.2, 0.2, 0.2, 0.7, 2.8, 7.0, 24, 83, 620],
+    expert: [7500, 1000, 200, 40, 10, 2.5, 0.5, 0.1, 0.1, 0.5, 2.5, 10, 40, 200, 1000, 7500],
   },
   16: {
-    low: [16, 9, 2, 1.4, 1.1, 1, 0.5, 0.5, 0.5, 0.5, 0.5, 1, 1.1, 1.4, 2, 9, 16],
+    low: [16, 9, 2, 1.4, 1.4, 1.2, 1.1, 1.0, 0.5, 1.0, 1.1, 1.2, 1.4, 1.4, 2, 9, 16],
     medium: [110, 41, 10, 5, 3, 1.5, 1, 0.5, 0.3, 0.5, 1, 1.5, 3, 5, 10, 41, 110],
     high: [1000, 130, 26, 9, 4, 2, 0.2, 0.2, 0.2, 0.2, 0.2, 2, 4, 9, 26, 130, 1000],
+    expert: [10000, 1500, 300, 60, 15, 4, 1.5, 0.3, 0.1, 0.3, 1.5, 4, 15, 60, 300, 1500, 10000],
   },
 };
 
@@ -67,7 +110,7 @@ interface Peg {
   x: number;
   y: number;
   radius: number;
-  pulse: number; // 0 to 1 for glow animation on hit
+  pulse: number;
 }
 
 interface FloatingPayout {
@@ -78,23 +121,80 @@ interface FloatingPayout {
   alpha: number;
 }
 
+// Compute dynamic color gradient: deep purple/red extremes -> orange -> yellow -> green/cyan center
+function getBucketColorGrading(index: number, totalBuckets: number) {
+  const center = (totalBuckets - 1) / 2;
+  const dist = Math.abs(index - center) / (center || 1); // 0 at center, 1 at edge
+
+  if (dist < 0.18) {
+    // Center Trough: Bright Cyan / Green
+    return { bg: "#06b6d4", text: "#082f49", border: "#22d3ee", shadow: "#06b6d4" };
+  } else if (dist < 0.36) {
+    // Inner center: Emerald Green
+    return { bg: "#10b981", text: "#022c22", border: "#34d399", shadow: "#10b981" };
+  } else if (dist < 0.55) {
+    // Intermediate: Lime / Yellow
+    return { bg: "#eab308", text: "#422006", border: "#facc15", shadow: "#eab308" };
+  } else if (dist < 0.72) {
+    // Outer Mid: Blazing Orange
+    return { bg: "#f97316", text: "#ffffff", border: "#fb923c", shadow: "#f97316" };
+  } else if (dist < 0.88) {
+    // High Rim: Fire Red
+    return { bg: "#ef4444", text: "#ffffff", border: "#f87171", shadow: "#ef4444" };
+  } else {
+    // Extreme Edge Jackpot: Deep Purple / Crimson
+    return { bg: "#a855f7", text: "#ffffff", border: "#c084fc", shadow: "#a855f7" };
+  }
+}
+
 export default function PlinkoGame() {
-  const { balance, updateBalance, currency, formatBalance, currencySymbol } = useGame();
+  const { balance, updateBalance, formatBalance, currencySymbol } = useGame();
   const activeSym = currencySymbol || "$";
 
-  // Settings
+  // Game Settings
   const [betAmount, setBetAmount] = useState<number>(10);
   const [betInput, setBetInput] = useState<string>("10");
-
-  useEffect(() => {
-    if (betInput !== "" && parseFloat(betInput) === betAmount) return;
-    setBetInput(betAmount.toString());
-  }, [betAmount]);
-
-  const [risk, setRisk] = useState<"low" | "medium" | "high">("medium");
+  const [mode, setMode] = useState<"manual" | "auto">("manual");
+  const [difficulty, setDifficulty] = useState<PlinkoDifficulty>("medium");
   const [rows, setRows] = useState<number>(16);
+
+  // Auto Betting State
   const [autoBetting, setAutoBetting] = useState<boolean>(false);
-  const [activeBucketIndex, setActiveBucketIndex] = useState<{ index: number; expire: number } | null>(null);
+  const [autoBetCount, setAutoBetCount] = useState<number>(0);
+  const [autoBetLimit, setAutoBetLimit] = useState<number>(0); // 0 = infinite
+
+  // Modals & Panels
+  const [isFairnessOpen, setIsFairnessOpen] = useState<boolean>(false);
+  const [isStatsOpen, setIsStatsOpen] = useState<boolean>(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+
+  // Sound & Screen Settings
+  const [isMuted, setIsMuted] = useState<boolean>(false);
+  const [fastDrop, setFastDrop] = useState<boolean>(false);
+  const [hotkeysEnabled, setHotkeysEnabled] = useState<boolean>(true);
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+
+  // Favorites & Social
+  const [isFavorited, setIsFavorited] = useState<boolean>(false);
+  const [favoriteCount, setFavoriteCount] = useState<number>(38429);
+  const [isSaved, setIsSaved] = useState<boolean>(false);
+
+  // Live Stats State
+  const [stats, setStats] = useState({
+    totalBets: 0,
+    totalWagered: 0,
+    totalWon: 0,
+    netProfit: 0,
+    bestMultiplier: 0,
+  });
+
+  // Fairness Seeds
+  const [serverSeedHash] = useState<string>(
+    "8e4f1a09d3b7621c54ea908b21c43f76901e5a2c89f3d12b07e456a1b2c3d4e5"
+  );
+  const [clientSeed, setClientSeed] = useState<string>("stake_plinko_8192a");
+  const [nonce, setNonce] = useState<number>(412);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
 
   // History strip of last 7 payouts
   const [history, setHistory] = useState<Array<{ id: string; multiplier: number }>>([
@@ -107,20 +207,10 @@ export default function PlinkoGame() {
     { id: "h7", multiplier: 41 },
   ]);
 
-  // Audio & Fullscreen state
-  const [isMuted, setIsMuted] = useState<boolean>(false);
-  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+  // Active highlighted bucket
+  const [activeBucketIndex, setActiveBucketIndex] = useState<{ index: number; expire: number } | null>(null);
 
-  // Provably Fair Modal
-  const [isFairnessOpen, setIsFairnessOpen] = useState<boolean>(false);
-  const [serverSeedHash, setServerSeedHash] = useState<string>(
-    "8e4f1a09d3b7621c54ea908b21c43f76901e5a2c89f3d12b07e456a1b2c3d4e5"
-  );
-  const [clientSeed, setClientSeed] = useState<string>("stake_plinko_8192a");
-  const [nonce, setNonce] = useState<number>(315);
-  const [copiedField, setCopiedField] = useState<string | null>(null);
-
-  // Refs for Canvas Animation
+  // Canvas Refs
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const ballsRef = useRef<Ball[]>([]);
@@ -131,16 +221,18 @@ export default function PlinkoGame() {
   const animationFrameRef = useRef<number | null>(null);
 
   // Active Multipliers list
-  const currentMultipliers = MULTIPLIER_TABLES[rows]?.[risk] || MULTIPLIER_TABLES[16].medium;
+  const currentMultipliers = useMemo(() => {
+    return PLINKO_MULTIPLIER_TABLES[rows]?.[difficulty] || PLINKO_MULTIPLIER_TABLES[16].medium;
+  }, [rows, difficulty]);
 
-  // Sound toggle
+  // Toggle Sound
   const toggleSound = () => {
     const next = !isMuted;
     setIsMuted(next);
     sounds.enabled = !next;
   };
 
-  // Math buttons
+  // Math Buttons (½, 2x, Max)
   const handleHalfBet = () => {
     sounds.playClick();
     const next = Math.max(0.01, parseFloat((betAmount / 2).toFixed(2)));
@@ -182,24 +274,32 @@ export default function PlinkoGame() {
     }
     if (effectiveBet <= 0) return;
 
-    // Deduct bet amount from demo balance immediately
+    // Deduct bet amount immediately
     updateBalance(-effectiveBet);
     setNonce((n) => n + 1);
 
+    // Update wagered stats
+    setStats((prev) => ({
+      ...prev,
+      totalBets: prev.totalBets + 1,
+      totalWagered: prev.totalWagered + effectiveBet,
+      netProfit: prev.netProfit - effectiveBet,
+    }));
+
     const canvas = canvasRef.current;
     const width = canvas ? canvas.getBoundingClientRect().width : 600;
-    const startX = width / 2 + (Math.random() - 0.5) * 6; // Slight jitter at drop hole
-    const startY = 32;
+    const startX = width / 2 + (Math.random() - 0.5) * 5;
+    const startY = 24;
 
-    const colors = ["#00e701", "#ffffff", "#38bdf8", "#facc15"];
-    const chosenColor = colors[Math.floor(Math.random() * colors.length)];
+    const ballColors = ["#38bdf8", "#00e701", "#ffffff", "#facc15", "#f43f5e"];
+    const chosenColor = ballColors[Math.floor(Math.random() * ballColors.length)];
 
     ballsRef.current.push({
       id: nextBallIdRef.current++,
       x: startX,
       y: startY,
-      vx: (Math.random() - 0.5) * 1.5,
-      vy: Math.random() * 0.5,
+      vx: (Math.random() - 0.5) * 1.6,
+      vy: Math.random() * 0.6,
       radius: 5.5,
       betAmount: effectiveBet,
       color: chosenColor,
@@ -207,44 +307,61 @@ export default function PlinkoGame() {
     });
   }, [balance, betAmount, betInput, updateBalance]);
 
-  // Autobet interval loop
+  // Handle Bet Button Action
+  const handleBetAction = () => {
+    if (mode === "manual") {
+      dropBall();
+    } else {
+      if (autoBetting) {
+        setAutoBetting(false);
+      } else {
+        setAutoBetCount(0);
+        setAutoBetting(true);
+      }
+    }
+  };
+
+  // Auto-Bet Loop
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
     if (autoBetting) {
+      const speed = fastDrop ? 200 : 350;
       interval = setInterval(() => {
-        dropBall();
-      }, 350);
+        setAutoBetCount((cnt) => {
+          if (autoBetLimit > 0 && cnt >= autoBetLimit) {
+            setAutoBetting(false);
+            return cnt;
+          }
+          dropBall();
+          return cnt + 1;
+        });
+      }, speed);
     }
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [autoBetting, dropBall]);
+  }, [autoBetting, autoBetLimit, dropBall, fastDrop]);
 
-  // Spacebar to drop ball
+  // Spacebar hotkey
   useEffect(() => {
+    if (!hotkeysEnabled) return;
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.code === "Space" && e.target === document.body) {
+      if (
+        e.code === "Space" &&
+        e.target instanceof HTMLElement &&
+        e.target.tagName !== "INPUT" &&
+        e.target.tagName !== "SELECT"
+      ) {
         e.preventDefault();
         dropBall();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [dropBall]);
-
-  // Get bucket color based on multiplier value
-  const getBucketColor = (mult: number) => {
-    if (mult >= 100) return { bg: "#dc2626", text: "#ffffff", border: "#ef4444" };
-    if (mult >= 20) return { bg: "#ea580c", text: "#ffffff", border: "#f97316" };
-    if (mult >= 5) return { bg: "#f59e0b", text: "#0f212e", border: "#fbbf24" };
-    if (mult >= 2) return { bg: "#eab308", text: "#0f212e", border: "#fde047" };
-    if (mult >= 1) return { bg: "#84cc16", text: "#0f212e", border: "#a3e635" };
-    if (mult >= 0.5) return { bg: "#2563eb", text: "#ffffff", border: "#3b82f6" };
-    return { bg: "#1e293b", text: "#94a3b8", border: "#334155" };
-  };
+  }, [dropBall, hotkeysEnabled]);
 
   // -------------------------------------------------------------
-  // 60 FPS HTML5 CANVAS PHYSICS & RENDERING ENGINE
+  // HTML5 CANVAS PHYSICS & MULTIPLIER PYRAMID
   // -------------------------------------------------------------
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -257,13 +374,13 @@ export default function PlinkoGame() {
     // Generate Pegs coordinates
     const generatePegs = (w: number, h: number) => {
       const pegs: Peg[] = [];
-      const startY = 60;
-      const bottomY = h - 68;
+      const startY = 46;
+      const bottomY = h - 64;
       const spacingY = (bottomY - startY) / (rows + 1);
 
       for (let r = 0; r < rows; r++) {
         const count = r + 3;
-        const spacingX = Math.min(36, (w - 60) / (rows + 2));
+        const spacingX = Math.min(36, (w - 32) / (rows + 2));
         const rowWidth = (count - 1) * spacingX;
         const startX = (w - rowWidth) / 2;
         const y = startY + (r + 1) * spacingY;
@@ -272,7 +389,7 @@ export default function PlinkoGame() {
           pegs.push({
             x: startX + c * spacingX,
             y: y,
-            radius: 3.5,
+            radius: Math.max(2.6, Math.min(4, spacingX * 0.16)),
             pulse: 0,
           });
         }
@@ -297,26 +414,26 @@ export default function PlinkoGame() {
       ctx.save();
       ctx.scale(dpr, dpr);
 
-      // Clear Canvas
+      // Arena Background
       ctx.fillStyle = "#0f212e";
       ctx.fillRect(0, 0, width, height);
 
-      // Subtle background grid
-      ctx.strokeStyle = "#21374333";
+      // Subtle Background Grid
+      ctx.strokeStyle = "#21374326";
       ctx.lineWidth = 1;
-      for (let y = 40; y < height; y += 40) {
+      for (let y = 30; y < height; y += 35) {
         ctx.beginPath();
         ctx.moveTo(0, y);
         ctx.lineTo(width, y);
         ctx.stroke();
       }
 
-      // Draw Top Center Drop Funnel
+      // Top Drop Funnel
       ctx.beginPath();
-      ctx.arc(width / 2, 24, 12, 0, Math.PI);
+      ctx.arc(width / 2, 16, 14, 0, Math.PI);
       ctx.fillStyle = "#1a2c38";
       ctx.fill();
-      ctx.strokeStyle = "#00e701";
+      ctx.strokeStyle = "#38bdf8";
       ctx.lineWidth = 2;
       ctx.stroke();
 
@@ -324,15 +441,15 @@ export default function PlinkoGame() {
       for (let i = 0; i < pegsRef.current.length; i++) {
         const peg = pegsRef.current[i];
         if (peg.pulse > 0) {
-          peg.pulse = Math.max(0, peg.pulse - 0.05);
+          peg.pulse = Math.max(0, peg.pulse - 0.06);
         }
 
         ctx.beginPath();
         ctx.arc(peg.x, peg.y, peg.radius + peg.pulse * 2.5, 0, Math.PI * 2);
         if (peg.pulse > 0) {
           ctx.fillStyle = "#ffffff";
-          ctx.shadowColor = "#00e701";
-          ctx.shadowBlur = 10;
+          ctx.shadowColor = "#38bdf8";
+          ctx.shadowBlur = 12;
         } else {
           ctx.fillStyle = "#94a3b8";
           ctx.shadowBlur = 0;
@@ -342,16 +459,15 @@ export default function PlinkoGame() {
       }
 
       // Physics Constants
-      const gravity = 0.22;
+      const gravity = fastDrop ? 0.35 : 0.23;
       const bounce = 0.58;
       const friction = 0.99;
-      const bottomLimit = height - 58;
+      const bottomLimit = height - 52;
 
       // Update & Draw Balls
       for (let i = ballsRef.current.length - 1; i >= 0; i--) {
         const b = ballsRef.current[i];
 
-        // Apply forces
         b.vy += gravity;
         b.vx *= friction;
         b.vy *= friction;
@@ -359,12 +475,12 @@ export default function PlinkoGame() {
         b.x += b.vx;
         b.y += b.vy;
 
-        // Wall collisions
-        if (b.x < b.radius + 6) {
-          b.x = b.radius + 6;
+        // Side walls
+        if (b.x < b.radius + 4) {
+          b.x = b.radius + 4;
           b.vx = -b.vx * bounce;
-        } else if (b.x > width - b.radius - 6) {
-          b.x = width - b.radius - 6;
+        } else if (b.x > width - b.radius - 4) {
+          b.x = width - b.radius - 4;
           b.vx = -b.vx * bounce;
         }
 
@@ -380,49 +496,52 @@ export default function PlinkoGame() {
             const nx = dx / (dist || 1);
             const ny = dy / (dist || 1);
 
-            // Normal impulse with slight randomized deflect
             const dot = b.vx * nx + b.vy * ny;
             if (dot < 0) {
               const impulse = -(1 + bounce) * dot;
-              b.vx += impulse * nx + (Math.random() - 0.5) * 0.4;
+              b.vx += impulse * nx + (Math.random() - 0.5) * 0.45;
               b.vy += impulse * ny;
             }
 
-            // Separate overlapping
             b.x = peg.x + nx * minDist;
             b.y = peg.y + ny * minDist;
-
             peg.pulse = 1.0;
 
-            // Audio trigger on collision (throttled to 35ms)
             const now = performance.now();
-            if (now - lastPegSoundTimeRef.current > 35) {
+            if (now - lastPegSoundTimeRef.current > 30) {
               sounds.playPeg();
               lastPegSoundTimeRef.current = now;
             }
           }
         }
 
-        // Check if ball lands in bottom bucket
+        // Ball Landing in Bottom Bucket
         if (b.y >= bottomLimit && !b.hasLanded) {
           b.hasLanded = true;
 
-          // Determine bucket index
-          const count = rows + 1;
-          const spacingX = Math.min(36, (width - 60) / (rows + 2));
-          const totalWidth = count * spacingX;
+          const bucketCount = rows + 1;
+          const spacingX = Math.min(36, (width - 32) / (rows + 2));
+          const totalWidth = bucketCount * spacingX;
           const startX = (width - totalWidth) / 2;
           const relativeX = b.x - startX;
           let bucketIdx = Math.floor(relativeX / spacingX);
-          bucketIdx = Math.max(0, Math.min(count - 1, bucketIdx));
+          bucketIdx = Math.max(0, Math.min(bucketCount - 1, bucketIdx));
 
           const multiplier = currentMultipliers[bucketIdx] ?? 1.0;
           const payout = parseFloat((b.betAmount * multiplier).toFixed(2));
 
-          // Credit Demo Balance
+          // Credit Balance
           updateBalance(payout);
 
-          // Audio chime
+          // Update Stats
+          setStats((prev) => ({
+            ...prev,
+            totalWon: prev.totalWon + payout,
+            netProfit: prev.netProfit + payout,
+            bestMultiplier: Math.max(prev.bestMultiplier, multiplier),
+          }));
+
+          // Audio
           sounds.playBucket(multiplier);
 
           // Highlight bucket
@@ -434,23 +553,23 @@ export default function PlinkoGame() {
             ...prev.slice(0, 6),
           ]);
 
-          // Floating Payout Text
+          // Floating payout text
           payoutsRef.current.push({
             id: Date.now() + Math.random(),
             x: b.x,
-            y: bottomLimit - 10,
-            text: `+${multiplier}x ($${payout.toFixed(2)})`,
+            y: bottomLimit - 12,
+            text: `+${multiplier}x (${activeSym}${payout.toFixed(2)})`,
             alpha: 1.0,
           });
 
-          // Big Win Confetti
+          // Big Win Celebration
           if (multiplier >= 10) {
             try {
               confetti({
-                particleCount: 50,
-                spread: 60,
-                origin: { y: 0.8 },
-                colors: ["#00e701", "#f59e0b", "#ffffff"],
+                particleCount: multiplier >= 100 ? 100 : 50,
+                spread: 70,
+                origin: { y: 0.75 },
+                colors: ["#38bdf8", "#00e701", "#f59e0b", "#a855f7", "#ffffff"],
               });
             } catch {
               // ignore
@@ -476,7 +595,7 @@ export default function PlinkoGame() {
       for (let pIdx = payoutsRef.current.length - 1; pIdx >= 0; pIdx--) {
         const fp = payoutsRef.current[pIdx];
         fp.y -= 0.8;
-        fp.alpha -= 0.02;
+        fp.alpha -= 0.022;
 
         if (fp.alpha <= 0) {
           payoutsRef.current.splice(pIdx, 1);
@@ -484,28 +603,30 @@ export default function PlinkoGame() {
         }
 
         ctx.save();
-        ctx.fillStyle = `rgba(0, 231, 1, ${fp.alpha})`;
+        ctx.fillStyle = `rgba(56, 189, 248, ${fp.alpha})`;
         ctx.font = "bold 11px monospace";
         ctx.textAlign = "center";
-        ctx.shadowColor = "#00e701";
+        ctx.shadowColor = "#38bdf8";
         ctx.shadowBlur = 6;
         ctx.fillText(fp.text, fp.x, fp.y);
         ctx.restore();
       }
 
-      // Draw Bottom Multiplier Buckets
+      // ---------------------------------------------------------
+      // Draw Dynamic Bottom Multiplier Buckets
+      // ---------------------------------------------------------
       const bucketCount = rows + 1;
-      const bucketSpacing = Math.min(36, (width - 60) / (rows + 2));
+      const bucketSpacing = Math.min(36, (width - 32) / (rows + 2));
       const totalBucketWidth = bucketCount * bucketSpacing;
       const bucketStartX = (width - totalBucketWidth) / 2;
-      const bucketY = height - 48;
-      const bucketHeight = 32;
+      const bucketY = height - 44;
+      const bucketHeight = 28;
 
       for (let bIdx = 0; bIdx < bucketCount; bIdx++) {
-        const bx = bucketStartX + bIdx * bucketSpacing + 1.5;
-        const bw = bucketSpacing - 3;
+        const bx = bucketStartX + bIdx * bucketSpacing + 1;
+        const bw = bucketSpacing - 2;
         const mult = currentMultipliers[bIdx] ?? 1.0;
-        const style = getBucketColor(mult);
+        const style = getBucketColorGrading(bIdx, bucketCount);
 
         const isHit =
           activeBucketIndex &&
@@ -514,28 +635,35 @@ export default function PlinkoGame() {
 
         ctx.save();
         ctx.beginPath();
-        const r = 5;
+        const r = 4;
         ctx.roundRect(bx, bucketY - (isHit ? 4 : 0), bw, bucketHeight + (isHit ? 4 : 0), [r]);
         ctx.fillStyle = isHit ? "#ffffff" : style.bg;
         if (isHit) {
-          ctx.shadowColor = "#00e701";
-          ctx.shadowBlur = 14;
+          ctx.shadowColor = style.shadow;
+          ctx.shadowBlur = 16;
         }
         ctx.fill();
-        ctx.strokeStyle = isHit ? "#00e701" : style.border;
-        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = isHit ? "#ffffff" : style.border;
+        ctx.lineWidth = 1.2;
         ctx.stroke();
 
-        // Multiplier Text inside Bucket
+        // Multiplier Text
         ctx.fillStyle = isHit ? "#0f212e" : style.text;
-        ctx.font = `bold ${bw < 28 ? "9px" : "11px"} monospace`;
+        const fontSize = bw < 20 ? "8px" : bw < 26 ? "9px" : "11px";
+        ctx.font = `bold ${fontSize} monospace`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText(
-          mult >= 100 ? `${mult}` : `${mult}x`,
-          bx + bw / 2,
-          bucketY + bucketHeight / 2 - (isHit ? 2 : 0)
-        );
+
+        const label =
+          mult >= 10000
+            ? "10K"
+            : mult >= 1000
+            ? "1K"
+            : mult >= 100
+            ? `${mult}`
+            : `${mult}x`;
+
+        ctx.fillText(label, bx + bw / 2, bucketY + bucketHeight / 2 - (isHit ? 2 : 0));
         ctx.restore();
       }
 
@@ -552,7 +680,7 @@ export default function PlinkoGame() {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [rows, currentMultipliers, activeBucketIndex, updateBalance]);
+  }, [rows, currentMultipliers, activeBucketIndex, updateBalance, fastDrop, activeSym]);
 
   // Copy helper
   const copyToClipboard = (text: string, field: string) => {
@@ -561,35 +689,74 @@ export default function PlinkoGame() {
     setTimeout(() => setCopiedField(null), 1800);
   };
 
+  // Toggle favorite
+  const toggleFavorite = () => {
+    if (isFavorited) {
+      setIsFavorited(false);
+      setFavoriteCount((c) => c - 1);
+    } else {
+      setIsFavorited(true);
+      setFavoriteCount((c) => c + 1);
+    }
+  };
+
+  // Recommended Games for Carousel
+  const recommendedGames = useMemo(() => {
+    const list = [
+      { id: "mines", title: "Mines", slug: "mines", category: "Originals", players: "8,920" },
+      { id: "crash", title: "Crash", slug: "crash", category: "Originals", players: "12,410" },
+      { id: "limbo", title: "Limbo", slug: "limbo", category: "Originals", players: "6,840" },
+      { id: "dice", title: "Dice", slug: "dice", category: "Originals", players: "9,300" },
+      { id: "keno", title: "Keno", slug: "keno", category: "Originals", players: "4,150" },
+      { id: "roulette", title: "Roulette", slug: "roulette", category: "Originals", players: "7,820" },
+      { id: "dragon-tiger", title: "Dragon Tiger", slug: "dragon-tiger", category: "Live", players: "5,290" },
+      { id: "7-up-7-down", title: "7 Up 7 Down", slug: "7-up-7-down", category: "Indian Cards", players: "6,110" },
+      { id: "andar-bahar", title: "Andar Bahar", slug: "andar-bahar", category: "Indian Cards", players: "8,430" },
+    ];
+    return list.map((g) => {
+      const orig = STAKE_ORIGINALS.find((o) => o.slug === g.slug || o.id === g.id);
+      return {
+        ...g,
+        image: GAME_THUMBNAILS[g.slug] || orig?.image || `/games/${g.slug}.webp`,
+      };
+    });
+  }, []);
+
   return (
     <div
-      className={`w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-4 select-none space-y-4 ${
+      className={`w-full max-w-5xl mx-auto px-2 sm:px-4 py-4 select-none space-y-4 ${
         isFullscreen ? "fixed inset-0 z-50 bg-[#0f212e] overflow-y-auto p-4 max-w-none" : ""
       }`}
     >
-      {/* Top Header & Navigation */}
-      <div className="flex items-center justify-between">
+      {/* ======================================================== */}
+      {/* TOP HEADER: Back Link & History Strip                    */}
+      {/* ======================================================== */}
+      <div className="flex items-center justify-between gap-3">
         <Link
           href="/"
-          className="flex items-center gap-2 text-xs font-bold text-[#b1bad3] hover:text-white transition-colors"
+          className="flex items-center gap-2 text-xs font-bold text-[#b1bad3] hover:text-white transition-colors shrink-0"
         >
           <ArrowLeft className="h-4 w-4" />
-          <span>Back to Casino Lobby</span>
+          <span className="hidden sm:inline">Back to Casino Lobby</span>
+          <span className="sm:hidden">Lobby</span>
         </Link>
 
-        {/* Live Multiplier History Strip (Last 7 Balls) */}
-        <div className="flex items-center gap-1.5 overflow-x-auto">
-          <span className="text-[11px] font-bold text-[#b1bad3] uppercase tracking-wider hidden sm:inline mr-1">
-            History:
+        {/* Live Multiplier History Chips */}
+        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1">
+          <span className="text-[10px] font-bold text-[#b1bad3] uppercase tracking-wider hidden md:inline mr-1 shrink-0">
+            Recent:
           </span>
           {history.map((h) => {
             const isHigh = h.multiplier >= 2.0;
+            const isExtreme = h.multiplier >= 10.0;
             return (
               <span
                 key={h.id}
-                className={`rounded-lg px-2 py-0.5 text-xs font-mono font-bold border transition-colors ${
-                  isHigh
-                    ? "bg-[#00e701]/15 text-[#00e701] border-[#00e701]/30 shadow-sm"
+                className={`rounded-lg px-2 py-0.5 text-xs font-mono font-bold border transition-colors shrink-0 ${
+                  isExtreme
+                    ? "bg-purple-500/20 text-purple-300 border-purple-500/40 shadow-sm"
+                    : isHigh
+                    ? "bg-[#00e701]/15 text-[#00e701] border-[#00e701]/30"
                     : "bg-[#213743] text-[#b1bad3] border-[#2f4553]"
                 }`}
               >
@@ -600,231 +767,319 @@ export default function PlinkoGame() {
         </div>
       </div>
 
-      {/* Main 2-Panel Game Container */}
-      <div className="rounded-2xl border border-[#213743] bg-[#1a2c38] shadow-2xl overflow-hidden flex flex-col-reverse lg:flex-row">
+      {/* ======================================================== */}
+      {/* MAIN GAME CONTAINER: MOBILE-FIRST LAYOUT                */}
+      {/* 1. Canvas Arena placed AT THE TOP                       */}
+      {/* 2. Dedicated Betting Controls DIRECTLY BENEATH          */}
+      {/* ======================================================== */}
+      <div className="rounded-2xl border border-[#213743] bg-[#1a2c38] shadow-2xl overflow-hidden flex flex-col">
         {/* ======================================================== */}
-        {/* 1. BETTING CONTROLS (Left Panel on Desktop / Bottom on Mobile) */}
-        {/* ======================================================== */}
-        <div className="w-full lg:w-[320px] shrink-0 border-t lg:border-t-0 lg:border-r border-[#213743] bg-[#1a2c38] p-4 sm:p-5 flex flex-col justify-start space-y-4">
-          {/* [Section 2 - Directly below Game Screen]: PRIMARY ACTION BUTTON */}
-          <div className="w-full">
-            <button
-              onClick={() => dropBall()}
-              disabled={betAmount > balance || betAmount <= 0}
-              className="w-full py-4 text-base font-extrabold rounded-lg bg-[#00e701] text-black shadow-md hover:brightness-110 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <CircleDot className="h-5 w-5 fill-current" />
-              <span>Bet</span>
-            </button>
-          </div>
-
-          {/* [Section 3]: Betting Inputs & Modifiers */}
-          <div className="space-y-4">
-            {/* Bet Amount Input with Quick Math Buttons */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between text-xs font-bold text-[#b1bad3]">
-                <span>Bet Amount</span>
-                <span className="font-mono text-[#00e701]">
-                  {activeSym}{formatBalance(balance)}
-                </span>
-              </div>
-              <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] p-1 focus-within:border-[#00e701] transition-colors">
-                <span className="px-2 text-sm font-bold text-[#00e701]">{activeSym}</span>
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  value={betInput}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
-                      setBetInput(val);
-                      if (val !== "" && !isNaN(parseFloat(val))) {
-                        setBetAmount(parseFloat(val));
-                      }
-                    }
-                  }}
-                  onBlur={() => {
-                    if (betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0) {
-                      setBetInput("1");
-                      setBetAmount(1);
-                    } else {
-                      const num = parseFloat(betInput);
-                      setBetInput(num.toString());
-                      setBetAmount(num);
-                    }
-                  }}
-                  className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono"
-                />
-                <button
-                  type="button"
-                  onClick={handleHalfBet}
-                  className="rounded-lg px-2 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors"
-                >
-                  ½
-                </button>
-                <button
-                  type="button"
-                  onClick={handleDoubleBet}
-                  className="rounded-lg px-2 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors"
-                >
-                  2×
-                </button>
-                <button
-                  type="button"
-                  onClick={handleMaxBet}
-                  className="rounded-lg px-2 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors"
-                >
-                  Max
-                </button>
-              </div>
-            </div>
-
-            {/* Risk Selector Tabs */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-[#b1bad3]">Risk</label>
-              <div className="grid grid-cols-3 gap-2 rounded-xl bg-[#0f212e] p-1 border border-[#213743]">
-                {(["low", "medium", "high"] as const).map((r) => (
-                  <button
-                    key={r}
-                    type="button"
-                    onClick={() => {
-                      sounds.playClick();
-                      setRisk(r);
-                    }}
-                    className={`rounded-lg py-2 text-xs font-bold capitalize transition-all ${
-                      risk === r
-                        ? "bg-[#213743] text-[#00e701] shadow-sm border border-[#00e701]/30"
-                        : "text-[#b1bad3] hover:text-white"
-                    }`}
-                  >
-                    {r}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Rows Selector (8 to 16 rows) */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between text-xs font-bold text-[#b1bad3]">
-                <span>Rows</span>
-                <span className="text-white font-mono">{rows}</span>
-              </div>
-              <select
-                value={rows}
-                onChange={(e) => {
-                  sounds.playClick();
-                  setRows(parseInt(e.target.value));
-                }}
-                className="w-full rounded-xl border border-[#213743] bg-[#0f212e] px-3 py-2.5 text-xs font-bold text-white focus:border-[#00e701] focus:outline-none cursor-pointer"
-              >
-                {[8, 10, 12, 14, 16].map((cnt) => (
-                  <option key={cnt} value={cnt} className="bg-[#1a2c38]">
-                    {cnt} Rows ({cnt + 1} Buckets)
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Autobet Toggle */}
-            <div className="rounded-xl border border-[#213743] bg-[#0f212e] p-3 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <RefreshCw className={`h-4 w-4 ${autoBetting ? "text-[#00e701] animate-spin" : "text-[#b1bad3]"}`} />
-                <span className="text-xs font-bold text-white">Auto Drop</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setAutoBetting(!autoBetting)}
-                className={`rounded-lg px-3 py-1 text-xs font-bold transition-colors ${
-                  autoBetting
-                    ? "bg-red-500/20 text-red-400 border border-red-500/30"
-                    : "bg-[#213743] text-white hover:bg-[#2f4553]"
-                }`}
-              >
-                {autoBetting ? "Stop" : "Start"}
-              </button>
-            </div>
-
-            {/* Multiplier Range Preview */}
-            <div className="rounded-xl border border-[#213743] bg-[#0f212e] p-3 space-y-1 text-xs text-[#b1bad3]">
-              <div className="flex justify-between">
-                <span>Min Multiplier</span>
-                <span className="text-white font-mono font-bold">
-                  {Math.min(...currentMultipliers)}x
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span>Max Multiplier</span>
-                <span className="text-[#00e701] font-mono font-bold">
-                  {Math.max(...currentMultipliers)}x
-                </span>
-              </div>
-            </div>
-          </div>
-
-
-        </div>
-
-        {/* ======================================================== */}
-        {/* 2. PLINKO CANVAS ARENA (Right Panel on Desktop / Top on Mobile) */}
+        {/* PART 1: PLINKO CANVAS ARENA (TOP)                        */}
         {/* ======================================================== */}
         <div
           ref={containerRef}
-          className="flex-1 bg-[#0f212e] p-4 sm:p-6 lg:p-8 flex flex-col items-center justify-between min-h-[480px] sm:min-h-[580px] relative overflow-hidden"
+          className="w-full bg-[#0f212e] p-3 sm:p-5 flex flex-col items-center justify-between min-h-[460px] sm:min-h-[520px] relative overflow-hidden"
         >
-          {/* Top Status Bar in Arena */}
+          {/* Top Status Bar inside Canvas */}
           <div className="w-full flex items-center justify-between z-10">
             <div className="flex items-center gap-2 text-xs font-bold text-[#b1bad3]">
-              <span className="flex h-2 w-2 rounded-full bg-[#00e701] animate-pulse" />
-              <span>Provably Fair Physics</span>
+              <span className="flex h-2 w-2 rounded-full bg-[#38bdf8] animate-pulse" />
+              <span className="text-white">Provably Fair Physics</span>
             </div>
 
-            <div className="flex items-center gap-2 rounded-lg bg-[#1a2c38] px-2.5 py-1 border border-[#213743] text-xs font-bold">
-              <Layers className="h-3.5 w-3.5 text-[#00e701]" />
-              <span className="text-[#b1bad3]">{rows} Rows</span>
-            </div>
-          </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-[#b1bad3] bg-[#1a2c38] px-2.5 py-1 rounded-lg border border-[#213743] flex items-center gap-1.5">
+                <Layers className="h-3.5 w-3.5 text-[#38bdf8]" />
+                <span>{rows} Rows</span>
+              </span>
 
-          {/* Real-time HTML5 2D Physics Canvas */}
-          <canvas
-            ref={canvasRef}
-            className="w-full h-full min-h-[420px] sm:min-h-[500px]"
-          />
-
-          {/* Bottom Game Utilities Bar */}
-          <div className="w-full flex items-center justify-between border-t border-[#213743] pt-3 z-10">
-            {/* Provably Fair Modal Trigger */}
-            <button
-              onClick={() => setIsFairnessOpen(true)}
-              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold text-[#b1bad3] hover:text-white hover:bg-[#1a2c38] transition-colors"
-            >
-              <ShieldCheck className="h-4 w-4 text-[#00e701]" />
-              <span>Fairness</span>
-            </button>
-
-            {/* Sound & Screen Controls */}
-            <div className="flex items-center gap-1.5">
               <button
                 onClick={toggleSound}
                 title={isMuted ? "Unmute Audio" : "Mute Audio"}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-[#b1bad3] hover:text-white hover:bg-[#1a2c38] transition-colors"
+                className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1a2c38] border border-[#213743] text-[#b1bad3] hover:text-white transition-colors"
               >
                 {isMuted ? (
-                  <VolumeX className="h-4 w-4 text-red-400" />
+                  <VolumeX className="h-3.5 w-3.5 text-red-400" />
                 ) : (
-                  <Volume2 className="h-4 w-4 text-[#00e701]" />
+                  <Volume2 className="h-3.5 w-3.5 text-[#38bdf8]" />
                 )}
               </button>
 
               <button
                 onClick={() => setIsFullscreen(!isFullscreen)}
                 title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-[#b1bad3] hover:text-white hover:bg-[#1a2c38] transition-colors"
+                className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1a2c38] border border-[#213743] text-[#b1bad3] hover:text-white transition-colors"
               >
                 {isFullscreen ? (
-                  <Minimize2 className="h-4 w-4" />
+                  <Minimize2 className="h-3.5 w-3.5" />
                 ) : (
-                  <Maximize2 className="h-4 w-4" />
+                  <Maximize2 className="h-3.5 w-3.5" />
                 )}
+              </button>
+            </div>
+          </div>
+
+          {/* Real-time HTML5 2D Canvas */}
+          <canvas
+            ref={canvasRef}
+            className="w-full h-full min-h-[400px] sm:min-h-[460px] flex-1 my-1"
+          />
+        </div>
+
+        {/* ======================================================== */}
+        {/* PART 2: DEDICATED BETTING CONTROLS BOX (DIRECTLY BENEATH) */}
+        {/* ======================================================== */}
+        <div className="w-full border-t border-[#213743] bg-[#1a2c38] p-4 sm:p-5 space-y-4">
+          {/* PRIMARY ACTION: Full-Width Vibrant Blue Bet Button */}
+          <button
+            onClick={handleBetAction}
+            disabled={betAmount > balance || betAmount <= 0}
+            className={`w-full py-3.5 sm:py-4 text-base font-black rounded-xl text-white shadow-lg shadow-blue-500/20 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer ${
+              autoBetting
+                ? "bg-red-600 hover:bg-red-700 shadow-red-500/20"
+                : "bg-[#1475e1] hover:bg-[#1065c7]"
+            }`}
+          >
+            {autoBetting ? (
+              <>
+                <RefreshCw className="h-5 w-5 animate-spin" />
+                <span>Stop Auto Bet ({autoBetCount})</span>
+              </>
+            ) : mode === "auto" ? (
+              <>
+                <Zap className="h-5 w-5 fill-current" />
+                <span>Start Auto Bet</span>
+              </>
+            ) : (
+              <>
+                <CircleDot className="h-5 w-5 fill-current" />
+                <span>Bet</span>
+              </>
+            )}
+          </button>
+
+          {/* Betting Mode Switcher: Segmented Pill [ Manual | Auto ] */}
+          <div className="grid grid-cols-2 rounded-xl bg-[#0f212e] p-1 border border-[#213743]">
+            <button
+              type="button"
+              onClick={() => {
+                sounds.playClick();
+                setMode("manual");
+                setAutoBetting(false);
+              }}
+              className={`py-2 text-xs font-bold rounded-lg transition-all ${
+                mode === "manual"
+                  ? "bg-[#213743] text-white shadow-sm"
+                  : "text-[#b1bad3] hover:text-white"
+              }`}
+            >
+              Manual
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                sounds.playClick();
+                setMode("auto");
+              }}
+              className={`py-2 text-xs font-bold rounded-lg transition-all ${
+                mode === "auto"
+                  ? "bg-[#213743] text-white shadow-sm"
+                  : "text-[#b1bad3] hover:text-white"
+              }`}
+            >
+              Auto
+            </button>
+          </div>
+
+          {/* Bet Amount Row: Input Field with Quick '½' and '2x' Buttons */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between text-xs font-bold text-[#b1bad3]">
+              <span>Bet Amount</span>
+              <span className="font-mono text-[#38bdf8]">
+                {activeSym}{formatBalance(balance)}
+              </span>
+            </div>
+            <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] p-1 focus-within:border-[#1475e1] transition-colors">
+              <span className="px-2.5 text-sm font-bold text-[#38bdf8]">{activeSym}</span>
+              <input
+                type="text"
+                inputMode="decimal"
+                value={betInput}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  // Allow clean backspacing/empty string without sticky digits
+                  if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                    setBetInput(val);
+                    if (val !== "" && !isNaN(parseFloat(val))) {
+                      setBetAmount(parseFloat(val));
+                    }
+                  }
+                }}
+                onBlur={() => {
+                  if (betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0) {
+                    setBetInput("1");
+                    setBetAmount(1);
+                  } else {
+                    const num = parseFloat(betInput);
+                    setBetInput(num.toString());
+                    setBetAmount(num);
+                  }
+                }}
+                className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono"
+              />
+              <button
+                type="button"
+                onClick={handleHalfBet}
+                className="rounded-lg px-2.5 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors"
+              >
+                ½
+              </button>
+              <button
+                type="button"
+                onClick={handleDoubleBet}
+                className="rounded-lg px-2.5 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors"
+              >
+                2×
+              </button>
+              <button
+                type="button"
+                onClick={handleMaxBet}
+                className="rounded-lg px-2.5 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors"
+              >
+                Max
+              </button>
+            </div>
+          </div>
+
+          {/* Selectors Grid: Difficulty Dropdown & Rows Dropdown */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* Difficulty Dropdown [Low, Medium, High, Expert] */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-[#b1bad3]">Difficulty</label>
+              <div className="relative">
+                <select
+                  value={difficulty}
+                  onChange={(e) => {
+                    sounds.playClick();
+                    setDifficulty(e.target.value as PlinkoDifficulty);
+                  }}
+                  className="w-full appearance-none rounded-xl border border-[#213743] bg-[#0f212e] px-3.5 py-2.5 text-xs font-bold text-white capitalize focus:border-[#1475e1] focus:outline-none cursor-pointer"
+                >
+                  <option value="low" className="bg-[#1a2c38]">Low Risk</option>
+                  <option value="medium" className="bg-[#1a2c38]">Medium Risk</option>
+                  <option value="high" className="bg-[#1a2c38]">High Risk</option>
+                  <option value="expert" className="bg-[#1a2c38]">Expert Risk (10,000x Max)</option>
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3 top-3 h-4 w-4 text-[#b1bad3]" />
+              </div>
+            </div>
+
+            {/* Rows Dropdown (8 to 16 Rows) */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-[#b1bad3]">Rows (Pyramid Depth)</label>
+              <div className="relative">
+                <select
+                  value={rows}
+                  onChange={(e) => {
+                    sounds.playClick();
+                    setRows(parseInt(e.target.value));
+                  }}
+                  className="w-full appearance-none rounded-xl border border-[#213743] bg-[#0f212e] px-3.5 py-2.5 text-xs font-bold text-white focus:border-[#1475e1] focus:outline-none cursor-pointer"
+                >
+                  {[8, 9, 10, 11, 12, 13, 14, 15, 16].map((cnt) => (
+                    <option key={cnt} value={cnt} className="bg-[#1a2c38]">
+                      {cnt} Rows ({cnt + 1} Multipliers)
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3 top-3 h-4 w-4 text-[#b1bad3]" />
+              </div>
+            </div>
+          </div>
+
+          {/* Auto Mode Custom Inputs */}
+          {mode === "auto" && (
+            <div className="grid grid-cols-2 gap-3 pt-1 border-t border-[#213743]/50">
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-[#b1bad3]">Number of Bets</label>
+                <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] px-3 py-1.5">
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="∞"
+                    value={autoBetLimit === 0 ? "" : autoBetLimit}
+                    onChange={(e) => setAutoBetLimit(parseInt(e.target.value) || 0)}
+                    className="w-full bg-transparent text-xs font-bold text-white font-mono focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setAutoBetLimit(0)}
+                    className="text-[10px] font-bold text-[#38bdf8] hover:underline"
+                  >
+                    ∞
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-[#b1bad3]">Active Run Bets</label>
+                <div className="rounded-xl border border-[#213743] bg-[#0f212e] px-3 py-2 text-xs font-bold font-mono text-white">
+                  {autoBetCount} / {autoBetLimit === 0 ? "∞" : autoBetLimit}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Multiplier Spectrum Preview Strip */}
+          <div className="flex items-center justify-between rounded-xl bg-[#0f212e] px-3.5 py-2.5 border border-[#213743] text-xs">
+            <div className="flex items-center gap-1.5 text-[#b1bad3]">
+              <span className="text-[11px] uppercase tracking-wider font-bold">Center:</span>
+              <span className="font-mono font-bold text-cyan-400">
+                {Math.min(...currentMultipliers)}x
+              </span>
+            </div>
+
+            <div className="flex items-center gap-1.5 text-[#b1bad3]">
+              <span className="text-[11px] uppercase tracking-wider font-bold">Max Edge:</span>
+              <span className="font-mono font-bold text-purple-400 text-sm">
+                {Math.max(...currentMultipliers) >= 1000
+                  ? `${(Math.max(...currentMultipliers) / 1000).toFixed(0)}K`
+                  : Math.max(...currentMultipliers)}
+                x
+              </span>
+            </div>
+          </div>
+
+          {/* Footer Bar of Controls: Fairness, Settings, Live Stats */}
+          <div className="flex items-center justify-between border-t border-[#213743] pt-3">
+            {/* Verifiable Fairness Trigger */}
+            <button
+              type="button"
+              onClick={() => setIsFairnessOpen(true)}
+              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:text-white hover:bg-[#213743] transition-colors"
+            >
+              <ShieldCheck className="h-4 w-4 text-[#38bdf8]" />
+              <span>Fairness</span>
+            </button>
+
+            {/* Quick Action Icons */}
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setIsStatsOpen(true)}
+                title="Live Stats"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-[#b1bad3] hover:text-white hover:bg-[#213743] transition-colors"
+              >
+                <BarChart2 className="h-4 w-4" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsSettingsOpen(true)}
+                title="Plinko Settings"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-[#b1bad3] hover:text-white hover:bg-[#213743] transition-colors"
+              >
+                <Settings className="h-4 w-4" />
               </button>
             </div>
           </div>
@@ -832,20 +1087,171 @@ export default function PlinkoGame() {
       </div>
 
       {/* ======================================================== */}
-      {/* 3. PROVABLY FAIR MODAL */}
+      {/* PART 3: GAME DETAILS & CATEGORY CARD (BELOW CONTROLS)    */}
+      {/* ======================================================== */}
+      <div className="rounded-2xl border border-[#213743] bg-[#1a2c38] p-4 sm:p-5 space-y-4 shadow-xl">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#213743] pb-4">
+          <div className="flex items-center gap-3">
+            <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
+              <CircleDot className="h-6 w-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-lg font-black text-white">Plinko</h1>
+                <span className="rounded-full bg-blue-500/20 border border-blue-500/30 px-2 py-0.5 text-[10px] font-black tracking-wider text-blue-400 uppercase">
+                  Originals
+                </span>
+                <span className="rounded-full bg-emerald-500/20 border border-emerald-500/30 px-2 py-0.5 text-[10px] font-black text-emerald-400">
+                  Exclusive
+                </span>
+              </div>
+              <p className="text-xs text-[#b1bad3]">Stake Originals • RTP 99.00%</p>
+            </div>
+          </div>
+
+          {/* Social / Bookmark / Favorites Actions */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleFavorite}
+              className={`flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-bold transition-all ${
+                isFavorited
+                  ? "bg-rose-500/20 border-rose-500/40 text-rose-400"
+                  : "bg-[#0f212e] border-[#213743] text-[#b1bad3] hover:text-white"
+              }`}
+            >
+              <Heart className={`h-4 w-4 ${isFavorited ? "fill-current text-rose-400" : ""}`} />
+              <span>{favoriteCount.toLocaleString()}</span>
+            </button>
+
+            <button
+              onClick={() => setIsSaved(!isSaved)}
+              className={`flex items-center gap-1.5 rounded-xl border px-3 py-1.5 text-xs font-bold transition-all ${
+                isSaved
+                  ? "bg-[#1475e1]/20 border-[#1475e1]/40 text-[#38bdf8]"
+                  : "bg-[#0f212e] border-[#213743] text-[#b1bad3] hover:text-white"
+              }`}
+            >
+              <Bookmark className={`h-4 w-4 ${isSaved ? "fill-current" : ""}`} />
+              <span>{isSaved ? "Saved" : "Save Game"}</span>
+            </button>
+
+            <button
+              onClick={() => {
+                if (navigator.share) {
+                  navigator.share({ title: "Plinko on Stake", url: window.location.href });
+                } else {
+                  copyToClipboard(window.location.href, "share");
+                }
+              }}
+              className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#0f212e] border border-[#213743] text-[#b1bad3] hover:text-white transition-colors"
+            >
+              <Share2 className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Technical Specs Strip */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+          <div className="rounded-xl bg-[#0f212e] p-3 border border-[#213743]">
+            <span className="text-[#b1bad3] block text-[11px]">House Edge</span>
+            <span className="text-white font-mono font-bold text-sm">1.00%</span>
+          </div>
+          <div className="rounded-xl bg-[#0f212e] p-3 border border-[#213743]">
+            <span className="text-[#b1bad3] block text-[11px]">Max Multiplier</span>
+            <span className="text-[#38bdf8] font-mono font-bold text-sm">10,000x</span>
+          </div>
+          <div className="rounded-xl bg-[#0f212e] p-3 border border-[#213743]">
+            <span className="text-[#b1bad3] block text-[11px]">Pyramid Rows</span>
+            <span className="text-white font-mono font-bold text-sm">8 to 16 Rows</span>
+          </div>
+          <div className="rounded-xl bg-[#0f212e] p-3 border border-[#213743]">
+            <span className="text-[#b1bad3] block text-[11px]">Volatility</span>
+            <span className="text-emerald-400 font-bold text-sm capitalize">{difficulty}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ======================================================== */}
+      {/* "GAMES FOR YOU" RECOMMENDATIONS CAROUSEL                 */}
+      {/* ======================================================== */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-[#38bdf8]" />
+            <h2 className="text-sm font-black uppercase tracking-wider text-white">
+              Games For You
+            </h2>
+          </div>
+          <Link
+            href="/"
+            className="text-xs font-bold text-[#38bdf8] hover:underline"
+          >
+            View All
+          </Link>
+        </div>
+
+        <div className="flex gap-3 overflow-x-auto scrollbar-none pb-2 pt-1">
+          {recommendedGames.map((game) => (
+            <Link
+              key={game.id}
+              href={`/games/${game.slug}`}
+              className="group relative shrink-0 w-36 sm:w-44 rounded-xl border border-[#213743] bg-[#1a2c38] overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:border-[#38bdf8]/50 hover:shadow-lg"
+            >
+              <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#0f212e]">
+                {/* Localized Thumbnail */}
+                <img
+                  src={game.image}
+                  alt={game.title}
+                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  onError={(e) => {
+                    // Fallback to placeholder gradient if image missing
+                    (e.target as HTMLElement).style.display = "none";
+                  }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+
+                {/* Badge */}
+                <span className="absolute top-1.5 left-1.5 rounded-md bg-[#0f212e]/80 backdrop-blur-xs px-1.5 py-0.5 text-[9px] font-black text-[#38bdf8] border border-white/10 uppercase">
+                  {game.category}
+                </span>
+
+                {/* Hover Play Button */}
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1475e1] text-white shadow-lg">
+                    <Play className="h-4 w-4 fill-current ml-0.5" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-2.5">
+                <h3 className="text-xs font-black text-white truncate group-hover:text-[#38bdf8] transition-colors">
+                  {game.title}
+                </h3>
+                <div className="flex items-center justify-between text-[10px] text-[#b1bad3] mt-0.5">
+                  <span>Stake</span>
+                  <span className="font-mono text-emerald-400">{game.players} online</span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* ======================================================== */}
+      {/* MODAL 1: PROVABLY FAIR VERIFIER                         */}
       {/* ======================================================== */}
       {isFairnessOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <div className="w-full max-w-lg rounded-2xl border border-[#213743] bg-[#1a2c38] p-6 shadow-2xl space-y-5">
             <div className="flex items-center justify-between border-b border-[#213743] pb-4">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#00e701]/15 text-[#00e701]">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#38bdf8]/15 text-[#38bdf8]">
                   <ShieldCheck className="h-5 w-5" />
                 </div>
                 <div>
                   <h3 className="text-base font-black text-white">Plinko Fairness</h3>
                   <p className="text-xs text-[#b1bad3]">
-                    Cryptographic path verification for each dropped pin
+                    Cryptographic path verification for each dropped ball
                   </p>
                 </div>
               </div>
@@ -868,10 +1274,10 @@ export default function PlinkoGame() {
                   </span>
                   <button
                     onClick={() => copyToClipboard(serverSeedHash, "server")}
-                    className="text-[#b1bad3] hover:text-[#00e701]"
+                    className="text-[#b1bad3] hover:text-[#38bdf8]"
                   >
                     {copiedField === "server" ? (
-                      <Check className="h-3.5 w-3.5 text-[#00e701]" />
+                      <Check className="h-3.5 w-3.5 text-[#38bdf8]" />
                     ) : (
                       <Copy className="h-3.5 w-3.5" />
                     )}
@@ -895,7 +1301,7 @@ export default function PlinkoGame() {
                       setClientSeed(`stake_${Math.random().toString(36).substring(2, 9)}`)
                     }
                     title="Generate Random Client Seed"
-                    className="text-[#b1bad3] hover:text-[#00e701]"
+                    className="text-[#b1bad3] hover:text-[#38bdf8]"
                   >
                     <RefreshCw className="h-3.5 w-3.5" />
                   </button>
@@ -913,7 +1319,7 @@ export default function PlinkoGame() {
 
               <div className="rounded-xl border border-[#213743] bg-[#0f212e] p-3 text-[11px] space-y-1 text-[#b1bad3]">
                 <div className="font-bold text-white">Binomial Deflection Math:</div>
-                <div className="font-mono text-[#00e701]">
+                <div className="font-mono text-[#38bdf8]">
                   P(X = k) = C(Rows, k) × 0.5^Rows
                 </div>
                 <div>Where k is the landed bucket index, symmetrical across the board.</div>
@@ -923,9 +1329,186 @@ export default function PlinkoGame() {
             <div className="flex justify-end pt-2 border-t border-[#213743]">
               <button
                 onClick={() => setIsFairnessOpen(false)}
-                className="rounded-xl bg-[#00e701] px-5 py-2 text-xs font-bold text-[#0f212e] hover:bg-[#00c701]"
+                className="rounded-xl bg-[#1475e1] px-5 py-2 text-xs font-bold text-white hover:bg-[#1065c7]"
               >
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* MODAL 2: LIVE STATS                                      */}
+      {/* ======================================================== */}
+      {isStatsOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-md rounded-2xl border border-[#213743] bg-[#1a2c38] p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-[#213743] pb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#38bdf8]/15 text-[#38bdf8]">
+                  <BarChart2 className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-white">Live Session Stats</h3>
+                  <p className="text-xs text-[#b1bad3]">Real-time Plinko performance</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsStatsOpen(false)}
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-[#b1bad3] hover:bg-[#213743] hover:text-white"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="rounded-xl bg-[#0f212e] p-3 border border-[#213743]">
+                <span className="text-[#b1bad3] block text-[11px]">Total Bets</span>
+                <span className="text-white font-mono font-bold text-sm">{stats.totalBets}</span>
+              </div>
+              <div className="rounded-xl bg-[#0f212e] p-3 border border-[#213743]">
+                <span className="text-[#b1bad3] block text-[11px]">Best Multiplier</span>
+                <span className="text-purple-400 font-mono font-bold text-sm">
+                  {stats.bestMultiplier}x
+                </span>
+              </div>
+              <div className="rounded-xl bg-[#0f212e] p-3 border border-[#213743]">
+                <span className="text-[#b1bad3] block text-[11px]">Total Wagered</span>
+                <span className="text-white font-mono font-bold text-sm">
+                  {activeSym}{stats.totalWagered.toFixed(2)}
+                </span>
+              </div>
+              <div className="rounded-xl bg-[#0f212e] p-3 border border-[#213743]">
+                <span className="text-[#b1bad3] block text-[11px]">Net Profit</span>
+                <span
+                  className={`font-mono font-bold text-sm ${
+                    stats.netProfit >= 0 ? "text-[#00e701]" : "text-rose-400"
+                  }`}
+                >
+                  {stats.netProfit >= 0 ? "+" : ""}
+                  {activeSym}{stats.netProfit.toFixed(2)}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center pt-2 border-t border-[#213743]">
+              <button
+                onClick={() =>
+                  setStats({
+                    totalBets: 0,
+                    totalWagered: 0,
+                    totalWon: 0,
+                    netProfit: 0,
+                    bestMultiplier: 0,
+                  })
+                }
+                className="flex items-center gap-1 text-xs text-[#b1bad3] hover:text-white"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+                <span>Reset Stats</span>
+              </button>
+
+              <button
+                onClick={() => setIsStatsOpen(false)}
+                className="rounded-xl bg-[#1475e1] px-5 py-2 text-xs font-bold text-white hover:bg-[#1065c7]"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* MODAL 3: GAME SETTINGS                                   */}
+      {/* ======================================================== */}
+      {isSettingsOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-md rounded-2xl border border-[#213743] bg-[#1a2c38] p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-[#213743] pb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#38bdf8]/15 text-[#38bdf8]">
+                  <Settings className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-white">Plinko Settings</h3>
+                  <p className="text-xs text-[#b1bad3]">Control game physics and audio</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsSettingsOpen(false)}
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-[#b1bad3] hover:bg-[#213743] hover:text-white"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-[#0f212e] border border-[#213743]">
+                <div>
+                  <span className="font-bold text-white block">Game Audio</span>
+                  <span className="text-[11px] text-[#b1bad3]">Play peg collisions and landing chimes</span>
+                </div>
+                <button
+                  onClick={toggleSound}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    !isMuted ? "bg-[#1475e1]" : "bg-[#213743]"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      !isMuted ? "translate-x-6" : "translate-x-1"
+                    }`}
+                  />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between p-3 rounded-xl bg-[#0f212e] border border-[#213743]">
+                <div>
+                  <span className="font-bold text-white block">Fast Drop Mode</span>
+                  <span className="text-[11px] text-[#b1bad3]">Accelerate ball physics gravity</span>
+                </div>
+                <button
+                  onClick={() => setFastDrop(!fastDrop)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    fastDrop ? "bg-[#1475e1]" : "bg-[#213743]"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      fastDrop ? "translate-x-6" : "translate-x-1"
+                    }`}
+                  />
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between p-3 rounded-xl bg-[#0f212e] border border-[#213743]">
+                <div>
+                  <span className="font-bold text-white block">Spacebar Hotkey</span>
+                  <span className="text-[11px] text-[#b1bad3]">Press Spacebar to quickly drop ball</span>
+                </div>
+                <button
+                  onClick={() => setHotkeysEnabled(!hotkeysEnabled)}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    hotkeysEnabled ? "bg-[#1475e1]" : "bg-[#213743]"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      hotkeysEnabled ? "translate-x-6" : "translate-x-1"
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-2 border-t border-[#213743]">
+              <button
+                onClick={() => setIsSettingsOpen(false)}
+                className="rounded-xl bg-[#1475e1] px-5 py-2 text-xs font-bold text-white hover:bg-[#1065c7]"
+              >
+                Save & Close
               </button>
             </div>
           </div>
