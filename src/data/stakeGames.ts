@@ -5242,10 +5242,10 @@ export function getGameItem(slug: string): GameItem {
     provider: slug.startsWith("mac88")
       ? "Mac88"
       : slug.startsWith("spribe")
-      ? "Spribe"
-      : slug.includes("roulette") || slug.includes("blackjack")
-      ? "Evolution"
-      : "Stake",
+        ? "Spribe"
+        : slug.includes("roulette") || slug.includes("blackjack")
+          ? "Evolution"
+          : "Stake",
     category: "live",
     playersCount: 2500,
     isLive: true,
