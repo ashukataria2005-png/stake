@@ -459,6 +459,7 @@ export const GAME_THUMBNAILS: Record<string, string> = {
   "diamonds": "/games/stake-originals/diamonds.webp",
   "slide": "/games/stake-originals/slide.webp",
   "scarab-auto": "/games/stake-originals/scarab-auto.webp",
+  "scarab-spin": "/games/stake-originals/scarab-auto.webp",
   "dragon-tower": "/games/stake-originals/dragon-tower.webp",
   "blue-samurai": "/games/stake-originals/blue-samurai.webp",
   "tome-of-life": "/games/stake-originals/tome-of-life.webp",
