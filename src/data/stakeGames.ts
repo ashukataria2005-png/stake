@@ -458,20 +458,7 @@ const RAW_EVOLUTION_GAMES: GameItem[] = [
     "name": "Live Baccarat",
     "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
   },
-  {
-    "id": "ice-fishing",
-    "title": "Ice Fishing",
-    "slug": "ice-fishing",
-    "provider": "Evolution",
-    "playersCount": 9420,
-    "badge": "HOT",
-    "badgeColor": "bg-red-500/20 text-red-300 border-red-500/30",
-    "category": "live",
-    "isLive": true,
-    "isPlayable": true,
-    "name": "Ice Fishing",
-    "bgGradient": "from-red-950/90 via-[#1a2c38] to-[#0f212e]"
-  },
+
   {
     "id": "lightning-roulette",
     "title": "Lightning Roulette",

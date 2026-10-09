@@ -50,7 +50,7 @@ export const INOUT_GAME_THUMBNAILS: Record<string, string> = {
 // ==========================================
 export const EVOLUTION_THUMBNAILS: Record<string, string> = {
   "balloon-race": "/games/evolution/balloon-race.webp",
-  "ice-fishing": "/games/evolution/ice-fishing-live.webp",
+  
   "baccarat-first-person": "/games/evolution/baccarat-first-person.webp",
   "golden-wealth-baccarat": "/games/evolution/golden-wealth-baccarat.webp",
   "three-card-poker": "/games/evolution/three-card-poker.webp",
