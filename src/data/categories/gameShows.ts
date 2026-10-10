@@ -1,5 +1,7 @@
 import { CategoryModule } from "./types";
 
+// Game Shows: top Evolution game-show titles curated for home page display.
+// Full Evolution catalog lives in evolution.ts; this is a focused featured row.
 export const GAME_SHOWS_SLUGS: string[] = [
   "crazy-time",
   "monopoly-live",
@@ -11,7 +13,10 @@ export const GAME_SHOWS_SLUGS: string[] = [
   "balloon-race",
   "red-door-roulette",
   "monopoly-big-baller",
-  "stock-market",
+  "lightning-storm",
+  "marble-race",
+  "crazy-balls",
+  "korean-powerball",
 ];
 
 export const GAME_SHOWS_CATEGORY: CategoryModule = {

@@ -11,11 +11,14 @@ export function StakeLogo({
   className = "h-8 w-auto text-white",
 }: StakeLogoProps) {
   if (collapsed) {
+    // Expanded viewBox with top/bottom padding so the curved S strokes
+    // never get clipped at the boundaries.
     return (
       <svg
-        viewBox="0 0 140 208"
+        viewBox="-8 -8 156 224"
         className={className}
         fill="currentColor"
+        style={{ overflow: "visible" }}
         xmlns="http://www.w3.org/2000/svg"
         aria-label="Stake emblem"
       >
@@ -28,9 +31,10 @@ export function StakeLogo({
 
   return (
     <svg
-      viewBox="0 0 447 222"
+      viewBox="-4 -4 455 230"
       className={className}
       fill="currentColor"
+      style={{ overflow: "visible" }}
       xmlns="http://www.w3.org/2000/svg"
       aria-label="Stake"
     >
