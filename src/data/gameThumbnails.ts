@@ -264,7 +264,7 @@ export const SMARTSOFT_THUMBNAILS: Record<string, string> = {
   "smartsoft-roulette": "/games/smartsoft/smartsoft-roulette.webp",
   "smartsoft-blackjack": "/games/smartsoft/smartsoft-blackjack.webp",
   "smartsoft-sic-bo": "/games/smartsoft/sic-bo.webp",
-  "smartsoft-baccarat": "/games/smartsoft/baccarat.webp",
+  "smartsoft-baccarat": "/games/smartsoft/smartsoft-baccarat.webp",
   "smartsoft-football-x": "/games/smartsoft/smartsoft-football-x.webp",
   "cappadocia": "/games/smartsoft/cappadocia.webp",
 };
