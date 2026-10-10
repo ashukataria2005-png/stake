@@ -6,6 +6,7 @@ import { CategoryModule } from "./types";
 export const LIVE_CASINO_SLUGS: string[] = [
   "immersive-roulette",
   "ezugi-lucky-7",
+  "red-door-roulette",
   "mac88-roulette",
   "mac88-lightning-dragon-tiger",
   "mac88-lightning-andar-bahar",
