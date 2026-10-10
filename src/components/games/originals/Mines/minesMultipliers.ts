@@ -160,8 +160,8 @@ export function getMinesMultiplier(minesCount: number, revealedGemsCount: number
     return customList[revealedGemsCount - 1];
   }
 
-  // Mathematical fallback: 0.99 * product((25 - i) / (25 - mines - i))
-  let mult = 0.99;
+  // Mathematical fallback: 0.975 (2.50% House Edge) * product((25 - i) / (25 - mines - i))
+  let mult = 0.975;
   for (let i = 0; i < revealedGemsCount; i++) {
     mult *= (25 - i) / (25 - minesCount - i);
   }

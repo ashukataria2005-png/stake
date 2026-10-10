@@ -63,7 +63,7 @@ export const CASINO_LAYOUT_CATEGORIES: CategoryLayoutItem[] = [
   },
   {
     id: "spribe",
-    title: "Spribe Arcade",
+    title: "Spribe",
     enabled: true,
     viewAllLink: "/casino/group/spribe",
     showGameTitle: false,

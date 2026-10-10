@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Wallet,
   Bell,
@@ -22,6 +23,7 @@ import NotificationsDrawer from "@/components/NotificationsDrawer";
 import CasinoSearchModal from "@/components/casino/CasinoSearchModal";
 
 export default function Navbar() {
+  const router = useRouter();
   const {
     balance,
     realBalance,
@@ -70,17 +72,21 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 flex h-14 sm:h-16 w-full items-center justify-between gap-2 px-3 sm:px-4 md:px-6 bg-[#1a2c38] border-b border-[#213743] select-none">
+      <header className="sticky top-0 z-[9990] flex h-14 sm:h-16 w-full items-center justify-between gap-2 px-3 sm:px-4 md:px-6 bg-[#1a2c38] border-b border-[#213743] select-none">
         {/* Left Section: Stake cursive Logo (Clean Direct Start) */}
         <div className="flex items-center shrink-0">
-          <Link
-            href="/casino/home"
-            className="flex items-center focus:outline-none relative z-50 pointer-events-auto cursor-pointer"
+          <button
+            type="button"
+            onClick={() => {
+              window.scrollTo({ top: 0, behavior: "instant" });
+              router.push("/casino/home");
+            }}
+            className="flex items-center focus:outline-none relative z-[9999] pointer-events-auto cursor-pointer bg-transparent border-none p-0"
             aria-label="Stake Home"
           >
             {/* Official Stake S Emblem (compact collapsed) */}
             <StakeLogo className="h-7 sm:h-8 w-auto text-white hover:opacity-90 transition-opacity" collapsed={true} />
-          </Link>
+          </button>
         </div>
 
         {/* Center / Middle Section: Dynamically Expanded Wallet Balance Pill with comfortable separation */}

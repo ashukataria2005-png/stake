@@ -2896,7 +2896,7 @@ const RAW_SMARTSOFT_GAMES: GameItem[] = [
   {
     id: "smartsoft-plinko-x",
     title: "Plinko X",
-    slug: "plinko-x",
+    slug: "smartsoft-plinko-x",
     provider: "SmartSoft",
     playersCount: 3890,
     livePlayerCount: 3890,
@@ -2972,7 +2972,7 @@ const RAW_SMARTSOFT_GAMES: GameItem[] = [
   {
     id: "smartsoft-plinko-x-classic",
     title: "PlinkoX Classic",
-    slug: "plinko-x-classic",
+    slug: "smartsoft-plinko-x-classic",
     provider: "SmartSoft",
     playersCount: 2750,
     livePlayerCount: 2750,
@@ -3064,7 +3064,7 @@ const RAW_SMARTSOFT_GAMES: GameItem[] = [
   {
     id: "smartsoft-football-x",
     title: "FootballX",
-    slug: "football-x",
+    slug: "smartsoft-football-x",
     provider: "SmartSoft",
     playersCount: 2710,
     livePlayerCount: 2710,

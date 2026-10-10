@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import {
   X,
   Wallet,
+  ArrowLeft,
   ArrowDownLeft,
   ArrowUpRight,
   ShieldCheck,
@@ -56,13 +58,23 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
 
   const [activeTab, setActiveTab] = useState<"deposit" | "withdraw">("deposit");
 
+  // Client mount state for React Portal
+  const [mounted, setMounted] = useState<boolean>(false);
+
   // Sub-view toggles for ledger history
   const [depositSubView, setDepositSubView] = useState<"form" | "history">("form");
   const [withdrawSubView, setWithdrawSubView] = useState<"form" | "history">("form");
 
-  // Deposit Tab State
+  // Deposit Tab State (Step: Amount Selection -> QR Code & UTR Submission)
+  const [depositStep, setDepositStep] = useState<"amount" | "qr">("amount");
   const [depositAmount, setDepositAmount] = useState<string>("500");
   const [selectedQuickChip, setSelectedQuickChip] = useState<number>(500);
+  const [currentOrderId, setCurrentOrderId] = useState<string>("");
+  const [utrInput, setUtrInput] = useState<string>("");
+  const [utrError, setUtrError] = useState<string>("");
+  const [isSubmittingUtr, setIsSubmittingUtr] = useState<boolean>(false);
+  const [depositSuccessMsg, setDepositSuccessMsg] = useState<string>("");
+  const [copiedUpi, setCopiedUpi] = useState<boolean>(false);
 
   // Deposit Orders Ledger state
   const [depositOrders, setDepositOrders] = useState<DepositOrder[]>([]);
@@ -104,8 +116,17 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
   };
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
     if (isOpen) {
       loadLedgers();
+    } else {
+      setDepositStep("amount");
+      setUtrInput("");
+      setUtrError("");
+      setDepositSuccessMsg("");
     }
   }, [isOpen]);
 
@@ -115,7 +136,15 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
     return () => window.removeEventListener("stake_deposit_orders_updated", handleUpdate);
   }, []);
 
-  if (!isOpen) return null;
+  const handleCloseModal = () => {
+    setDepositStep("amount");
+    setUtrInput("");
+    setUtrError("");
+    setDepositSuccessMsg("");
+    onClose();
+  };
+
+  if (!isOpen || !mounted) return null;
 
   const handleChipClick = (amt: number) => {
     setSelectedQuickChip(amt);
@@ -143,6 +172,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
 
     sounds.playClick();
     const orderId = `STK-DEP-${Date.now()}`;
+    setCurrentOrderId(orderId);
 
     // Create persistent record in localStorage (stake_deposit_orders)
     const newOrder: DepositOrder = {
@@ -163,8 +193,73 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
       console.error("Failed to save deposit order", err);
     }
 
-    onClose();
-    router.push(`/deposit/pay?orderId=${orderId}&amount=${num}`);
+    // Seamlessly advance to QR Code & UTR input view inside the modal
+    setDepositStep("qr");
+  };
+
+  const handleCopyUpi = () => {
+    navigator.clipboard.writeText("stakeofficial@upi");
+    setCopiedUpi(true);
+    sounds.playClick();
+    setTimeout(() => setCopiedUpi(false), 2000);
+  };
+
+  // UTR submission and balance crediting right inside the modal
+  const handleUtrSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanUtr = utrInput.replace(/\D/g, "").slice(0, 12);
+    if (cleanUtr.length !== 12) {
+      setUtrError("Please enter a valid 12-digit numeric UTR reference number.");
+      return;
+    }
+
+    setUtrError("");
+    setIsSubmittingUtr(true);
+    sounds.playClick();
+
+    setTimeout(() => {
+      const num = parseFloat(depositAmount || "500");
+      // Credit wallet balance (rate 86.5 INR/USD)
+      const creditedUsd = num / 86.5;
+      updateBalance(creditedUsd, true);
+
+      // Update order status in ledger
+      const updated = depositOrders.map((o) =>
+        o.orderId === currentOrderId ? { ...o, status: "Success" as const, utr: cleanUtr } : o
+      );
+      setDepositOrders(updated);
+      try {
+        localStorage.setItem("stake_deposit_orders", JSON.stringify(updated));
+        window.dispatchEvent(new Event("stake_deposit_orders_updated"));
+      } catch {}
+
+      // Add Notification
+      try {
+        const savedNotifs = localStorage.getItem("stake_notifications");
+        const existing = savedNotifs ? JSON.parse(savedNotifs) : [];
+        const newNotif = {
+          id: `notif-dep-${Date.now()}`,
+          type: "Transactions",
+          title: "Deposit Verified! 💰",
+          description: `₹${num.toLocaleString("en-IN")} (UTR: ${cleanUtr}) has been credited.`,
+          timestamp: "Just now",
+          isUnread: true,
+          link: "/casino/home",
+        };
+        localStorage.setItem("stake_notifications", JSON.stringify([newNotif, ...existing]));
+        window.dispatchEvent(new Event("stake_notifications_updated"));
+      } catch {}
+
+      sounds.playCashout();
+      setIsSubmittingUtr(false);
+      setDepositSuccessMsg(`₹${num.toLocaleString("en-IN")} credited successfully!`);
+      setTimeout(() => {
+        setDepositSuccessMsg("");
+        setDepositStep("amount");
+        setUtrInput("");
+        onClose();
+      }, 1500);
+    }, 1200);
   };
 
   const handleWithdrawSubmit = (e: React.FormEvent) => {
@@ -305,9 +400,15 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
     }, 1200);
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 animate-in fade-in duration-200 select-none">
-      <div className="w-full max-w-lg rounded-2xl border border-[#213743] bg-[#1a2c38] shadow-2xl overflow-hidden flex flex-col max-h-[94vh]">
+  return createPortal(
+    <div
+      onClick={handleCloseModal}
+      className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 animate-in fade-in duration-200 select-none"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-lg rounded-2xl border border-[#213743] bg-[#1a2c38] shadow-2xl overflow-hidden flex flex-col max-h-[94vh]"
+      >
         {/* Modal Top Header */}
         <div className="flex items-center justify-between border-b border-[#213743] px-5 py-4 bg-[#14232f]">
           <div className="flex items-center gap-3">
@@ -328,7 +429,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
             </div>
           </div>
           <button
-            onClick={onClose}
+            onClick={handleCloseModal}
             className="flex h-8 w-8 items-center justify-center rounded-lg text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer"
           >
             <X className="h-4.5 w-4.5" />
@@ -413,109 +514,259 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
               </div>
 
               {depositSubView === "form" ? (
-                <form onSubmit={handleDepositSubmit} className="space-y-4">
-                  {/* Header Note Banner */}
-                  <div className="flex items-center gap-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs text-emerald-400">
-                    <Zap className="h-4 w-4 shrink-0 fill-current" />
-                    <span className="font-bold">Instant UPI & QR Code Deposit (0% Fee)</span>
-                  </div>
+                depositStep === "amount" ? (
+                  <form onSubmit={handleDepositSubmit} className="space-y-4">
+                    {/* Header Note Banner */}
+                    <div className="flex items-center gap-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs text-emerald-400">
+                      <Zap className="h-4 w-4 shrink-0 fill-current" />
+                      <span className="font-bold">Instant UPI & QR Code Deposit (0% Fee)</span>
+                    </div>
 
-                  {/* Amount Input with Currency Badge */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-[#b1bad3] uppercase tracking-wider flex justify-between">
-                      <span>Enter Deposit Amount</span>
-                      <span className="text-white font-mono">Min: ₹300</span>
-                    </label>
-                    <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] px-3.5 py-3 focus-within:border-[#1475e1] transition-colors shadow-inner">
-                      {/* Left Rupee Coin Badge */}
-                      <div className="flex items-center gap-1.5 mr-2.5 shrink-0">
-                        <FiatCoinIcon currency="INR" size={24} className="w-6 h-6" />
-                        <span className="text-base font-extrabold text-white">₹</span>
+                    {/* Amount Input with Currency Badge */}
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold text-[#b1bad3] uppercase tracking-wider flex justify-between">
+                        <span>Enter Deposit Amount</span>
+                        <span className="text-white font-mono">Min: ₹300</span>
+                      </label>
+                      <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] px-3.5 py-3 focus-within:border-[#1475e1] transition-colors shadow-inner">
+                        {/* Left Rupee Coin Badge */}
+                        <div className="flex items-center gap-1.5 mr-2.5 shrink-0">
+                          <FiatCoinIcon currency="INR" size={24} className="w-6 h-6" />
+                          <span className="text-base font-extrabold text-white">₹</span>
+                        </div>
+                        <input
+                          type="number"
+                          min="300"
+                          step="1"
+                          value={depositAmount}
+                          onChange={(e) => handleAmountChange(e.target.value)}
+                          placeholder="Enter amount (Min ₹300)"
+                          className="w-full bg-transparent text-base sm:text-lg font-black text-white placeholder-[#7a889b] focus:outline-none font-mono"
+                          required
+                        />
+                        {parseFloat(depositAmount) >= 300 && (
+                          <span className="text-xs font-bold text-[#00e701] shrink-0 font-mono">
+                            ₹{parseFloat(depositAmount || "0").toLocaleString("en-IN")}
+                          </span>
+                        )}
                       </div>
-                      <input
-                        type="number"
-                        min="300"
-                        step="1"
-                        value={depositAmount}
-                        onChange={(e) => handleAmountChange(e.target.value)}
-                        placeholder="Enter amount (Min ₹300)"
-                        className="w-full bg-transparent text-base sm:text-lg font-black text-white placeholder-[#7a889b] focus:outline-none font-mono"
-                        required
-                      />
-                      {parseFloat(depositAmount) >= 300 && (
-                        <span className="text-xs font-bold text-[#00e701] shrink-0 font-mono">
-                          ₹{parseFloat(depositAmount || "0").toLocaleString("en-IN")}
-                        </span>
-                      )}
                     </div>
-                  </div>
 
-                  {/* Quick Amount Selector Chips */}
-                  <div className="space-y-1.5">
-                    <label className="text-[11px] font-bold text-[#7a889b] uppercase tracking-wider">
-                      Quick Amount Selector
-                    </label>
-                    <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                      {QUICK_AMOUNTS.map((amt) => {
-                        const isSelected = selectedQuickChip === amt;
-                        return (
-                          <button
-                            type="button"
-                            key={amt}
-                            onClick={() => handleChipClick(amt)}
-                            className={`py-2 px-1 rounded-xl text-xs font-extrabold font-mono transition-all cursor-pointer border ${
-                              isSelected
-                                ? "bg-[#1475e1] text-white border-[#1475e1] shadow-md shadow-[#1475e1]/30 scale-[1.02]"
-                                : "bg-[#0f212e] text-[#b1bad3] border-[#213743] hover:border-[#2f4553] hover:text-white"
-                            }`}
+                    {/* Quick Amount Selector Chips */}
+                    <div className="space-y-1.5">
+                      <label className="text-[11px] font-bold text-[#7a889b] uppercase tracking-wider">
+                        Quick Amount Selector
+                      </label>
+                      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                        {QUICK_AMOUNTS.map((amt) => {
+                          const isSelected = selectedQuickChip === amt;
+                          return (
+                            <button
+                              type="button"
+                              key={amt}
+                              onClick={() => handleChipClick(amt)}
+                              className={`py-2 px-1 rounded-xl text-xs font-extrabold font-mono transition-all cursor-pointer border ${
+                                isSelected
+                                  ? "bg-[#1475e1] text-white border-[#1475e1] shadow-md shadow-[#1475e1]/30 scale-[1.02]"
+                                  : "bg-[#0f212e] text-[#b1bad3] border-[#213743] hover:border-[#2f4553] hover:text-white"
+                              }`}
+                            >
+                              ₹{amt.toLocaleString("en-IN")}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Supported Payment Methods Badge Row */}
+                    <div className="rounded-xl border border-[#213743] bg-[#0f212e] p-3 space-y-2">
+                      <div className="text-[11px] font-bold text-[#7a889b] uppercase tracking-wider">
+                        Supported Instant Payment Apps
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {[
+                          { name: "Google Pay", color: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
+                          { name: "PhonePe", color: "bg-purple-500/10 text-purple-400 border-purple-500/20" },
+                          { name: "Paytm", color: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20" },
+                          { name: "BHIM UPI", color: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" },
+                          { name: "CRED UPI", color: "bg-amber-500/10 text-amber-400 border-amber-500/20" },
+                        ].map((app) => (
+                          <span
+                            key={app.name}
+                            className={`rounded-lg border px-2.5 py-1 text-[11px] font-bold ${app.color}`}
                           >
-                            ₹{amt.toLocaleString("en-IN")}
-                          </button>
-                        );
-                      })}
+                            {app.name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Action Button: Continue to QR */}
+                    <button
+                      type="submit"
+                      className="w-full rounded-xl bg-[#1475e1] hover:bg-[#1268c7] py-3.5 text-sm sm:text-base font-extrabold text-white shadow-xl shadow-[#1475e1]/25 transition-all active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <span>Continue to QR & UPI Payment</span>
+                      <span className="font-mono">
+                        (₹{parseFloat(depositAmount || "300").toLocaleString("en-IN")})
+                      </span>
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+
+                    <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#7a889b]">
+                      <ShieldCheck className="h-3.5 w-3.5 text-[#00e701]" />
+                      <span>256-Bit Encrypted Payment Node • Instant Automated Crediting</span>
+                    </div>
+                  </form>
+                ) : (
+                  /* QR CODE & UTR FORM (depositStep === "qr") */
+                  <div className="space-y-4 animate-in fade-in duration-200">
+                    {/* Back button to change amount */}
+                    <button
+                      type="button"
+                      onClick={() => setDepositStep("amount")}
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
+                    >
+                      <ArrowLeft className="w-3.5 h-3.5" />
+                      <span>Change Deposit Amount</span>
+                    </button>
+
+                    {/* Success Notice if just credited */}
+                    {depositSuccessMsg && (
+                      <div className="p-3.5 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-xs font-bold flex items-center justify-center gap-2 shadow-lg animate-in zoom-in-95">
+                        <Check className="w-4 h-4 text-emerald-400" />
+                        <span>{depositSuccessMsg}</span>
+                      </div>
+                    )}
+
+                    {/* Order & Payment Summary Bar */}
+                    <div className="p-3.5 rounded-xl bg-[#0f212e] border border-[#213743] flex items-center justify-between">
+                      <div>
+                        <div className="text-[10px] uppercase font-bold text-[#7a889b]">Order Reference</div>
+                        <div className="font-mono text-xs font-bold text-white">{currentOrderId}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-[10px] uppercase font-bold text-[#7a889b]">Amount Due</div>
+                        <div className="font-mono text-base font-black text-[#00e701]">
+                          ₹{parseFloat(depositAmount || "300").toLocaleString("en-IN")}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* QR Code Container */}
+                    <div className="flex flex-col items-center justify-center p-4 rounded-2xl bg-[#0f212e] border border-[#213743] space-y-3">
+                      <div className="text-xs font-bold text-white text-center">
+                        Scan QR Code with any UPI App
+                      </div>
+                      <div className="p-3 bg-white rounded-xl shadow-lg border border-white/20">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
+                            `upi://pay?pa=stakeofficial@upi&pn=Stake%20Casino&am=${depositAmount}&cu=INR&tn=${currentOrderId}`
+                          )}`}
+                          alt="Deposit UPI QR Code"
+                          className="w-36 h-36 sm:w-44 sm:h-44 object-contain"
+                        />
+                      </div>
+                      <p className="text-[11px] text-[#7a889b] text-center font-medium">
+                        Google Pay • PhonePe • Paytm • BHIM • CRED
+                      </p>
+                    </div>
+
+                    {/* Copy UPI ID Bar */}
+                    <div className="flex items-center justify-between p-3 rounded-xl bg-[#0f212e] border border-[#213743]">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] uppercase font-bold text-[#7a889b]">UPI ID (VPA)</span>
+                        <span className="font-mono text-xs font-bold text-white">stakeofficial@upi</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleCopyUpi}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#213743] hover:bg-[#2f4553] text-xs font-bold text-white transition-colors cursor-pointer"
+                      >
+                        {copiedUpi ? (
+                          <>
+                            <Check className="w-3.5 h-3.5 text-[#00e701]" />
+                            <span className="text-[#00e701]">Copied!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3.5 h-3.5" />
+                            <span>Copy</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    {/* Step 2: 12-Digit UTR Form */}
+                    <form onSubmit={handleUtrSubmit} className="space-y-3 pt-1">
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-[#b1bad3] flex items-center justify-between">
+                          <span>Enter 12-Digit UTR / Ref Number</span>
+                          <span className="text-[10px] text-amber-400">Required for instant credit</span>
+                        </label>
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={12}
+                          value={utrInput}
+                          onChange={(e) => {
+                            setUtrInput(e.target.value.replace(/\D/g, "").slice(0, 12));
+                            if (utrError) setUtrError("");
+                          }}
+                          placeholder="e.g. 427819283741"
+                          className="w-full rounded-xl border border-[#213743] bg-[#0f212e] px-3.5 py-3 text-sm sm:text-base font-mono font-bold text-white placeholder-[#7a889b] focus:border-[#1475e1] focus:outline-none transition-colors"
+                        />
+                        {utrError && (
+                          <div className="flex items-center gap-1.5 text-xs text-red-400 font-semibold mt-1">
+                            <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                            <span>{utrError}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={isSubmittingUtr || utrInput.replace(/\D/g, "").length !== 12}
+                        className="w-full rounded-xl bg-[#00e701] hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed py-3 text-sm font-black text-black shadow-lg shadow-[#00e701]/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        {isSubmittingUtr ? (
+                          <>
+                            <RefreshCw className="w-4 h-4 animate-spin" />
+                            <span>Verifying UTR Reference...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Check className="w-4 h-4" />
+                            <span>
+                              Verify & Credit ₹{parseFloat(depositAmount || "300").toLocaleString("en-IN")}
+                            </span>
+                          </>
+                        )}
+                      </button>
+                    </form>
+
+                    <div className="flex items-center justify-between pt-1">
+                      <div className="flex items-center gap-1 text-[11px] text-[#7a889b]">
+                        <ShieldCheck className="h-3.5 w-3.5 text-[#00e701]" />
+                        <span>Instant Automated Node</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          handleCloseModal();
+                          router.push(
+                            `/deposit/pay?orderId=${currentOrderId}&amount=${depositAmount}`
+                          );
+                        }}
+                        className="text-[11px] text-[#1475e1] hover:underline flex items-center gap-1"
+                      >
+                        <span>Full payment page</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </button>
                     </div>
                   </div>
-
-                  {/* Supported Payment Methods Badge Row */}
-                  <div className="rounded-xl border border-[#213743] bg-[#0f212e] p-3 space-y-2">
-                    <div className="text-[11px] font-bold text-[#7a889b] uppercase tracking-wider">
-                      Supported Instant Payment Apps
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      {[
-                        { name: "Google Pay", color: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
-                        { name: "PhonePe", color: "bg-purple-500/10 text-purple-400 border-purple-500/20" },
-                        { name: "Paytm", color: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20" },
-                        { name: "BHIM UPI", color: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" },
-                        { name: "CRED UPI", color: "bg-amber-500/10 text-amber-400 border-amber-500/20" },
-                      ].map((app) => (
-                        <span
-                          key={app.name}
-                          className={`rounded-lg border px-2.5 py-1 text-[11px] font-bold ${app.color}`}
-                        >
-                          {app.name}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Action Button: Deposit Now */}
-                  <button
-                    type="submit"
-                    className="w-full rounded-xl bg-[#1475e1] hover:bg-[#1268c7] py-3.5 text-sm sm:text-base font-extrabold text-white shadow-xl shadow-[#1475e1]/25 transition-all active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <span>Deposit Now</span>
-                    <span className="font-mono">
-                      (₹{parseFloat(depositAmount || "300").toLocaleString("en-IN")})
-                    </span>
-                    <ArrowDownLeft className="h-4 w-4" />
-                  </button>
-
-                  <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#7a889b]">
-                    <ShieldCheck className="h-3.5 w-3.5 text-[#00e701]" />
-                    <span>256-Bit Encrypted Payment Node • Instant Automated Crediting</span>
-                  </div>
-                </form>
+                )
               ) : (
                 /* DEPOSIT HISTORY LIST */
                 <div className="space-y-3">
@@ -905,6 +1156,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

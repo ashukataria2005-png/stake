@@ -221,7 +221,7 @@ export default function MinesSettingsPopover({
             </div>
             <div className="space-y-2.5 text-xs text-[#b1bad3] leading-relaxed">
               <p>
-                <strong className="text-white">RTP:</strong> 99.00% (House Edge 1.00%)
+                <strong className="text-white">House Edge:</strong> 2.50% (RTP: 97.50%)
               </p>
               <p>
                 <strong className="text-white">Grid:</strong> 25 tiles (5x5). Choose between 1 and 24 mines.

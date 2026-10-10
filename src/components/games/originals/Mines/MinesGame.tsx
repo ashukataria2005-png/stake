@@ -409,18 +409,11 @@ export default function MinesGame() {
 
   return (
     <div
-      className={`w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-4 select-none space-y-4 ${
+      className={`w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-2 sm:py-3 select-none space-y-3 ${
         isFullscreen ? "fixed inset-0 z-50 bg-[#0f212e] overflow-y-auto p-4 pb-28 max-w-none" : ""
       }`}
     >
-      {/* 1. Top Header: House Edge */}
-      <div className="flex items-center justify-end">
-        <span className="text-xs text-[#b1bad3] font-medium">
-          House Edge: 1.00%
-        </span>
-      </div>
-
-      {/* 2. Main 2-Panel Game Container: Left Controls & Right 5x5 Grid */}
+      {/* Main 2-Panel Game Container: Left Controls & Right 5x5 Grid */}
       <div className="rounded-2xl border border-[#213743] bg-[#1a2c38] shadow-2xl overflow-hidden flex flex-col-reverse lg:flex-row">
         {/* Controls Panel */}
         <MinesControls
@@ -606,6 +599,11 @@ export default function MinesGame() {
               <div className="flex justify-between items-center bg-[#0f212e] p-2.5 rounded-xl border border-[#213743]">
                 <span className="font-bold">Nonce Count</span>
                 <span className="font-mono text-[#00e701] font-bold">{nonce}</span>
+              </div>
+
+              <div className="flex justify-between items-center bg-[#0f212e] p-2.5 rounded-xl border border-[#213743]">
+                <span className="font-bold">House Edge / RTP</span>
+                <span className="font-mono text-[#00e701] font-bold">2.50% (97.50% RTP)</span>
               </div>
             </div>
             <button

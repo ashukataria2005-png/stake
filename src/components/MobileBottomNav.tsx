@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Menu,
   MessageSquare,
@@ -11,6 +11,7 @@ import { useGame } from "@/context/GameContext";
 import { StakeLogo } from "@/components/common/StakeLogo";
 
 export default function MobileBottomNav() {
+  const router = useRouter();
   const pathname = usePathname();
   const { toggleChat, isChatOpen, toggleSidebar, isSidebarOpen } = useGame();
   const [activeTab, setActiveTab] = useState<string>("casino");
@@ -28,7 +29,7 @@ export default function MobileBottomNav() {
   const isCasinoActive = (pathname === "/casino/home" || pathname?.startsWith("/games") || pathname?.startsWith("/casino")) && !isHomeActive && !isChatOpen;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-[#0f212e] border-t-2 border-[#2f4553] px-2 py-1.5 pb-safe select-none shadow-2xl">
+    <nav className="fixed bottom-0 left-0 right-0 z-[9990] md:hidden bg-[#0f212e] border-t-2 border-[#2f4553] px-2 py-1.5 pb-safe select-none shadow-2xl">
       {/* Seamless Flush Arch Curve on Top Border (Zero Downward Overflow Tails) */}
       <div className="absolute -top-[24px] left-1/2 -translate-x-1/2 w-28 sm:w-32 h-[26px] pointer-events-none z-10 overflow-visible">
         <svg
@@ -119,11 +120,15 @@ export default function MobileBottomNav() {
         </Link>
 
         {/* Tab 3 (CENTER): S Logo Contained Comfortably Inside Flush Curve (Dampened micro-interaction) */}
-        <Link
-          href="/"
-          onClick={() => handleTabClick("home")}
+        <button
+          type="button"
+          onClick={() => {
+            handleTabClick("home");
+            window.scrollTo({ top: 0, behavior: "instant" });
+            router.push("/casino/home");
+          }}
           aria-label="Stake Home"
-          className="flex items-center justify-center flex-1 py-1 -translate-y-3 relative z-20 cursor-pointer select-none bg-transparent hover:bg-transparent active:scale-95 transition-transform duration-150"
+          className="flex items-center justify-center flex-1 py-1 -translate-y-3 relative z-[9999] pointer-events-auto cursor-pointer select-none bg-transparent hover:bg-transparent active:scale-95 transition-transform duration-150 border-none outline-none"
         >
           <StakeLogo
             collapsed={true}
@@ -132,7 +137,7 @@ export default function MobileBottomNav() {
               : "scale-[2.25] fill-[#b1bad3] text-[#b1bad3]"
               }`}
           />
-        </Link>
+        </button>
 
         {/* Tab 4: Sports */}
         <Link
