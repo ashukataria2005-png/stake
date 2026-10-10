@@ -172,7 +172,7 @@ export default function HomePage() {
       {isSearching ? (
         <section className="space-y-4 bg-[#14232d] p-4 sm:p-6 rounded-2xl border border-[#213743]">
           <div className="flex items-center justify-between pb-3 border-b border-[#213743]">
-            <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+            <h2 className="text-[16px] sm:text-[17px] font-semibold text-white tracking-[-0.015em] flex items-center gap-2">
               <Search className="h-5 w-5 text-[#00e701]" />
               <span>
                 Search Results for &ldquo;{searchQuery}&rdquo; ({searchResults.length} games found)

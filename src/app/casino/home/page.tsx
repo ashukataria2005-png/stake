@@ -1542,7 +1542,7 @@ export default function CasinoHomePage() {
         /* DYNAMIC LIVE SEARCH RESULTS VIEW */
         <section className="space-y-4 my-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+            <h2 className="text-[16px] sm:text-[17px] font-semibold text-white tracking-[-0.015em] flex items-center gap-2">
               <Search className="h-4 w-4 text-[#00e701]" />
               <span>
                 Search Results for &quot;{searchQuery}&quot; ({searchResults.length} {searchResults.length === 1 ? "game" : "games"} found)
@@ -1686,33 +1686,6 @@ export default function CasinoHomePage() {
         sectionId="publishers"
       />
 
-      {/* EVOLUTION > */}
-      <CasinoGameRow
-        title="Evolution"
-        linkHref="/casino/group/evolution"
-        cards={evolutionGames}
-        onCardClick={handleCardClick}
-        sectionId="evolution"
-      />
-
-      {/* EZUGI LIVE CASINO */}
-      <CasinoGameRow
-        title="Ezugi"
-        linkHref="/casino/group/ezugi"
-        cards={ezugiGames}
-        onCardClick={handleCardClick}
-        sectionId="ezugi"
-      />
-
-      {/* INOUT GAMES > */}
-      <CasinoGameRow
-        title="INOUT Games"
-        linkHref="/casino/group/inout"
-        cards={inoutGames}
-        onCardClick={handleCardClick}
-        sectionId="inout-games"
-      />
-
       {/* PRAGMATIC PLAY > */}
       <CasinoGameRow
         title="Pragmatic Play"
@@ -1731,33 +1704,6 @@ export default function CasinoHomePage() {
         sectionId="hacksaw-gaming"
       />
 
-      {/* 100 HP GAMING */}
-      <CasinoGameRow
-        title="100 HP Gaming"
-        linkHref="/casino/group/100hp"
-        cards={hp100Games}
-        onCardClick={handleCardClick}
-        sectionId="100hp"
-      />
-
-      {/* JILI GAMES */}
-      <CasinoGameRow
-        title="Jili Games"
-        linkHref="/casino/group/jili"
-        cards={jiliGames}
-        onCardClick={handleCardClick}
-        sectionId="jili"
-      />
-
-      {/* EVOPLAY */}
-      <CasinoGameRow
-        title="Evoplay"
-        linkHref="/casino/group/evoplay"
-        cards={evoplayGames}
-        onCardClick={handleCardClick}
-        sectionId="evoplay"
-      />
-
       {/* TURBO GAMES */}
       <CasinoGameRow
         title="Turbo Games"
@@ -1765,17 +1711,6 @@ export default function CasinoHomePage() {
         cards={turboGames}
         onCardClick={handleCardClick}
         sectionId="turbogames"
-      />
-
-
-
-            {/* 8. GAME SHOWS > */}
-      <CasinoGameRow
-        title="Game Shows"
-        linkHref="/casino/group/game-shows"
-        cards={gameShowsGames}
-        onCardClick={handleCardClick}
-        sectionId="game-shows"
       />
 
       {/* 9. FEATURED PUBLISHERS > */}

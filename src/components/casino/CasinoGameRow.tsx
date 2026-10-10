@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Play, LayoutGrid, ArrowRight } from "lucide-react";
+import { Play, LayoutGrid, ArrowRight, ChevronRight } from "lucide-react";
 
 import StakeGameArtwork from "@/components/casino/StakeGameArtwork";
 import { getGameThumbnail } from "@/data/gameThumbnails";
@@ -42,46 +42,70 @@ export default function CasinoGameRow({
   showGameTitle = true,
   showProviderName = true,
 }: CasinoGameRowProps) {
-  // Task 19: 3-Stage Progressive Tier Loading (+6 items = 2 rows per click):
+  // Progressive Tier Loading (+6 items = 2 rows per click):
   // 0 = Initial: 3 games (1 row)
   // 1 = 1st Click: 9 games (3 rows = 3 + 6)
   // 2 = 2nd Click: 15 games (5 rows = 9 + 6)
   // 3 = 3rd Click: Up to limit (17 games) + "All Games" End Card (6 rows total)
   const [stage, setStage] = useState<number>(0);
 
-  const handleLoadMore = () => {
-    setStage((prev) => Math.min(prev + 1, 3));
-  };
-
   let displayedCards: CasinoCardData[] = [];
   let showAllGamesCard = false;
+  let isFullyExpanded = false;
 
   if (stage === 0) {
     displayedCards = cards.slice(0, 3);
+    showAllGamesCard = false;
+    isFullyExpanded = false;
   } else if (stage === 1) {
-    displayedCards = cards.slice(0, 9);
+    if (cards.length <= 9) {
+      displayedCards = cards;
+      showAllGamesCard = true;
+      isFullyExpanded = true;
+    } else {
+      displayedCards = cards.slice(0, 9);
+      showAllGamesCard = false;
+      isFullyExpanded = false;
+    }
   } else if (stage === 2) {
-    displayedCards = cards.slice(0, 15);
+    if (cards.length <= 15) {
+      displayedCards = cards;
+      showAllGamesCard = true;
+      isFullyExpanded = true;
+    } else {
+      displayedCards = cards.slice(0, 15);
+      showAllGamesCard = false;
+      isFullyExpanded = false;
+    }
   } else {
-    // 3rd click: up to limit (e.g. 17 items + 1 All Games card = 18 total items)
+    // Stage 3: up to limit (17 items) + 1 All Games end card
     const limit = Math.min(cards.length, 17);
     displayedCards = cards.slice(0, limit);
     showAllGamesCard = true;
+    isFullyExpanded = true;
   }
 
-  // Can load more for exactly 3 progressive tiers until stage 3 (where 'All Games' card is shown), then cleanly hide button
-  const canLoadMore = stage < 3 && cards.length > 3;
+  const handleToggleLoadMore = () => {
+    if (isFullyExpanded) {
+      setStage(0);
+    } else {
+      setStage((prev) => prev + 1);
+    }
+  };
 
   return (
     <section className="space-y-3.5 my-7">
       {/* Row Header */}
       <div className="flex items-center justify-between">
         <Link href={linkHref} className="flex items-center gap-2 group cursor-pointer">
-          <h2 className="text-lg sm:text-xl font-bold tracking-tight text-white flex items-center gap-1.5 hover:text-[#00e701] transition-colors cursor-pointer">
+          <h2 className="text-[16px] sm:text-[17px] font-semibold text-white tracking-[-0.015em] flex items-center gap-2 hover:text-[#00e701] transition-colors cursor-pointer">
             <span>{title}</span>
-            <span className="text-[#b1bad3] text-sm sm:text-base group-hover:translate-x-1 transition-transform">
-              &gt;
-            </span>
+            {rowBadge && (
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-400/40">
+                {rowBadge}
+              </span>
+            )}
+            <ChevronRight className="w-4 h-4 text-[#b1bad3] group-hover:text-white group-hover:translate-x-0.5 transition-all" />
           </h2>
         </Link>
       </div>
@@ -100,11 +124,11 @@ export default function CasinoGameRow({
               >
                 <div className="h-[54px] sm:h-[62px] w-full rounded-xl bg-[#213743] hover:bg-[#2a4454] border border-[#2f4553]/60 flex items-center justify-center p-2.5 transition-transform active:scale-95 cursor-pointer shadow-sm">
                   {card.graphic ? (
-                    <div className="flex items-center justify-center max-w-full overflow-hidden text-white font-extrabold">
+                    <div className="flex items-center justify-center max-w-full overflow-hidden text-white font-semibold">
                       {card.graphic}
                     </div>
                   ) : (
-                    <span className="font-extrabold text-sm sm:text-base text-white tracking-wide truncate">
+                    <span className="font-semibold text-sm sm:text-base text-white tracking-wide truncate">
                       {card.title}
                     </span>
                   )}
@@ -161,12 +185,12 @@ export default function CasinoGameRow({
               {(showGameTitle || showProviderName) && (
                 <div className="flex flex-col mt-1.5 px-0.5">
                   {showGameTitle && (
-                    <span className="font-black uppercase tracking-wider text-xs sm:text-sm text-white truncate">
+                    <span className="font-semibold uppercase tracking-wider text-xs sm:text-sm text-white truncate">
                       {card.title}
                     </span>
                   )}
                   {showProviderName && (
-                    <span className="text-[9px] sm:text-[10px] uppercase font-bold text-white/70 truncate">
+                    <span className="text-[9px] sm:text-[10px] uppercase font-medium text-white/70 truncate">
                       {card.provider || "Stake Originals"}
                     </span>
                   )}
@@ -198,7 +222,7 @@ export default function CasinoGameRow({
               >
                 <div className="h-[54px] sm:h-[62px] w-full rounded-xl bg-[#1a2c38] border-2 border-dashed border-[#2f4553] hover:border-[#00e701] flex items-center justify-center gap-2 p-2.5 transition-transform active:scale-95 cursor-pointer shadow-sm">
                   <LayoutGrid className="w-4 h-4 text-[#00e701]" />
-                  <span className="font-extrabold text-xs sm:text-sm text-white tracking-wide">
+                  <span className="font-semibold text-xs sm:text-sm text-white tracking-wide">
                     All Providers
                   </span>
                   <ArrowRight className="w-3.5 h-3.5 text-[#00e701] group-hover:translate-x-0.5 transition-transform" />
@@ -215,10 +239,10 @@ export default function CasinoGameRow({
                 <div className="w-11 h-11 rounded-xl bg-[#0f212e] border border-[#213743] flex items-center justify-center group-hover:bg-[#00e701] group-hover:text-[#0f212e] text-[#b1bad3] transition-colors shadow-inner">
                   <LayoutGrid className="w-5 h-5 transition-transform group-hover:scale-110" />
                 </div>
-                <span className="font-black uppercase tracking-wider text-xs sm:text-sm text-center text-white group-hover:text-[#00e701] transition-colors">
+                <span className="font-semibold uppercase tracking-wider text-xs sm:text-sm text-center text-white group-hover:text-[#00e701] transition-colors">
                   All Games
                 </span>
-                <span className="text-[10px] sm:text-xs font-bold text-[#b1bad3] bg-[#0f212e] px-2 py-0.5 rounded-full border border-[#213743] group-hover:border-[#00e701]/40 flex items-center gap-1">
+                <span className="text-[10px] sm:text-xs font-medium text-[#b1bad3] bg-[#0f212e] px-2 py-0.5 rounded-full border border-[#213743] group-hover:border-[#00e701]/40 flex items-center gap-1">
                   <span>View All</span>
                   <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                 </span>
@@ -228,18 +252,17 @@ export default function CasinoGameRow({
         )}
       </div>
 
-      {/* Underneath each 3-game row: Centered Stake 'Load More' Divider Trigger (Hidden after Stage 3, NO 'Show Less') */}
-      {canLoadMore && (
-        <div className="relative flex items-center justify-center my-3 w-full">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-[#213743]" />
-          </div>
+      {/* Centered Stake Divider UI with Load More / Show Less Toggle */}
+      {cards.length > 3 && (
+        <div className="flex items-center justify-center my-4 w-full">
+          <div className="flex-1 h-[1px] bg-[#2f4553]" />
           <button
-            onClick={handleLoadMore}
-            className="relative z-10 px-4 text-xs sm:text-sm font-bold text-[#b1bad3] hover:text-white transition-colors bg-[#0f212e] cursor-pointer"
+            onClick={handleToggleLoadMore}
+            className="px-4 py-1.5 text-xs sm:text-sm font-semibold text-[#b1bad3] hover:text-white hover:bg-[#213743]/50 rounded transition-colors whitespace-nowrap cursor-pointer"
           >
-            Load More
+            {isFullyExpanded ? "Show Less" : "Load More"}
           </button>
+          <div className="flex-1 h-[1px] bg-[#2f4553]" />
         </div>
       )}
     </section>

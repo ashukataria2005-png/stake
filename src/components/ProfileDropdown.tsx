@@ -142,7 +142,7 @@ export default function ProfileDropdown({ isOpen, onClose }: ProfileDropdownProp
             <button
               key={item.id}
               onClick={item.action}
-              className={`w-full px-3.5 py-2.5 flex items-center gap-3 text-sm font-semibold hover:bg-[#213743] hover:text-white transition-colors cursor-pointer select-none text-left whitespace-nowrap ${
+              className={`w-full px-3.5 py-2.5 flex items-center gap-3 font-medium text-sm text-[#b1bad3] hover:text-white hover:bg-[#213743] transition-colors cursor-pointer select-none text-left whitespace-nowrap ${
                 isLogout
                   ? "text-red-400 hover:text-red-300"
                   : "text-[#b1bad3]"

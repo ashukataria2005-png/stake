@@ -168,7 +168,7 @@ export default function Navbar() {
           <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={openSignIn}
-              className="text-[#b1bad3] hover:text-white font-semibold text-sm sm:text-base px-3 py-2 transition-colors cursor-pointer"
+              className="font-medium text-sm text-[#b1bad3] hover:text-white px-3 py-2 transition-colors cursor-pointer"
             >
               Sign In
             </button>

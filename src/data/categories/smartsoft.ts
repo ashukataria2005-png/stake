@@ -2,14 +2,14 @@ import { CategoryModule } from "./types";
 
 export const SMARTSOFT_SLUGS: string[] = [
   "jetx",
+  "towerx",
+  "rollx",
   "smartsoft-balloon",
   "plinko-x",
   "cricket-x",
   "helicopter-x",
   "smash-x",
   "double-x",
-  "towerx",
-  "rollx",
   "cappadocia",
   "smartsoft-lucky-7",
   "smartsoft-roulette",
