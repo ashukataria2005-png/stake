@@ -25,6 +25,32 @@ export default function MobileBottomNav() {
     }
   };
 
+  const handleHomeClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handleTabClick("home");
+    if (typeof window !== "undefined") {
+      if (window.location.pathname === "/casino/home" || window.location.pathname === "/") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        window.location.assign("/casino/home");
+      }
+    }
+  };
+
+  const handleCasinoClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handleTabClick("casino");
+    if (typeof window !== "undefined") {
+      if (window.location.pathname === "/casino/home" || window.location.pathname === "/") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        window.location.assign("/casino/home");
+      }
+    }
+  };
+
   const isHomeActive = pathname === "/";
   const isCasinoActive = (pathname === "/casino/home" || pathname?.startsWith("/games") || pathname?.startsWith("/casino")) && !isHomeActive && !isChatOpen;
 
@@ -93,10 +119,11 @@ export default function MobileBottomNav() {
         </button>
 
         {/* Tab 2: Casino */}
-        <Link
-          href="/casino/home"
-          onClick={() => handleTabClick("casino")}
-          className="flex flex-col items-center justify-center flex-1 py-1 transition-colors bg-transparent hover:bg-transparent active:bg-transparent cursor-pointer"
+        <button
+          type="button"
+          onClick={handleCasinoClick}
+          aria-label="Casino"
+          className="flex flex-col items-center justify-center flex-1 py-1 transition-colors bg-transparent hover:bg-transparent active:bg-transparent cursor-pointer border-none outline-none"
         >
           <div className="flex h-7 w-7 items-center justify-center bg-transparent">
             <svg
@@ -117,16 +144,12 @@ export default function MobileBottomNav() {
           >
             Casino
           </span>
-        </Link>
+        </button>
 
         {/* Tab 3 (CENTER): S Logo Contained Comfortably Inside Flush Curve (Dampened micro-interaction) */}
         <button
           type="button"
-          onClick={() => {
-            handleTabClick("home");
-            window.scrollTo({ top: 0, behavior: "instant" });
-            router.push("/casino/home");
-          }}
+          onClick={handleHomeClick}
           aria-label="Stake Home"
           className="flex items-center justify-center flex-1 py-1 -translate-y-3 relative z-[9999] pointer-events-auto cursor-pointer select-none bg-transparent hover:bg-transparent active:scale-95 transition-transform duration-150 border-none outline-none"
         >

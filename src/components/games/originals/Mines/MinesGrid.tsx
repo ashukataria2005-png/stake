@@ -56,7 +56,7 @@ export default function MinesGrid({
 
       {/* 1. 5x5 Mines Arena Grid (Strictly First) */}
       <div className="relative flex items-center justify-center w-full max-w-[430px] aspect-square z-10">
-        <div className="grid grid-cols-5 grid-rows-5 auto-rows-fr gap-2 sm:gap-2.5 w-full h-full p-2.5 rounded-2xl bg-[#14232f] border border-[#213743]/80 shadow-2xl">
+        <div className="grid grid-cols-5 grid-rows-5 auto-rows-fr gap-2 sm:gap-2.5 w-full h-full p-2.5 rounded-xl bg-[#0e1c26] border border-[#213743] shadow-2xl">
           {Array.from({ length: 25 }).map((_, index) => {
             const isRevealed = revealedTiles.includes(index);
             const isMine = mineLocations.includes(index);
@@ -74,22 +74,22 @@ export default function MinesGrid({
                 type="button"
                 onClick={() => onTileClick(index)}
                 disabled={(!isPlaying && mode !== "auto") || (isPlaying && (isRevealed || isGameOver))}
-                className={`relative aspect-square w-full h-full rounded-xl flex items-center justify-center transition-all select-none duration-150 overflow-visible ${
+                className={`relative aspect-square w-full h-full rounded-lg flex items-center justify-center transition-all select-none duration-150 overflow-visible transform-gpu will-change-transform backface-hidden ${
                   isRevealed && !isMine
-                    ? "bg-[#1a2c38] border-2 border-[#00e701] shadow-[0_0_20px_rgba(0,231,1,0.35)] cursor-default"
+                    ? "bg-[#14232f] border border-[#00e701]/90 shadow-[0_0_16px_rgba(0,231,1,0.3)] cursor-default"
                     : isExplodedMine
-                    ? "bg-red-950/90 border-2 border-[#fe2247] shadow-[0_0_28px_rgba(254,34,71,0.9)] animate-pulse z-20 cursor-default"
+                    ? "bg-[#2a131b] border border-[#fe2247] shadow-[0_0_24px_rgba(254,34,71,0.8)] animate-pulse z-20 cursor-default"
                     : isDimmedHiddenMine
-                    ? "bg-[#1a2c38]/60 border-2 border-[#fe2247]/30 cursor-default"
+                    ? "bg-[#14232f] border border-[#fe2247]/35 cursor-default"
                     : isDimmedUntouchedGem
-                    ? "bg-[#1a2c38]/60 border-2 border-[#00e701]/25 cursor-default"
+                    ? "bg-[#14232f] border border-[#00e701]/25 cursor-default"
                     : isAutoSelected
-                    ? "bg-[#00e701]/20 border-2 border-[#00e701] shadow-[0_0_12px_rgba(0,231,1,0.3)] cursor-pointer"
+                    ? "bg-[#213743] border-2 border-[#00e701] shadow-[0_0_12px_rgba(0,231,1,0.35)] cursor-pointer"
                     : isPlaying
-                    ? "bg-[#2f4553] hover:bg-[#3d5565] border-2 border-[#213743] hover:border-[#385162] shadow-md active:scale-95 cursor-pointer"
+                    ? "border border-[#2f4553] bg-[#213743] hover:bg-[#2a4556] hover:border-[#3d5565] shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_2px_4px_rgba(0,0,0,0.3)] active:brightness-95 cursor-pointer"
                     : mode === "auto"
-                    ? "bg-[#2f4553] hover:bg-[#3d5565] border-2 border-[#213743] shadow-md cursor-pointer"
-                    : "bg-[#2f4553] border-2 border-[#213743] opacity-75 cursor-default"
+                    ? "border border-[#2f4553] bg-[#213743] hover:bg-[#2a4556] hover:border-[#3d5565] shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_2px_4px_rgba(0,0,0,0.3)] cursor-pointer"
+                    : "border border-[#2f4553] bg-[#213743] shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_2px_4px_rgba(0,0,0,0.3)] cursor-default"
                 }`}
               >
                 {/* Floating Multiplier Profit Badge on this Tile */}

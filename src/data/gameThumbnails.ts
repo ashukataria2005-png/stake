@@ -224,7 +224,7 @@ export const EZUGI_GAME_THUMBNAILS: Record<string, string> = {
 // SPRIBE 100% SUITE
 // ==========================================
 export const SPRIBE_THUMBNAILS: Record<string, string> = {
-  "aviator": "/games/spribe/aviator.webp",
+  "spribe-aviator": "/games/spribe/spribe-aviator.webp",
   "spribe-plinko": "/games/spribe/spribe-plinko.webp",
   "spribe-goal": "/games/spribe/spribe-goal.webp",
   "spribe-mines": "/games/spribe/spribe-mines.webp",
@@ -236,7 +236,7 @@ export const SPRIBE_THUMBNAILS: Record<string, string> = {
   "spribe-balloon": "/games/spribe/spribe-balloon.webp",
   "spribe-scratch": "/games/spribe/spribe-scratch.webp",
   "spribe-fortune-wheel": "/games/spribe/spribe-fortune-wheel.webp",
-  "spribe-blackjack": "/games/spribe/blackjack.webp",
+  "spribe-blackjack": "/games/spribe/spribe-blackjack.webp",
   "spribe-russian-poker": "/games/spribe/spribe-russian-poker.webp",
   "spribe-keno-80": "/games/spribe/spribe-keno-80.webp",
   "spribe-starline": "/games/spribe/spribe-starline.webp",
@@ -248,25 +248,61 @@ export const SPRIBE_THUMBNAILS: Record<string, string> = {
 // SMARTSOFT 100% SUITE
 // ==========================================
 export const SMARTSOFT_THUMBNAILS: Record<string, string> = {
+  // TowerX
   "towerx": "/games/smartsoft/towerx.webp",
+  "smartsoft-towerx": "/games/smartsoft/towerx.webp",
+  // RollX
   "rollx": "/games/smartsoft/rollx.webp",
+  "smartsoft-rollx": "/games/smartsoft/rollx.webp",
+  // JetX
   "jetx": "/games/smartsoft/jetx.webp",
+  "smartsoft-jetx": "/games/smartsoft/jetx.webp",
+  // Balloon
+  "balloon": "/games/smartsoft/smartsoft-balloon.webp",
   "smartsoft-balloon": "/games/smartsoft/smartsoft-balloon.webp",
+  // Plinko X
+  "plinko-x": "/games/smartsoft/smartsoft-plinko-x.webp",
   "smartsoft-plinko-x": "/games/smartsoft/smartsoft-plinko-x.webp",
+  // Lucky 7
+  "lucky-7": "/games/smartsoft/smartsoft-lucky-7.webp",
   "smartsoft-lucky-7": "/games/smartsoft/smartsoft-lucky-7.webp",
+  // CricketX
   "cricket-x": "/games/smartsoft/cricket-x.webp",
+  "smartsoft-cricket-x": "/games/smartsoft/cricket-x.webp",
+  // HelicopterX
   "helicopter-x": "/games/smartsoft/helicopter-x.webp",
+  "smartsoft-helicopter-x": "/games/smartsoft/helicopter-x.webp",
+  // SmashX
   "smash-x": "/games/smartsoft/smash-x.webp",
+  "smartsoft-smash-x": "/games/smartsoft/smash-x.webp",
+  // DoubleX
+  "double-x": "/games/smartsoft/smartsoft-double-x.webp",
   "smartsoft-double-x": "/games/smartsoft/smartsoft-double-x.webp",
+  "smartsoft-double-xsp": "/games/smartsoft/smartsoft-double-x.webp",
+  // PlinkoX Classic
+  "plinko-x-classic": "/games/smartsoft/smartsoft-plinko-x-classic.webp",
   "smartsoft-plinko-x-classic": "/games/smartsoft/smartsoft-plinko-x-classic.webp",
+  // PropelX
+  "propel-x": "/games/smartsoft/smartsoft-propel-x.webp",
   "smartsoft-propel-x": "/games/smartsoft/smartsoft-propel-x.webp",
+  // CarX
+  "car-x": "/games/smartsoft/smartsoft-car-x.webp",
   "smartsoft-car-x": "/games/smartsoft/smartsoft-car-x.webp",
+  // Roulette
   "smartsoft-roulette": "/games/smartsoft/smartsoft-roulette.webp",
+  // Blackjack
   "smartsoft-blackjack": "/games/smartsoft/smartsoft-blackjack.webp",
+  // Sic Bo
+  "sic-bo": "/games/smartsoft/sic-bo.webp",
   "smartsoft-sic-bo": "/games/smartsoft/sic-bo.webp",
+  // Baccarat
   "smartsoft-baccarat": "/games/smartsoft/smartsoft-baccarat.webp",
+  // FootballX
+  "football-x": "/games/smartsoft/smartsoft-football-x.webp",
   "smartsoft-football-x": "/games/smartsoft/smartsoft-football-x.webp",
+  // Cappadocia
   "cappadocia": "/games/smartsoft/cappadocia.webp",
+  "smartsoft-cappadocia": "/games/smartsoft/cappadocia.webp",
 };
 
 // ==========================================

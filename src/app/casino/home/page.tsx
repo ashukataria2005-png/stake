@@ -1645,21 +1645,40 @@ export default function CasinoHomePage() {
 
       {/* Dynamic Category Rows from layoutConfig */}
       {CASINO_LOBBY_CATEGORIES.filter((cat) => cat.enabled).map((cat) => {
-        const cards: CasinoCardData[] = [];
-        for (const slug of cat.orderedGameSlugs) {
-          const game = masterGameMap.get(slug) || getGameItem(slug);
-          if (game) {
-            cards.push({
-              id: game.slug || game.id,
-              title: game.title || (game as any).name || slug,
-              provider: game.provider,
-              playersCount: game.playersCount,
-              badge: game.badge,
-              badgeColor: game.badgeColor,
-              href: game.href || `/casino/games/${game.slug || game.id}`,
-              image: getGameThumbnail(game.slug || game.id, game.image),
-              bgGradient: game.bgGradient,
-            });
+        let cards: CasinoCardData[] = [];
+
+        if (cat.id === "publishers") {
+          cards = publishers;
+        } else if (cat.id === "featured-publishers") {
+          cards = featuredPublishers;
+        } else if (cat.id === "only-on-stake") {
+          cards = onlyOnStakeGames;
+        } else if (cat.id === "burst-games") {
+          cards = burstGames;
+        } else if (cat.id === "new-releases") {
+          cards = newReleasesGames;
+        } else if (cat.id === "pragmatic-play") {
+          cards = pragmaticGames;
+        } else if (cat.id === "hacksaw-gaming") {
+          cards = hacksawGames;
+        } else if (cat.id === "turbogames") {
+          cards = turboGames;
+        } else {
+          for (const slug of cat.orderedGameSlugs) {
+            const game = masterGameMap.get(slug) || getGameItem(slug);
+            if (game) {
+              cards.push({
+                id: game.slug || game.id,
+                title: game.title || (game as any).name || slug,
+                provider: game.provider,
+                playersCount: game.playersCount,
+                badge: game.badge,
+                badgeColor: game.badgeColor,
+                href: game.href || `/casino/games/${game.slug || game.id}`,
+                image: getGameThumbnail(game.slug || game.id, game.image),
+                bgGradient: game.bgGradient,
+              });
+            }
           }
         }
 
@@ -1667,6 +1686,7 @@ export default function CasinoHomePage() {
           <CasinoGameRow
             key={cat.id}
             title={cat.title}
+            rowBadge={cat.rowBadge}
             linkHref={cat.viewAllLink || `/casino/group/${cat.id}`}
             cards={cards}
             onCardClick={handleCardClick}
@@ -1676,79 +1696,6 @@ export default function CasinoHomePage() {
           />
         );
       })}
-
-      {/* PUBLISHERS > (Stake, Pragmatic Play, Hacksaw Gaming...) */}
-      <CasinoGameRow
-        title="Publishers"
-        linkHref="/casino/collection/providers"
-        cards={publishers}
-        onCardClick={handleCardClick}
-        sectionId="publishers"
-      />
-
-      {/* PRAGMATIC PLAY > */}
-      <CasinoGameRow
-        title="Pragmatic Play"
-        linkHref="/casino/group/pragmatic-play"
-        cards={pragmaticGames}
-        onCardClick={handleCardClick}
-        sectionId="pragmatic-play"
-      />
-
-      {/* HACKSAW GAMING > */}
-      <CasinoGameRow
-        title="Hacksaw Gaming"
-        linkHref="/casino/group/hacksaw-gaming"
-        cards={hacksawGames}
-        onCardClick={handleCardClick}
-        sectionId="hacksaw-gaming"
-      />
-
-      {/* TURBO GAMES */}
-      <CasinoGameRow
-        title="Turbo Games"
-        linkHref="/casino/group/turbogames"
-        cards={turboGames}
-        onCardClick={handleCardClick}
-        sectionId="turbogames"
-      />
-
-      {/* 9. FEATURED PUBLISHERS > */}
-      <CasinoGameRow
-        title="Featured Publishers"
-        linkHref="/casino/collection/providers"
-        cards={featuredPublishers}
-        onCardClick={handleCardClick}
-        sectionId="featured-publishers"
-      />
-
-      {/* 10. ONLY ON STAKE > with '2x VIP' cyan badge */}
-      <CasinoGameRow
-        title="Only on Stake"
-        linkHref="/casino/group/stake-originals"
-        rowBadge="2x VIP"
-        cards={onlyOnStakeGames}
-        onCardClick={handleCardClick}
-        sectionId="only-on-stake"
-      />
-
-      {/* 11. BURST GAMES > (Aviator, Mine Drop 2, JetX...) */}
-      <CasinoGameRow
-        title="Burst Games"
-        linkHref="#burst-games"
-        cards={burstGames}
-        onCardClick={handleCardClick}
-        sectionId="burst-games"
-      />
-
-      {/* 12. NEW RELEASES > */}
-      <CasinoGameRow
-        title="New Releases"
-        linkHref="#new-releases"
-        cards={newReleasesGames}
-        onCardClick={handleCardClick}
-        sectionId="new-releases"
-      />
 
       {/* 13. BETS FEED TICKER: Tabs for [ My Bets | All Bets | High Rollers ] + Live Table (Game | Payout) */}
       <CasinoLiveBets />

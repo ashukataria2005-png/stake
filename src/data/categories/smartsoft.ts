@@ -5,14 +5,17 @@ export const SMARTSOFT_SLUGS: string[] = [
   "towerx",
   "rollx",
   "smartsoft-balloon",
-  "plinko-x",
+  "smartsoft-plinko-x",
   "cricket-x",
   "helicopter-x",
   "smash-x",
-  "double-x",
+  "smartsoft-double-x",
   "cappadocia",
   "smartsoft-lucky-7",
   "smartsoft-roulette",
+  "smartsoft-blackjack",
+  "smartsoft-baccarat",
+  "smartsoft-football-x",
 ];
 
 export const SMARTSOFT_CATEGORY: CategoryModule = {

@@ -31,8 +31,6 @@ import {
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
 import confetti from "canvas-confetti";
-import { STAKE_ORIGINALS } from "@/data/stakeGames";
-import { GAME_THUMBNAILS } from "@/data/gameThumbnails";
 
 // Authentic Stake Multiplier Tables: Rows (8–16) × Risk (low, medium, high, expert)
 export type PlinkoDifficulty = "low" | "medium" | "high" | "expert";
@@ -700,28 +698,6 @@ export default function PlinkoGame() {
     }
   };
 
-  // Recommended Games for Carousel
-  const recommendedGames = useMemo(() => {
-    const list = [
-      { id: "mines", title: "Mines", slug: "mines", category: "Originals", players: "8,920" },
-      { id: "crash", title: "Crash", slug: "crash", category: "Originals", players: "12,410" },
-      { id: "limbo", title: "Limbo", slug: "limbo", category: "Originals", players: "6,840" },
-      { id: "dice", title: "Dice", slug: "dice", category: "Originals", players: "9,300" },
-      { id: "keno", title: "Keno", slug: "keno", category: "Originals", players: "4,150" },
-      { id: "roulette", title: "Roulette", slug: "roulette", category: "Originals", players: "7,820" },
-      { id: "dragon-tiger", title: "Dragon Tiger", slug: "dragon-tiger", category: "Live", players: "5,290" },
-      { id: "7-up-7-down", title: "7 Up 7 Down", slug: "7-up-7-down", category: "Indian Cards", players: "6,110" },
-      { id: "andar-bahar", title: "Andar Bahar", slug: "andar-bahar", category: "Indian Cards", players: "8,430" },
-    ];
-    return list.map((g) => {
-      const orig = STAKE_ORIGINALS.find((o) => o.slug === g.slug || o.id === g.id);
-      return {
-        ...g,
-        image: GAME_THUMBNAILS[g.slug] || orig?.image || `/games/${g.slug}.webp`,
-      };
-    });
-  }, []);
-
   return (
     <div
       className={`w-full max-w-5xl mx-auto px-2 sm:px-4 py-4 select-none space-y-4 ${
@@ -1168,72 +1144,6 @@ export default function PlinkoGame() {
             <span className="text-[#b1bad3] block text-[11px]">Volatility</span>
             <span className="text-emerald-400 font-bold text-sm capitalize">{difficulty}</span>
           </div>
-        </div>
-      </div>
-
-      {/* ======================================================== */}
-      {/* "GAMES FOR YOU" RECOMMENDATIONS CAROUSEL                 */}
-      {/* ======================================================== */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-[#38bdf8]" />
-            <h2 className="text-sm font-black uppercase tracking-wider text-white">
-              Games For You
-            </h2>
-          </div>
-          <Link
-            href="/"
-            className="text-xs font-bold text-[#38bdf8] hover:underline"
-          >
-            View All
-          </Link>
-        </div>
-
-        <div className="flex gap-3 overflow-x-auto scrollbar-none pb-2 pt-1">
-          {recommendedGames.map((game) => (
-            <Link
-              key={game.id}
-              href={`/games/${game.slug}`}
-              className="group relative shrink-0 w-36 sm:w-44 rounded-xl border border-[#213743] bg-[#1a2c38] overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:border-[#38bdf8]/50 hover:shadow-lg"
-            >
-              <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#0f212e]">
-                {/* Localized Thumbnail */}
-                <img
-                  src={game.image}
-                  alt={game.title}
-                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  onError={(e) => {
-                    // Fallback to placeholder gradient if image missing
-                    (e.target as HTMLElement).style.display = "none";
-                  }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-
-                {/* Badge */}
-                <span className="absolute top-1.5 left-1.5 rounded-md bg-[#0f212e]/80 backdrop-blur-xs px-1.5 py-0.5 text-[9px] font-black text-[#38bdf8] border border-white/10 uppercase">
-                  {game.category}
-                </span>
-
-                {/* Hover Play Button */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/40">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1475e1] text-white shadow-lg">
-                    <Play className="h-4 w-4 fill-current ml-0.5" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-2.5">
-                <h3 className="text-xs font-black text-white truncate group-hover:text-[#38bdf8] transition-colors">
-                  {game.title}
-                </h3>
-                <div className="flex items-center justify-between text-[10px] text-[#b1bad3] mt-0.5">
-                  <span>Stake</span>
-                  <span className="font-mono text-emerald-400">{game.players} online</span>
-                </div>
-              </div>
-            </Link>
-          ))}
         </div>
       </div>
 

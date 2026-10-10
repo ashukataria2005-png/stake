@@ -19,7 +19,6 @@ import confetti from "canvas-confetti";
 import MinesGrid from "./MinesGrid";
 import MinesControls from "./MinesControls";
 import MinesSettingsPopover from "./MinesSettingsPopover";
-import MinesGamesForYou from "./MinesGamesForYou";
 import { getMinesMultiplier } from "./minesMultipliers";
 
 interface MultiplierHistoryItem {
@@ -551,9 +550,6 @@ export default function MinesGame() {
           </button>
         </div>
       </div>
-
-      {/* 4. Categorized "Games For You" Section (Screenshot 28) */}
-      <MinesGamesForYou />
 
       {/* Fairness Modal */}
       {isFairnessOpen && (

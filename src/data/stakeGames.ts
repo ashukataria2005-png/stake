@@ -2599,7 +2599,7 @@ const RAW_SPRIBE_GAMES: GameItem[] = [
   {
     id: "spribe-aviator",
     title: "Aviator",
-    slug: "aviator",
+    slug: "spribe-aviator",
     provider: "Spribe",
     playersCount: 4890,
     livePlayerCount: 4890,
@@ -2960,7 +2960,7 @@ const RAW_SMARTSOFT_GAMES: GameItem[] = [
   {
     id: "smartsoft-double-x",
     title: "DoubleX",
-    slug: "smartsoft-double-x",
+    slug: "smartsoft-double-xsp",
     provider: "SmartSoft",
     playersCount: 2190,
     livePlayerCount: 2190,
@@ -5221,6 +5221,10 @@ export const masterGameMap = new Map<string, GameItem>();
 export function getGameItem(slug: string): GameItem {
   const existing = masterGameMap.get(slug);
   if (existing) return existing;
+
+  if (masterGameMap.has(`smartsoft-${slug}`)) return masterGameMap.get(`smartsoft-${slug}`)!;
+  const strippedSmartsoft = slug.replace(/^smartsoft-/, "");
+  if (masterGameMap.has(strippedSmartsoft)) return masterGameMap.get(strippedSmartsoft)!;
 
   const dashed = slug.replace(/x$/, "-x");
   if (masterGameMap.has(dashed)) return masterGameMap.get(dashed)!;

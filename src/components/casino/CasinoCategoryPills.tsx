@@ -87,15 +87,7 @@ export default function CasinoCategoryPills({
         </svg>
       ),
     },
-    {
-      id: "mac88",
-      label: "Mac88",
-      icon: (
-        <span className="font-black text-xs text-emerald-400 tracking-tighter shrink-0">
-          M88
-        </span>
-      ),
-    },
+
     {
       id: "game-shows",
       label: "Game Shows",
@@ -117,11 +109,10 @@ export default function CasinoCategoryPills({
             <button
               key={cat.id}
               onClick={() => handlePillClick(cat.id)}
-              className={`rounded-full px-4 py-2 flex items-center gap-2 text-sm sm:text-base shrink-0 cursor-pointer transition-all duration-150 ${
-                isActive
+              className={`rounded-full px-4 py-2 flex items-center gap-2 text-sm sm:text-base shrink-0 cursor-pointer transition-all duration-150 ${isActive
                   ? "bg-[#2f4553] text-white font-bold shadow-sm"
                   : "bg-transparent text-[#b1bad3] hover:text-white font-medium hover:bg-[#213743]/50"
-              }`}
+                }`}
             >
               <span className="flex items-center justify-center shrink-0">
                 {cat.icon}
