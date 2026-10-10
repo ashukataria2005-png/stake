@@ -3,8 +3,8 @@ import { CategoryModule } from "./types";
 export const INOUT_SLUGS: string[] = [
   "chicken-road-2",
   "megablock",
-  "chicken-road",
   "aviafly",
+  "chicken-road",
   "penalty-unlimited",
   "tower-dash",
   "chicken-road-gold",
