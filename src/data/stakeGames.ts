@@ -2126,9 +2126,9 @@ const RAW_EZUGI_GAMES: GameItem[] = [
     bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
   },
   {
-    id: "ezugi-teen-patti",
+    id: "ezugi-teen-patti-live",
     title: "Teen Patti Live",
-    slug: "ezugi-teen-patti",
+    slug: "ezugi-teen-patti-live",
     provider: "Ezugi",
     playersCount: 3450,
     livePlayerCount: 3450,

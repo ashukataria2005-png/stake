@@ -28,6 +28,8 @@ interface CasinoGameRowProps {
   cards: CasinoCardData[];
   onCardClick?: (card: CasinoCardData) => void;
   sectionId?: string;
+  showGameTitle?: boolean;
+  showProviderName?: boolean;
 }
 
 export default function CasinoGameRow({
@@ -37,6 +39,8 @@ export default function CasinoGameRow({
   cards,
   onCardClick,
   sectionId,
+  showGameTitle = true,
+  showProviderName = true,
 }: CasinoGameRowProps) {
   // Task 19: 3-Stage Progressive Tier Loading (+6 items = 2 rows per click):
   // 0 = Initial: 3 games (1 row)
@@ -73,7 +77,7 @@ export default function CasinoGameRow({
       {/* Row Header */}
       <div className="flex items-center justify-between">
         <Link href={linkHref} className="flex items-center gap-2 group cursor-pointer">
-          <h2 className="text-base sm:text-lg font-extrabold text-white flex items-center gap-1.5 tracking-tight hover:text-[#00e701] transition-colors cursor-pointer">
+          <h2 className="text-lg sm:text-xl font-bold tracking-tight text-white flex items-center gap-1.5 hover:text-[#00e701] transition-colors cursor-pointer">
             <span>{title}</span>
             <span className="text-[#b1bad3] text-sm sm:text-base group-hover:translate-x-1 transition-transform">
               &gt;
@@ -154,14 +158,20 @@ export default function CasinoGameRow({
               </div>
 
               {/* Under-Card Title, Subtitle / Provider */}
-              <div className="flex flex-col mt-1.5 px-0.5">
-                <span className="font-black uppercase tracking-wider text-xs sm:text-sm text-white truncate">
-                  {card.title}
-                </span>
-                <span className="text-[9px] sm:text-[10px] uppercase font-bold text-white/70 truncate">
-                  {card.provider || "Stake Originals"}
-                </span>
-              </div>
+              {(showGameTitle || showProviderName) && (
+                <div className="flex flex-col mt-1.5 px-0.5">
+                  {showGameTitle && (
+                    <span className="font-black uppercase tracking-wider text-xs sm:text-sm text-white truncate">
+                      {card.title}
+                    </span>
+                  )}
+                  {showProviderName && (
+                    <span className="text-[9px] sm:text-[10px] uppercase font-bold text-white/70 truncate">
+                      {card.provider || "Stake Originals"}
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
           );
 

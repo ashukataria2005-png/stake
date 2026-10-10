@@ -1671,6 +1671,8 @@ export default function CasinoHomePage() {
             cards={cards}
             onCardClick={handleCardClick}
             sectionId={cat.id}
+            showGameTitle={cat.showGameTitle ?? true}
+            showProviderName={cat.showProviderName ?? true}
           />
         );
       })}

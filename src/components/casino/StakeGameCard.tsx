@@ -10,9 +10,16 @@ import { getGameThumbnail } from "@/data/gameThumbnails";
 interface StakeGameCardProps {
   game: GameItem;
   onClick?: (game: GameItem) => void;
+  showGameTitle?: boolean;
+  showProviderName?: boolean;
 }
 
-export default function StakeGameCard({ game, onClick }: StakeGameCardProps) {
+export default function StakeGameCard({
+  game,
+  onClick,
+  showGameTitle = true,
+  showProviderName = true,
+}: StakeGameCardProps) {
   const [imageError, setImageError] = useState(false);
   const thumbnailUrl = getGameThumbnail(game.slug || game.id, game.image);
 
@@ -50,14 +57,20 @@ export default function StakeGameCard({ game, onClick }: StakeGameCardProps) {
       </div>
 
       {/* Under-Card Title, Subtitle / Provider */}
-      <div className="flex flex-col mt-1.5 px-0.5">
-        <span className="font-black uppercase tracking-wider text-xs sm:text-sm text-white truncate">
-          {game.title}
-        </span>
-        <span className="text-[9px] sm:text-[10px] uppercase font-bold text-white/70 truncate">
-          {game.provider || "Stake Originals"}
-        </span>
-      </div>
+      {(showGameTitle || showProviderName) && (
+        <div className="flex flex-col mt-1.5 px-0.5">
+          {showGameTitle && (
+            <span className="font-black uppercase tracking-wider text-xs sm:text-sm text-white truncate">
+              {game.title}
+            </span>
+          )}
+          {showProviderName && (
+            <span className="text-[9px] sm:text-[10px] uppercase font-bold text-white/70 truncate">
+              {game.provider || "Stake Originals"}
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 

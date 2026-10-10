@@ -144,7 +144,7 @@ export const EZUGI_GAME_THUMBNAILS: Record<string, string> = {
 
 
   "royal-poker": "/games/ezugi/royal-poker.webp",
-  "ezugi-royal-poker": "/games/ezugi/royal-poker.webp",
+  
   "one-day-teen-patti": "/games/ezugi/one-day-teen-patti.webp",
 
   "sic-bo-live": "/games/ezugi/sic-bo-live.webp",
@@ -210,7 +210,7 @@ export const EZUGI_GAME_THUMBNAILS: Record<string, string> = {
   "ezugi-golden-baccarat": "/games/ezugi/ezugi-golden-baccarat.webp",
   "ezugi-unlimited-blackjack": "/games/ezugi/ezugi-unlimited-blackjack.webp",
   "ezugi-blackjack-salon-prive": "/games/ezugi/ezugi-blackjack-salon-prive.webp",
-
+  "ezugi-royal-poker": "/games/ezugi/ezugi-royal-poker.webp",
 
 
 };
