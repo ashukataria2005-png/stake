@@ -2960,7 +2960,7 @@ const RAW_SMARTSOFT_GAMES: GameItem[] = [
   {
     id: "smartsoft-double-x",
     title: "DoubleX",
-    slug: "double-x",
+    slug: "smartsoft-double-x",
     provider: "SmartSoft",
     playersCount: 2190,
     livePlayerCount: 2190,
@@ -2984,7 +2984,7 @@ const RAW_SMARTSOFT_GAMES: GameItem[] = [
   {
     id: "smartsoft-propel-x",
     title: "PropelX",
-    slug: "propel-x",
+    slug: "smartsoft-propel-x",
     provider: "SmartSoft",
     playersCount: 1980,
     livePlayerCount: 1980,
@@ -2996,7 +2996,7 @@ const RAW_SMARTSOFT_GAMES: GameItem[] = [
   {
     id: "smartsoft-car-x",
     title: "CarX",
-    slug: "car-x",
+    slug: "smartsoft-car-x",
     provider: "SmartSoft",
     playersCount: 2260,
     livePlayerCount: 2260,
