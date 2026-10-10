@@ -4,6 +4,9 @@ import { CategoryModule } from "./types";
 // Pure Evolution games live in evolution.ts; pure Ezugi games live in ezugi.ts.
 // This row showcases the best of Mac88 Indian live suite + top cross-provider picks.
 export const LIVE_CASINO_SLUGS: string[] = [
+  "immersive-roulette",
+  "ezugi-lucky-7",
+  "mac88-roulette",
   "mac88-lightning-dragon-tiger",
   "mac88-lightning-andar-bahar",
   "mac88-3-cards-judgement",
