@@ -8,6 +8,7 @@ import {
   MessageSquare,
   ChevronDown,
   RotateCcw,
+  Search,
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import WalletModal from "@/components/WalletModal";
@@ -18,6 +19,7 @@ import CryptoIcon from "@/components/CryptoIcon";
 import FiatCoinIcon from "@/components/FiatCoinIcon";
 import { StakeLogo } from "@/components/common/StakeLogo";
 import NotificationsDrawer from "@/components/NotificationsDrawer";
+import CasinoSearchModal from "@/components/casino/CasinoSearchModal";
 
 export default function Navbar() {
   const {
@@ -46,6 +48,7 @@ export default function Navbar() {
   const [isCurrencyDropdownOpen, setIsCurrencyDropdownOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [unreadNotifsCount, setUnreadNotifsCount] = useState(3);
   const [showVipPopover, setShowVipPopover] = useState(false);
 
@@ -75,8 +78,8 @@ export default function Navbar() {
             className="flex items-center focus:outline-none"
             aria-label="Stake Home"
           >
-            {/* Official Stake Logo */}
-            <StakeLogo className="h-7 sm:h-8 w-auto text-white hover:opacity-90 transition-opacity" collapsed={false} />
+            {/* Official Stake S Emblem (compact collapsed) */}
+            <StakeLogo className="h-7 sm:h-8 w-auto text-white hover:opacity-90 transition-opacity" collapsed={true} />
           </Link>
         </div>
 
@@ -178,6 +181,16 @@ export default function Navbar() {
           </div>
         ) : (
           <div className="flex items-center gap-2 shrink-0">
+            {/* Search Icon Button */}
+            <button
+              onClick={() => setIsSearchOpen(true)}
+              title="Search Games"
+              aria-label="Search Games"
+              className="p-2 text-[#b1bad3] hover:text-white transition-colors bg-transparent border-none outline-none cursor-pointer flex items-center justify-center shrink-0"
+            >
+              <Search className="w-5 h-5" />
+            </button>
+
             {/* Notification Bell (Visible on Both Mobile & Desktop - Border-free per Screenshots 7-15) */}
             <button
               onClick={() => setIsNotificationsOpen(true)}
@@ -322,6 +335,12 @@ export default function Navbar() {
         isOpen={isNotificationsOpen}
         onClose={() => setIsNotificationsOpen(false)}
         onUnreadCountChange={setUnreadNotifsCount}
+      />
+
+      {/* Casino Search Modal */}
+      <CasinoSearchModal
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
       />
     </>
   );
