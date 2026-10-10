@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Sparkles, Dices, ChevronDown, Infinity as InfinityIcon, Sliders } from "lucide-react";
+import { Sparkles, Dices, Infinity as InfinityIcon, Sliders, ChevronDown } from "lucide-react";
 import { sounds } from "@/utils/audio";
 import { useGame } from "@/context/GameContext";
-import MinesMultiplierTrack from "./MinesMultiplierTrack";
 
 interface MinesControlsProps {
   mode: "manual" | "auto";
@@ -121,111 +120,7 @@ export default function MinesControls({
 
   return (
     <div className="w-full lg:w-[320px] shrink-0 border-t lg:border-t-0 lg:border-r border-[#213743] bg-[#1a2c38] p-4 sm:p-5 flex flex-col justify-start space-y-4 rounded-2xl select-none">
-      {/* Mode Switch Tabs: [ Manual | Auto ] */}
-      <div className="flex rounded-xl bg-[#0f212e] p-1 border border-[#213743]">
-        <button
-          type="button"
-          disabled={isPlaying || isAutoRunning}
-          onClick={() => {
-            sounds.playClick();
-            setMode("manual");
-          }}
-          className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
-            mode === "manual"
-              ? "bg-[#213743] text-white shadow-sm"
-              : "text-[#b1bad3] hover:text-white"
-          }`}
-        >
-          Manual
-        </button>
-        <button
-          type="button"
-          disabled={isPlaying || isAutoRunning}
-          onClick={() => {
-            sounds.playClick();
-            setMode("auto");
-          }}
-          className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
-            mode === "auto"
-              ? "bg-[#213743] text-white shadow-sm"
-              : "text-[#b1bad3] hover:text-white"
-          }`}
-        >
-          Auto
-        </button>
-      </div>
-
-      {/* Live In-Game Multiplier Progression Track (Screenshot 38-43 parity above Cashout button) */}
-      {isPlaying && (
-        <div className="w-full -mt-1 mb-1 animate-in fade-in duration-200">
-          <MinesMultiplierTrack
-            minesCount={minesCount}
-            revealedGemsCount={currentGemsOpened}
-            isPlaying={isPlaying}
-          />
-        </div>
-      )}
-
-      {/* PRIMARY ACTION BUTTON */}
-      <div className="w-full">
-        {mode === "manual" ? (
-          !isPlaying ? (
-            <button
-              type="button"
-              onClick={handleBetClick}
-              disabled={betAmount > balance || betAmount <= 0}
-              className="w-full py-4 text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <Sparkles className="h-5 w-5 fill-current" />
-              <span>Bet</span>
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={onCashout}
-              disabled={currentGemsOpened === 0}
-              className={`w-full py-4 text-base font-black rounded-xl shadow-lg transition-all active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer ${
-                currentGemsOpened === 0
-                  ? "bg-[#213743] text-[#b1bad3] cursor-not-allowed"
-                  : "bg-[#00e701] hover:bg-[#00c701] text-black shadow-[0_0_20px_rgba(0,231,1,0.4)]"
-              }`}
-            >
-              <span>Cashout {activeSym}{cashoutValue.toFixed(2)}</span>
-            </button>
-          )
-        ) : !isAutoRunning ? (
-          <button
-            type="button"
-            onClick={handleStartAutoClick}
-            disabled={betAmount > balance || betAmount <= 0}
-            className="w-full py-4 text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
-          >
-            <span>Start Autobet</span>
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={onStopAuto}
-            className="w-full py-4 text-base font-black rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-lg active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer"
-          >
-            <span>Stop Autobet</span>
-          </button>
-        )}
-      </div>
-
-      {/* Random Pick Button (Active in Manual Play) */}
-      {isPlaying && mode === "manual" && (
-        <button
-          type="button"
-          onClick={onRandomPick}
-          className="w-full py-2.5 rounded-xl bg-[#213743] hover:bg-[#2f4553] text-[#00e701] hover:text-white border border-[#2f4553] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer active:scale-95 shadow-sm"
-        >
-          <Dices className="w-4 h-4" />
-          <span>Random Pick</span>
-        </button>
-      )}
-
-      {/* Bet Amount Input with Quick Buttons (1/2, 2x) */}
+      {/* 1. Bet Amount Input with Quick Buttons (1/2, 2x) */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between text-xs">
           <span className="font-bold text-[#b1bad3]">Bet Amount</span>
@@ -284,53 +179,116 @@ export default function MinesControls({
         </div>
       </div>
 
-      {/* Mines vs Gems Dynamic Slider & Selector */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between text-xs font-bold">
-          <span className="text-[#ef4444] flex items-center gap-1">
-            <span>💣</span> Mines ({minesCount})
-          </span>
-          <span className="text-[#00e701] flex items-center gap-1">
-            Gems ({gemsCount}) <span>💎</span>
-          </span>
-        </div>
+      {/* 2. Authentic Mines / Gems Slider Selector (Clean typography, no emojis/dropdown) */}
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between">
+          {/* Left: Mines */}
+          <div className="flex flex-col">
+            <span className="text-xs font-medium text-[#b1bad3]">Mines</span>
+            <div className="mt-1 bg-[#0f212e] border border-[#213743] rounded-xl px-3 py-1.5 text-center font-bold text-sm text-white min-w-[52px]">
+              {minesCount}
+            </div>
+          </div>
 
-        {/* Range Slider dynamically balancing Mines (1-24) vs Gems (24-1) */}
-        <input
-          type="range"
-          min="1"
-          max="24"
-          disabled={isPlaying || isAutoRunning}
-          value={minesCount}
-          onChange={(e) => {
-            sounds.playClick();
-            setMinesCount(Number(e.target.value));
-          }}
-          className="w-full accent-[#00e701] h-2 bg-[#0f212e] rounded-lg appearance-none cursor-pointer disabled:opacity-50"
-        />
+          {/* Center: Clean Slider with blue active fill and rounded thumb */}
+          <div className="flex-1 px-3 flex flex-col justify-end pb-1.5">
+            <input
+              type="range"
+              min="1"
+              max="24"
+              disabled={isPlaying || isAutoRunning}
+              value={minesCount}
+              onChange={(e) => {
+                sounds.playClick();
+                setMinesCount(Number(e.target.value));
+              }}
+              style={{
+                background: `linear-gradient(to right, #1475e1 0%, #1475e1 ${((minesCount - 1) / 23) * 100}%, #0f212e ${((minesCount - 1) / 23) * 100}%, #0f212e 100%)`,
+              }}
+              className="w-full h-2 rounded-lg appearance-none cursor-pointer disabled:opacity-50 accent-[#1475e1]"
+            />
+          </div>
 
-        {/* Dropdown Select Option for Fast Presets */}
-        <div className="relative">
-          <select
-            disabled={isPlaying || isAutoRunning}
-            value={minesCount}
-            onChange={(e) => {
-              sounds.playClick();
-              setMinesCount(Number(e.target.value));
-            }}
-            className="w-full appearance-none rounded-xl bg-[#0f212e] border border-[#213743] px-3 py-2 text-xs font-bold text-white outline-none cursor-pointer disabled:opacity-50"
-          >
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20, 24].map((cnt) => (
-              <option key={cnt} value={cnt}>
-                {cnt} Mines ({25 - cnt} Gems)
-              </option>
-            ))}
-          </select>
-          <ChevronDown className="pointer-events-none absolute right-3 top-2.5 h-4 w-4 text-[#b1bad3]" />
+          {/* Right: Gems */}
+          <div className="flex flex-col items-end">
+            <span className="text-xs font-medium text-[#b1bad3]">Gems</span>
+            <div className="mt-1 bg-[#0f212e] border border-[#213743] rounded-xl px-3 py-1.5 text-center font-bold text-sm text-white min-w-[52px]">
+              {gemsCount}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* AUTO MODE SETTINGS */}
+      {/* 3. PRIMARY ACTION BUTTON */}
+      <div className="w-full">
+        {mode === "manual" ? (
+          !isPlaying ? (
+            <button
+              type="button"
+              onClick={handleBetClick}
+              disabled={betAmount > balance || betAmount <= 0}
+              className="w-full py-4 text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Sparkles className="h-5 w-5 fill-current" />
+              <span>Bet</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={onCashout}
+              disabled={currentGemsOpened === 0}
+              className={`w-full py-4 text-base font-black rounded-xl shadow-lg transition-all active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer ${
+                currentGemsOpened === 0
+                  ? "bg-[#213743] text-[#b1bad3] cursor-not-allowed"
+                  : "bg-[#00e701] hover:bg-[#00c701] text-black shadow-[0_0_20px_rgba(0,231,1,0.4)]"
+              }`}
+            >
+              <span>Cashout {activeSym}{cashoutValue.toFixed(2)}</span>
+            </button>
+          )
+        ) : !isAutoRunning ? (
+          <button
+            type="button"
+            onClick={handleStartAutoClick}
+            disabled={betAmount > balance || betAmount <= 0}
+            className="w-full py-4 text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <span>Start Autobet</span>
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={onStopAuto}
+            className="w-full py-4 text-base font-black rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-lg active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <span>Stop Autobet</span>
+          </button>
+        )}
+      </div>
+
+      {/* 4. Random Pick Button (Active in Manual Play) */}
+      {isPlaying && mode === "manual" && (
+        <button
+          type="button"
+          onClick={onRandomPick}
+          className="w-full py-2.5 rounded-xl bg-[#213743] hover:bg-[#2f4553] text-[#00e701] hover:text-white border border-[#2f4553] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer active:scale-95 shadow-sm"
+        >
+          <Dices className="w-4 h-4" />
+          <span>Random Pick</span>
+        </button>
+      )}
+
+      {/* 5. Live Total Profit Box during Active Play */}
+      {isPlaying && currentGemsOpened > 0 && (
+        <div className="bg-[#0f212e] border border-[#213743] rounded-xl p-3 flex items-center justify-between text-xs animate-in fade-in">
+          <span className="text-[#b1bad3] font-medium">Total Profit ({currentMultiplier.toFixed(2)}×)</span>
+          <span className="text-[#00e701] font-mono font-bold text-sm">
+            +{activeSym}{((betAmount * currentMultiplier) - betAmount).toFixed(2)}
+          </span>
+        </div>
+      )}
+
+      {/* 6. AUTO MODE SETTINGS */}
       {mode === "auto" && (
         <div className="space-y-3 border-t border-[#213743] pt-3 text-xs">
           {/* Number of Bets */}
@@ -437,6 +395,40 @@ export default function MinesControls({
           </div>
         </div>
       )}
+
+      {/* 7. Mode Switch Tabs: [ Manual | Auto ] - Positioned at very bottom */}
+      <div className="flex rounded-xl bg-[#0f212e] p-1 border border-[#213743] mt-auto">
+        <button
+          type="button"
+          disabled={isPlaying || isAutoRunning}
+          onClick={() => {
+            sounds.playClick();
+            setMode("manual");
+          }}
+          className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+            mode === "manual"
+              ? "bg-[#213743] text-white shadow-sm"
+              : "text-[#b1bad3] hover:text-white"
+          }`}
+        >
+          Manual
+        </button>
+        <button
+          type="button"
+          disabled={isPlaying || isAutoRunning}
+          onClick={() => {
+            sounds.playClick();
+            setMode("auto");
+          }}
+          className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+            mode === "auto"
+              ? "bg-[#213743] text-white shadow-sm"
+              : "text-[#b1bad3] hover:text-white"
+          }`}
+        >
+          Auto
+        </button>
+      </div>
     </div>
   );
 }

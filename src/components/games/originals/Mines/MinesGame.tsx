@@ -57,6 +57,7 @@ export default function MinesGame() {
   const [floatingBadges, setFloatingBadges] = useState<{ [key: number]: string }>({});
   const [lastRoundTiles, setLastRoundTiles] = useState<number[]>([]);
   const [selectedAutoTiles, setSelectedAutoTiles] = useState<number[]>([]);
+  const [cashoutOverlay, setCashoutOverlay] = useState<{ multiplier: number; payout: number } | null>(null);
 
   // Settings & Utilities state
   const [volume, setVolume] = useState<number>(100);
@@ -130,6 +131,7 @@ export default function MinesGame() {
     setFloatingBadges({});
     setIsGameOver(false);
     setIsPlaying(true);
+    setCashoutOverlay(null);
     setNonce((n) => n + 1);
   }, [balance, betAmount, minesCount, updateBalance]);
 
@@ -152,6 +154,7 @@ export default function MinesGame() {
     updateBalance(winAmount);
     setIsPlaying(false);
     setIsGameOver(true);
+    setCashoutOverlay({ multiplier: currentMultiplier, payout: winAmount });
 
     // Save history
     setHistory((prev) => [
@@ -367,6 +370,7 @@ export default function MinesGame() {
 
   const startAutoBet = () => {
     if (betAmount > balance || betAmount <= 0) return;
+    setCashoutOverlay(null);
     autoInitialBalanceRef.current = balance;
     baseBetRef.current = betAmount;
     setAutoBetsRemaining(autoBetsCount === "infinity" ? 999999 : autoBetsCount);
@@ -495,6 +499,8 @@ export default function MinesGame() {
           onRepeatTiles={handleRepeatTiles}
           onClearTiles={handleClearTiles}
           animations={animations}
+          cashoutOverlay={cashoutOverlay}
+          onDismissCashout={() => setCashoutOverlay(null)}
         />
       </div>
 

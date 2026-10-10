@@ -109,21 +109,6 @@ export const HOME_PAGE_CATEGORIES: CategoryLayoutItem[] = [
     orderedGameSlugs: SLOTS_SLUGS,
   },
 
-
-  // ── DISABLED (provider catalogs — flip enabled: true to show) ──
-
-
-
-  {
-    id: "mac88",
-    title: "Mac88 Indian Suite",
-    enabled: true,
-    viewAllLink: "/casino/group/mac88",
-    showGameTitle: false,
-    showProviderName: false,
-    orderedGameSlugs: MAC88_SLUGS,
-  },
-
   {
     id: "smartsoft",
     title: "SmartSoft",
@@ -134,10 +119,27 @@ export const HOME_PAGE_CATEGORIES: CategoryLayoutItem[] = [
     orderedGameSlugs: SMARTSOFT_SLUGS,
   },
 
+
+  // ── DISABLED (provider catalogs — flip enabled: true to show) ──
+
+
+
+  {
+    id: "mac88",
+    title: "Mac88 Indian Suite",
+    enabled: false,
+    viewAllLink: "/casino/group/mac88",
+    showGameTitle: false,
+    showProviderName: false,
+    orderedGameSlugs: MAC88_SLUGS,
+  },
+
+
+
   {
     id: "100hp",
     title: "100hp Gaming",
-    enabled: true,
+    enabled: false,
     viewAllLink: "/casino/group/100hp",
     showGameTitle: false,
     showProviderName: false,
@@ -146,7 +148,7 @@ export const HOME_PAGE_CATEGORIES: CategoryLayoutItem[] = [
   {
     id: "jili",
     title: "Jili Games",
-    enabled: true,
+    enabled: false,
     viewAllLink: "/casino/group/jili",
     showGameTitle: false,
     showProviderName: false,
@@ -155,7 +157,7 @@ export const HOME_PAGE_CATEGORIES: CategoryLayoutItem[] = [
   {
     id: "evoplay",
     title: "Evoplay Entertainment",
-    enabled: true,
+    enabled: false,
     viewAllLink: "/casino/group/evoplay",
     showGameTitle: false,
     showProviderName: false,
