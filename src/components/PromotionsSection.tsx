@@ -23,8 +23,8 @@ export default function PromotionsSection() {
   const promos: PromoCardItem[] = [
     {
       id: "messi-last-dance",
-      badge: "Promotion",
-      badgeStyle: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+      badge: "Only on Stake",
+      badgeStyle: "bg-[#1a2c38] text-[#00e701] sm:text-[#2ee6ca] border border-[#2ee6ca]/30",
       title: "Messi's Last Dance",
       subtitle: "Boosted odds on Messi! T&Cs Apply.",
       bgGradient: "from-sky-950/80 via-[#1a2c38] to-[#0f212e]",

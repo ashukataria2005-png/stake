@@ -191,14 +191,16 @@ export default function Navbar() {
               <Search className="w-5 h-5" />
             </button>
 
-            {/* Notification Bell (Visible on Both Mobile & Desktop - Border-free per Screenshots 7-15) */}
+            {/* Notification Bell (Visible on Both Mobile & Desktop - Solid Filled Bell) */}
             <button
               onClick={() => setIsNotificationsOpen(true)}
               title="Notifications"
               aria-label="Notifications"
               className="relative p-2 text-[#b1bad3] hover:text-white transition-colors bg-transparent border-none outline-none cursor-pointer flex items-center justify-center shrink-0"
             >
-              <Bell className="w-5 h-5" />
+              <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current" fill="currentColor">
+                <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
+              </svg>
               {unreadNotifsCount > 0 && (
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#fe2247] rounded-full" />
               )}
@@ -292,16 +294,16 @@ export default function Navbar() {
               </div>
             </div>
 
-            {/* User Profile Avatar Icon (Visible on Both Mobile & Desktop) */}
+            {/* User Profile Avatar Icon (Visible on Both Mobile & Desktop - Solid Silhouette Avatar) */}
             <div className="relative shrink-0">
               <button
                 onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                className="flex items-center gap-1.5 p-0.5 rounded-full hover:ring-2 hover:ring-[#2f4553] transition-all cursor-pointer"
+                className="flex items-center gap-1.5 p-2 text-[#b1bad3] hover:text-white transition-colors bg-transparent border-none outline-none cursor-pointer shrink-0"
                 aria-label="User Profile Menu"
               >
-                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#2f4553] flex items-center justify-center text-white text-xs sm:text-sm font-bold hover:brightness-110 transition-all border border-[#213743]">
-                  {user?.name?.[0] || "A"}
-                </div>
+                <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current" fill="currentColor">
+                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                </svg>
                 <ChevronDown
                   className={`hidden sm:block h-3.5 w-3.5 text-[#b1bad3] transition-transform duration-200 ${
                     isProfileMenuOpen ? "rotate-180" : ""

@@ -216,12 +216,12 @@ export default function CasinoPromoCarousel() {
       {/* Horizontal Snap Scroll Carousel (No dots, no circles) */}
       <div
         ref={scrollRef}
-        className="snap-x snap-mandatory flex gap-3 overflow-x-auto no-scrollbar py-1 scroll-smooth"
+        className="snap-x snap-mandatory flex gap-3 overflow-x-auto no-scrollbar py-1 scroll-smooth w-full max-w-full"
       >
         {promos.map((promo) => (
           <div
             key={promo.id}
-            className="min-w-[88%] sm:min-w-[380px] md:min-w-[420px] max-w-[460px] flex-shrink-0 snap-center"
+            className="w-[85vw] max-w-[calc(100vw-2rem)] sm:w-[380px] sm:max-w-[420px] md:w-[420px] md:max-w-[460px] flex-shrink-0 snap-start"
           >
             <Link
               href={promo.ctaLink.startsWith("http") && promo.ctaLink.includes("sanity.io") ? "/casino/home" : promo.ctaLink}
@@ -248,8 +248,8 @@ export default function CasinoPromoCarousel() {
 
                 {/* Right side (Content - 60%) */}
                 <div className="w-[60%] p-3.5 flex flex-col justify-center gap-1 text-left overflow-hidden">
-                  <span className="w-fit text-xs font-bold uppercase tracking-wider bg-white/10 text-white px-2 py-0.5 rounded-md">
-                    Promotion
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-[#1a2c38] text-[#00e701] sm:text-[#2ee6ca] border border-[#2ee6ca]/30 w-fit">
+                    Only on Stake
                   </span>
                   <h3 className="text-white font-black text-sm sm:text-base leading-tight tracking-tight truncate">
                     {promo.title}

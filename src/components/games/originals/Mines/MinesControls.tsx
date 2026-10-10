@@ -120,7 +120,54 @@ export default function MinesControls({
 
   return (
     <div className="w-full lg:w-[320px] shrink-0 border-t lg:border-t-0 lg:border-r border-[#213743] bg-[#1a2c38] p-4 sm:p-5 flex flex-col justify-start space-y-4 rounded-2xl select-none">
-      {/* 1. Bet Amount Input with Quick Buttons (1/2, 2x) */}
+      {/* 1. PRIMARY ACTION BUTTON (Directly at top of controls) */}
+      <div className="w-full">
+        {mode === "manual" ? (
+          !isPlaying ? (
+            <button
+              type="button"
+              onClick={handleBetClick}
+              disabled={betAmount > balance || betAmount <= 0}
+              className="w-full py-4 text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <Sparkles className="h-5 w-5 fill-current" />
+              <span>Bet</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={onCashout}
+              disabled={currentGemsOpened === 0}
+              className={`w-full py-4 text-base font-black rounded-xl shadow-lg transition-all active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer ${
+                currentGemsOpened === 0
+                  ? "bg-[#213743] text-[#b1bad3] cursor-not-allowed"
+                  : "bg-[#00e701] hover:bg-[#00c701] text-black shadow-[0_0_20px_rgba(0,231,1,0.4)]"
+              }`}
+            >
+              <span>Cashout {activeSym}{cashoutValue.toFixed(2)}</span>
+            </button>
+          )
+        ) : !isAutoRunning ? (
+          <button
+            type="button"
+            onClick={handleStartAutoClick}
+            disabled={betAmount > balance || betAmount <= 0}
+            className="w-full py-4 text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <span>Start Autobet</span>
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={onStopAuto}
+            className="w-full py-4 text-base font-black rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-lg active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <span>Stop Autobet</span>
+          </button>
+        )}
+      </div>
+
+      {/* 2. Bet Amount Input with Quick Buttons (1/2, 2x) */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between text-xs">
           <span className="font-bold text-[#b1bad3]">Bet Amount</span>
@@ -179,7 +226,19 @@ export default function MinesControls({
         </div>
       </div>
 
-      {/* 2. Authentic Mines / Gems Slider Selector (Clean typography, no emojis/dropdown) */}
+      {/* 3. Random Pick Button (Active in Manual Play) */}
+      {isPlaying && mode === "manual" && (
+        <button
+          type="button"
+          onClick={onRandomPick}
+          className="w-full py-2.5 rounded-xl bg-[#213743] hover:bg-[#2f4553] text-[#00e701] hover:text-white border border-[#2f4553] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer active:scale-95 shadow-sm"
+        >
+          <Dices className="w-4 h-4" />
+          <span>Random Pick</span>
+        </button>
+      )}
+
+      {/* 4. Authentic Mines / Gems Slider Selector (Clean typography, no emojis/dropdown) */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
           {/* Left: Mines */}
@@ -218,65 +277,6 @@ export default function MinesControls({
           </div>
         </div>
       </div>
-
-      {/* 3. PRIMARY ACTION BUTTON */}
-      <div className="w-full">
-        {mode === "manual" ? (
-          !isPlaying ? (
-            <button
-              type="button"
-              onClick={handleBetClick}
-              disabled={betAmount > balance || betAmount <= 0}
-              className="w-full py-4 text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <Sparkles className="h-5 w-5 fill-current" />
-              <span>Bet</span>
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={onCashout}
-              disabled={currentGemsOpened === 0}
-              className={`w-full py-4 text-base font-black rounded-xl shadow-lg transition-all active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer ${
-                currentGemsOpened === 0
-                  ? "bg-[#213743] text-[#b1bad3] cursor-not-allowed"
-                  : "bg-[#00e701] hover:bg-[#00c701] text-black shadow-[0_0_20px_rgba(0,231,1,0.4)]"
-              }`}
-            >
-              <span>Cashout {activeSym}{cashoutValue.toFixed(2)}</span>
-            </button>
-          )
-        ) : !isAutoRunning ? (
-          <button
-            type="button"
-            onClick={handleStartAutoClick}
-            disabled={betAmount > balance || betAmount <= 0}
-            className="w-full py-4 text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
-          >
-            <span>Start Autobet</span>
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={onStopAuto}
-            className="w-full py-4 text-base font-black rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-lg active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer"
-          >
-            <span>Stop Autobet</span>
-          </button>
-        )}
-      </div>
-
-      {/* 4. Random Pick Button (Active in Manual Play) */}
-      {isPlaying && mode === "manual" && (
-        <button
-          type="button"
-          onClick={onRandomPick}
-          className="w-full py-2.5 rounded-xl bg-[#213743] hover:bg-[#2f4553] text-[#00e701] hover:text-white border border-[#2f4553] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer active:scale-95 shadow-sm"
-        >
-          <Dices className="w-4 h-4" />
-          <span>Random Pick</span>
-        </button>
-      )}
 
       {/* 5. Live Total Profit Box during Active Play */}
       {isPlaying && currentGemsOpened > 0 && (
