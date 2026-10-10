@@ -140,9 +140,7 @@ export const EVOLUTION_THUMBNAILS: Record<string, string> = {
 // EZUGI GAMING THUMBNAILS
 // ==========================================
 export const EZUGI_GAME_THUMBNAILS: Record<string, string> = {
-  "ezugi-teen-patti-live": "/games/ezugi/ezugi-teen-patti-live.webp",
-
-  "ezugi-one-day-teen-patti": "/games/ezugi/ezugi-one-day-teen-patti.webp",
+  
 
   "sic-bo-live": "/games/ezugi/sic-bo-live.webp",
 
@@ -175,6 +173,8 @@ export const EZUGI_GAME_THUMBNAILS: Record<string, string> = {
   "ezugi-video-blackjack": "/games/ezugi/ezugi-video-blackjack.webp",
   "ezugi-lucky-7": "/games/ezugi/ezugi-lucky-7.webp",
   "ezugi-andar-bahar": "/games/ezugi/andar-bahar.webp",
+  "ezugi-teen-patti-live": "/games/ezugi/ezugi-teen-patti-live.webp",
+  "ezugi-one-day-teen-patti": "/games/ezugi/ezugi-one-day-teen-patti.webp",
   "ezugi-dragon-tiger": "/games/ezugi/ezugi-dragon-tiger.webp",
   "ezugi-ultimate-sic-bo": "/games/ezugi/ultimate-sic-bo.webp",
   "ezugi-live-roulette": "/games/ezugi/auto-roulette.webp",
@@ -196,8 +196,6 @@ export const EZUGI_GAME_THUMBNAILS: Record<string, string> = {
   "ezugi-italian-roulette": "/games/ezugi/ezugi-italian-roulette.webp",
   "ezugi-32-cards": "/games/ezugi/32-cards.webp",
   "ezugi-baccarat-super-6": "/games/ezugi/ezugi-baccarat-super-6.webp",
-
-
   "ezugi-skyline-roulette": "/games/ezugi/ezugi-skyline-roulette.webp",
   "ezugi-prestige-auto-roulette": "/games/ezugi/ezugi-prestige-auto-roulette.webp",
   "ezugi-fortune-baccarat": "/games/ezugi/ezugi-fortune-baccarat.webp",
