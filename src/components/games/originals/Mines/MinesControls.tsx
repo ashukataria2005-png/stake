@@ -119,7 +119,7 @@ export default function MinesControls({
   };
 
   return (
-    <div className="w-full lg:w-[320px] shrink-0 border-t lg:border-t-0 lg:border-r border-[#213743] bg-[#1a2c38] p-4 sm:p-5 flex flex-col justify-start space-y-4 rounded-2xl select-none">
+    <div className="w-full lg:w-[320px] shrink-0 border-t lg:border-t-0 lg:border-r border-[#213743] bg-[#1a2c38] p-3 sm:p-4 flex flex-col justify-start space-y-2 sm:space-y-2.5 rounded-lg select-none">
       {/* 1. PRIMARY ACTION BUTTON (Directly at top of controls) */}
       <div className="w-full">
         {mode === "manual" ? (
@@ -128,7 +128,7 @@ export default function MinesControls({
               type="button"
               onClick={handleBetClick}
               disabled={betAmount > balance || betAmount <= 0}
-              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-semibold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-md active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
+              className="w-full py-2.5 sm:py-3 text-sm sm:text-base font-semibold rounded-lg bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-md active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
             >
               <span>Bet</span>
             </button>
@@ -137,7 +137,7 @@ export default function MinesControls({
               type="button"
               onClick={onCashout}
               disabled={currentGemsOpened === 0}
-              className={`w-full py-3 sm:py-3.5 text-sm sm:text-base font-semibold rounded-xl shadow-md transition-all active:scale-[0.99] flex items-center justify-center cursor-pointer ${
+              className={`w-full py-2.5 sm:py-3 text-sm sm:text-base font-semibold rounded-lg shadow-md transition-all active:scale-[0.99] flex items-center justify-center cursor-pointer ${
                 currentGemsOpened === 0
                   ? "bg-[#213743] text-[#b1bad3] cursor-not-allowed"
                   : "bg-[#00e701] hover:bg-[#00c701] text-black shadow-[0_0_15px_rgba(0,231,1,0.35)]"
@@ -151,7 +151,7 @@ export default function MinesControls({
             type="button"
             onClick={handleStartAutoClick}
             disabled={betAmount > balance || betAmount <= 0}
-            className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-semibold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-md active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
+            className="w-full py-2.5 sm:py-3 text-sm sm:text-base font-semibold rounded-lg bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-md active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
           >
             <span>Start Autobet</span>
           </button>
@@ -159,7 +159,7 @@ export default function MinesControls({
           <button
             type="button"
             onClick={onStopAuto}
-            className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-semibold rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-md active:scale-[0.99] transition-all flex items-center justify-center cursor-pointer"
+            className="w-full py-2.5 sm:py-3 text-sm sm:text-base font-semibold rounded-lg bg-red-600 hover:bg-red-700 text-white shadow-md active:scale-[0.99] transition-all flex items-center justify-center cursor-pointer"
           >
             <span>Stop Autobet</span>
           </button>
@@ -167,14 +167,14 @@ export default function MinesControls({
       </div>
 
       {/* 2. Bet Amount Input with Quick Buttons (1/2, 2x) */}
-      <div className="space-y-1.5">
+      <div className="space-y-1">
         <div className="flex items-center justify-between text-xs">
           <span className="font-bold text-[#b1bad3]">Bet Amount</span>
           <span className="font-mono text-[11px] text-[#b1bad3]">
             Bal: {activeSym}{balance.toFixed(2)}
           </span>
         </div>
-        <div className="flex rounded-xl bg-[#0f212e] border border-[#213743] focus-within:border-[#2f4553] p-1">
+        <div className="flex rounded-lg bg-[#0f212e] border border-[#213743] focus-within:border-[#2f4553] p-1">
           <div className="flex flex-1 items-center px-2.5">
             <span className="text-xs font-bold text-[#b1bad3] mr-1.5">{activeSym}</span>
             <input
@@ -225,12 +225,13 @@ export default function MinesControls({
         </div>
       </div>
 
-      {/* 3. Random Pick Button (Active in Manual Play) */}
-      {isPlaying && mode === "manual" && (
+      {/* 3. Random Pick Button (Strictly between Bet Amount row and Mines / Gems slider container) */}
+      {mode === "manual" && (
         <button
           type="button"
           onClick={onRandomPick}
-          className="w-full py-2.5 rounded-xl bg-[#213743] hover:bg-[#2f4553] text-[#00e701] hover:text-white border border-[#2f4553] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer active:scale-95 shadow-sm"
+          disabled={!isPlaying}
+          className="w-full py-2.5 sm:py-3 rounded-lg bg-[#2f4553] hover:bg-[#3d5565] disabled:opacity-40 disabled:hover:bg-[#2f4553] disabled:cursor-not-allowed text-[#b1bad3] hover:text-white font-medium text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer active:scale-95 shadow-sm"
         >
           <Dices className="w-4 h-4" />
           <span>Random Pick</span>
@@ -238,12 +239,12 @@ export default function MinesControls({
       )}
 
       {/* 4. Dedicated Dark Mines / Gems Slider Container */}
-      <div className="space-y-1.5">
+      <div className="space-y-1">
         <div className="flex items-center justify-between px-0.5 text-xs font-medium text-[#b1bad3]">
           <span>Mines</span>
           <span>Gems</span>
         </div>
-        <div className="flex items-center justify-between bg-[#071824] border border-[#213743] rounded-xl px-3 py-2 gap-3">
+        <div className="flex items-center justify-between bg-[#071824] border border-[#213743] rounded-lg px-3 py-2 gap-3">
           {/* Selected Mines Number on the left */}
           <span className="font-bold text-sm text-white min-w-[28px] text-center font-mono">
             {minesCount}
@@ -277,7 +278,7 @@ export default function MinesControls({
 
       {/* 5. Live Total Profit Box during Active Play */}
       {isPlaying && currentGemsOpened > 0 && (
-        <div className="bg-[#0f212e] border border-[#213743] rounded-xl p-3 flex items-center justify-between text-xs animate-in fade-in">
+        <div className="bg-[#0f212e] border border-[#213743] rounded-lg p-2.5 flex items-center justify-between text-xs animate-in fade-in">
           <span className="text-[#b1bad3] font-medium">Total Profit ({currentMultiplier.toFixed(2)}×)</span>
           <span className="text-[#00e701] font-mono font-bold text-sm">
             +{activeSym}{((betAmount * currentMultiplier) - betAmount).toFixed(2)}
@@ -285,13 +286,14 @@ export default function MinesControls({
         </div>
       )}
 
+
       {/* 6. AUTO MODE SETTINGS */}
       {mode === "auto" && (
         <div className="space-y-3 border-t border-[#213743] pt-3 text-xs">
           {/* Number of Bets */}
           <div className="space-y-1">
             <label className="font-bold text-[#b1bad3]">Number of Bets</label>
-            <div className="flex rounded-xl bg-[#0f212e] border border-[#213743] p-1">
+            <div className="flex rounded-lg bg-[#0f212e] border border-[#213743] p-1">
               <input
                 type="text"
                 disabled={isAutoRunning}
@@ -394,7 +396,7 @@ export default function MinesControls({
       )}
 
       {/* 7. Mode Switch Tabs: [ Manual | Auto ] - Positioned at very bottom */}
-      <div className="flex rounded-xl bg-[#0f212e] p-1 border border-[#213743] mt-auto">
+      <div className="flex rounded-lg bg-[#0f212e] p-1 border border-[#213743] mt-auto">
         <button
           type="button"
           disabled={isPlaying || isAutoRunning}

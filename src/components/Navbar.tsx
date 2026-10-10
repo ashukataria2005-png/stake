@@ -190,21 +190,6 @@ export default function Navbar() {
               <Search className="w-5 h-5" />
             </button>
 
-            {/* Notification Bell (Visible on Both Mobile & Desktop - Solid Filled Bell) */}
-            <button
-              onClick={() => setIsNotificationsOpen(true)}
-              title="Notifications"
-              aria-label="Notifications"
-              className="relative p-2 text-[#b1bad3] hover:text-white transition-colors bg-transparent border-none outline-none cursor-pointer flex items-center justify-center shrink-0"
-            >
-              <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current" fill="currentColor">
-                <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
-              </svg>
-              {unreadNotifsCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#fe2247] rounded-full" />
-              )}
-            </button>
-
             {/* Desktop Only Actions (Community Chat, VIP progress pill) */}
             <div className="hidden md:flex items-center gap-2">
               {/* Live Community Chat Trigger */}
@@ -291,6 +276,21 @@ export default function Navbar() {
                 )}
               </div>
             </div>
+
+            {/* Notification Bell (Visible on Both Mobile & Desktop - Solid Filled Bell) */}
+            <button
+              onClick={() => setIsNotificationsOpen(true)}
+              title="Notifications"
+              aria-label="Notifications"
+              className="relative p-2 text-[#b1bad3] hover:text-white transition-colors bg-transparent border-none outline-none cursor-pointer flex items-center justify-center shrink-0"
+            >
+              <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current" fill="currentColor">
+                <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
+              </svg>
+              {unreadNotifsCount > 0 && (
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#fe2247] rounded-full" />
+              )}
+            </button>
 
             {/* User Profile Avatar Icon (Visible on Both Mobile & Desktop - Solid Silhouette Avatar) */}
             <div className="relative shrink-0">

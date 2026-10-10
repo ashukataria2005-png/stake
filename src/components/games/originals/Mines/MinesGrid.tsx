@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { RotateCcw, Trash2, Trophy } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import MinesMultiplierTrack from "./MinesMultiplierTrack";
 import MinesGem from "./MinesGem";
@@ -135,7 +134,7 @@ export default function MinesGrid({
             onClick={onDismissCashout}
             className="absolute inset-0 z-30 flex items-center justify-center p-4 pointer-events-auto cursor-pointer"
           >
-            <div className="bg-[#0f212e]/90 backdrop-blur-md border-2 border-[#00e701] rounded-2xl p-5 sm:p-6 shadow-[0_0_35px_rgba(0,231,1,0.45)] min-w-[200px] sm:min-w-[240px] text-center animate-in zoom-in-95 duration-200">
+            <div className="bg-[#071824]/65 backdrop-blur-sm border-2 border-[#00e701] rounded-lg px-4 py-3 sm:py-4 shadow-[0_0_35px_rgba(0,231,1,0.4)] w-full max-w-[190px] sm:max-w-[210px] text-center animate-in zoom-in-95 duration-200">
               <div className="text-2xl sm:text-3xl font-black font-mono text-[#00e701] tracking-tight">
                 {cashoutOverlay.multiplier.toFixed(2)}×
               </div>
@@ -147,71 +146,6 @@ export default function MinesGrid({
             </div>
           </div>
         )}
-      </div>
-
-      {/* 2. Multiplier Progression Bar (Repeat | Max Multiplier | Clear) - Directly below Grid */}
-      <div className="w-full max-w-[430px] flex items-center justify-between gap-2 z-10 my-2 flex-wrap">
-        {/* Left: Repeat Control */}
-        <div className="flex items-center gap-1.5">
-          {onRepeatTiles && (
-            <button
-              type="button"
-              onClick={onRepeatTiles}
-              disabled={isPlaying}
-              className="flex items-center gap-1.5 bg-[#1a2c38] hover:bg-[#213743] text-[#b1bad3] hover:text-white border border-[#213743] px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 shadow-sm"
-              title="Repeat previous pattern"
-            >
-              <RotateCcw className="w-3 h-3 text-[#00e701]" />
-              <span className="hidden sm:inline">Repeat</span>
-            </button>
-          )}
-        </div>
-
-        {/* Center: Dynamic Max Multiplier & In-Game Trophy Multiplier Badge */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 bg-[#1a2c38] border border-[#213743] rounded-xl px-3 py-1.5 shadow-sm">
-            <span className="text-[11px] font-bold text-[#b1bad3] uppercase tracking-wider">
-              Max Multiplier
-            </span>
-            <span className="font-mono text-xs sm:text-sm font-black text-[#00e701]">
-              {maxMultiplier.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}×
-            </span>
-          </div>
-
-          {isPlaying && (
-            <div className="flex items-center gap-1.5 bg-[#00e701]/10 border border-[#00e701]/30 rounded-xl px-3 py-1.5 shadow-sm animate-in fade-in">
-              <Trophy className="w-3.5 h-3.5 text-[#00e701]" />
-              <span className="font-mono text-xs font-black text-[#00e701]">
-                {currentMultiplier.toFixed(2)}× (+${currentProfit.toFixed(2)})
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Right: Clear Controls & Active Gems Count */}
-        <div className="flex items-center gap-1.5">
-          {isPlaying ? (
-            <div className="rounded-xl bg-[#1a2c38] px-2.5 py-1.5 border border-[#213743] text-xs text-[#b1bad3]">
-              <span>Gems: </span>
-              <strong className="text-[#00e701] font-mono">
-                {currentGemsOpened}/{totalGems}
-              </strong>
-            </div>
-          ) : (
-            onClearTiles && (
-              <button
-                type="button"
-                onClick={onClearTiles}
-                disabled={isPlaying}
-                className="flex items-center gap-1.5 bg-[#1a2c38] hover:bg-[#213743] text-[#b1bad3] hover:text-white border border-[#213743] px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 shadow-sm"
-                title="Clear selection"
-              >
-                <Trash2 className="w-3 h-3 text-red-400" />
-                <span className="hidden sm:inline">Clear</span>
-              </button>
-            )
-          )}
-        </div>
       </div>
 
       {/* Live In-Game Multiplier Progression Track (Rendered below grid when active) */}
