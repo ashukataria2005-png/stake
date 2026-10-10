@@ -121,9 +121,8 @@ export default function Navbar() {
                   {/* Right part of pill: Chevron toggle & quick reset button */}
                   <div className="flex items-center gap-1 shrink-0 ml-1">
                     <ChevronDown
-                      className={`h-3.5 w-3.5 text-[#b1bad3] transition-transform duration-200 ${
-                        isCurrencyDropdownOpen ? "rotate-180" : ""
-                      }`}
+                      className={`h-3.5 w-3.5 text-[#b1bad3] transition-transform duration-200 ${isCurrencyDropdownOpen ? "rotate-180" : ""
+                        }`}
                     />
 
                     {/* Quick Demo Balance Reset Button (Desktop) */}
@@ -212,11 +211,10 @@ export default function Navbar() {
               <button
                 onClick={toggleChat}
                 title="Toggle Community Chat"
-                className={`relative flex h-10 w-10 items-center justify-center rounded-lg transition-colors cursor-pointer ${
-                  isChatOpen
-                    ? "bg-[#213743] text-[#00e701]"
-                    : "text-[#b1bad3] hover:bg-[#213743] hover:text-white"
-                }`}
+                className={`relative flex h-10 w-10 items-center justify-center rounded-lg transition-colors cursor-pointer ${isChatOpen
+                  ? "bg-[#213743] text-[#00e701]"
+                  : "text-[#b1bad3] hover:bg-[#213743] hover:text-white"
+                  }`}
               >
                 <MessageSquare className="h-5 w-5" />
                 <span className="absolute top-2 right-2 flex h-2 w-2">
@@ -301,13 +299,12 @@ export default function Navbar() {
                 className="flex items-center gap-1.5 p-2 text-[#b1bad3] hover:text-white transition-colors bg-transparent border-none outline-none cursor-pointer shrink-0"
                 aria-label="User Profile Menu"
               >
-                <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current" fill="currentColor">
+                <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current" fill="currentColor">
                   <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                 </svg>
                 <ChevronDown
-                  className={`hidden sm:block h-3.5 w-3.5 text-[#b1bad3] transition-transform duration-200 ${
-                    isProfileMenuOpen ? "rotate-180" : ""
-                  }`}
+                  className={`hidden sm:block h-3.5 w-3.5 text-[#b1bad3] transition-transform duration-200 ${isProfileMenuOpen ? "rotate-180" : ""
+                    }`}
                 />
               </button>
 
