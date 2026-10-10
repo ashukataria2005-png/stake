@@ -98,7 +98,7 @@ export default function CasinoGameRow({
       {/* Row Header */}
       <div className="flex items-center justify-between">
         <Link href={linkHref} className="flex items-center gap-2 group cursor-pointer">
-          <h2 className="text-[18px] sm:text-[20px] font-semibold text-white tracking-[-0.015em] flex items-center gap-2 hover:text-[#00e701] transition-colors cursor-pointer">
+          <h2 className="text-[22px] sm:text-[24px] font-semibold text-white tracking-[-0.017em] flex items-center gap-2 hover:text-[#00e701] transition-colors cursor-pointer">
             <span>{title}</span>
             {rowBadge && (
               <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-400/40">
