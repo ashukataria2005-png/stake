@@ -43,7 +43,18 @@ export const INOUT_GAME_THUMBNAILS: Record<string, string> = {
   "twist": "/games/inout/twist.webp",
   "jumper": "/games/inout/jumper.webp",
   "diver": "/games/inout/diver.webp",
+
+
+
+
+  "san-quentin": "/games/nolimit-city/san-quentin.webp",
+  "nolimitcity-mental": "/games/nolimit-city/nolimitcity-mental.webp",
+  "nolimitcity-tomb-stone": "/games/nolimit-city/nolimitcity-tomb-stone.webp",
 };
+
+
+
+
 
 // ==========================================
 // EVOLUTION GAMING THUMBNAILS
@@ -140,7 +151,7 @@ export const EVOLUTION_THUMBNAILS: Record<string, string> = {
 // EZUGI GAMING THUMBNAILS
 // ==========================================
 export const EZUGI_GAME_THUMBNAILS: Record<string, string> = {
-  
+
 
   "sic-bo-live": "/games/ezugi/sic-bo-live.webp",
 

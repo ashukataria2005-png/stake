@@ -3,11 +3,11 @@ import { CategoryModule } from "./types";
 // All Evolution Gaming titles present in stakeGames.ts, ordered by popularity (playersCount desc)
 export const EVOLUTION_SLUGS: string[] = [
   "live-blackjack",
-  "crazy-time",
+  "dragon-tiger",
   "roulette-live",
   "baccarat-live",
   "lightning-roulette",
-  "dragon-tiger",
+  "crazy-time",
   "red-door-roulette",
   "xxxtreme-lightning-roulette",
   "immersive-roulette",
