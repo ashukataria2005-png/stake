@@ -409,7 +409,7 @@ export default function MinesGame() {
   return (
     <div
       className={`w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-2 sm:py-3 select-none space-y-3 ${
-        isFullscreen ? "fixed inset-0 z-50 bg-[#0f212e] overflow-y-auto p-4 pb-28 max-w-none" : ""
+        isFullscreen ? "fixed inset-0 z-50 bg-[#0f212e] overflow-y-auto p-4 pb-6 max-w-none" : ""
       }`}
     >
       {/* Main 2-Panel Game Container: Left Controls & Right 5x5 Grid */}

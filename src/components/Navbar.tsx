@@ -74,10 +74,10 @@ export default function Navbar() {
     e.preventDefault();
     e.stopPropagation();
     if (typeof window !== "undefined") {
-      if (window.location.pathname === "/casino/home" || window.location.pathname === "/") {
+      if (window.location.pathname === "/") {
         window.scrollTo({ top: 0, behavior: "smooth" });
       } else {
-        window.location.assign("/casino/home");
+        window.location.assign("/");
       }
     }
   };
