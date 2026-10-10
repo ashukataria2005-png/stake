@@ -140,6 +140,13 @@ export const EVOLUTION_THUMBNAILS: Record<string, string> = {
 // EZUGI GAMING THUMBNAILS
 // ==========================================
 export const EZUGI_GAME_THUMBNAILS: Record<string, string> = {
+  "teen-patti-live": "/games/ezugi/teen-patti-live.webp",
+
+
+
+
+  "one-day-teen-patti": "/games/ezugi/one-day-teen-patti.webp",
+
   "sic-bo-live": "/games/ezugi/sic-bo-live.webp",
 
   "marina-casino-baccarat": "/games/ezugi/marina-casino-baccarat.webp",
