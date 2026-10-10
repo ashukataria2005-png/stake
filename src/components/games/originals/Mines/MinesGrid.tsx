@@ -50,13 +50,13 @@ export default function MinesGrid({
   const totalGems = 25 - minesCount;
 
   return (
-    <div className="flex-1 bg-[#0f212e] p-3 sm:p-4 lg:p-5 flex flex-col items-center justify-center relative overflow-hidden rounded-2xl select-none">
+    <div className="flex-1 bg-[#0f212e] p-3 sm:p-4 lg:p-5 flex flex-col items-center justify-center relative overflow-hidden select-none">
       {/* Subtle Ambient Radial Lighting */}
       <div className="absolute inset-0 bg-radial from-[#1a2c38]/40 via-transparent to-transparent pointer-events-none" />
 
       {/* 1. 5x5 Mines Arena Grid (Strictly First) */}
       <div className="relative flex items-center justify-center w-full max-w-[430px] aspect-square z-10">
-        <div className="grid grid-cols-5 grid-rows-5 auto-rows-fr gap-2 sm:gap-2.5 w-full h-full p-2.5 rounded-xl bg-[#0e1c26] border border-[#213743] shadow-2xl">
+        <div className="grid grid-cols-5 grid-rows-5 auto-rows-fr gap-2 sm:gap-2.5 w-full h-full">
           {Array.from({ length: 25 }).map((_, index) => {
             const isRevealed = revealedTiles.includes(index);
             const isMine = mineLocations.includes(index);

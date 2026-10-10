@@ -43,7 +43,7 @@ export default function MobileBottomNav() {
     e.stopPropagation();
     handleTabClick("casino");
     if (typeof window !== "undefined") {
-      if (window.location.pathname === "/casino/home" || window.location.pathname === "/") {
+      if (window.location.pathname === "/casino/home") {
         window.scrollTo({ top: 0, behavior: "smooth" });
       } else {
         window.location.assign("/casino/home");
@@ -51,8 +51,8 @@ export default function MobileBottomNav() {
     }
   };
 
-  const isHomeActive = pathname === "/";
-  const isCasinoActive = (pathname === "/casino/home" || pathname?.startsWith("/games") || pathname?.startsWith("/casino")) && !isHomeActive && !isChatOpen;
+  const isHomeActive = pathname === "/" && !isChatOpen && !isSidebarOpen;
+  const isCasinoActive = (pathname === "/casino/home" || pathname?.startsWith("/games") || pathname?.startsWith("/casino")) && !isHomeActive && !isChatOpen && !isSidebarOpen;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-[9990] md:hidden bg-[#0f212e] border-t-2 border-[#2f4553] px-2 py-1.5 pb-safe select-none shadow-2xl">
