@@ -45,15 +45,6 @@ export const HOME_PAGE_CATEGORIES: CategoryLayoutItem[] = [
     orderedGameSlugs: STAKE_ORIGINALS_SLUGS,
   },
   {
-    id: "slots",
-    title: "Slots",
-    enabled: true,
-    viewAllLink: "/casino/group/slots",
-    showGameTitle: true,
-    showProviderName: true,
-    orderedGameSlugs: SLOTS_SLUGS,
-  },
-  {
     id: "live-casino",
     title: "Live Casino",
     enabled: true,
@@ -62,26 +53,7 @@ export const HOME_PAGE_CATEGORIES: CategoryLayoutItem[] = [
     showProviderName: true,
     orderedGameSlugs: LIVE_CASINO_SLUGS,
   },
-  {
-    id: "game-shows",
-    title: "Game Shows",
-    enabled: true,
-    viewAllLink: "/casino/group/game-shows",
-    showGameTitle: true,
-    showProviderName: true,
-    orderedGameSlugs: GAME_SHOWS_SLUGS,
-  },
 
-  // ── DISABLED (provider catalogs — flip enabled: true to show) ──
-  {
-    id: "evolution",
-    title: "Evolution Gaming",
-    enabled: true,
-    viewAllLink: "/casino/group/evolution",
-    showGameTitle: true,
-    showProviderName: true,
-    orderedGameSlugs: EVOLUTION_SLUGS,
-  },
   {
     id: "inout",
     title: "InOut Games",
@@ -92,22 +64,13 @@ export const HOME_PAGE_CATEGORIES: CategoryLayoutItem[] = [
     orderedGameSlugs: INOUT_SLUGS,
   },
   {
-    id: "ezugi",
-    title: "Ezugi Live",
+    id: "evolution",
+    title: "Evolution Gaming",
     enabled: true,
-    viewAllLink: "/casino/group/ezugi",
-    showGameTitle: false,
-    showProviderName: false,
-    orderedGameSlugs: EZUGI_SLUGS,
-  },
-  {
-    id: "mac88",
-    title: "Mac88 Indian Suite",
-    enabled: true,
-    viewAllLink: "/casino/group/mac88",
+    viewAllLink: "/casino/group/evolution",
     showGameTitle: true,
     showProviderName: true,
-    orderedGameSlugs: MAC88_SLUGS,
+    orderedGameSlugs: EVOLUTION_SLUGS,
   },
   {
     id: "spribe",
@@ -119,6 +82,49 @@ export const HOME_PAGE_CATEGORIES: CategoryLayoutItem[] = [
     orderedGameSlugs: SPRIBE_SLUGS,
   },
   {
+    id: "ezugi",
+    title: "Ezugi Live",
+    enabled: true,
+    viewAllLink: "/casino/group/ezugi",
+    showGameTitle: false,
+    showProviderName: false,
+    orderedGameSlugs: EZUGI_SLUGS,
+  },
+  {
+    id: "game-shows",
+    title: "Game Shows",
+    enabled: true,
+    viewAllLink: "/casino/group/game-shows",
+    showGameTitle: true,
+    showProviderName: true,
+    orderedGameSlugs: GAME_SHOWS_SLUGS,
+  },
+  {
+    id: "slots",
+    title: "Slots",
+    enabled: true,
+    viewAllLink: "/casino/group/slots",
+    showGameTitle: true,
+    showProviderName: true,
+    orderedGameSlugs: SLOTS_SLUGS,
+  },
+
+
+  // ── DISABLED (provider catalogs — flip enabled: true to show) ──
+
+
+
+  {
+    id: "mac88",
+    title: "Mac88 Indian Suite",
+    enabled: true,
+    viewAllLink: "/casino/group/mac88",
+    showGameTitle: true,
+    showProviderName: true,
+    orderedGameSlugs: MAC88_SLUGS,
+  },
+
+  {
     id: "smartsoft",
     title: "SmartSoft",
     enabled: true,
@@ -127,7 +133,7 @@ export const HOME_PAGE_CATEGORIES: CategoryLayoutItem[] = [
     showProviderName: true,
     orderedGameSlugs: SMARTSOFT_SLUGS,
   },
-  
+
   {
     id: "100hp",
     title: "100hp Gaming",
