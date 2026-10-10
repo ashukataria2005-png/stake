@@ -74,8 +74,8 @@ export default function Navbar() {
         {/* Left Section: Stake cursive Logo (Clean Direct Start) */}
         <div className="flex items-center shrink-0">
           <Link
-            href="/"
-            className="flex items-center focus:outline-none"
+            href="/casino/home"
+            className="flex items-center focus:outline-none relative z-50 pointer-events-auto cursor-pointer"
             aria-label="Stake Home"
           >
             {/* Official Stake S Emblem (compact collapsed) */}

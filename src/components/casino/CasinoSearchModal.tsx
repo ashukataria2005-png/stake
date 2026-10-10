@@ -58,7 +58,7 @@ export default function CasinoSearchModal({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Filter games based on query
+  // Filter games strictly based on query (title, name, slug, provider)
   const filteredGames = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return [];
@@ -67,10 +67,9 @@ export default function CasinoSearchModal({
         g.title.toLowerCase().includes(q) ||
         (g.name && g.name.toLowerCase().includes(q)) ||
         g.slug.toLowerCase().includes(q) ||
-        (g.provider && g.provider.toLowerCase().includes(q)) ||
-        (g.category && g.category.toLowerCase().includes(q))
+        (g.provider && g.provider.toLowerCase().includes(q))
       );
-    }).slice(0, 24);
+    }).slice(0, 36);
   }, [query]);
 
   // Popular preview when empty
@@ -86,19 +85,19 @@ export default function CasinoSearchModal({
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-2xl rounded-2xl bg-[#1a2c38] border border-[#2f4553] shadow-2xl overflow-hidden mt-6 sm:mt-12 animate-in zoom-in-95 duration-150 flex flex-col max-h-[85vh]"
+        className="relative w-full max-w-2xl rounded-xl bg-[#1a2c38] border border-[#2f4553] shadow-2xl overflow-hidden mt-6 sm:mt-12 animate-in zoom-in-95 duration-150 flex flex-col max-h-[85vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Search Header Input */}
-        <div className="relative flex items-center p-3.5 sm:p-4 border-b border-[#213743] bg-[#0f212e]">
-          <Search className="w-5 h-5 text-[#b1bad3] shrink-0 ml-1.5" />
+        <div className="relative flex items-center p-3.5 sm:p-4 border-b border-[#213743] bg-[#071824]">
+          <Search className="w-5 h-5 text-[#879097] shrink-0 ml-1.5" />
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search games, providers, categories..."
-            className="w-full bg-transparent border-none outline-none text-white placeholder-[#b1bad3] px-3 text-sm sm:text-base font-semibold"
+            placeholder="Search games, providers..."
+            className="w-full bg-transparent border-none outline-none text-white placeholder-[#879097] px-3 text-sm sm:text-base font-semibold"
           />
           {query ? (
             <button
@@ -206,8 +205,8 @@ export default function CasinoSearchModal({
                   🔍
                 </div>
                 <div className="text-white font-bold text-sm">No games found</div>
-                <p className="text-xs text-[#b1bad3]">
-                  No results for &ldquo;{query}&rdquo;. Try another term or provider.
+                <p className="text-xs text-[#879097]">
+                  No games found matching &ldquo;{query}&rdquo;.
                 </p>
               </div>
             )

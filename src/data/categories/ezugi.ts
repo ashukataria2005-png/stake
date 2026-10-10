@@ -4,7 +4,7 @@ export const EZUGI_SLUGS: string[] = [
   "ezugi-andar-bahar",
   "ezugi-dragon-tiger",
   "ezugi-auto-roulette",
-  "ezugi-teen-patti",
+  "ezugi-teen-patti-live",
   "ezugi-lucky-7",
   "ezugi-bet-on-teen-patti",
   "ezugi-one-day-teen-patti",

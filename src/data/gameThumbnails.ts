@@ -185,6 +185,8 @@ export const EZUGI_GAME_THUMBNAILS: Record<string, string> = {
   "ezugi-lucky-7": "/games/ezugi/ezugi-lucky-7.webp",
   "ezugi-andar-bahar": "/games/ezugi/andar-bahar.webp",
   "ezugi-teen-patti-live": "/games/ezugi/ezugi-teen-patti-live.webp",
+  "ezugi-teen-patti": "/games/ezugi/ezugi-teen-patti-live.webp",
+  "teen-patti-live": "/games/ezugi/ezugi-teen-patti-live.webp",
   "ezugi-one-day-teen-patti": "/games/ezugi/ezugi-one-day-teen-patti.webp",
   "ezugi-dragon-tiger": "/games/ezugi/ezugi-dragon-tiger.webp",
   "ezugi-ultimate-sic-bo": "/games/ezugi/ultimate-sic-bo.webp",

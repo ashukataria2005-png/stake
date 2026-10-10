@@ -50,7 +50,7 @@ export default function CasinoHomePage() {
   const [activeCategory, setActiveCategory] = useState<string>("home");
   const [searchQuery, setSearchQuery] = useState<string>("");
 
-  // Real-time instant search across ALL_GAMES (title, name, provider, category)
+  // Real-time instant search across ALL_GAMES strictly matching (title, name, slug, provider)
   const isSearching = searchQuery.trim().length > 0;
   const searchResults: GameItem[] = isSearching
     ? ALL_GAMES.filter((g) => {
@@ -58,8 +58,8 @@ export default function CasinoHomePage() {
         return (
           g.title.toLowerCase().includes(q) ||
           (g.name && g.name.toLowerCase().includes(q)) ||
-          g.provider.toLowerCase().includes(q) ||
-          (g.category && g.category.toLowerCase().includes(q))
+          g.slug.toLowerCase().includes(q) ||
+          (g.provider && g.provider.toLowerCase().includes(q))
         );
       })
     : [];
@@ -1517,20 +1517,20 @@ export default function CasinoHomePage() {
       {/* 1. TOP PROMOTIONAL HERO BANNER CAROUSEL */}
       <CasinoPromoCarousel />
 
-      {/* 2. AUTHENTIC BOLD SEARCH BAR */}
-      <div className="relative w-full my-3 flex items-center border-2 border-[#2f4553] focus-within:border-[#557086] bg-[#0f212e] rounded-xl shadow-md transition-colors px-4 py-2 sm:py-2.5">
-        <Search className="stroke-[2.5] text-white w-4 h-4 shrink-0 mr-3" />
+      {/* 2. AUTHENTIC STAKE SEARCH BAR */}
+      <div className="relative w-full my-3 flex items-center border border-[#213743] focus-within:border-[#2f4553] bg-[#071824] rounded-lg shadow-sm transition-colors px-3.5 py-2 sm:py-2.5">
+        <Search className="stroke-[2.2] text-[#879097] w-4 h-4 shrink-0 mr-3" />
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search Stake.com"
-          className="font-bold text-white placeholder:font-semibold placeholder-[#b1bad3] tracking-wide text-sm sm:text-base outline-none bg-transparent w-full"
+          className="font-medium text-white placeholder:text-[#879097] tracking-wide text-sm sm:text-base outline-none bg-transparent w-full"
         />
         {searchQuery.trim().length > 0 && (
           <button
             onClick={() => setSearchQuery("")}
-            className="p-1 text-[#b1bad3] hover:text-white transition-colors cursor-pointer ml-2"
+            className="p-1 text-[#879097] hover:text-white transition-colors cursor-pointer ml-2"
             title="Clear Search"
           >
             <X className="w-4 h-4" />
@@ -1557,19 +1557,19 @@ export default function CasinoHomePage() {
           </div>
 
           {searchResults.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 px-4 rounded-2xl bg-[#14232d] border border-[#213743] text-center space-y-3">
-              <div className="w-12 h-12 rounded-full bg-[#213743] flex items-center justify-center text-[#b1bad3]">
+            <div className="flex flex-col items-center justify-center py-16 px-4 rounded-xl bg-[#071824] border border-[#213743] text-center space-y-3">
+              <div className="w-12 h-12 rounded-full bg-[#1a2c38] flex items-center justify-center text-[#879097]">
                 <Search className="w-6 h-6" />
               </div>
               <h3 className="text-base sm:text-lg font-bold text-white">
-                No games found for &quot;{searchQuery}&quot;
+                No games found matching &quot;{searchQuery}&quot;
               </h3>
-              <p className="text-xs sm:text-sm text-[#b1bad3] max-w-sm">
-                Try searching with another keyword, provider (e.g. Pragmatic, Evolution, INOUT, Hacksaw), or category.
+              <p className="text-xs sm:text-sm text-[#879097] max-w-sm">
+                Try searching with another keyword or provider.
               </p>
               <button
                 onClick={() => setSearchQuery("")}
-                className="mt-2 px-4 py-2 rounded-xl bg-[#00e701] text-[#0f212e] font-black text-xs sm:text-sm hover:brightness-110 transition-all cursor-pointer shadow-lg shadow-[#00e701]/20"
+                className="mt-2 px-4 py-2 rounded-lg bg-[#213743] text-white hover:bg-[#2a4454] font-semibold text-xs sm:text-sm transition-all cursor-pointer"
               >
                 Clear Search
               </button>

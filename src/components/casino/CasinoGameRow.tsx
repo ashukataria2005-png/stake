@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Link from "next/link";
 import { Play, LayoutGrid, ArrowRight, ChevronRight } from "lucide-react";
 
@@ -48,6 +48,7 @@ export default function CasinoGameRow({
   // 2 = 2nd Click: 15 games (5 rows = 9 + 6)
   // 3 = 3rd Click: Up to limit (17 games) + "All Games" End Card (6 rows total)
   const [stage, setStage] = useState<number>(0);
+  const rowRef = useRef<HTMLElement>(null);
 
   let displayedCards: CasinoCardData[] = [];
   let showAllGamesCard = false;
@@ -88,13 +89,16 @@ export default function CasinoGameRow({
   const handleToggleLoadMore = () => {
     if (isFullyExpanded) {
       setStage(0);
+      if (rowRef.current) {
+        rowRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
     } else {
       setStage((prev) => prev + 1);
     }
   };
 
   return (
-    <section className="space-y-3.5 my-7">
+    <section ref={rowRef} className="space-y-3.5 my-7 transition-all duration-300 ease-in-out">
       {/* Row Header */}
       <div className="flex items-center justify-between">
         <Link href={linkHref} className="flex items-center gap-2 group cursor-pointer">
@@ -111,7 +115,7 @@ export default function CasinoGameRow({
       </div>
 
       {/* Exact 3-Item Layout Grid */}
-      <div className="grid grid-cols-3 gap-2.5 sm:gap-3.5 w-full">
+      <div className="grid grid-cols-3 gap-2.5 sm:gap-3.5 w-full transition-all duration-300 ease-in-out">
         {displayedCards.map((card) => {
           const thumb = getGameThumbnail(card.id, card.image);
 

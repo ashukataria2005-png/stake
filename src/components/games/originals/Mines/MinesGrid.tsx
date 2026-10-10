@@ -225,16 +225,7 @@ export default function MinesGrid({
         </div>
       )}
 
-      {/* Bottom Status Ticker */}
-      <div className="w-full flex items-center justify-between text-xs text-[#b1bad3] z-10 pt-2 border-t border-[#213743]">
-        <div className="flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-[#00e701] animate-pulse" />
-          <span>Provably Fair RNG SHA-256</span>
-        </div>
-        <div className="text-[11px] font-mono">
-          <span>House Edge: 1.00%</span>
-        </div>
-      </div>
+
     </div>
   );
 }

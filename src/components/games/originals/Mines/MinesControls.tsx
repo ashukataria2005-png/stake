@@ -128,9 +128,8 @@ export default function MinesControls({
               type="button"
               onClick={handleBetClick}
               disabled={betAmount > balance || betAmount <= 0}
-              className="w-full py-4 text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-semibold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-md active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
             >
-              <Sparkles className="h-5 w-5 fill-current" />
               <span>Bet</span>
             </button>
           ) : (
@@ -138,10 +137,10 @@ export default function MinesControls({
               type="button"
               onClick={onCashout}
               disabled={currentGemsOpened === 0}
-              className={`w-full py-4 text-base font-black rounded-xl shadow-lg transition-all active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer ${
+              className={`w-full py-3 sm:py-3.5 text-sm sm:text-base font-semibold rounded-xl shadow-md transition-all active:scale-[0.99] flex items-center justify-center cursor-pointer ${
                 currentGemsOpened === 0
                   ? "bg-[#213743] text-[#b1bad3] cursor-not-allowed"
-                  : "bg-[#00e701] hover:bg-[#00c701] text-black shadow-[0_0_20px_rgba(0,231,1,0.4)]"
+                  : "bg-[#00e701] hover:bg-[#00c701] text-black shadow-[0_0_15px_rgba(0,231,1,0.35)]"
               }`}
             >
               <span>Cashout {activeSym}{cashoutValue.toFixed(2)}</span>
@@ -152,7 +151,7 @@ export default function MinesControls({
             type="button"
             onClick={handleStartAutoClick}
             disabled={betAmount > balance || betAmount <= 0}
-            className="w-full py-4 text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-semibold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-md active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
           >
             <span>Start Autobet</span>
           </button>
@@ -160,7 +159,7 @@ export default function MinesControls({
           <button
             type="button"
             onClick={onStopAuto}
-            className="w-full py-4 text-base font-black rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-lg active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-semibold rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-md active:scale-[0.99] transition-all flex items-center justify-center cursor-pointer"
           >
             <span>Stop Autobet</span>
           </button>
@@ -238,19 +237,20 @@ export default function MinesControls({
         </button>
       )}
 
-      {/* 4. Authentic Mines / Gems Slider Selector (Clean typography, no emojis/dropdown) */}
+      {/* 4. Dedicated Dark Mines / Gems Slider Container */}
       <div className="space-y-1.5">
-        <div className="flex items-center justify-between">
-          {/* Left: Mines */}
-          <div className="flex flex-col">
-            <span className="text-xs font-medium text-[#b1bad3]">Mines</span>
-            <div className="mt-1 bg-[#0f212e] border border-[#213743] rounded-xl px-3 py-1.5 text-center font-bold text-sm text-white min-w-[52px]">
-              {minesCount}
-            </div>
-          </div>
+        <div className="flex items-center justify-between px-0.5 text-xs font-medium text-[#b1bad3]">
+          <span>Mines</span>
+          <span>Gems</span>
+        </div>
+        <div className="flex items-center justify-between bg-[#071824] border border-[#213743] rounded-xl px-3 py-2 gap-3">
+          {/* Selected Mines Number on the left */}
+          <span className="font-bold text-sm text-white min-w-[28px] text-center font-mono">
+            {minesCount}
+          </span>
 
-          {/* Center: Clean Slider with blue active fill and rounded thumb */}
-          <div className="flex-1 px-3 flex flex-col justify-end pb-1.5">
+          {/* Horizontal Range Slider in the center */}
+          <div className="flex-1 flex items-center">
             <input
               type="range"
               min="1"
@@ -268,13 +268,10 @@ export default function MinesControls({
             />
           </div>
 
-          {/* Right: Gems */}
-          <div className="flex flex-col items-end">
-            <span className="text-xs font-medium text-[#b1bad3]">Gems</span>
-            <div className="mt-1 bg-[#0f212e] border border-[#213743] rounded-xl px-3 py-1.5 text-center font-bold text-sm text-white min-w-[52px]">
-              {gemsCount}
-            </div>
-          </div>
+          {/* Remaining Gems Number on the right */}
+          <span className="font-bold text-sm text-white min-w-[28px] text-center font-mono">
+            {gemsCount}
+          </span>
         </div>
       </div>
 

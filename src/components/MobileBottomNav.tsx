@@ -70,7 +70,7 @@ export default function MobileBottomNav() {
               strokeLinecap="round"
               strokeLinejoin="round"
               className={`transition-colors ${isSidebarOpen && !isChatOpen
-                ? "stroke-[#00e701] text-[#00e701]"
+                ? "stroke-[#00e701]/85 text-[#00e701]/85"
                 : "stroke-[#b1bad3] text-[#b1bad3]"
                 }`}
             >
@@ -83,7 +83,7 @@ export default function MobileBottomNav() {
           </div>
           <span
             className={`text-xs font-bold tracking-tight mt-0.5 transition-colors ${isSidebarOpen && !isChatOpen
-              ? "text-[#00e701]"
+              ? "text-[#00e701]/85"
               : "text-[#b1bad3]"
               }`}
           >
@@ -100,7 +100,7 @@ export default function MobileBottomNav() {
           <div className="flex h-7 w-7 items-center justify-center bg-transparent">
             <svg
               className={`h-6 w-6 transition-colors ${isCasinoActive
-                ? "fill-[#00e701] text-[#00e701]"
+                ? "fill-[#00e701]/85 text-[#00e701]/85"
                 : "fill-[#b1bad3] text-[#b1bad3]"
                 }`}
               viewBox="0 0 24 24"
@@ -111,24 +111,24 @@ export default function MobileBottomNav() {
             </svg>
           </div>
           <span
-            className={`text-xs font-bold tracking-tight mt-0.5 transition-colors ${isCasinoActive ? "text-[#00e701]" : "text-[#b1bad3]"
+            className={`text-xs font-bold tracking-tight mt-0.5 transition-colors ${isCasinoActive ? "text-[#00e701]/85" : "text-[#b1bad3]"
               }`}
           >
             Casino
           </span>
         </Link>
 
-        {/* Tab 3 (CENTER): S Logo Contained Comfortably Inside Flush Curve (+80% default, +20% active) */}
+        {/* Tab 3 (CENTER): S Logo Contained Comfortably Inside Flush Curve (Dampened micro-interaction) */}
         <Link
           href="/"
           onClick={() => handleTabClick("home")}
           aria-label="Stake Home"
-          className="flex items-center justify-center flex-1 py-1 -translate-y-3 relative z-20 cursor-pointer select-none bg-transparent hover:bg-transparent active:bg-transparent"
+          className="flex items-center justify-center flex-1 py-1 -translate-y-3 relative z-20 cursor-pointer select-none bg-transparent hover:bg-transparent active:scale-95 transition-transform duration-150"
         >
           <StakeLogo
             collapsed={true}
-            className={`w-5 h-5 transition-all duration-200 ease-out origin-center active:scale-[2.05] ${isHomeActive
-              ? "scale-[2.85] fill-[#00e701] text-[#00e701] drop-shadow-[0_0_8px_rgba(0,231,1,0.6)]"
+            className={`w-5 h-5 transition-all duration-200 ease-out origin-center ${isHomeActive
+              ? "scale-[2.35] fill-[#00e701]/90 text-[#00e701]/90"
               : "scale-[2.25] fill-[#b1bad3] text-[#b1bad3]"
               }`}
           />
@@ -143,7 +143,7 @@ export default function MobileBottomNav() {
           <div className="flex h-7 w-7 items-center justify-center bg-transparent">
             <svg
               className={`h-6 w-6 fill-none stroke-[2.2] transition-colors ${pathname === "/sports" && !isChatOpen
-                ? "stroke-[#00e701] text-[#00e701]"
+                ? "stroke-[#00e701]/85 text-[#00e701]/85"
                 : "stroke-[#b1bad3] text-[#b1bad3]"
                 }`}
               viewBox="0 0 24 24"
@@ -161,7 +161,7 @@ export default function MobileBottomNav() {
           </div>
           <span
             className={`text-xs font-bold tracking-tight mt-0.5 transition-colors ${pathname === "/sports" && !isChatOpen
-              ? "text-[#00e701]"
+              ? "text-[#00e701]/85"
               : "text-[#b1bad3]"
               }`}
           >
@@ -177,7 +177,7 @@ export default function MobileBottomNav() {
           <div className="flex h-7 w-7 items-center justify-center relative bg-transparent">
             <MessageSquare
               className={`h-6 w-6 transition-colors ${isChatOpen
-                ? "text-[#00e701] stroke-[#00e701]"
+                ? "text-[#00e701]/85 stroke-[#00e701]/85"
                 : "text-[#b1bad3] stroke-[#b1bad3]"
                 }`}
               strokeWidth={2.2}
@@ -188,7 +188,7 @@ export default function MobileBottomNav() {
             </span>
           </div>
           <span
-            className={`text-xs font-bold tracking-tight mt-0.5 transition-colors ${isChatOpen ? "text-[#00e701]" : "text-[#b1bad3]"
+            className={`text-xs font-bold tracking-tight mt-0.5 transition-colors ${isChatOpen ? "text-[#00e701]/85" : "text-[#b1bad3]"
               }`}
           >
             Chat

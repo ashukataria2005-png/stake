@@ -86,8 +86,8 @@ export default function LiveStatusAndSearch({
 
       {/* 2. Global Stake Search Bar with Ctrl+K shortcut badge */}
       {showSearch && (
-        <div className="border-2 border-[#2f4553] focus-within:border-[#557086] bg-[#0f212e] rounded-xl shadow-md transition-colors px-4 py-2.5 flex items-center gap-3">
-          <Search className="stroke-[2.5] text-white w-4 h-4 shrink-0" />
+        <div className="border border-[#213743] focus-within:border-[#2f4553] bg-[#071824] rounded-lg shadow-sm transition-colors px-3.5 py-2.5 flex items-center gap-3">
+          <Search className="stroke-[2.2] text-[#879097] w-4 h-4 shrink-0" />
           <input
             ref={inputRef}
             id="game-search-input"
@@ -95,7 +95,7 @@ export default function LiveStatusAndSearch({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search Stake.com"
-            className="font-bold text-white placeholder:font-semibold placeholder-[#b1bad3] tracking-wide text-sm sm:text-base outline-none bg-transparent w-full"
+            className="font-medium text-white placeholder:text-[#879097] tracking-wide text-sm sm:text-base outline-none bg-transparent w-full"
           />
           {searchQuery && (
             <button

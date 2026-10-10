@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   ShieldCheck,
@@ -41,6 +41,7 @@ function calculateMaxMultiplier(mines: number): number {
 }
 
 export default function MinesGame() {
+  const router = useRouter();
   const { balance, realBalance, hasVerifiedDeposit, playMode, updateBalance, currency, addRecentlyPlayedGame } = useGame();
   const isDemo = playMode === "fun" || !hasVerifiedDeposit;
 
@@ -415,33 +416,41 @@ export default function MinesGame() {
         isFullscreen ? "fixed inset-0 z-50 bg-[#0f212e] overflow-y-auto p-4 pb-28 max-w-none" : ""
       }`}
     >
-      {/* 1. Top Header & Multiplier History Strip */}
-      <div className="flex items-center justify-between gap-3">
-        <Link
-          href="/"
-          className="flex items-center gap-2 text-xs font-bold text-[#b1bad3] hover:text-white transition-colors"
+      {/* 1. Top Header: Back to Casino Lobby, Multiplier History Strip & House Edge */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <button
+          type="button"
+          onClick={() => router.push("/casino/home")}
+          className="flex items-center gap-2 text-xs font-bold text-[#b1bad3] hover:text-white transition-colors cursor-pointer relative z-20 py-1"
         >
           <ArrowLeft className="h-4 w-4" />
           <span>Back to Casino Lobby</span>
-        </Link>
+        </button>
 
-        {/* Live Multiplier History Strip */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-          <span className="text-[11px] font-bold text-[#b1bad3] uppercase tracking-wider hidden sm:inline mr-1">
-            History:
-          </span>
-          {history.map((h) => (
-            <span
-              key={h.id}
-              className={`rounded-lg px-2 py-0.5 text-xs font-mono font-bold border transition-colors ${
-                h.isWin
-                  ? "bg-[#00e701]/15 text-[#00e701] border-[#00e701]/30 shadow-sm"
-                  : "bg-[#213743] text-[#b1bad3] border-[#2f4553]"
-              }`}
-            >
-              {h.multiplier.toFixed(2)}×
+        <div className="flex items-center gap-3">
+          {/* Live Multiplier History Strip */}
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+            <span className="text-[11px] font-bold text-[#b1bad3] uppercase tracking-wider hidden sm:inline mr-1">
+              History:
             </span>
-          ))}
+            {history.map((h) => (
+              <span
+                key={h.id}
+                className={`rounded-lg px-2 py-0.5 text-xs font-mono font-bold border transition-colors ${
+                  h.isWin
+                    ? "bg-[#00e701]/15 text-[#00e701] border-[#00e701]/30 shadow-sm"
+                    : "bg-[#213743] text-[#b1bad3] border-[#2f4553]"
+                }`}
+              >
+                {h.multiplier.toFixed(2)}×
+              </span>
+            ))}
+          </div>
+
+          {/* House Edge: 1.00% cleanly at top-right corner above game container */}
+          <span className="text-xs text-[#b1bad3] font-medium shrink-0">
+            House Edge: 1.00%
+          </span>
         </div>
       </div>
 
