@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -16,6 +16,9 @@ import {
   RefreshCw,
   Sparkles,
   Zap,
+  Users,
+  CircleDot,
+  RotateCcw,
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
@@ -35,8 +38,47 @@ interface TrailParticle {
   vy: number;
 }
 
+interface LivePlayerBet {
+  id: string;
+  username: string;
+  avatarColor: string;
+  betAmount: number;
+  targetCashout: number;
+  hasCashedOut: boolean;
+  payout: number;
+  isCurrentUser?: boolean;
+}
+
+const BOT_NAMES = [
+  "CryptoWhale",
+  "LuckyStrike",
+  "NeonRider",
+  "ShadowBets",
+  "AlphaTrader",
+  "StakeGod",
+  "Viper99",
+  "MoonShooter",
+  "RiskTaker",
+  "GoldFinger",
+  "Satoshi_77",
+  "DiamondHands",
+  "ApexLegend",
+  "QuantumBet",
+];
+
+const BOT_COLORS = [
+  "#38bdf8",
+  "#a855f7",
+  "#f97316",
+  "#10b981",
+  "#f43f5e",
+  "#eab308",
+  "#06b6d4",
+  "#ec4899",
+];
+
 export default function CrashGame() {
-  const { balance, updateBalance, currency, formatBalance, currencySymbol } = useGame();
+  const { balance, updateBalance, currency, formatBalance, currencySymbol, user, addRecentlyPlayedGame } = useGame();
   const activeSym = currencySymbol || "$";
 
   // Mode: Manual or Auto
@@ -58,6 +100,19 @@ export default function CrashGame() {
     setAutoCashoutInput(autoCashout.toFixed(2));
   }, [autoCashout]);
 
+  // Auto Mode Options
+  const [autoBetsLimit, setAutoBetsLimit] = useState<number>(0); // 0 = infinite
+  const [autoBetsCount, setAutoBetsCount] = useState<number>(0);
+  const [isAutoRunning, setIsAutoRunning] = useState<boolean>(false);
+  const [onWinAction, setOnWinAction] = useState<"reset" | "increase">("reset");
+  const [onWinPercent, setOnWinPercent] = useState<number>(100);
+  const [onLossAction, setOnLossAction] = useState<"reset" | "increase">("reset");
+  const [onLossPercent, setOnLossPercent] = useState<number>(100);
+  const [stopOnProfit, setStopOnProfit] = useState<number>(0);
+  const [stopOnLoss, setStopOnLoss] = useState<number>(0);
+  const initialAutoBalanceRef = useRef<number>(balance);
+  const baseBetRef = useRef<number>(betAmount);
+
   // Round Phases: "countdown" | "flying" | "crashed"
   const [phase, setPhase] = useState<"countdown" | "flying" | "crashed">("countdown");
   const [countdownSeconds, setCountdownSeconds] = useState<number>(5.0);
@@ -70,7 +125,10 @@ export default function CrashGame() {
   const [hasCashedOut, setHasCashedOut] = useState<boolean>(false);
   const [cashedOutMultiplier, setCashedOutMultiplier] = useState<number | null>(null);
 
-  // Last 7 round multipliers history
+  // Live Multiplayer Bets Board
+  const [livePlayers, setLivePlayers] = useState<LivePlayerBet[]>([]);
+
+  // History strip of last 8 rounds
   const [history, setHistory] = useState<HistoryItem[]>([
     { id: "h1", multiplier: 2.45 },
     { id: "h2", multiplier: 1.15 },
@@ -79,6 +137,7 @@ export default function CrashGame() {
     { id: "h5", multiplier: 3.2 },
     { id: "h6", multiplier: 1.05 },
     { id: "h7", multiplier: 4.62 },
+    { id: "h8", multiplier: 8.91 },
   ]);
 
   // Audio & Fullscreen state
@@ -87,7 +146,7 @@ export default function CrashGame() {
 
   // Provably Fair Modal
   const [isFairnessOpen, setIsFairnessOpen] = useState<boolean>(false);
-  const [serverSeedHash, setServerSeedHash] = useState<string>(
+  const [serverSeedHash] = useState<string>(
     "5c89f1a23e78b409cd83a129f104d5e9b72a4c198e3b5a76cf921d45a9e38f12"
   );
   const [clientSeed, setClientSeed] = useState<string>("stake_crash_68fa1");
@@ -101,6 +160,18 @@ export default function CrashGame() {
   const flightStartTimeRef = useRef<number>(0);
   const lastTickTimeRef = useRef<number>(0);
   const particlesRef = useRef<TrailParticle[]>([]);
+
+  // Register in recently played games once on mount
+  useEffect(() => {
+    addRecentlyPlayedGame({
+      id: "crash",
+      slug: "crash",
+      title: "Crash",
+      href: "/games/crash",
+      playersCount: 5120,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Calculate live running profit
   const liveProfit =
@@ -138,6 +209,52 @@ export default function CrashGame() {
     setBetInput(next.toString());
   };
 
+  // Generate simulated live players before launch
+  const generateLivePlayers = useCallback((userBetAmt: number) => {
+    const players: LivePlayerBet[] = [];
+
+    // Current user row if user bet
+    if (userBetAmt > 0) {
+      players.push({
+        id: "current-user",
+        username: user?.name || "You",
+        avatarColor: user?.avatarColor || "#00e701",
+        betAmount: userBetAmt,
+        targetCashout: autoCashoutEnabled ? autoCashout : 9999,
+        hasCashedOut: false,
+        payout: 0,
+        isCurrentUser: true,
+      });
+    }
+
+    // 8-12 bot players
+    const botCount = Math.floor(Math.random() * 5) + 8;
+    const shuffledNames = [...BOT_NAMES].sort(() => Math.random() - 0.5);
+
+    for (let i = 0; i < botCount; i++) {
+      const name = shuffledNames[i] || `Player_${i + 1}`;
+      const color = BOT_COLORS[i % BOT_COLORS.length];
+      const botBet = parseFloat((Math.random() * 80 + 5).toFixed(2));
+      // Target cashout distributed between 1.15x and 18x
+      const randTarget =
+        Math.random() < 0.65
+          ? parseFloat((1.15 + Math.random() * 2.5).toFixed(2))
+          : parseFloat((3.5 + Math.random() * 12.0).toFixed(2));
+
+      players.push({
+        id: `bot-${i}-${Date.now()}`,
+        username: name,
+        avatarColor: color,
+        betAmount: botBet,
+        targetCashout: randTarget,
+        hasCashedOut: false,
+        payout: 0,
+      });
+    }
+
+    setLivePlayers(players);
+  }, [autoCashout, autoCashoutEnabled, user]);
+
   // Queue or toggle bet for next round
   const toggleBetForNextRound = () => {
     sounds.playClick();
@@ -156,7 +273,6 @@ export default function CrashGame() {
       }
 
       if (effectiveBet > balance) {
-        alert("Insufficient balance! Please use the Wallet button to top up.");
         return;
       }
       if (effectiveBet <= 0) return;
@@ -177,15 +293,27 @@ export default function CrashGame() {
       const winPayout = parseFloat((activeBetAmount * mult).toFixed(2));
       updateBalance(winPayout);
 
-      try {
-        confetti({
-          particleCount: 80,
-          spread: 70,
-          origin: { y: 0.55 },
-          colors: ["#00e701", "#ffffff", "#1475e1", "#facc15"],
-        });
-      } catch {
-        // ignore
+      // Update user in live players board
+      setLivePlayers((prev) =>
+        prev.map((p) =>
+          p.isCurrentUser
+            ? { ...p, hasCashedOut: true, payout: winPayout, targetCashout: mult }
+            : p
+        )
+      );
+
+      // Confetti celebration if high win
+      if (mult >= 2.0) {
+        try {
+          confetti({
+            particleCount: mult >= 10 ? 100 : 50,
+            spread: 70,
+            origin: { y: 0.55 },
+            colors: ["#00e701", "#ffffff", "#ffea00", "#38bdf8"],
+          });
+        } catch {
+          // ignore
+        }
       }
     },
     [activeBetAmount, currentMultiplier, hasCashedOut, phase, updateBalance]
@@ -205,12 +333,30 @@ export default function CrashGame() {
     }
   }, [currentMultiplier, phase, activeBetAmount, hasCashedOut, autoCashoutEnabled, autoCashout, cashout]);
 
-  // Generate random crash point with 1% house edge
+  // Update bot cashouts dynamically as multiplier climbs
+  useEffect(() => {
+    if (phase !== "flying") return;
+
+    setLivePlayers((prev) =>
+      prev.map((player) => {
+        if (!player.hasCashedOut && !player.isCurrentUser && currentMultiplier >= player.targetCashout) {
+          return {
+            ...player,
+            hasCashedOut: true,
+            payout: parseFloat((player.betAmount * player.targetCashout).toFixed(2)),
+          };
+        }
+        return player;
+      })
+    );
+  }, [currentMultiplier, phase]);
+
+  // Generate random crash point with authentic 1% house edge
   const generateCrashPoint = (): number => {
     const rand = Math.random();
     let point = parseFloat((0.99 / (1 - rand)).toFixed(2));
     if (point < 1.01) point = 1.01;
-    if (point > 150.0) point = 150.0;
+    if (point > 250.0) point = 250.0;
     return point;
   };
 
@@ -225,6 +371,10 @@ export default function CrashGame() {
       setHasCashedOut(false);
       setCashedOutMultiplier(null);
       particlesRef.current = [];
+
+      // Determine user queued bet
+      const effectiveBet = hasBetNextRound || isAutoRunning ? betAmount : 0;
+      generateLivePlayers(effectiveBet);
 
       const targetDuration = 5.0;
       const startTime = performance.now();
@@ -242,8 +392,8 @@ export default function CrashGame() {
           setCrashPoint(nextPoint);
           setNonce((n) => n + 1);
 
-          // If user bet was queued, deduct from balance now
-          if (hasBetNextRound) {
+          // If user bet was queued or auto-betting
+          if ((hasBetNextRound || isAutoRunning) && betAmount <= balance && betAmount > 0) {
             updateBalance(-betAmount);
             setActiveBetAmount(betAmount);
             setHasBetNextRound(false);
@@ -261,7 +411,38 @@ export default function CrashGame() {
     } else if (phase === "crashed") {
       sounds.playCrash();
 
-      // Display crashed point for 3.2s, then restart countdown
+      // Handle auto-betting progression
+      if (isAutoRunning) {
+        setAutoBetsCount((c) => {
+          const nextCount = c + 1;
+          if (autoBetsLimit > 0 && nextCount >= autoBetsLimit) {
+            setIsAutoRunning(false);
+          }
+          return nextCount;
+        });
+
+        const won = hasCashedOut;
+        if (won) {
+          if (onWinAction === "increase") {
+            setBetAmount((b) => parseFloat((b * (1 + onWinPercent / 100)).toFixed(2)));
+          } else {
+            setBetAmount(baseBetRef.current);
+          }
+        } else {
+          if (onLossAction === "increase") {
+            setBetAmount((b) => parseFloat((b * (1 + onLossPercent / 100)).toFixed(2)));
+          } else {
+            setBetAmount(baseBetRef.current);
+          }
+        }
+
+        // Check profit / loss limits
+        const net = balance - initialAutoBalanceRef.current;
+        if (stopOnProfit > 0 && net >= stopOnProfit) setIsAutoRunning(false);
+        if (stopOnLoss > 0 && -net >= stopOnLoss) setIsAutoRunning(false);
+      }
+
+      // Display crashed state for 3.2s, then restart countdown
       timerId = setTimeout(() => {
         setPhase("countdown");
       }, 3200);
@@ -303,7 +484,7 @@ export default function CrashGame() {
 
       // 2. Subtle Grid Lines (Axes & Coordinates)
       ctx.lineWidth = 1;
-      ctx.strokeStyle = "#21374355";
+      ctx.strokeStyle = "#21374340";
       const gridRows = 5;
       const gridCols = 6;
       for (let r = 1; r < gridRows; r++) {
@@ -324,7 +505,7 @@ export default function CrashGame() {
       // 3. Dynamic Progress / Multiplier Math during Flight
       if (phase === "flying") {
         const elapsedSec = (time - flightStartTimeRef.current) / 1000;
-        // Stake exponential curve: M(t) = e^(0.06 * t)
+        // Stake exponential curve: M(t) = e^(0.065 * t)
         const mult = parseFloat(Math.exp(0.065 * elapsedSec).toFixed(2));
 
         if (mult >= crashPoint) {
@@ -333,13 +514,13 @@ export default function CrashGame() {
           setPhase("crashed");
           setHistory((prev) => [
             { id: `h-${Date.now()}`, multiplier: crashPoint },
-            ...prev.slice(0, 6),
+            ...prev.slice(0, 7),
           ]);
         } else {
           setCurrentMultiplier(mult);
 
           // Audio ticking feedback
-          if (time - lastTickTimeRef.current > Math.max(120, 450 - mult * 30)) {
+          if (time - lastTickTimeRef.current > Math.max(100, 420 - mult * 32)) {
             sounds.playTick(mult);
             lastTickTimeRef.current = time;
           }
@@ -347,10 +528,10 @@ export default function CrashGame() {
       }
 
       // 4. Draw Exponential Curve Trajectory
-      const originX = 24;
-      const originY = height - 28;
+      const originX = 28;
+      const originY = height - 32;
       const maxX = width - 40;
-      const maxY = 40;
+      const maxY = 45;
 
       if (phase === "flying" || phase === "crashed") {
         const durationEst = Math.log(Math.max(crashPoint, 2.0)) / 0.065;
@@ -369,16 +550,16 @@ export default function CrashGame() {
         // Path gradient & stroke
         const isCrashed = phase === "crashed";
         const strokeColor = isCrashed ? "#ef4444" : "#00e701";
-        const glowColor = isCrashed ? "rgba(239,68,68,0.4)" : "rgba(0,231,1,0.4)";
+        const glowColor = isCrashed ? "rgba(239,68,68,0.5)" : "rgba(0,231,1,0.5)";
 
-        // Curve Area Fill
+        // Curve Area Fill Gradient
         const gradient = ctx.createLinearGradient(0, maxY, 0, originY);
-        gradient.addColorStop(0, isCrashed ? "rgba(239,68,68,0.25)" : "rgba(0,231,1,0.25)");
+        gradient.addColorStop(0, isCrashed ? "rgba(239,68,68,0.22)" : "rgba(0,231,1,0.22)");
         gradient.addColorStop(1, "rgba(15,33,46,0)");
 
         ctx.beginPath();
         ctx.moveTo(originX, originY);
-        const steps = 30;
+        const steps = 36;
         for (let i = 1; i <= steps; i++) {
           const tStep = (i / steps) * Math.min(progress, 0.95);
           const px = originX + (maxX - originX) * tStep;
@@ -404,7 +585,7 @@ export default function CrashGame() {
         ctx.shadowColor = glowColor;
         ctx.shadowBlur = 14;
         ctx.stroke();
-        ctx.shadowBlur = 0; // reset
+        ctx.shadowBlur = 0;
 
         // Particle Trail update
         if (phase === "flying") {
@@ -418,7 +599,7 @@ export default function CrashGame() {
           });
         }
 
-        // Render & age particles
+        // Render particles
         for (let i = particlesRef.current.length - 1; i >= 0; i--) {
           const p = particlesRef.current[i];
           p.x += p.vx;
@@ -436,7 +617,7 @@ export default function CrashGame() {
           ctx.fill();
         }
 
-        // Glowing Dot/Rocket at Curve Tip
+        // Glowing Rocket / Tip Dot
         ctx.beginPath();
         ctx.arc(tipX, tipY, 7, 0, Math.PI * 2);
         ctx.fillStyle = "#ffffff";
@@ -466,6 +647,15 @@ export default function CrashGame() {
     };
   }, [phase, crashPoint]);
 
+  // Color mapping for climbing multiplier
+  const multiplierColor = useMemo(() => {
+    if (phase === "crashed") return "text-red-500 drop-shadow-[0_0_25px_rgba(239,68,68,0.8)]";
+    if (currentMultiplier >= 10.0) return "text-[#fbbf24] drop-shadow-[0_0_24px_rgba(251,191,36,0.6)]";
+    if (currentMultiplier >= 5.0) return "text-[#ffea00] drop-shadow-[0_0_20px_rgba(255,234,0,0.5)]";
+    if (currentMultiplier >= 2.0) return "text-[#00e701] drop-shadow-[0_0_20px_rgba(0,231,1,0.5)]";
+    return "text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.35)]";
+  }, [currentMultiplier, phase]);
+
   // Copy helper
   const copyToClipboard = (text: string, field: string) => {
     navigator.clipboard.writeText(text);
@@ -475,8 +665,8 @@ export default function CrashGame() {
 
   return (
     <div
-      className={`w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-2 sm:py-3 select-none space-y-3 ${
-        isFullscreen ? "fixed inset-0 z-50 bg-[#0f212e] overflow-y-auto p-4 pb-6 max-w-none" : ""
+      className={`w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-2 sm:py-3 select-none space-y-3 relative z-0 pointer-events-auto ${
+        isFullscreen ? "fixed inset-0 z-40 bg-[#0f212e] overflow-y-auto p-4 pb-6 max-w-none" : ""
       }`}
     >
       {/* Top Header & Navigation */}
@@ -489,18 +679,21 @@ export default function CrashGame() {
           <span>Back to Casino Lobby</span>
         </Link>
 
-        {/* Live Multiplier History Strip (Last 7 Rounds) */}
+        {/* Live Multiplier History Strip (Last 8 Rounds) */}
         <div className="flex items-center gap-1.5 overflow-x-auto">
           <span className="text-[11px] font-bold text-[#b1bad3] uppercase tracking-wider hidden sm:inline mr-1">
             History:
           </span>
           {history.map((h) => {
             const isHigh = h.multiplier >= 2.0;
+            const isJackpot = h.multiplier >= 10.0;
             return (
               <span
                 key={h.id}
-                className={`rounded-lg px-2 py-0.5 text-xs font-mono font-bold border transition-colors ${
-                  isHigh
+                className={`rounded-lg px-2 py-0.5 text-xs font-mono font-black border transition-colors shrink-0 ${
+                  isJackpot
+                    ? "bg-amber-400/20 text-[#fbbf24] border-amber-400/40 shadow-sm"
+                    : isHigh
                     ? "bg-[#00e701]/15 text-[#00e701] border-[#00e701]/30 shadow-sm"
                     : "bg-[#213743] text-[#b1bad3] border-[#2f4553]"
                 }`}
@@ -512,53 +705,23 @@ export default function CrashGame() {
         </div>
       </div>
 
-      {/* Main 2-Panel Game Container */}
+      {/* Main 2-Panel Game Container: Left Controls & Right Curve Canvas */}
       <div className="rounded-2xl border border-[#213743] bg-[#1a2c38] shadow-2xl overflow-hidden flex flex-col-reverse lg:flex-row">
         {/* ======================================================== */}
-        {/* 1. BETTING CONTROLS (Left Panel on Desktop / Bottom on Mobile) */}
+        {/* 1. BETTING CONTROLS (Left Panel on Desktop)             */}
         {/* ======================================================== */}
-        <div className="w-full lg:w-[320px] shrink-0 border-t lg:border-t-0 lg:border-r border-[#213743] bg-[#1a2c38] p-4 sm:p-5 flex flex-col justify-start space-y-4">
-          {/* [Section 2 - Directly below Game Screen]: PRIMARY ACTION BUTTON */}
-          <div className="w-full">
-            {phase === "flying" && activeBetAmount > 0 && !hasCashedOut ? (
-              <button
-                onClick={() => cashout()}
-                className="w-full py-4 text-base font-extrabold rounded-lg bg-[#00e701] text-black shadow-md hover:brightness-110 active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Zap className="h-5 w-5 fill-current" />
-                <span>
-                  Cashout ${(activeBetAmount * currentMultiplier).toFixed(2)}
-                </span>
-              </button>
-            ) : hasBetNextRound ? (
-              <button
-                onClick={toggleBetForNextRound}
-                className="w-full py-4 text-base font-extrabold rounded-lg border border-[#213743] bg-[#213743] text-white hover:bg-[#2f4553] transition-all flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <span>Queued (${betAmount.toFixed(2)}) - Click to Cancel</span>
-              </button>
-            ) : (
-              <button
-                onClick={toggleBetForNextRound}
-                disabled={betAmount > balance || betAmount <= 0}
-                className="w-full py-4 text-base font-extrabold rounded-lg bg-[#00e701] text-black shadow-md hover:brightness-110 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Sparkles className="h-5 w-5 fill-current" />
-                <span>Bet (Next Round)</span>
-              </button>
-            )}
-          </div>
-
-          {/* [Section 3]: Betting Inputs & Modifiers */}
+        <div className="w-full lg:w-[320px] xl:w-[340px] shrink-0 border-t lg:border-t-0 lg:border-r border-[#213743] bg-[#1a2c38] p-4 sm:p-5 flex flex-col justify-between space-y-4">
           <div className="space-y-4">
             {/* Mode Switch Tabs: Manual vs Auto */}
             <div className="flex rounded-xl bg-[#0f212e] p-1 border border-[#213743]">
               <button
+                type="button"
                 onClick={() => {
                   sounds.playClick();
                   setMode("manual");
+                  setIsAutoRunning(false);
                 }}
-                className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all ${
+                className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
                   mode === "manual"
                     ? "bg-[#213743] text-white shadow-sm"
                     : "text-[#b1bad3] hover:text-white"
@@ -567,11 +730,12 @@ export default function CrashGame() {
                 Manual
               </button>
               <button
+                type="button"
                 onClick={() => {
                   sounds.playClick();
                   setMode("auto");
                 }}
-                className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all ${
+                className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
                   mode === "auto"
                     ? "bg-[#213743] text-white shadow-sm"
                     : "text-[#b1bad3] hover:text-white"
@@ -590,7 +754,7 @@ export default function CrashGame() {
                 </span>
               </div>
               <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] p-1 focus-within:border-[#00e701] transition-colors">
-                <span className="px-2 text-sm font-bold text-[#00e701]">{activeSym}</span>
+                <span className="px-2 text-sm font-bold text-[#b1bad3]">{activeSym}</span>
                 <input
                   type="text"
                   inputMode="decimal"
@@ -615,13 +779,13 @@ export default function CrashGame() {
                       setBetAmount(num);
                     }
                   }}
-                  className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono"
+                  className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono disabled:opacity-50"
                 />
                 <button
                   type="button"
                   disabled={phase === "flying" && activeBetAmount > 0}
                   onClick={handleHalfBet}
-                  className="rounded-lg px-2 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors"
+                  className="rounded-lg px-2.5 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer disabled:opacity-40"
                 >
                   ½
                 </button>
@@ -629,7 +793,7 @@ export default function CrashGame() {
                   type="button"
                   disabled={phase === "flying" && activeBetAmount > 0}
                   onClick={handleDoubleBet}
-                  className="rounded-lg px-2 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors"
+                  className="rounded-lg px-2.5 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer disabled:opacity-40"
                 >
                   2×
                 </button>
@@ -637,7 +801,7 @@ export default function CrashGame() {
                   type="button"
                   disabled={phase === "flying" && activeBetAmount > 0}
                   onClick={handleMaxBet}
-                  className="rounded-lg px-2 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors"
+                  className="rounded-lg px-2.5 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer disabled:opacity-40"
                 >
                   Max
                 </button>
@@ -692,7 +856,64 @@ export default function CrashGame() {
               </div>
             </div>
 
-            {/* Live Profit Preview Box (if in flight with bet) */}
+            {/* Auto Mode Configuration Inputs */}
+            {mode === "auto" && (
+              <div className="space-y-3 pt-2 border-t border-[#213743]/60 text-xs">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-[#b1bad3]">Number of Bets</label>
+                  <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] px-3 py-1.5">
+                    <input
+                      type="number"
+                      min="0"
+                      placeholder="∞"
+                      value={autoBetsLimit === 0 ? "" : autoBetsLimit}
+                      onChange={(e) => setAutoBetsLimit(parseInt(e.target.value) || 0)}
+                      className="w-full bg-transparent text-xs font-bold text-white font-mono focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setAutoBetsLimit(0)}
+                      className="text-[11px] font-bold text-[#00e701] hover:underline cursor-pointer"
+                    >
+                      ∞
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-[#b1bad3] uppercase">On Win</label>
+                    <select
+                      value={onWinAction}
+                      onChange={(e) => setOnWinAction(e.target.value as "reset" | "increase")}
+                      className="w-full rounded-lg bg-[#0f212e] border border-[#213743] p-1.5 text-xs text-white"
+                    >
+                      <option value="reset">Reset</option>
+                      <option value="increase">Increase %</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-[#b1bad3] uppercase">On Loss</label>
+                    <select
+                      value={onLossAction}
+                      onChange={(e) => setOnLossAction(e.target.value as "reset" | "increase")}
+                      className="w-full rounded-lg bg-[#0f212e] border border-[#213743] p-1.5 text-xs text-white"
+                    >
+                      <option value="reset">Reset</option>
+                      <option value="increase">Increase %</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center text-[11px] text-[#b1bad3] px-1 font-mono">
+                  <span>Bets Completed:</span>
+                  <span className="text-white font-bold">{autoBetsCount} / {autoBetsLimit === 0 ? "∞" : autoBetsLimit}</span>
+                </div>
+              </div>
+            )}
+
+            {/* Live Profit Banner if currently in flight with bet */}
             {phase === "flying" && activeBetAmount > 0 && !hasCashedOut && (
               <div className="rounded-xl border border-[#213743] bg-[#0f212e] p-3 space-y-1 animate-in fade-in duration-150">
                 <div className="flex justify-between text-xs text-[#b1bad3]">
@@ -721,21 +942,84 @@ export default function CrashGame() {
             )}
           </div>
 
-
+          {/* PRIMARY CTA ACTION BUTTON */}
+          <div className="pt-2">
+            {phase === "flying" && activeBetAmount > 0 && !hasCashedOut ? (
+              <button
+                type="button"
+                onClick={() => cashout()}
+                className="w-full py-4 text-base font-black rounded-xl bg-[#00e701] hover:bg-[#00c201] text-[#0f212e] shadow-[0_0_24px_rgba(0,231,1,0.4)] active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Zap className="h-5 w-5 fill-current" />
+                <span>
+                  Cashout ${(activeBetAmount * currentMultiplier).toFixed(2)}
+                </span>
+              </button>
+            ) : mode === "auto" ? (
+              <button
+                type="button"
+                onClick={() => {
+                  if (isAutoRunning) {
+                    setIsAutoRunning(false);
+                  } else {
+                    initialAutoBalanceRef.current = balance;
+                    baseBetRef.current = betAmount;
+                    setAutoBetsCount(0);
+                    setIsAutoRunning(true);
+                  }
+                }}
+                className={`w-full py-4 text-base font-black rounded-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                  isAutoRunning
+                    ? "bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/25"
+                    : "bg-[#00e701] hover:bg-[#00c201] text-[#0f212e] shadow-[0_0_20px_rgba(0,231,1,0.25)]"
+                }`}
+              >
+                {isAutoRunning ? (
+                  <>
+                    <RefreshCw className="h-5 w-5 animate-spin" />
+                    <span>Stop Auto Bet</span>
+                  </>
+                ) : (
+                  <>
+                    <Zap className="h-5 w-5 fill-current" />
+                    <span>Start Auto Bet</span>
+                  </>
+                )}
+              </button>
+            ) : hasBetNextRound ? (
+              <button
+                type="button"
+                onClick={toggleBetForNextRound}
+                className="w-full py-4 text-sm font-extrabold rounded-xl border border-[#213743] bg-[#213743] text-white hover:bg-[#2f4553] active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>Queued (${betAmount.toFixed(2)}) - Cancel</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={toggleBetForNextRound}
+                disabled={betAmount > balance || betAmount <= 0}
+                className="w-full py-4 text-base font-black rounded-xl bg-[#00e701] hover:bg-[#00c201] text-[#0f212e] shadow-[0_0_20px_rgba(0,231,1,0.25)] hover:shadow-[0_0_28px_rgba(0,231,1,0.4)] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Sparkles className="h-5 w-5 fill-current" />
+                <span>Bet (Next Round)</span>
+              </button>
+            )}
+          </div>
         </div>
 
         {/* ======================================================== */}
-        {/* 2. LIVE CANVAS ARENA (Right Panel on Desktop / Top on Mobile) */}
+        {/* 2. LIVE CANVAS ARENA (Right Panel on Desktop)            */}
         {/* ======================================================== */}
         <div
           ref={containerRef}
-          className="flex-1 bg-[#0f212e] p-4 sm:p-6 lg:p-8 flex flex-col items-center justify-between min-h-[380px] sm:min-h-[520px] relative overflow-hidden"
+          className="flex-1 bg-[#0f212e] p-4 sm:p-6 lg:p-8 flex flex-col items-center justify-between min-h-[400px] sm:min-h-[520px] relative overflow-hidden"
         >
           {/* Top Status Indicators inside Arena */}
           <div className="w-full flex items-center justify-between z-10">
             <div className="flex items-center gap-2 text-xs font-bold text-[#b1bad3]">
               <span
-                className={`flex h-2 w-2 rounded-full ${
+                className={`flex h-2.5 w-2.5 rounded-full ${
                   phase === "flying"
                     ? "bg-[#00e701] animate-ping"
                     : phase === "countdown"
@@ -743,7 +1027,7 @@ export default function CrashGame() {
                     : "bg-red-500"
                 }`}
               />
-              <span className="uppercase tracking-wider">
+              <span className="uppercase tracking-wider font-mono">
                 {phase === "flying"
                   ? "In Flight"
                   : phase === "countdown"
@@ -752,9 +1036,37 @@ export default function CrashGame() {
               </span>
             </div>
 
-            <div className="flex items-center gap-2 rounded-lg bg-[#1a2c38] px-2.5 py-1 border border-[#213743] text-xs font-bold">
-              <TrendingUp className="h-3.5 w-3.5 text-[#00e701]" />
-              <span className="text-[#b1bad3]">1% House Edge</span>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 rounded-lg bg-[#1a2c38] px-2.5 py-1 border border-[#213743] text-xs font-bold">
+                <TrendingUp className="h-3.5 w-3.5 text-[#00e701]" />
+                <span className="text-[#b1bad3]">1% House Edge</span>
+              </div>
+
+              <button
+                type="button"
+                onClick={toggleSound}
+                title={isMuted ? "Unmute Audio" : "Mute Audio"}
+                className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1a2c38] border border-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
+              >
+                {isMuted ? (
+                  <VolumeX className="h-3.5 w-3.5 text-red-400" />
+                ) : (
+                  <Volume2 className="h-3.5 w-3.5 text-[#00e701]" />
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsFullscreen(!isFullscreen)}
+                title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+                className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1a2c38] border border-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
+              >
+                {isFullscreen ? (
+                  <Minimize2 className="h-3.5 w-3.5" />
+                ) : (
+                  <Maximize2 className="h-3.5 w-3.5" />
+                )}
+              </button>
             </div>
           </div>
 
@@ -763,41 +1075,41 @@ export default function CrashGame() {
             {phase === "countdown" ? (
               <div className="space-y-3 animate-in fade-in duration-200">
                 <div className="text-xs font-extrabold uppercase tracking-widest text-[#b1bad3]">
-                  Starting In
+                  Next Round Starting In
                 </div>
-                <div className="text-4xl sm:text-6xl font-black font-mono text-white tracking-tight">
+                <div className="text-5xl sm:text-7xl font-black font-mono text-white tracking-tight">
                   {countdownSeconds.toFixed(1)}s
                 </div>
-                {/* Countdown Progress Bar */}
-                <div className="w-48 sm:w-64 h-2 rounded-full bg-[#1a2c38] border border-[#213743] overflow-hidden">
+                {/* 5-Second Countdown Progress Bar */}
+                <div className="w-52 sm:w-72 h-2.5 rounded-full bg-[#1a2c38] border border-[#213743] overflow-hidden">
                   <div
-                    className="h-full bg-[#00e701] transition-all duration-75"
+                    className="h-full bg-[#00e701] transition-all duration-75 ease-linear"
                     style={{ width: `${(countdownSeconds / 5.0) * 100}%` }}
                   />
                 </div>
               </div>
             ) : phase === "crashed" ? (
               <div className="space-y-2 animate-bomb-shake">
-                <div className="text-5xl sm:text-7xl font-black font-mono tracking-tight text-red-500 drop-shadow-[0_0_25px_rgba(239,68,68,0.7)]">
+                <div className="text-6xl sm:text-8xl font-black font-mono tracking-tight text-red-500 drop-shadow-[0_0_30px_rgba(239,68,68,0.8)]">
                   {crashPoint.toFixed(2)}×
                 </div>
-                <div className="inline-block rounded-xl bg-red-500/20 border border-red-500/40 px-4 py-1 text-sm font-extrabold text-red-400 uppercase tracking-wider">
+                <div className="inline-block rounded-xl bg-red-500/20 border border-red-500/40 px-5 py-1.5 text-sm font-extrabold text-red-400 uppercase tracking-wider">
                   Crashed @ {crashPoint.toFixed(2)}×
                 </div>
               </div>
             ) : (
               <div className="space-y-1">
-                <div className="text-5xl sm:text-7xl md:text-8xl font-black font-mono tracking-tight text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.4)] animate-pulse-subtle">
+                <div className={`text-6xl sm:text-8xl md:text-9xl font-black font-mono tracking-tight transition-colors duration-200 ${multiplierColor}`}>
                   {currentMultiplier.toFixed(2)}×
                 </div>
                 <div className="text-xs font-bold uppercase tracking-widest text-[#00e701]">
-                  Current Payout
+                  Current Multiplier
                 </div>
               </div>
             )}
           </div>
 
-          {/* HTML5 Canvas Background / Curve Engine */}
+          {/* HTML5 Canvas Background / 60fps Curve Engine */}
           <canvas
             ref={canvasRef}
             className="absolute inset-0 w-full h-full pointer-events-none"
@@ -805,74 +1117,148 @@ export default function CrashGame() {
 
           {/* Bottom Game Utilities Bar */}
           <div className="w-full flex items-center justify-between border-t border-[#213743] pt-3 z-10">
-            {/* Provably Fair Modal Trigger */}
             <button
+              type="button"
               onClick={() => setIsFairnessOpen(true)}
-              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold text-[#b1bad3] hover:text-white hover:bg-[#1a2c38] transition-colors"
+              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold text-[#b1bad3] hover:text-white hover:bg-[#1a2c38] transition-colors cursor-pointer"
             >
               <ShieldCheck className="h-4 w-4 text-[#00e701]" />
               <span>Fairness</span>
             </button>
 
-            {/* Sound & Screen Controls */}
-            <div className="flex items-center gap-1.5">
-              <button
-                onClick={toggleSound}
-                title={isMuted ? "Unmute Audio" : "Mute Audio"}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-[#b1bad3] hover:text-white hover:bg-[#1a2c38] transition-colors"
-              >
-                {isMuted ? (
-                  <VolumeX className="h-4 w-4 text-red-400" />
-                ) : (
-                  <Volume2 className="h-4 w-4 text-[#00e701]" />
-                )}
-              </button>
-
-              <button
-                onClick={() => setIsFullscreen(!isFullscreen)}
-                title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-[#b1bad3] hover:text-white hover:bg-[#1a2c38] transition-colors"
-              >
-                {isFullscreen ? (
-                  <Minimize2 className="h-4 w-4" />
-                ) : (
-                  <Maximize2 className="h-4 w-4" />
-                )}
-              </button>
-            </div>
+            <span className="text-[11px] text-[#b1bad3] font-mono">
+              Live Multiplayer Engine
+            </span>
           </div>
         </div>
       </div>
 
       {/* ======================================================== */}
-      {/* 3. PROVABLY FAIR MODAL */}
+      {/* 3. LIVE MULTIPLAYER BETS BOARD (STAKE 1:1 TABLE)         */}
+      {/* ======================================================== */}
+      <div className="rounded-2xl border border-[#213743] bg-[#1a2c38] p-4 sm:p-5 space-y-3 shadow-xl">
+        <div className="flex items-center justify-between border-b border-[#213743] pb-3">
+          <div className="flex items-center gap-2">
+            <Users className="h-4 w-4 text-[#00e701]" />
+            <h3 className="text-sm font-black text-white">Live Player Bets</h3>
+            <span className="rounded-full bg-[#0f212e] px-2 py-0.5 text-[11px] font-mono font-bold text-[#00e701] border border-[#213743]">
+              {livePlayers.length} Active
+            </span>
+          </div>
+
+          <div className="text-xs font-bold text-[#b1bad3]">
+            Total Bet:{" "}
+            <span className="font-mono text-white">
+              ${livePlayers.reduce((acc, p) => acc + p.betAmount, 0).toFixed(2)}
+            </span>
+          </div>
+        </div>
+
+        {/* Players Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead>
+              <tr className="border-b border-[#213743]/60 text-[10px] uppercase font-bold text-[#b1bad3] tracking-wider">
+                <th className="py-2.5 px-3">Player</th>
+                <th className="py-2.5 px-3">Cashout Multiplier</th>
+                <th className="py-2.5 px-3">Bet Amount</th>
+                <th className="py-2.5 px-3 text-right">Payout</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#213743]/30 font-mono">
+              {livePlayers.map((player) => {
+                const isWin = player.hasCashedOut;
+                const isLost = phase === "crashed" && !player.hasCashedOut;
+
+                return (
+                  <tr
+                    key={player.id}
+                    className={`transition-colors ${
+                      player.isCurrentUser
+                        ? "bg-[#00e701]/10 font-bold"
+                        : "hover:bg-[#213743]/30"
+                    }`}
+                  >
+                    <td className="py-2.5 px-3 flex items-center gap-2">
+                      <span
+                        className="h-2.5 w-2.5 rounded-full shrink-0"
+                        style={{ backgroundColor: player.avatarColor }}
+                      />
+                      <span className={player.isCurrentUser ? "text-[#00e701] font-bold" : "text-white"}>
+                        {player.username}
+                      </span>
+                    </td>
+
+                    <td className="py-2.5 px-3">
+                      {isWin ? (
+                        <span className="text-[#00e701] font-bold">
+                          {player.targetCashout.toFixed(2)}×
+                        </span>
+                      ) : isLost ? (
+                        <span className="text-red-400">Crashed</span>
+                      ) : (
+                        <span className="text-[#b1bad3]">—</span>
+                      )}
+                    </td>
+
+                    <td className="py-2.5 px-3 text-white">
+                      ${player.betAmount.toFixed(2)}
+                    </td>
+
+                    <td className="py-2.5 px-3 text-right">
+                      {isWin ? (
+                        <span className="text-[#00e701] font-bold">
+                          +${player.payout.toFixed(2)}
+                        </span>
+                      ) : isLost ? (
+                        <span className="text-red-400/80">$0.00</span>
+                      ) : (
+                        <span className="text-[#b1bad3]">—</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* ======================================================== */}
+      {/* 4. PROVABLY FAIR VERIFIER MODAL                          */}
       {/* ======================================================== */}
       {isFairnessOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="w-full max-w-lg rounded-2xl border border-[#213743] bg-[#1a2c38] p-6 shadow-2xl space-y-5">
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsFairnessOpen(false);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+        >
+          <div className="w-full max-w-lg rounded-2xl border border-[#213743] bg-[#1a2c38] p-6 shadow-2xl space-y-5 text-white">
             <div className="flex items-center justify-between border-b border-[#213743] pb-4">
               <div className="flex items-center gap-2.5">
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#00e701]/15 text-[#00e701]">
                   <ShieldCheck className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-black text-white">Crash Fairness</h3>
+                  <h3 className="text-base font-black">Crash Provably Fair</h3>
                   <p className="text-xs text-[#b1bad3]">
-                    100% cryptographic verification of crash multiplier
+                    100% cryptographic SHA-256 verification of crash multiplier
                   </p>
                 </div>
               </div>
               <button
+                type="button"
                 onClick={() => setIsFairnessOpen(false)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-[#b1bad3] hover:bg-[#213743] hover:text-white"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-[#b1bad3] hover:bg-[#213743] hover:text-white cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
 
-            <div className="space-y-3.5 text-xs">
+            <div className="space-y-3.5 text-xs text-[#b1bad3]">
               <div className="space-y-1">
-                <label className="font-bold text-[#b1bad3] uppercase tracking-wider text-[10px]">
+                <label className="font-bold uppercase tracking-wider text-[10px]">
                   Server Seed (SHA-256 Hash)
                 </label>
                 <div className="flex items-center gap-2 rounded-xl border border-[#213743] bg-[#0f212e] px-3 py-2">
@@ -880,8 +1266,9 @@ export default function CrashGame() {
                     {serverSeedHash}
                   </span>
                   <button
+                    type="button"
                     onClick={() => copyToClipboard(serverSeedHash, "server")}
-                    className="text-[#b1bad3] hover:text-[#00e701]"
+                    className="text-[#b1bad3] hover:text-[#00e701] cursor-pointer"
                   >
                     {copiedField === "server" ? (
                       <Check className="h-3.5 w-3.5 text-[#00e701]" />
@@ -893,7 +1280,7 @@ export default function CrashGame() {
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-[#b1bad3] uppercase tracking-wider text-[10px]">
+                <label className="font-bold uppercase tracking-wider text-[10px]">
                   Client Seed
                 </label>
                 <div className="flex items-center gap-2 rounded-xl border border-[#213743] bg-[#0f212e] px-3 py-2">
@@ -904,11 +1291,12 @@ export default function CrashGame() {
                     className="font-mono text-white text-xs bg-transparent focus:outline-none flex-1"
                   />
                   <button
+                    type="button"
                     onClick={() =>
                       setClientSeed(`stake_${Math.random().toString(36).substring(2, 9)}`)
                     }
                     title="Generate Random Client Seed"
-                    className="text-[#b1bad3] hover:text-[#00e701]"
+                    className="text-[#b1bad3] hover:text-[#00e701] cursor-pointer"
                   >
                     <RefreshCw className="h-3.5 w-3.5" />
                   </button>
@@ -916,7 +1304,7 @@ export default function CrashGame() {
               </div>
 
               <div className="space-y-1">
-                <label className="font-bold text-[#b1bad3] uppercase tracking-wider text-[10px]">
+                <label className="font-bold uppercase tracking-wider text-[10px]">
                   Nonce (Game Counter)
                 </label>
                 <div className="rounded-xl border border-[#213743] bg-[#0f212e] px-3 py-2 font-mono text-white font-bold">
@@ -924,19 +1312,20 @@ export default function CrashGame() {
                 </div>
               </div>
 
-              <div className="rounded-xl border border-[#213743] bg-[#0f212e] p-3 text-[11px] space-y-1 text-[#b1bad3]">
+              <div className="rounded-xl border border-[#213743] bg-[#0f212e] p-3 text-[11px] space-y-1">
                 <div className="font-bold text-white">Crash Point Formula:</div>
                 <div className="font-mono text-[#00e701]">
                   CrashPoint = 0.99 / (1 - HashToFloat(ServerSeed, ClientSeed, Nonce))
                 </div>
-                <div>Where House Edge = 1%. Values &lt; 1.01 are clamped to 1.01x.</div>
+                <div>Where House Edge = 1%. Multipliers &lt; 1.01 are clamped to 1.01×.</div>
               </div>
             </div>
 
             <div className="flex justify-end pt-2 border-t border-[#213743]">
               <button
+                type="button"
                 onClick={() => setIsFairnessOpen(false)}
-                className="rounded-xl bg-[#00e701] px-5 py-2 text-xs font-bold text-[#0f212e] hover:bg-[#00c701]"
+                className="w-full py-2.5 rounded-xl bg-[#00e701] hover:bg-[#00c201] text-[#0f212e] font-bold text-xs cursor-pointer"
               >
                 Close
               </button>
