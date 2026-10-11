@@ -224,7 +224,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const addRecentlyPlayedGame = (game: RecentlyPlayedGame) => {
+  const addRecentlyPlayedGame = useCallback((game: RecentlyPlayedGame) => {
     setRecentlyPlayedGames((prev) => {
       const filtered = prev.filter((g) => g.id !== game.id && (g.slug ? g.slug !== game.slug : true));
       const updated = [game, ...filtered].slice(0, 5);
@@ -235,7 +235,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       }
       return updated;
     });
-  };
+  }, []);
 
   const login = (userData?: Partial<UserProfile>) => {
     const profile: UserProfile = {

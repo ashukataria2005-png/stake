@@ -109,7 +109,8 @@ export default function MinesGame() {
       href: "/games/mines",
       playersCount: 3820,
     });
-  }, [addRecentlyPlayedGame]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Start new game
   const startGame = useCallback(() => {
@@ -408,8 +409,8 @@ export default function MinesGame() {
 
   return (
     <div
-      className={`w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-2 sm:py-3 select-none space-y-3 ${
-        isFullscreen ? "fixed inset-0 z-50 bg-[#0f212e] overflow-y-auto p-4 pb-6 max-w-none" : ""
+      className={`w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-2 sm:py-3 select-none space-y-3 relative z-0 pointer-events-auto ${
+        isFullscreen ? "fixed inset-0 z-40 bg-[#0f212e] overflow-y-auto p-4 pb-6 max-w-none" : ""
       }`}
     >
       {/* Main 2-Panel Game Container: Left Controls & Right 5x5 Grid */}
@@ -553,7 +554,12 @@ export default function MinesGame() {
 
       {/* Fairness Modal */}
       {isFairnessOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-150">
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsFairnessOpen(false);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-150"
+        >
           <div className="w-full max-w-lg rounded-2xl border border-[#2f4553] bg-[#1a2c38] p-6 shadow-2xl space-y-4 text-white">
             <div className="flex items-center justify-between border-b border-[#213743] pb-3">
               <div className="flex items-center gap-2">
@@ -614,7 +620,12 @@ export default function MinesGame() {
 
       {/* Session Stats Modal */}
       {isStatsOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-150">
+        <div
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsStatsOpen(false);
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-150"
+        >
           <div className="w-full max-w-md rounded-2xl border border-[#2f4553] bg-[#1a2c38] p-5 shadow-2xl space-y-4 text-white">
             <div className="flex items-center justify-between border-b border-[#213743] pb-3">
               <h3 className="text-base font-black flex items-center gap-2">

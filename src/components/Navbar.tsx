@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
   Wallet,
   Bell,
@@ -24,6 +24,7 @@ import CasinoSearchModal from "@/components/casino/CasinoSearchModal";
 
 export default function Navbar() {
   const router = useRouter();
+  const pathname = usePathname();
   const {
     balance,
     realBalance,
@@ -96,7 +97,7 @@ export default function Navbar() {
     setIsProfileMenuOpen(false);
     setIsCurrencyDropdownOpen(false);
     setChatOpen(false);
-    if (typeof window !== "undefined" && window.location.pathname === "/") {
+    if (pathname === "/" || (typeof window !== "undefined" && window.location.pathname === "/")) {
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       router.push("/");

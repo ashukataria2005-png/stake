@@ -30,7 +30,7 @@ export default function MobileBottomNav() {
     e.stopPropagation();
     handleTabClick("home");
     setChatOpen(false);
-    if (typeof window !== "undefined" && window.location.pathname === "/") {
+    if (pathname === "/" || (typeof window !== "undefined" && window.location.pathname === "/")) {
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       router.push("/");
@@ -49,7 +49,7 @@ export default function MobileBottomNav() {
     }
   };
 
-  const isHomeActive = pathname === "/" && !isChatOpen && !isSidebarOpen;
+  const isHomeActive = pathname === "/";
   const isCasinoActive = (pathname === "/casino/home" || pathname?.startsWith("/games") || pathname?.startsWith("/casino")) && !isHomeActive && !isChatOpen && !isSidebarOpen;
 
   return (
@@ -144,19 +144,20 @@ export default function MobileBottomNav() {
           </span>
         </button>
 
-        {/* Tab 3 (CENTER): S Logo Contained Comfortably Inside Flush Curve (Tactile Tap Zoom) */}
+        {/* Tab 3 (CENTER): S Logo Contained Comfortably Inside Flush Curve (Tactile Tap Zoom & Persistent Active Zoom) */}
         <button
           type="button"
           onClick={handleHomeClick}
           aria-label="Stake Home"
-          className="flex items-center justify-center flex-1 py-1 -translate-y-3 relative z-[9999] pointer-events-auto cursor-pointer select-none bg-transparent hover:bg-transparent active:scale-[1.3] transition-transform duration-150 ease-out border-none outline-none"
+          className="flex items-center justify-center flex-1 py-1 -translate-y-3 relative z-[9999] pointer-events-auto cursor-pointer select-none bg-transparent hover:bg-transparent active:scale-[1.1] transition-transform duration-150 ease-out border-none outline-none"
         >
           <StakeLogo
             collapsed={true}
-            className={`w-5 h-5 transition-all duration-200 ease-out origin-center ${isHomeActive
-              ? "scale-[1.7] fill-[#00e701]/90 text-[#00e701]/90"
-              : "scale-[1.65] fill-[#b1bad3] text-[#b1bad3]"
-              }`}
+            className={`w-6 h-6 transition-transform duration-200 ease-out origin-center ${
+              isHomeActive
+                ? "scale-[2.1] fill-[#00e701]/90 text-[#00e701]/90"
+                : "scale-[1.9] fill-[#b1bad3] text-[#b1bad3]"
+            }`}
           />
         </button>
 
