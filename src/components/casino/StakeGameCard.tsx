@@ -74,9 +74,15 @@ export default function StakeGameCard({
     </div>
   );
 
-  if (game.href && !onClick) {
+  const targetHref =
+    game.href ||
+    (game.isPlayable || game.category === "originals" || game.provider === "Stake Originals"
+      ? `/games/${game.slug || game.id}`
+      : undefined);
+
+  if (targetHref && !onClick) {
     return (
-      <Link href={game.href} className="block">
+      <Link href={targetHref} className="block">
         {cardContent}
       </Link>
     );

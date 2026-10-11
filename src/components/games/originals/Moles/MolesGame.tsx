@@ -249,45 +249,46 @@ export default function MolesGame() {
   return (
     <div
       ref={gameContainerRef}
-      className="flex flex-col items-center w-full min-h-[calc(100vh-64px)] bg-[#0f212e] text-white p-3 sm:p-6 select-none font-sans"
+      className={`w-full max-w-lg mx-auto px-2 sm:px-3 py-2 select-none flex flex-col space-y-2 ${
+        isFullscreen ? "p-6 bg-[#0f212e] min-h-screen max-w-none" : ""
+      }`}
     >
       {/* =========================================================================
-          TOP: GAME CANVAS / BURROW HOLES ARENA (4x4 Grid = 16 Holes)
+          1. GAME ARENA: BURROW HOLES ARENA (4x4 Grid = 16 Holes)
       ========================================================================== */}
-      <div className="w-full max-w-4xl bg-[#1a2c38] rounded-2xl p-4 sm:p-8 border border-[#213743] shadow-2xl flex flex-col items-center relative overflow-hidden mb-5">
-        
+      <div className="w-full rounded-t-2xl bg-[#0f212e] border-t border-x border-[#213743] shadow-2xl p-3 sm:p-4 flex flex-col items-center justify-center space-y-3 relative overflow-hidden">
         {/* Subtle Ambient Background Glow */}
         <div className="absolute -top-24 -left-24 w-72 h-72 bg-[#00e701]/5 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-24 -right-24 w-72 h-72 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
 
         {/* Live Multiplier & Progress HUD Banner */}
-        <div className="w-full flex items-center justify-between bg-[#0f212e]/80 backdrop-blur-md rounded-xl p-3 sm:px-6 mb-6 border border-[#213743]">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-[#b1bad3] uppercase tracking-wider">Moles Uncovered:</span>
-            <span className="text-sm font-bold text-white font-mono">
+        <div className="w-full flex items-center justify-between bg-[#1a2c38] rounded-xl px-3 py-2 border border-[#213743]">
+          <div className="flex items-center gap-1.5">
+            <span className="text-[10px] font-bold text-[#b1bad3] uppercase tracking-wider">Moles:</span>
+            <span className="text-xs font-bold text-white font-mono">
               <span className="text-[#00e701]">{safeMolesFound}</span> / {maxSafeMoles}
             </span>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {isPlaying && safeMolesFound > 0 && (
-              <div className="text-xs text-[#b1bad3] hidden sm:block">
+              <div className="text-xs text-[#b1bad3]">
                 Next: <span className="font-mono font-bold text-white">{nextMultiplier}×</span>
               </div>
             )}
             <div
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#213743] text-sm font-black font-mono transition-transform duration-200 ${
+              className={`flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-[#0f212e] text-xs font-black font-mono transition-transform duration-200 ${
                 lastMultiplierBounce ? "scale-110 text-[#00e701]" : safeMolesFound > 0 ? "text-[#00e701]" : "text-[#b1bad3]"
               }`}
             >
-              <Sparkles className="h-4 w-4" />
+              <Sparkles className="h-3.5 w-3.5" />
               <span>{currentMultiplier.toFixed(2)}×</span>
             </div>
           </div>
         </div>
 
         {/* 4x4 Burrow Holes Grid */}
-        <div className="grid grid-cols-4 gap-2.5 sm:gap-4 w-full max-w-lg aspect-square p-2">
+        <div className="grid grid-cols-4 gap-2 w-full max-w-[340px] aspect-square p-1">
           {Array.from({ length: 16 }, (_, idx) => {
             const isRevealed = revealedIndices.includes(idx);
             const isTrap = trapIndices.includes(idx);
@@ -298,54 +299,51 @@ export default function MolesGame() {
                 key={idx}
                 disabled={!isPlaying || isRevealing || isRevealed}
                 onClick={() => handleDigHole(idx)}
-                className={`group relative rounded-2xl flex items-center justify-center transition-all duration-300 transform active:scale-95 overflow-hidden ${
+                className={`group relative rounded-xl flex items-center justify-center transition-all duration-300 transform active:scale-95 overflow-hidden ${
                   !isRevealed
                     ? isPlaying
-                      ? "bg-[#213743] hover:bg-[#2f4553] hover:shadow-[0_0_15px_rgba(0,231,1,0.2)] border-2 border-[#2f4553] cursor-pointer"
-                      : "bg-[#213743]/70 border-2 border-[#213743] cursor-not-allowed opacity-85"
+                      ? "bg-[#213743] hover:bg-[#2f4553] hover:shadow-[0_0_15px_rgba(0,231,1,0.2)] border border-[#2f4553] cursor-pointer"
+                      : "bg-[#213743]/70 border border-[#213743] cursor-not-allowed opacity-85"
                     : isSafeMole
                     ? "bg-gradient-to-b from-[#1a382c] to-[#0f281e] border-2 border-[#00e701] shadow-[0_0_20px_rgba(0,231,1,0.3)] animate-in zoom-in-95 duration-200"
                     : "bg-gradient-to-b from-[#3a1d25] to-[#251016] border-2 border-[#e9113c] shadow-[0_0_20px_rgba(233,17,60,0.3)] animate-in shake duration-300"
                 }`}
               >
                 {/* Burrow mound shading inside hole */}
-                <div className="absolute inset-1 rounded-xl bg-black/20 pointer-events-none" />
+                <div className="absolute inset-1 rounded-lg bg-black/20 pointer-events-none" />
 
                 {!isRevealed ? (
                   // Unopened Burrow Mound
-                  <div className="relative flex flex-col items-center justify-center p-2">
-                    <div className="w-8 h-6 sm:w-12 sm:h-9 rounded-full bg-[#172733] border border-[#2f4553] flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform">
-                      <div className="w-4 h-2 sm:w-6 sm:h-3 rounded-full bg-[#0a141c]" />
+                  <div className="relative flex flex-col items-center justify-center p-1">
+                    <div className="w-7 h-5 sm:w-9 sm:h-7 rounded-full bg-[#172733] border border-[#2f4553] flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform">
+                      <div className="w-3.5 h-1.5 sm:w-5 sm:h-2 rounded-full bg-[#0a141c]" />
                     </div>
-                    <div className="w-10 sm:w-14 h-1.5 sm:h-2 bg-[#2d4352] rounded-full -mt-0.5 opacity-60" />
+                    <div className="w-8 sm:w-11 h-1 bg-[#2d4352] rounded-full -mt-0.5 opacity-60" />
                   </div>
                 ) : isSafeMole ? (
                   // Unearthed Golden Mole
                   <div className="relative flex flex-col items-center justify-center animate-bounce duration-500">
-                    <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 flex items-center justify-center shadow-lg border-2 border-yellow-200">
-                      {/* Stylized Mole Face with Sunglasses & Gem */}
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-tr from-amber-500 to-yellow-300 flex items-center justify-center shadow-lg border border-yellow-200">
                       <div className="relative w-full h-full flex flex-col items-center justify-center">
-                        {/* Sunglasses */}
-                        <div className="flex gap-1 items-center mb-0.5">
-                          <div className="w-2.5 h-2 sm:w-3.5 sm:h-2.5 bg-black rounded-sm" />
-                          <div className="w-1 h-0.5 bg-black" />
-                          <div className="w-2.5 h-2 sm:w-3.5 sm:h-2.5 bg-black rounded-sm" />
+                        <div className="flex gap-0.5 items-center mb-0.5">
+                          <div className="w-2 h-1.5 bg-black rounded-sm" />
+                          <div className="w-0.5 h-0.5 bg-black" />
+                          <div className="w-2 h-1.5 bg-black rounded-sm" />
                         </div>
-                        {/* Pink Snout */}
-                        <div className="w-2 h-1.5 sm:w-2.5 sm:h-2 bg-pink-400 rounded-full" />
+                        <div className="w-1.5 h-1 bg-pink-400 rounded-full" />
                       </div>
                     </div>
-                    <span className="text-[10px] sm:text-xs font-black text-[#00e701] font-mono mt-1 drop-shadow">
+                    <span className="text-[8px] font-black text-[#00e701] font-mono mt-0.5 drop-shadow">
                       SAFE
                     </span>
                   </div>
                 ) : (
                   // Mud / Trap Splat
                   <div className="relative flex flex-col items-center justify-center">
-                    <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-[#e9113c]/20 border border-[#e9113c] flex items-center justify-center">
-                      <Flame className="h-6 w-6 sm:h-8 sm:w-8 text-[#e9113c] animate-pulse" />
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-[#e9113c]/20 border border-[#e9113c] flex items-center justify-center">
+                      <Flame className="h-5 w-5 text-[#e9113c] animate-pulse" />
                     </div>
-                    <span className="text-[10px] sm:text-xs font-black text-[#e9113c] font-mono mt-1">
+                    <span className="text-[8px] font-black text-[#e9113c] font-mono mt-0.5">
                       BUST
                     </span>
                   </div>
@@ -357,18 +355,18 @@ export default function MolesGame() {
 
         {/* Round Feedback Overlays */}
         {cashoutSuccess && (
-          <div className="mt-4 px-6 py-2.5 rounded-xl bg-[#00e701]/10 border border-[#00e701]/40 flex items-center gap-3 animate-in fade-in zoom-in-95">
-            <Sparkles className="h-5 w-5 text-[#00e701]" />
-            <div className="text-sm font-bold text-[#00e701]">
+          <div className="w-full px-4 py-1.5 rounded-xl bg-[#00e701]/10 border border-[#00e701]/40 flex items-center justify-center gap-2 animate-in fade-in zoom-in-95">
+            <Sparkles className="h-3.5 w-3.5 text-[#00e701]" />
+            <div className="text-xs font-bold text-[#00e701]">
               Cashed Out! Won {activeSym}{currentPayout.toFixed(2)} ({currentMultiplier.toFixed(2)}×)
             </div>
           </div>
         )}
 
         {isBust && (
-          <div className="mt-4 px-6 py-2.5 rounded-xl bg-[#e9113c]/10 border border-[#e9113c]/40 flex items-center gap-3 animate-in fade-in">
-            <Flame className="h-5 w-5 text-[#e9113c]" />
-            <div className="text-sm font-bold text-[#e9113c]">
+          <div className="w-full px-4 py-1.5 rounded-xl bg-[#e9113c]/10 border border-[#e9113c]/40 flex items-center justify-center gap-2 animate-in fade-in">
+            <Flame className="h-3.5 w-3.5 text-[#e9113c]" />
+            <div className="text-xs font-bold text-[#e9113c]">
               Mud Trap Hit! Round Busted
             </div>
           </div>
@@ -376,161 +374,153 @@ export default function MolesGame() {
       </div>
 
       {/* =========================================================================
-          CONTROLS: DIRECTLY BENEATH BOARD (Vertical Flow)
+          2. MINES HARMONIZED BETTING CONTROLS SHELL CONTAINER
       ========================================================================== */}
-      <div className="w-full max-w-4xl bg-[#1a2c38] rounded-2xl p-5 border border-[#213743] shadow-xl space-y-4">
-        
-        {/* Row 1: Bet Amount & Traps Selection */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          
-          {/* Bet Amount Input with Quick Modifiers */}
-          <div className="space-y-1.5">
-            <div className="flex justify-between items-center text-xs text-[#b1bad3] font-semibold">
-              <label>Bet Amount</label>
-              <span>{activeSym}{balance.toFixed(2)}</span>
-            </div>
-            <div className="relative flex items-center">
-              <div className="absolute left-3 text-sm font-bold text-[#b1bad3]">
-                {activeSym}
-              </div>
-              <input
-                type="number"
-                disabled={isPlaying}
-                value={betInput}
-                onChange={(e) => {
-                  setBetInput(e.target.value);
-                  const parsed = parseFloat(e.target.value);
-                  if (!isNaN(parsed) && parsed > 0) setBetAmount(parsed);
-                }}
-                className="w-full bg-[#0f212e] border border-[#213743] rounded-xl pl-8 pr-32 py-2.5 text-sm font-bold font-mono text-white focus:outline-none focus:border-[#00e701] disabled:opacity-50"
-                step="any"
-                min="0.01"
-              />
-              <div className="absolute right-1.5 flex items-center gap-1">
-                <button
-                  type="button"
-                  disabled={isPlaying}
-                  onClick={handleHalfBet}
-                  className="px-2 py-1 text-xs font-bold rounded-lg bg-[#213743] text-[#b1bad3] hover:text-white hover:bg-[#2f4553] transition-colors disabled:opacity-50"
-                >
-                  ½
-                </button>
-                <button
-                  type="button"
-                  disabled={isPlaying}
-                  onClick={handleDoubleBet}
-                  className="px-2 py-1 text-xs font-bold rounded-lg bg-[#213743] text-[#b1bad3] hover:text-white hover:bg-[#2f4553] transition-colors disabled:opacity-50"
-                >
-                  2×
-                </button>
-                <button
-                  type="button"
-                  disabled={isPlaying}
-                  onClick={handleMaxBet}
-                  className="px-2 py-1 text-xs font-bold rounded-lg bg-[#213743] text-[#b1bad3] hover:text-white hover:bg-[#2f4553] transition-colors disabled:opacity-50"
-                >
-                  Max
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Traps Count Selector */}
-          <div className="space-y-1.5">
-            <div className="flex justify-between items-center text-xs text-[#b1bad3] font-semibold">
-              <label>Mud Traps</label>
-              <span>{trapsCount} Traps ({16 - trapsCount} Safe Moles)</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <select
-                disabled={isPlaying}
-                value={trapsCount}
-                onChange={(e) => setTrapsCount(parseInt(e.target.value, 10))}
-                className="w-full bg-[#0f212e] border border-[#213743] rounded-xl px-3 py-2.5 text-sm font-bold font-mono text-white focus:outline-none focus:border-[#00e701] disabled:opacity-50 cursor-pointer"
-              >
-                {Array.from({ length: 15 }, (_, i) => i + 1).map((cnt) => (
-                  <option key={cnt} value={cnt}>
-                    {cnt} {cnt === 1 ? "Trap" : "Traps"} ({(16 - cnt)} Moles)
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {/* Row 2: Dual-State Primary Green CTA Button `#00e701` */}
-        <div>
+      <div className="w-full border-t border-[#213743] bg-[#1a2c38] p-3 sm:p-4 flex flex-col justify-start space-y-2 sm:space-y-2.5 rounded-b-2xl select-none">
+        {/* 1. PRIMARY BET CTA BUTTON (Directly at top of controls) */}
+        <div className="w-full">
           {!isPlaying ? (
             <button
+              type="button"
               onClick={handleStartRound}
-              className="w-full py-4 rounded-xl font-black text-sm tracking-wide uppercase transition-all duration-200 transform active:scale-[0.99] bg-[#00e701] hover:bg-[#00c701] text-black shadow-[0_0_20px_rgba(0,231,1,0.4)] cursor-pointer"
+              disabled={betAmount > balance || betAmount <= 0}
+              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
             >
-              Bet
+              <span>BET</span>
             </button>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
                 onClick={handleQuickPick}
                 disabled={isRevealing}
-                className="py-4 rounded-xl font-bold text-xs uppercase bg-[#213743] hover:bg-[#2f4553] text-white flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
+                className="py-3 text-xs font-extrabold rounded-xl bg-[#213743] hover:bg-[#2f4553] text-white flex items-center justify-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
               >
                 <Dices className="h-4 w-4 text-[#00e701]" />
-                <span>Random Hole</span>
+                <span>RANDOM</span>
               </button>
 
               <button
                 type="button"
                 onClick={handleCashout}
                 disabled={isRevealing || safeMolesFound === 0}
-                className={`sm:col-span-2 py-4 rounded-xl font-black text-sm tracking-wide uppercase transition-all duration-200 transform active:scale-[0.99] ${
+                className={`col-span-2 py-3 text-sm font-extrabold rounded-xl shadow-lg transition-all flex items-center justify-center uppercase tracking-wider cursor-pointer ${
                   safeMolesFound > 0
-                    ? "bg-[#00e701] hover:bg-[#00c701] text-black shadow-[0_0_25px_rgba(0,231,1,0.5)] cursor-pointer animate-pulse"
+                    ? "bg-[#00e701] hover:bg-[#00c701] text-black shadow-[0_0_20px_rgba(0,231,1,0.4)] animate-pulse"
                     : "bg-[#213743] text-[#b1bad3] cursor-not-allowed"
                 }`}
               >
-                {safeMolesFound > 0
-                  ? `Cashout ${activeSym}${currentPayout.toFixed(2)} (${currentMultiplier.toFixed(2)}×)`
-                  : "Dig a Hole to Cashout"}
+                <span>
+                  {safeMolesFound > 0
+                    ? `CASHOUT ${activeSym}${currentPayout.toFixed(2)} (${currentMultiplier.toFixed(2)}×)`
+                    : "DIG A HOLE"}
+                </span>
               </button>
             </div>
           )}
         </div>
 
-        {/* Footer Utility Icons: Sound, Stats, Fairness, Fullscreen */}
-        <div className="flex items-center justify-between pt-2 border-t border-[#213743] text-[#b1bad3]">
+        {/* 2. BET AMOUNT INPUT (Exact Mines Structure) */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-bold text-[#b1bad3]">Bet Amount</span>
+            <span className="font-mono text-[11px] text-[#b1bad3]">
+              Bal: {activeSym}{balance.toFixed(2)}
+            </span>
+          </div>
+
+          <div className="flex rounded-lg bg-[#0f212e] border border-[#213743] focus-within:border-[#2f4553] p-1">
+            <div className="flex flex-1 items-center px-2.5">
+              <span className="text-xs font-bold text-[#b1bad3] mr-1.5">{activeSym}</span>
+              <input
+                type="text"
+                inputMode="decimal"
+                disabled={isPlaying}
+                value={betInput}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                    setBetInput(val);
+                    if (val !== "" && !isNaN(parseFloat(val))) {
+                      setBetAmount(parseFloat(val));
+                    }
+                  }
+                }}
+                onBlur={() => {
+                  if (betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0) {
+                    setBetInput("1.00");
+                    setBetAmount(1);
+                  } else {
+                    const num = parseFloat(betInput);
+                    setBetAmount(num);
+                    setBetInput(num.toFixed(2));
+                  }
+                }}
+                className="w-full bg-transparent text-sm font-bold text-white outline-none font-mono"
+              />
+            </div>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                disabled={isPlaying}
+                onClick={handleHalfBet}
+                className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
+              >
+                ½
+              </button>
+              <button
+                type="button"
+                disabled={isPlaying}
+                onClick={handleDoubleBet}
+                className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
+              >
+                2×
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* 3. TRAPS COUNT SELECTOR */}
+        <div className="space-y-1">
+          <div className="flex justify-between items-center text-[10px] font-bold text-[#b1bad3] uppercase">
+            <span>Mud Traps</span>
+            <span>{trapsCount} Traps ({16 - trapsCount} Safe Moles)</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <select
+              disabled={isPlaying}
+              value={trapsCount}
+              onChange={(e) => setTrapsCount(parseInt(e.target.value, 10))}
+              className="w-full bg-[#0f212e] border border-[#213743] rounded-lg px-2.5 py-2 text-xs font-bold font-mono text-white focus:outline-none focus:border-[#2f4553] disabled:opacity-50 cursor-pointer"
+            >
+              {Array.from({ length: 15 }, (_, i) => i + 1).map((cnt) => (
+                <option key={cnt} value={cnt}>
+                  {cnt} {cnt === 1 ? "Trap" : "Traps"} ({(16 - cnt)} Moles)
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* 4. BOTTOM UTILITY BAR */}
+        <div className="flex items-center justify-between rounded-lg bg-[#0f212e] border border-[#213743] px-3 py-2 text-xs text-[#b1bad3] mt-0.5">
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={() => setSoundEnabled(!soundEnabled)}
-              className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors"
-              title={soundEnabled ? "Mute" : "Unmute"}
+              className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
             >
-              {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-            </button>
-
-            <button
-              onClick={() => setShowLiveStats(true)}
-              className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors flex items-center gap-1.5 text-xs font-semibold"
-            >
-              <TrendingUp className="h-4 w-4" />
-              <span className="hidden sm:inline">Live Stats</span>
-            </button>
-
-            <button
-              onClick={() => setShowFairnessModal(true)}
-              className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors flex items-center gap-1.5 text-xs font-semibold"
-            >
-              <ShieldCheck className="h-4 w-4 text-[#00e701]" />
-              <span className="hidden sm:inline">Provably Fair</span>
+              {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-red-400" />}
             </button>
           </div>
 
           <button
-            onClick={toggleFullscreen}
-            className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors"
-            title="Toggle Fullscreen"
+            type="button"
+            onClick={() => setShowFairnessModal(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors cursor-pointer"
           >
-            {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+            <ShieldCheck className="w-4 h-4 text-[#00e701]" />
+            <span>Fairness</span>
           </button>
         </div>
       </div>

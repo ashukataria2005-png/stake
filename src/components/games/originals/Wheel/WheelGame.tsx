@@ -237,45 +237,45 @@ export default function WheelGame() {
   return (
     <div
       ref={gameContainerRef}
-      className="flex flex-col items-center w-full min-h-[calc(100vh-64px)] bg-[#0f212e] text-white p-3 sm:p-6 select-none font-sans"
+      className={`w-full max-w-lg mx-auto px-2 sm:px-3 py-2 select-none flex flex-col space-y-2 ${
+        isFullscreen ? "p-6 bg-[#0f212e] min-h-screen max-w-none" : ""
+      }`}
     >
       {/* =========================================================================
-          TOP: SPINNING WHEEL ARENA (Top of View)
+          1. GAME ARENA: SPINNING WHEEL ARENA (Top of View)
       ========================================================================== */}
-      <div className="w-full max-w-4xl bg-[#1a2c38] rounded-2xl p-4 sm:p-6 border border-[#213743] shadow-2xl flex flex-col items-center relative overflow-hidden mb-5">
-        
+      <div className="w-full rounded-t-2xl bg-[#0f212e] border-t border-x border-[#213743] shadow-2xl p-3 sm:p-4 flex flex-col items-center justify-center space-y-3 relative overflow-hidden">
         {/* Ambient Glow */}
         <div className="absolute -top-32 -left-32 w-80 h-80 bg-cyan-600/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-32 -right-32 w-80 h-80 bg-[#00e701]/10 rounded-full blur-3xl pointer-events-none" />
 
         {/* Live Multiplier & Config Header HUD */}
-        <div className="w-full flex items-center justify-between bg-[#0f212e]/80 backdrop-blur-md rounded-xl p-3 sm:px-6 mb-4 border border-[#213743]">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-[#b1bad3] uppercase tracking-wider">Configuration:</span>
-            <span className="text-sm font-bold text-white font-mono">
-              <span className="capitalize text-amber-400">{risk}</span> Risk • {segmentsCount} Segments
+        <div className="w-full flex items-center justify-between bg-[#1a2c38] rounded-xl px-3 py-2 border border-[#213743]">
+          <div className="flex items-center gap-1.5">
+            <span className="text-[10px] font-bold text-[#b1bad3] uppercase tracking-wider">Config:</span>
+            <span className="text-xs font-bold text-white font-mono">
+              <span className="capitalize text-amber-400">{risk}</span> • {segmentsCount} Segs
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <div
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#213743] text-sm font-black font-mono transition-transform duration-200 ${
+              className={`flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-[#0f212e] text-xs font-black font-mono transition-transform duration-200 ${
                 winningSegment && winningSegment.multiplier > 0 ? "scale-105 text-[#00e701]" : "text-[#b1bad3]"
               }`}
             >
-              <Sparkles className="h-4 w-4" />
+              <Sparkles className="h-3.5 w-3.5" />
               <span>{winningSegment ? `${winningSegment.multiplier.toFixed(2)}×` : "1.00×"}</span>
             </div>
           </div>
         </div>
 
         {/* Center Spinning Wheel Disc with Top Pointer Needle */}
-        <div className="relative w-72 h-72 sm:w-84 sm:h-84 my-4 flex items-center justify-center">
-          
+        <div className="relative w-64 h-64 sm:w-72 sm:h-72 my-2 flex items-center justify-center">
           {/* Top Pointer Arrow */}
-          <div className="absolute -top-3 z-30 flex flex-col items-center pointer-events-none">
-            <div className="w-0 h-0 border-x-8 border-x-transparent border-t-[18px] border-t-[#00e701] drop-shadow-[0_0_10px_#00e701]" />
-            <div className="w-2.5 h-2.5 rounded-full bg-white shadow -mt-1" />
+          <div className="absolute -top-2.5 z-30 flex flex-col items-center pointer-events-none">
+            <div className="w-0 h-0 border-x-7 border-x-transparent border-t-[16px] border-t-[#00e701] drop-shadow-[0_0_10px_#00e701]" />
+            <div className="w-2 h-2 rounded-full bg-white shadow -mt-1" />
           </div>
 
           {/* SVG Multi-Segment Wheel Disc */}
@@ -325,17 +325,17 @@ export default function WheelGame() {
             </svg>
 
             {/* Center Brand Badge */}
-            <div className="absolute w-16 h-16 rounded-full bg-[#1a2c38] border-2 border-[#00e701]/40 flex items-center justify-center shadow-lg pointer-events-none">
-              <span className="text-[11px] font-black text-[#00e701] tracking-wider">STAKE</span>
+            <div className="absolute w-14 h-14 rounded-full bg-[#1a2c38] border-2 border-[#00e701]/40 flex items-center justify-center shadow-lg pointer-events-none">
+              <span className="text-[10px] font-black text-[#00e701] tracking-wider">STAKE</span>
             </div>
           </div>
         </div>
 
         {/* Payout Feedback Banner */}
         {lastPayout !== null && (
-          <div className="mt-3 px-6 py-2 rounded-xl bg-[#00e701]/10 border border-[#00e701]/40 flex items-center gap-2 animate-in zoom-in-95">
-            <Sparkles className="h-4 w-4 text-[#00e701]" />
-            <span className="text-xs sm:text-sm font-bold text-[#00e701]">
+          <div className="w-full px-4 py-1.5 rounded-xl bg-[#00e701]/10 border border-[#00e701]/40 flex items-center justify-center gap-2 animate-in zoom-in-95">
+            <Sparkles className="h-3.5 w-3.5 text-[#00e701]" />
+            <span className="text-xs font-bold text-[#00e701]">
               Landed {winningSegment?.multiplier.toFixed(2)}×! Payout: {activeSym}{lastPayout.toFixed(2)}
             </span>
           </div>
@@ -343,69 +343,87 @@ export default function WheelGame() {
       </div>
 
       {/* =========================================================================
-          CONTROLS: DIRECTLY BENEATH ARENA (Vertical Flow)
+          2. MINES HARMONIZED BETTING CONTROLS SHELL CONTAINER
       ========================================================================== */}
-      <div className="w-full max-w-4xl bg-[#1a2c38] rounded-2xl p-5 border border-[#213743] shadow-xl space-y-4">
-        
-        {/* Row 1: Bet Amount, Risk Level, Segments Count */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          
-          {/* Bet Amount Input with Quick Modifiers */}
-          <div className="space-y-1.5">
-            <div className="flex justify-between items-center text-xs text-[#b1bad3] font-semibold">
-              <label>Bet Amount</label>
-              <span>{activeSym}{balance.toFixed(2)}</span>
-            </div>
-            <div className="relative flex items-center">
-              <div className="absolute left-3 text-sm font-bold text-[#b1bad3]">
-                {activeSym}
-              </div>
+      <div className="w-full border-t border-[#213743] bg-[#1a2c38] p-3 sm:p-4 flex flex-col justify-start space-y-2 sm:space-y-2.5 rounded-b-2xl select-none">
+        {/* 1. PRIMARY BET CTA BUTTON (Directly at top of controls) */}
+        <div className="w-full">
+          <button
+            type="button"
+            onClick={handleSpin}
+            disabled={isSpinning || betAmount > balance || betAmount <= 0}
+            className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
+          >
+            <span>{isSpinning ? "SPINNING..." : "SPIN"}</span>
+          </button>
+        </div>
+
+        {/* 2. BET AMOUNT INPUT (Exact Mines Structure) */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-bold text-[#b1bad3]">Bet Amount</span>
+            <span className="font-mono text-[11px] text-[#b1bad3]">
+              Bal: {activeSym}{balance.toFixed(2)}
+            </span>
+          </div>
+
+          <div className="flex rounded-lg bg-[#0f212e] border border-[#213743] focus-within:border-[#2f4553] p-1">
+            <div className="flex flex-1 items-center px-2.5">
+              <span className="text-xs font-bold text-[#b1bad3] mr-1.5">{activeSym}</span>
               <input
-                type="number"
+                type="text"
+                inputMode="decimal"
                 disabled={isSpinning}
                 value={betInput}
                 onChange={(e) => {
-                  setBetInput(e.target.value);
-                  const parsed = parseFloat(e.target.value);
-                  if (!isNaN(parsed) && parsed > 0) setBetAmount(parsed);
+                  const val = e.target.value;
+                  if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                    setBetInput(val);
+                    if (val !== "" && !isNaN(parseFloat(val))) {
+                      setBetAmount(parseFloat(val));
+                    }
+                  }
                 }}
-                className="w-full bg-[#0f212e] border border-[#213743] rounded-xl pl-8 pr-32 py-2.5 text-sm font-bold font-mono text-white focus:outline-none focus:border-[#00e701] disabled:opacity-50"
-                step="any"
-                min="0.01"
+                onBlur={() => {
+                  if (betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0) {
+                    setBetInput("1.00");
+                    setBetAmount(1);
+                  } else {
+                    const num = parseFloat(betInput);
+                    setBetAmount(num);
+                    setBetInput(num.toFixed(2));
+                  }
+                }}
+                className="w-full bg-transparent text-sm font-bold text-white outline-none font-mono"
               />
-              <div className="absolute right-1.5 flex items-center gap-1">
-                <button
-                  type="button"
-                  disabled={isSpinning}
-                  onClick={handleHalfBet}
-                  className="px-2 py-1 text-xs font-bold rounded-lg bg-[#213743] text-[#b1bad3] hover:text-white hover:bg-[#2f4553] transition-colors disabled:opacity-50"
-                >
-                  ½
-                </button>
-                <button
-                  type="button"
-                  disabled={isSpinning}
-                  onClick={handleDoubleBet}
-                  className="px-2 py-1 text-xs font-bold rounded-lg bg-[#213743] text-[#b1bad3] hover:text-white hover:bg-[#2f4553] transition-colors disabled:opacity-50"
-                >
-                  2×
-                </button>
-                <button
-                  type="button"
-                  disabled={isSpinning}
-                  onClick={handleMaxBet}
-                  className="px-2 py-1 text-xs font-bold rounded-lg bg-[#213743] text-[#b1bad3] hover:text-white hover:bg-[#2f4553] transition-colors disabled:opacity-50"
-                >
-                  Max
-                </button>
-              </div>
+            </div>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                disabled={isSpinning}
+                onClick={handleHalfBet}
+                className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
+              >
+                ½
+              </button>
+              <button
+                type="button"
+                disabled={isSpinning}
+                onClick={handleDoubleBet}
+                className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
+              >
+                2×
+              </button>
             </div>
           </div>
+        </div>
 
+        {/* 3. RISK LEVEL & SEGMENTS SELECTORS */}
+        <div className="grid grid-cols-2 gap-2">
           {/* Risk Level Selector */}
-          <div className="space-y-1.5">
-            <div className="text-xs text-[#b1bad3] font-semibold">Risk Level</div>
-            <div className="grid grid-cols-3 gap-1.5">
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-[#b1bad3] uppercase">Risk</label>
+            <div className="grid grid-cols-3 gap-1">
               {(["low", "medium", "high"] as WheelRisk[]).map((r) => {
                 const isSelected = risk === r;
                 return (
@@ -417,13 +435,13 @@ export default function WheelGame() {
                       if (soundEnabled) sounds.playClick();
                       setRisk(r);
                     }}
-                    className={`py-2.5 rounded-xl text-xs font-bold capitalize transition-all cursor-pointer ${
+                    className={`py-1.5 rounded-lg text-xs font-bold capitalize transition-all cursor-pointer ${
                       isSelected
-                        ? "bg-[#213743] text-white border border-[#00e701] shadow-md ring-1 ring-[#00e701]"
-                        : "bg-[#0f212e] text-[#b1bad3] hover:text-white hover:bg-[#2f4553]/50 border border-transparent"
+                        ? "bg-[#213743] text-white shadow-sm"
+                        : "bg-[#0f212e] text-[#b1bad3] hover:text-white"
                     } disabled:opacity-50`}
                   >
-                    {r}
+                    {r[0].toUpperCase() + r.slice(1, 3)}
                   </button>
                 );
               })}
@@ -431,8 +449,8 @@ export default function WheelGame() {
           </div>
 
           {/* Segments Count Selector */}
-          <div className="space-y-1.5">
-            <div className="text-xs text-[#b1bad3] font-semibold">Segments</div>
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-[#b1bad3] uppercase">Segments</label>
             <div className="grid grid-cols-5 gap-1">
               {([10, 20, 30, 40, 50] as SegmentCount[]).map((cnt) => {
                 const isSelected = segmentsCount === cnt;
@@ -445,9 +463,9 @@ export default function WheelGame() {
                       if (soundEnabled) sounds.playClick();
                       setSegmentsCount(cnt);
                     }}
-                    className={`py-2.5 rounded-xl text-xs font-bold font-mono transition-all cursor-pointer ${
+                    className={`py-1.5 rounded-lg text-xs font-bold font-mono transition-all cursor-pointer ${
                       isSelected
-                        ? "bg-[#213743] text-white border border-[#00e701] shadow-md ring-1 ring-[#00e701]"
+                        ? "bg-[#213743] text-white shadow-sm"
                         : "bg-[#0f212e] text-[#b1bad3] hover:text-white"
                     } disabled:opacity-50`}
                   >
@@ -459,55 +477,25 @@ export default function WheelGame() {
           </div>
         </div>
 
-        {/* Row 2: Stake Green `#00e701` Spin CTA Button */}
-        <div>
-          <button
-            onClick={handleSpin}
-            disabled={isSpinning}
-            className={`w-full py-4 rounded-xl font-black text-sm tracking-wide uppercase transition-all duration-200 transform active:scale-[0.99] ${
-              !isSpinning
-                ? "bg-[#00e701] hover:bg-[#00c701] text-black shadow-[0_0_20px_rgba(0,231,1,0.4)] cursor-pointer"
-                : "bg-[#213743] text-[#b1bad3] cursor-not-allowed"
-            }`}
-          >
-            {isSpinning ? "Spinning Wheel..." : `Spin (${activeSym}${betAmount.toFixed(2)})`}
-          </button>
-        </div>
-
-        {/* Footer Utility Icons: Sound, Stats, Fairness, Fullscreen */}
-        <div className="flex items-center justify-between pt-2 border-t border-[#213743] text-[#b1bad3]">
+        {/* 4. BOTTOM UTILITY BAR */}
+        <div className="flex items-center justify-between rounded-lg bg-[#0f212e] border border-[#213743] px-3 py-2 text-xs text-[#b1bad3] mt-0.5">
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={() => setSoundEnabled(!soundEnabled)}
-              className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors"
-              title={soundEnabled ? "Mute" : "Unmute"}
+              className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
             >
-              {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-            </button>
-
-            <button
-              onClick={() => setShowLiveStats(true)}
-              className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors flex items-center gap-1.5 text-xs font-semibold"
-            >
-              <TrendingUp className="h-4 w-4" />
-              <span className="hidden sm:inline">Live Stats</span>
-            </button>
-
-            <button
-              onClick={() => setShowFairnessModal(true)}
-              className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors flex items-center gap-1.5 text-xs font-semibold"
-            >
-              <ShieldCheck className="h-4 w-4 text-[#00e701]" />
-              <span className="hidden sm:inline">Provably Fair</span>
+              {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-red-400" />}
             </button>
           </div>
 
           <button
-            onClick={toggleFullscreen}
-            className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors"
-            title="Toggle Fullscreen"
+            type="button"
+            onClick={() => setShowFairnessModal(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors cursor-pointer"
           >
-            {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+            <ShieldCheck className="w-4 h-4 text-[#00e701]" />
+            <span>Fairness</span>
           </button>
         </div>
       </div>

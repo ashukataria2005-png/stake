@@ -249,22 +249,23 @@ export default function DiamondsGame() {
   return (
     <div
       ref={gameContainerRef}
-      className="flex flex-col items-center w-full min-h-[calc(100vh-64px)] bg-[#0f212e] text-white p-3 sm:p-6 select-none font-sans"
+      className={`w-full max-w-lg mx-auto px-2 sm:px-3 py-2 select-none flex flex-col space-y-2 ${
+        isFullscreen ? "p-6 bg-[#0f212e] min-h-screen max-w-none" : ""
+      }`}
     >
       {/* =========================================================================
-          TOP: 5-GEM REVEAL ARENA & PAYOUT LADDER
+          1. GAME ARENA: 5-GEM REVEAL ARENA & PAYOUT LADDER
       ========================================================================== */}
-      <div className="w-full max-w-4xl bg-[#1a2c38] rounded-2xl p-4 sm:p-6 border border-[#213743] shadow-2xl flex flex-col items-center relative overflow-hidden mb-5">
-        
+      <div className="w-full rounded-t-2xl bg-[#0f212e] border-t border-x border-[#213743] shadow-2xl p-3 sm:p-4 flex flex-col items-center justify-center space-y-3 relative overflow-hidden">
         {/* Ambient Diamond Refraction Glow */}
         <div className="absolute -top-32 -left-32 w-80 h-80 bg-cyan-600/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-32 -right-32 w-80 h-80 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
 
         {/* Live Multiplier & Hand Rank Header */}
-        <div className="w-full flex items-center justify-between bg-[#0f212e]/80 backdrop-blur-md rounded-xl p-3 sm:px-6 mb-4 border border-[#213743]">
+        <div className="w-full flex items-center justify-between bg-[#1a2c38] rounded-xl px-3 py-2 border border-[#213743]">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-[#b1bad3] uppercase tracking-wider">Hand Result:</span>
-            <span className="text-sm font-bold text-white">
+            <span className="text-[10px] font-bold text-[#b1bad3] uppercase tracking-wider">Result:</span>
+            <span className="text-xs font-bold text-white">
               {currentOutcome ? (
                 <span className={currentOutcome.multiplier > 0 ? "text-[#00e701]" : "text-[#b1bad3]"}>
                   {currentOutcome.rankName}
@@ -275,20 +276,20 @@ export default function DiamondsGame() {
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <div
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#213743] text-sm font-black font-mono transition-transform duration-200 ${
+              className={`flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-[#0f212e] text-xs font-black font-mono transition-transform duration-200 ${
                 currentOutcome && currentOutcome.multiplier > 0 ? "scale-105 text-[#00e701]" : "text-[#b1bad3]"
               }`}
             >
-              <Sparkles className="h-4 w-4" />
+              <Sparkles className="h-3.5 w-3.5" />
               <span>{currentOutcome ? `${currentOutcome.multiplier.toFixed(2)}×` : "1.00×"}</span>
             </div>
           </div>
         </div>
 
         {/* 5 Faceted Gemstones Arena */}
-        <div className="grid grid-cols-5 gap-2.5 sm:gap-4 w-full max-w-lg my-4 p-2">
+        <div className="grid grid-cols-5 gap-2 w-full my-1">
           {gems.map((gem, idx) => {
             const isRevealed = idx < revealedCount;
             const isMatched = currentOutcome?.matchedColorIds.includes(gem.id);
@@ -296,28 +297,28 @@ export default function DiamondsGame() {
             return (
               <div
                 key={idx}
-                className={`aspect-[3/4] rounded-2xl flex flex-col items-center justify-center relative transition-all duration-300 transform ${
+                className={`aspect-[3/4] rounded-xl flex flex-col items-center justify-center relative transition-all duration-300 transform ${
                   isRevealed
-                    ? "bg-[#0f212e] border-2 shadow-xl animate-in zoom-in-75 duration-200"
-                    : "bg-[#213743] border border-[#2f4553] opacity-60"
-                } ${isMatched ? `${gem.border} shadow-[0_0_20px_${gem.glow}] scale-105 ring-2 ring-white/50` : "border-[#213743]"}`}
+                    ? "bg-[#1a2c38] border-2 shadow-xl animate-in zoom-in-75 duration-200"
+                    : "bg-[#1a2c38]/40 border border-[#213743] opacity-60"
+                } ${isMatched ? `${gem.border} shadow-[0_0_16px_${gem.glow}] scale-105 ring-2 ring-white/50` : "border-[#213743]"}`}
               >
                 {isRevealed ? (
                   // Faceted Gemstone SVG Icon
-                  <div className="relative flex flex-col items-center justify-center p-2">
+                  <div className="relative flex flex-col items-center justify-center p-1">
                     <div
-                      className={`w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr ${gem.gradient} border ${gem.border} flex items-center justify-center shadow-lg transform rotate-45`}
+                      className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr ${gem.gradient} border ${gem.border} flex items-center justify-center shadow-lg transform rotate-45`}
                     >
-                      <Gem className="h-6 w-6 sm:h-8 sm:w-8 text-white drop-shadow -rotate-45" />
+                      <Gem className="h-5 w-5 sm:h-6 sm:w-6 text-white drop-shadow -rotate-45" />
                     </div>
-                    <span className="text-[10px] sm:text-xs font-bold text-white mt-3 truncate max-w-[50px] sm:max-w-none">
+                    <span className="text-[9px] sm:text-[10px] font-bold text-white mt-2 truncate">
                       {gem.name}
                     </span>
                   </div>
                 ) : (
                   // Unrevealed Slot Placeholder
-                  <div className="w-8 h-8 rounded-full border border-dashed border-[#b1bad3]/30 flex items-center justify-center">
-                    <div className="w-2 h-2 rounded-full bg-[#b1bad3]/20" />
+                  <div className="w-6 h-6 rounded-full border border-dashed border-[#b1bad3]/30 flex items-center justify-center">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#b1bad3]/20" />
                   </div>
                 )}
               </div>
@@ -326,21 +327,21 @@ export default function DiamondsGame() {
         </div>
 
         {/* Stake Diamonds Payout Ladder Matrix */}
-        <div className="w-full mt-3 bg-[#0f212e]/70 border border-[#213743] rounded-xl p-3">
-          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2 text-center text-xs">
+        <div className="w-full bg-[#1a2c38] border border-[#213743] rounded-xl p-2">
+          <div className="grid grid-cols-4 sm:grid-cols-7 gap-1 text-center text-xs">
             {PAYOUT_LADDER.map((tier) => {
               const isCurrent = currentOutcome?.rankName === tier.rankName;
               return (
                 <div
                   key={tier.rankName}
-                  className={`p-2 rounded-lg border transition-all ${
+                  className={`p-1 rounded-lg border transition-all ${
                     isCurrent
                       ? "bg-[#00e701]/15 border-[#00e701] text-[#00e701] shadow-md scale-[1.02]"
-                      : "bg-[#1a2c38]/50 border-[#213743] text-[#b1bad3]"
+                      : "bg-[#0f212e] border-[#213743] text-[#b1bad3]"
                   }`}
                 >
-                  <div className="text-[10px] font-bold truncate">{tier.rankName}</div>
-                  <div className="font-mono font-black text-xs text-white mt-0.5">
+                  <div className="text-[9px] font-bold truncate">{tier.rankName}</div>
+                  <div className="font-mono font-black text-[11px] text-white mt-0.5">
                     {tier.multiplier.toFixed(2)}×
                   </div>
                 </div>
@@ -351,9 +352,9 @@ export default function DiamondsGame() {
 
         {/* Payout Feedback Banner */}
         {lastPayout !== null && (
-          <div className="mt-3 px-6 py-2 rounded-xl bg-[#00e701]/10 border border-[#00e701]/40 flex items-center gap-2 animate-in zoom-in-95">
-            <Sparkles className="h-4 w-4 text-[#00e701]" />
-            <span className="text-xs sm:text-sm font-bold text-[#00e701]">
+          <div className="w-full px-4 py-1.5 rounded-xl bg-[#00e701]/10 border border-[#00e701]/40 flex items-center justify-center gap-2 animate-in zoom-in-95">
+            <Sparkles className="h-3.5 w-3.5 text-[#00e701]" />
+            <span className="text-xs font-bold text-[#00e701]">
               {currentOutcome?.rankName}! Payout: {activeSym}{lastPayout.toFixed(2)}
             </span>
           </div>
@@ -361,146 +362,128 @@ export default function DiamondsGame() {
       </div>
 
       {/* =========================================================================
-          CONTROLS: DIRECTLY BENEATH ARENA (Vertical Flow)
+          2. MINES HARMONIZED BETTING CONTROLS SHELL CONTAINER
       ========================================================================== */}
-      <div className="w-full max-w-4xl bg-[#1a2c38] rounded-2xl p-5 border border-[#213743] shadow-xl space-y-4">
-        
-        {/* Row 1: Mode Switch & Bet Amount */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-          
-          {/* Bet Amount Input with Quick Modifiers */}
-          <div className="md:col-span-2 space-y-1.5">
-            <div className="flex justify-between items-center text-xs text-[#b1bad3] font-semibold">
-              <label>Bet Amount</label>
-              <span>{activeSym}{balance.toFixed(2)}</span>
-            </div>
-            <div className="relative flex items-center">
-              <div className="absolute left-3 text-sm font-bold text-[#b1bad3]">
-                {activeSym}
-              </div>
-              <input
-                type="number"
-                disabled={isRevealing}
-                value={betInput}
-                onChange={(e) => {
-                  setBetInput(e.target.value);
-                  const parsed = parseFloat(e.target.value);
-                  if (!isNaN(parsed) && parsed > 0) setBetAmount(parsed);
-                }}
-                className="w-full bg-[#0f212e] border border-[#213743] rounded-xl pl-8 pr-32 py-2.5 text-sm font-bold font-mono text-white focus:outline-none focus:border-[#00e701] disabled:opacity-50"
-                step="any"
-                min="0.01"
-              />
-              <div className="absolute right-1.5 flex items-center gap-1">
-                <button
-                  type="button"
-                  disabled={isRevealing}
-                  onClick={handleHalfBet}
-                  className="px-2 py-1 text-xs font-bold rounded-lg bg-[#213743] text-[#b1bad3] hover:text-white hover:bg-[#2f4553] transition-colors disabled:opacity-50"
-                >
-                  ½
-                </button>
-                <button
-                  type="button"
-                  disabled={isRevealing}
-                  onClick={handleDoubleBet}
-                  className="px-2 py-1 text-xs font-bold rounded-lg bg-[#213743] text-[#b1bad3] hover:text-white hover:bg-[#2f4553] transition-colors disabled:opacity-50"
-                >
-                  2×
-                </button>
-                <button
-                  type="button"
-                  disabled={isRevealing}
-                  onClick={handleMaxBet}
-                  className="px-2 py-1 text-xs font-bold rounded-lg bg-[#213743] text-[#b1bad3] hover:text-white hover:bg-[#2f4553] transition-colors disabled:opacity-50"
-                >
-                  Max
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Mode Switch Pills */}
-          <div className="space-y-1.5">
-            <div className="text-xs text-[#b1bad3] font-semibold">Betting Mode</div>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                disabled={isRevealing}
-                onClick={() => setMode("manual")}
-                className={`py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  mode === "manual"
-                    ? "bg-[#213743] text-white border border-[#00e701] shadow-md ring-1 ring-[#00e701]"
-                    : "bg-[#0f212e] text-[#b1bad3] hover:text-white"
-                }`}
-              >
-                Manual
-              </button>
-              <button
-                type="button"
-                disabled={isRevealing}
-                onClick={() => setMode("auto")}
-                className={`py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  mode === "auto"
-                    ? "bg-[#213743] text-white border border-[#00e701] shadow-md ring-1 ring-[#00e701]"
-                    : "bg-[#0f212e] text-[#b1bad3] hover:text-white"
-                }`}
-              >
-                Auto
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Row 2: Stake Green `#00e701` Bet CTA Button */}
-        <div>
+      <div className="w-full border-t border-[#213743] bg-[#1a2c38] p-3 sm:p-4 flex flex-col justify-start space-y-2 sm:space-y-2.5 rounded-b-2xl select-none">
+        {/* 1. PRIMARY BET CTA BUTTON (Directly at top of controls) */}
+        <div className="w-full">
           <button
+            type="button"
             onClick={handleBet}
-            disabled={isRevealing}
-            className={`w-full py-4 rounded-xl font-black text-sm tracking-wide uppercase transition-all duration-200 transform active:scale-[0.99] ${
-              !isRevealing
-                ? "bg-[#00e701] hover:bg-[#00c701] text-black shadow-[0_0_20px_rgba(0,231,1,0.4)] cursor-pointer"
-                : "bg-[#213743] text-[#b1bad3] cursor-not-allowed"
-            }`}
+            disabled={isRevealing || betAmount > balance || betAmount <= 0}
+            className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
           >
-            {isRevealing ? "Revealing Gems..." : `Bet (${activeSym}${betAmount.toFixed(2)})`}
+            <span>{isRevealing ? "REVEALING..." : "BET"}</span>
           </button>
         </div>
 
-        {/* Footer Utility Icons: Sound, Stats, Fairness, Fullscreen */}
-        <div className="flex items-center justify-between pt-2 border-t border-[#213743] text-[#b1bad3]">
+        {/* 2. BET AMOUNT INPUT (Exact Mines Structure) */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-bold text-[#b1bad3]">Bet Amount</span>
+            <span className="font-mono text-[11px] text-[#b1bad3]">
+              Bal: {activeSym}{balance.toFixed(2)}
+            </span>
+          </div>
+
+          <div className="flex rounded-lg bg-[#0f212e] border border-[#213743] focus-within:border-[#2f4553] p-1">
+            <div className="flex flex-1 items-center px-2.5">
+              <span className="text-xs font-bold text-[#b1bad3] mr-1.5">{activeSym}</span>
+              <input
+                type="text"
+                inputMode="decimal"
+                disabled={isRevealing}
+                value={betInput}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                    setBetInput(val);
+                    if (val !== "" && !isNaN(parseFloat(val))) {
+                      setBetAmount(parseFloat(val));
+                    }
+                  }
+                }}
+                onBlur={() => {
+                  if (betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0) {
+                    setBetInput("1.00");
+                    setBetAmount(1);
+                  } else {
+                    const num = parseFloat(betInput);
+                    setBetAmount(num);
+                    setBetInput(num.toFixed(2));
+                  }
+                }}
+                className="w-full bg-transparent text-sm font-bold text-white outline-none font-mono"
+              />
+            </div>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                disabled={isRevealing}
+                onClick={handleHalfBet}
+                className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
+              >
+                ½
+              </button>
+              <button
+                type="button"
+                disabled={isRevealing}
+                onClick={handleDoubleBet}
+                className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
+              >
+                2×
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* 3. MODE SWITCH TABS: [ Manual | Auto ] */}
+        <div className="flex rounded-lg bg-[#0f212e] p-1 border border-[#213743] mt-auto">
+          <button
+            type="button"
+            disabled={isRevealing}
+            onClick={() => setMode("manual")}
+            className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+              mode === "manual"
+                ? "bg-[#213743] text-white shadow-sm"
+                : "text-[#b1bad3] hover:text-white"
+            }`}
+          >
+            Manual
+          </button>
+          <button
+            type="button"
+            disabled={isRevealing}
+            onClick={() => setMode("auto")}
+            className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+              mode === "auto"
+                ? "bg-[#213743] text-white shadow-sm"
+                : "text-[#b1bad3] hover:text-white"
+            }`}
+          >
+            Auto
+          </button>
+        </div>
+
+        {/* 4. BOTTOM UTILITY BAR */}
+        <div className="flex items-center justify-between rounded-lg bg-[#0f212e] border border-[#213743] px-3 py-2 text-xs text-[#b1bad3] mt-0.5">
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={() => setSoundEnabled(!soundEnabled)}
-              className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors"
-              title={soundEnabled ? "Mute" : "Unmute"}
+              className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
             >
-              {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-            </button>
-
-            <button
-              onClick={() => setShowLiveStats(true)}
-              className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors flex items-center gap-1.5 text-xs font-semibold"
-            >
-              <TrendingUp className="h-4 w-4" />
-              <span className="hidden sm:inline">Live Stats</span>
-            </button>
-
-            <button
-              onClick={() => setShowFairnessModal(true)}
-              className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors flex items-center gap-1.5 text-xs font-semibold"
-            >
-              <ShieldCheck className="h-4 w-4 text-[#00e701]" />
-              <span className="hidden sm:inline">Provably Fair</span>
+              {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-red-400" />}
             </button>
           </div>
 
           <button
-            onClick={toggleFullscreen}
-            className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors"
-            title="Toggle Fullscreen"
+            type="button"
+            onClick={() => setShowFairnessModal(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors cursor-pointer"
           >
-            {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+            <ShieldCheck className="w-4 h-4 text-[#00e701]" />
+            <span>Fairness</span>
           </button>
         </div>
       </div>

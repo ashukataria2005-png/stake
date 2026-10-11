@@ -424,21 +424,21 @@ export default function SlideGame() {
   return (
     <div
       ref={gameContainerRef}
-      className={`w-full max-w-5xl mx-auto px-2 sm:px-4 py-2 select-none flex flex-col space-y-3 ${
-        isFullscreen ? "p-6 bg-[#0f212e] min-h-screen" : ""
+      className={`w-full max-w-lg mx-auto px-2 sm:px-3 py-2 select-none flex flex-col space-y-2 ${
+        isFullscreen ? "p-6 bg-[#0f212e] min-h-screen max-w-none" : ""
       }`}
     >
       {/* ========================================================= */}
       {/* 1. HORIZONTAL SLIDE ARENA (TOP)                            */}
       {/* ========================================================= */}
-      <div className="rounded-2xl border border-[#213743] bg-[#0f212e] shadow-2xl p-4 sm:p-6 flex flex-col items-center justify-center space-y-4 relative overflow-hidden">
+      <div className="w-full rounded-t-2xl bg-[#0f212e] border-t border-x border-[#213743] shadow-2xl p-3 sm:p-4 flex flex-col items-center justify-center space-y-3 relative overflow-hidden">
         {/* Recent Multipliers History Pill Row */}
-        <div className="w-full flex items-center justify-between pb-1">
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
+        <div className="w-full flex items-center justify-between pb-0.5">
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 max-w-full">
             {history.map((item) => (
               <div
                 key={item.id}
-                className={`px-2.5 py-1 rounded-full text-xs font-mono font-bold border shrink-0 ${
+                className={`px-2 py-0.5 rounded-md text-[11px] font-mono font-bold border shrink-0 ${
                   item.multiplier >= 10.0
                     ? "bg-amber-400/20 text-amber-300 border-amber-400/40"
                     : item.multiplier >= 2.0
@@ -453,13 +453,13 @@ export default function SlideGame() {
         </div>
 
         {/* Carousel / Conveyor Slide Track */}
-        <div className="w-full h-36 sm:h-44 bg-[#1a2c38] border-2 border-[#213743] rounded-2xl relative overflow-hidden flex items-center justify-center shadow-inner">
+        <div className="w-full h-32 sm:h-36 bg-[#1a2c38] border-2 border-[#213743] rounded-xl relative overflow-hidden flex items-center justify-center shadow-inner">
           {/* Center Indicator Needles (Top & Bottom Pointers) */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 z-30 pointer-events-none flex flex-col items-center">
-            <div className="w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[14px] border-t-[#00e701] drop-shadow-[0_0_8px_#00e701]" />
+            <div className="w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[12px] border-t-[#00e701] drop-shadow-[0_0_8px_#00e701]" />
           </div>
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-30 pointer-events-none flex flex-col items-center">
-            <div className="w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[14px] border-b-[#00e701] drop-shadow-[0_0_8px_#00e701]" />
+            <div className="w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-b-[12px] border-b-[#00e701] drop-shadow-[0_0_8px_#00e701]" />
           </div>
 
           {/* Vertical Center Guide Line */}
@@ -479,10 +479,10 @@ export default function SlideGame() {
                 <div
                   key={tile.id || i}
                   style={{ width: `${CARD_WIDTH}px` }}
-                  className="h-28 sm:h-32 px-1.5 shrink-0 flex items-center justify-center"
+                  className="h-24 sm:h-28 px-1 shrink-0 flex items-center justify-center"
                 >
                   <div
-                    className={`w-full h-full rounded-xl border flex flex-col items-center justify-center p-2 transition-transform shadow-md ${
+                    className={`w-full h-full rounded-lg border flex flex-col items-center justify-center p-1.5 transition-transform shadow-md ${
                       isHigh
                         ? "bg-gradient-to-b from-amber-500/25 to-[#1a2c38] text-amber-300 border-amber-400/50"
                         : isMid
@@ -490,10 +490,10 @@ export default function SlideGame() {
                         : "bg-[#0f212e] text-[#b1bad3] border-[#213743]"
                     }`}
                   >
-                    <span className="text-[10px] uppercase font-bold text-[#b1bad3] opacity-60">
+                    <span className="text-[9px] uppercase font-bold text-[#b1bad3] opacity-60">
                       Multiplier
                     </span>
-                    <span className="text-lg sm:text-xl font-black font-mono tracking-tight mt-1">
+                    <span className="text-base sm:text-lg font-black font-mono tracking-tight mt-0.5">
                       {tile.multiplier.toFixed(2)}×
                     </span>
                   </div>
@@ -508,7 +508,7 @@ export default function SlideGame() {
               <span className="text-xs uppercase font-extrabold tracking-widest text-[#00e701]">
                 Slide Starting In
               </span>
-              <span className="text-4xl font-black font-mono text-white mt-1">
+              <span className="text-3xl font-black font-mono text-white mt-0.5">
                 {countdownTime.toFixed(1)}s
               </span>
             </div>
@@ -516,17 +516,17 @@ export default function SlideGame() {
         </div>
 
         {/* Status / Outcome Readout */}
-        <div className="flex items-center gap-4 text-xs font-bold text-[#b1bad3]">
+        <div className="flex items-center justify-between w-full text-xs font-bold text-[#b1bad3] px-1 font-mono">
           <div>
-            Target: <span className="font-mono text-white font-black">{targetMultiplier.toFixed(2)}×</span>
+            Target: <span className="text-white font-black">{targetMultiplier.toFixed(2)}×</span>
           </div>
           <div>
             Win Chance:{" "}
-            <span className="font-mono text-[#00e701] font-black">{winChance.toFixed(2)}%</span>
+            <span className="text-[#00e701] font-black">{winChance.toFixed(2)}%</span>
           </div>
           {hasWon !== null && gameState === "finished" && (
             <div
-              className={`px-3 py-1 rounded-lg font-mono font-black uppercase tracking-wider ${
+              className={`px-2 py-0.5 rounded text-[11px] font-black uppercase tracking-wider ${
                 hasWon
                   ? "bg-[#00e701]/20 text-[#00e701] border border-[#00e701]/40"
                   : "bg-[#e9113c]/20 text-[#e9113c] border border-[#e9113c]/40"
@@ -534,59 +534,59 @@ export default function SlideGame() {
             >
               {hasWon
                 ? `WON +${activeSym}${(betAmount * targetMultiplier).toFixed(2)}`
-                : "MISSED TARGET"}
+                : "MISSED"}
             </div>
           )}
         </div>
       </div>
 
       {/* ========================================================= */}
-      {/* 2. BETTING CONTROLS (DIRECTLY BENEATH ARENA)              */}
+      {/* 2. MINES HARMONIZED BETTING CONTROLS SHELL CONTAINER      */}
       {/* ========================================================= */}
-      <div className="rounded-2xl border border-[#213743] bg-[#1a2c38] shadow-2xl p-4 sm:p-5 space-y-4">
-        {/* Mode Switcher Tabs */}
-        <div className="grid grid-cols-2 p-1 bg-[#0f212e] rounded-xl border border-[#213743]">
-          <button
-            type="button"
-            disabled={gameState === "sliding" || isAutoRunning}
-            onClick={() => {
-              sounds.playClick();
-              setMode("manual");
-            }}
-            className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-              mode === "manual" ? "bg-[#213743] text-white shadow-sm" : "text-[#b1bad3] hover:text-white"
-            }`}
-          >
-            Manual
-          </button>
-          <button
-            type="button"
-            disabled={gameState === "sliding" || isAutoRunning}
-            onClick={() => {
-              sounds.playClick();
-              setMode("auto");
-            }}
-            className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-              mode === "auto" ? "bg-[#213743] text-white shadow-sm" : "text-[#b1bad3] hover:text-white"
-            }`}
-          >
-            Auto
-          </button>
+      <div className="w-full border-t border-[#213743] bg-[#1a2c38] p-3 sm:p-4 flex flex-col justify-start space-y-2 sm:space-y-2.5 rounded-b-2xl select-none">
+        {/* 1. PRIMARY BET CTA BUTTON (Directly at top of controls) */}
+        <div className="w-full">
+          {mode === "manual" ? (
+            <button
+              type="button"
+              onClick={handleManualBet}
+              disabled={gameState === "sliding" || betAmount > balance || betAmount <= 0}
+              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
+            >
+              <span>{gameState === "sliding" ? "SLIDING..." : "BET"}</span>
+            </button>
+          ) : isAutoRunning ? (
+            <button
+              type="button"
+              onClick={stopAutoBetting}
+              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/25 active:scale-[0.98] transition-all flex items-center justify-center cursor-pointer uppercase tracking-wider"
+            >
+              <span>STOP AUTOBET ({autoBetsCount})</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={startAutoBetting}
+              disabled={betAmount > balance || betAmount <= 0}
+              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
+            >
+              <span>START AUTOBET</span>
+            </button>
+          )}
         </div>
 
-        {/* Inputs: Bet Amount & Target Multiplier / Win Chance */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {/* Bet Amount */}
-          <div className="space-y-1.5">
-            <div className="flex justify-between text-xs font-bold text-[#b1bad3]">
-              <span>Bet Amount</span>
-              <span className="text-[#00e701] font-mono">
-                {activeSym}
-                {formatBalance(balance)}
-              </span>
-            </div>
-            <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] p-1 focus-within:border-[#00e701] transition-colors">
-              <span className="px-2.5 text-sm font-bold text-[#00e701]">{activeSym}</span>
+        {/* 2. BET AMOUNT INPUT (Exact Mines Structure) */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-bold text-[#b1bad3]">Bet Amount</span>
+            <span className="font-mono text-[11px] text-[#b1bad3]">
+              Bal: {activeSym}{balance.toFixed(2)}
+            </span>
+          </div>
+
+          <div className="flex rounded-lg bg-[#0f212e] border border-[#213743] focus-within:border-[#2f4553] p-1">
+            <div className="flex flex-1 items-center px-2.5">
+              <span className="text-xs font-bold text-[#b1bad3] mr-1.5">{activeSym}</span>
               <input
                 type="text"
                 inputMode="decimal"
@@ -603,21 +603,23 @@ export default function SlideGame() {
                 }}
                 onBlur={() => {
                   if (betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0) {
-                    setBetInput("1");
+                    setBetInput("1.00");
                     setBetAmount(1);
                   } else {
                     const num = parseFloat(betInput);
-                    setBetInput(num.toString());
                     setBetAmount(num);
+                    setBetInput(num.toFixed(2));
                   }
                 }}
-                className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono"
+                className="w-full bg-transparent text-sm font-bold text-white outline-none font-mono"
               />
+            </div>
+            <div className="flex items-center gap-1">
               <button
                 type="button"
                 disabled={gameState === "sliding" || isAutoRunning}
                 onClick={handleHalfBet}
-                className="rounded-lg px-2.5 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer"
+                className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
               >
                 ½
               </button>
@@ -625,198 +627,173 @@ export default function SlideGame() {
                 type="button"
                 disabled={gameState === "sliding" || isAutoRunning}
                 onClick={handleDoubleBet}
-                className="rounded-lg px-2.5 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer"
+                className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
               >
                 2×
               </button>
-              <button
-                type="button"
-                disabled={gameState === "sliding" || isAutoRunning}
-                onClick={handleMaxBet}
-                className="rounded-lg px-2.5 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer"
-              >
-                Max
-              </button>
-            </div>
-          </div>
-
-          {/* Target Multiplier & Win Chance */}
-          <div className="grid grid-cols-2 gap-2">
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-[#b1bad3]">Target Multiplier</label>
-              <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] p-2 focus-within:border-[#00e701] transition-colors">
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  disabled={gameState === "sliding" || isAutoRunning}
-                  value={targetInput}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
-                      setTargetInput(val);
-                      if (val !== "") {
-                        const num = parseFloat(val);
-                        if (!isNaN(num) && num >= 1.01) {
-                          updateFromTarget(num);
-                        }
-                      }
-                    }
-                  }}
-                  onBlur={() => {
-                    if (targetInput === "" || isNaN(parseFloat(targetInput)) || parseFloat(targetInput) < 1.01) {
-                      setTargetInput("2.00");
-                      updateFromTarget(2.0);
-                    } else {
-                      const num = parseFloat(targetInput);
-                      setTargetInput(num.toFixed(2));
-                      updateFromTarget(num);
-                    }
-                  }}
-                  className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono"
-                />
-                <span className="text-xs font-bold text-[#b1bad3]">×</span>
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-[#b1bad3]">Win Chance</label>
-              <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] p-2 focus-within:border-[#00e701] transition-colors">
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  disabled={gameState === "sliding" || isAutoRunning}
-                  value={winChanceInput}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
-                      setWinChanceInput(val);
-                      if (val !== "") {
-                        const num = parseFloat(val);
-                        if (!isNaN(num) && num > 0 && num <= 98) {
-                          updateFromWinChance(num);
-                        }
-                      }
-                    }
-                  }}
-                  onBlur={() => {
-                    if (winChanceInput === "" || isNaN(parseFloat(winChanceInput)) || parseFloat(winChanceInput) <= 0) {
-                      setWinChanceInput("49.50");
-                      updateFromWinChance(49.5);
-                    } else {
-                      const num = parseFloat(winChanceInput);
-                      setWinChanceInput(num.toFixed(2));
-                      updateFromWinChance(num);
-                    }
-                  }}
-                  className="w-full bg-transparent text-sm font-bold text-[#00e701] focus:outline-none font-mono"
-                />
-                <span className="text-xs font-bold text-[#b1bad3]">%</span>
-              </div>
             </div>
           </div>
         </div>
 
-        {/* Profit on Win Field */}
-        <div className="flex items-center justify-between rounded-xl border border-[#213743] bg-[#0f212e] p-2.5">
-          <span className="text-xs font-bold text-[#b1bad3]">Profit on Win:</span>
-          <span className="text-sm font-bold text-[#00e701] font-mono">
-            +{activeSym}
-            {profitOnWin.toFixed(2)}
+        {/* 3. TARGET MULTIPLIER & WIN CHANCE */}
+        <div className="grid grid-cols-2 gap-2">
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-[#b1bad3] uppercase">Target Multiplier</label>
+            <div className="flex rounded-lg bg-[#0f212e] border border-[#213743] focus-within:border-[#2f4553] p-1 items-center px-2.5">
+              <input
+                type="text"
+                inputMode="decimal"
+                disabled={gameState === "sliding" || isAutoRunning}
+                value={targetInput}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                    setTargetInput(val);
+                    if (val !== "") {
+                      const num = parseFloat(val);
+                      if (!isNaN(num) && num >= 1.01) {
+                        updateFromTarget(num);
+                      }
+                    }
+                  }
+                }}
+                onBlur={() => {
+                  if (targetInput === "" || isNaN(parseFloat(targetInput)) || parseFloat(targetInput) < 1.01) {
+                    setTargetInput("2.00");
+                    updateFromTarget(2.0);
+                  } else {
+                    const num = parseFloat(targetInput);
+                    setTargetInput(num.toFixed(2));
+                    updateFromTarget(num);
+                  }
+                }}
+                className="w-full bg-transparent text-sm font-bold text-white outline-none font-mono"
+              />
+              <span className="text-xs font-bold text-[#b1bad3]">×</span>
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-[#b1bad3] uppercase">Win Chance</label>
+            <div className="flex rounded-lg bg-[#0f212e] border border-[#213743] focus-within:border-[#2f4553] p-1 items-center px-2.5">
+              <input
+                type="text"
+                inputMode="decimal"
+                disabled={gameState === "sliding" || isAutoRunning}
+                value={winChanceInput}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                    setWinChanceInput(val);
+                    if (val !== "") {
+                      const num = parseFloat(val);
+                      if (!isNaN(num) && num > 0 && num <= 98) {
+                        updateFromWinChance(num);
+                      }
+                    }
+                  }
+                }}
+                onBlur={() => {
+                  if (winChanceInput === "" || isNaN(parseFloat(winChanceInput)) || parseFloat(winChanceInput) <= 0) {
+                    setWinChanceInput("49.50");
+                    updateFromWinChance(49.5);
+                  } else {
+                    const num = parseFloat(winChanceInput);
+                    setWinChanceInput(num.toFixed(2));
+                    updateFromWinChance(num);
+                  }
+                }}
+                className="w-full bg-transparent text-sm font-bold text-[#00e701] outline-none font-mono"
+              />
+              <span className="text-xs font-bold text-[#b1bad3]">%</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 4. PROFIT ON WIN */}
+        <div className="flex items-center justify-between rounded-lg border border-[#213743] bg-[#0f212e] px-3 py-1.5 text-xs">
+          <span className="font-bold text-[#b1bad3]">Profit on Win:</span>
+          <span className="font-mono font-bold text-[#00e701]">
+            +{activeSym}{profitOnWin.toFixed(2)}
           </span>
         </div>
 
-        {/* AUTO BET SETTINGS */}
+        {/* 5. AUTO BET SETTINGS */}
         {mode === "auto" && (
-          <div className="space-y-3 pt-3 border-t border-[#213743]">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-2 pt-1 border-t border-[#213743]/60 text-xs">
+            <div className="grid grid-cols-2 gap-2">
               <div className="space-y-1">
-                <label className="text-[11px] font-bold text-[#b1bad3]">Number of Bets</label>
-                <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] p-1">
+                <label className="text-[10px] font-bold text-[#b1bad3] uppercase">Number of Bets</label>
+                <div className="flex rounded-lg bg-[#0f212e] border border-[#213743] p-1 items-center">
                   <input
                     type="number"
-                    disabled={isAutoRunning}
+                    min="0"
+                    placeholder="∞"
                     value={autoBetsLimit === 0 ? "" : autoBetsLimit}
-                    placeholder="∞ (Infinite)"
-                    onChange={(e) => {
-                      const val = parseInt(e.target.value);
-                      setAutoBetsLimit(isNaN(val) || val < 0 ? 0 : val);
-                    }}
-                    className="w-full bg-transparent px-2 text-xs font-bold text-white focus:outline-none font-mono"
+                    onChange={(e) => setAutoBetsLimit(parseInt(e.target.value) || 0)}
+                    className="w-full bg-transparent px-1 text-xs font-bold text-white outline-none font-mono"
                   />
                   <button
                     type="button"
-                    disabled={isAutoRunning}
                     onClick={() => setAutoBetsLimit(0)}
-                    className="rounded-lg px-2 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white"
+                    className="px-2 py-0.5 rounded text-xs font-black text-[#1475e1] hover:text-white"
                   >
                     ∞
                   </button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-1">
-                  <label className="text-[11px] font-bold text-[#b1bad3]">Stop on Profit</label>
-                  <input
-                    type="number"
-                    disabled={isAutoRunning}
-                    placeholder="0.00"
-                    value={stopOnProfit || ""}
-                    onChange={(e) => setStopOnProfit(parseFloat(e.target.value) || 0)}
-                    className="w-full rounded-xl border border-[#213743] bg-[#0f212e] p-2 text-xs font-bold text-white focus:outline-none font-mono"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[11px] font-bold text-[#b1bad3]">Stop on Loss</label>
-                  <input
-                    type="number"
-                    disabled={isAutoRunning}
-                    placeholder="0.00"
-                    value={stopOnLoss || ""}
-                    onChange={(e) => setStopOnLoss(parseFloat(e.target.value) || 0)}
-                    className="w-full rounded-xl border border-[#213743] bg-[#0f212e] p-2 text-xs font-bold text-white focus:outline-none font-mono"
-                  />
-                </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-[#b1bad3] uppercase">Stop on Profit</label>
+                <input
+                  type="number"
+                  disabled={isAutoRunning}
+                  placeholder="0.00"
+                  value={stopOnProfit || ""}
+                  onChange={(e) => setStopOnProfit(parseFloat(e.target.value) || 0)}
+                  className="w-full rounded-lg bg-[#0f212e] border border-[#213743] p-1.5 text-xs font-bold text-white outline-none font-mono"
+                />
               </div>
             </div>
           </div>
         )}
 
-        {/* PRIMARY CTA BET BUTTON */}
-        <div className="w-full pt-2">
-          {mode === "manual" ? (
-            <button
-              type="button"
-              onClick={handleManualBet}
-              disabled={gameState === "sliding" || betAmount > balance || betAmount <= 0}
-              className="w-full py-4 text-base font-extrabold rounded-xl bg-[#00e701] hover:bg-[#00c201] text-black shadow-lg hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider"
-            >
-              <Zap className="h-5 w-5 fill-current" />
-              <span>{gameState === "sliding" ? "Sliding..." : "Bet"}</span>
-            </button>
-          ) : isAutoRunning ? (
-            <button
-              type="button"
-              onClick={stopAutoBetting}
-              className="w-full py-4 text-base font-extrabold rounded-xl bg-[#e9113c] hover:bg-[#c40e32] text-white shadow-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider"
-            >
-              <span>Stop Autobet ({autoBetsCount})</span>
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={startAutoBetting}
-              disabled={betAmount > balance || betAmount <= 0}
-              className="w-full py-4 text-base font-extrabold rounded-xl bg-[#00e701] hover:bg-[#00c201] text-black shadow-lg hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider"
-            >
-              <Zap className="h-5 w-5 fill-current" />
-              <span>Start Autobet</span>
-            </button>
-          )}
+        {/* 6. MODE SWITCH TABS: [ Manual | Auto ] */}
+        <div className="flex rounded-lg bg-[#0f212e] p-1 border border-[#213743] mt-auto">
+          <button
+            type="button"
+            disabled={gameState === "sliding" || isAutoRunning}
+            onClick={() => {
+              sounds.playClick();
+              setMode("manual");
+            }}
+            className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+              mode === "manual"
+                ? "bg-[#213743] text-white shadow-sm"
+                : "text-[#b1bad3] hover:text-white"
+            }`}
+          >
+            Manual
+          </button>
+          <button
+            type="button"
+            disabled={gameState === "sliding" || isAutoRunning}
+            onClick={() => {
+              sounds.playClick();
+              setMode("auto");
+            }}
+            className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+              mode === "auto"
+                ? "bg-[#213743] text-white shadow-sm"
+                : "text-[#b1bad3] hover:text-white"
+            }`}
+          >
+            Auto
+          </button>
         </div>
 
-        {/* Utility Bar */}
-        <div className="flex items-center justify-between pt-3 border-t border-[#213743] text-[#b1bad3]">
+        {/* 7. BOTTOM UTILITY BAR */}
+        <div className="flex items-center justify-between rounded-lg bg-[#0f212e] border border-[#213743] px-3 py-2 text-xs text-[#b1bad3] mt-0.5">
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -826,41 +803,20 @@ export default function SlideGame() {
                 sounds.enabled = next;
                 if (next) sounds.playClick();
               }}
-              className="p-2 rounded-lg bg-[#0f212e] border border-[#213743] hover:text-white transition-colors cursor-pointer"
-              title={soundEnabled ? "Mute Sound" : "Enable Sound"}
+              className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
             >
-              {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4 text-red-400" />}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setShowFairnessModal(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#0f212e] border border-[#213743] hover:text-white transition-colors cursor-pointer"
-            >
-              <ShieldCheck className="h-4 w-4 text-[#00e701]" />
-              <span>Provably Fair</span>
+              {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-red-400" />}
             </button>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setShowLiveStats(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#0f212e] border border-[#213743] hover:text-white transition-colors cursor-pointer"
-            >
-              <TrendingUp className="h-3.5 w-3.5 text-[#00e701]" />
-              <span>Live Stats</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={toggleFullscreen}
-              className="p-2 rounded-lg bg-[#0f212e] border border-[#213743] hover:text-white transition-colors cursor-pointer"
-              title="Toggle Fullscreen"
-            >
-              {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => setShowFairnessModal(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors cursor-pointer"
+          >
+            <ShieldCheck className="w-4 h-4 text-[#00e701]" />
+            <span>Fairness</span>
+          </button>
         </div>
       </div>
 

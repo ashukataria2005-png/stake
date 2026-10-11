@@ -288,45 +288,46 @@ export default function DragonTowerGame() {
   return (
     <div
       ref={gameContainerRef}
-      className="flex flex-col items-center w-full min-h-[calc(100vh-64px)] bg-[#0f212e] text-white p-3 sm:p-6 select-none font-sans"
+      className={`w-full max-w-lg mx-auto px-2 sm:px-3 py-2 select-none flex flex-col space-y-2 ${
+        isFullscreen ? "p-6 bg-[#0f212e] min-h-screen max-w-none" : ""
+      }`}
     >
       {/* =========================================================================
-          TOP: DRAGON TOWER VERTICAL CLIMB ARENA (Floors 9 down to 1)
+          1. GAME ARENA: DRAGON TOWER VERTICAL CLIMB ARENA (Floors 9 down to 1)
       ========================================================================== */}
-      <div className="w-full max-w-4xl bg-[#1a2c38] rounded-2xl p-4 sm:p-6 border border-[#213743] shadow-2xl flex flex-col items-center relative overflow-hidden mb-5">
-        
+      <div className="w-full rounded-t-2xl bg-[#0f212e] border-t border-x border-[#213743] shadow-2xl p-3 sm:p-4 flex flex-col items-center justify-center space-y-3 relative overflow-hidden">
         {/* Ambient Fire / Cave Glow */}
         <div className="absolute -top-32 -left-32 w-80 h-80 bg-amber-600/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-32 -right-32 w-80 h-80 bg-red-600/10 rounded-full blur-3xl pointer-events-none" />
 
         {/* Current Multiplier HUD Header */}
-        <div className="w-full flex items-center justify-between bg-[#0f212e]/80 backdrop-blur-md rounded-xl p-3 sm:px-6 mb-4 border border-[#213743]">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-[#b1bad3] uppercase tracking-wider">Current Floor:</span>
-            <span className="text-sm font-bold text-white font-mono">
-              Floor <span className="text-amber-400">{isPlaying ? currentFloor : 1}</span> of {TOTAL_FLOORS}
+        <div className="w-full flex items-center justify-between bg-[#1a2c38] rounded-xl px-3 py-2 border border-[#213743]">
+          <div className="flex items-center gap-1.5">
+            <span className="text-[10px] font-bold text-[#b1bad3] uppercase tracking-wider">Floor:</span>
+            <span className="text-xs font-bold text-white font-mono">
+              <span className="text-amber-400">{isPlaying ? currentFloor : 1}</span> / {TOTAL_FLOORS}
             </span>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {isPlaying && currentFloor > 1 && (
-              <div className="text-xs text-[#b1bad3] hidden sm:block">
-                Banked: <span className="font-mono font-bold text-[#00e701]">{activeSym}{currentPayout.toFixed(2)}</span>
+              <div className="text-xs text-[#b1bad3]">
+                Bank: <span className="font-mono font-bold text-[#00e701]">{activeSym}{currentPayout.toFixed(2)}</span>
               </div>
             )}
             <div
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#213743] text-sm font-black font-mono transition-transform duration-200 ${
+              className={`flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-[#0f212e] text-xs font-black font-mono transition-transform duration-200 ${
                 currentFloor > 1 ? "scale-105 text-[#00e701]" : "text-[#b1bad3]"
               }`}
             >
-              <Sparkles className="h-4 w-4" />
+              <Sparkles className="h-3.5 w-3.5" />
               <span>{currentMultiplier.toFixed(2)}×</span>
             </div>
           </div>
         </div>
 
         {/* Stone Tower Grid (Rendered from Floor 9 Top down to Floor 1 Bottom) */}
-        <div className="w-full max-w-md flex flex-col gap-1.5 p-2 bg-[#0f212e]/60 rounded-2xl border border-[#213743]/80 shadow-inner">
+        <div className="w-full flex flex-col gap-1 p-2 bg-[#1a2c38]/40 rounded-xl border border-[#213743] shadow-inner">
           {Array.from({ length: TOTAL_FLOORS }, (_, index) => {
             // Invert index so top row is Floor 9, bottom row is Floor 1
             const floorIdx = TOTAL_FLOORS - 1 - index;
@@ -339,7 +340,7 @@ export default function DragonTowerGame() {
             return (
               <div
                 key={floorNum}
-                className={`flex items-center gap-2 p-1 rounded-xl transition-all duration-300 ${
+                className={`flex items-center gap-1.5 p-1 rounded-lg transition-all duration-300 ${
                   isCurrentActive
                     ? "bg-[#213743]/90 border border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.25)] ring-1 ring-amber-400/30"
                     : isCompletedFloor
@@ -349,7 +350,7 @@ export default function DragonTowerGame() {
               >
                 {/* Floor Multiplier Pill (Left Column) */}
                 <div
-                  className={`w-14 sm:w-16 py-1.5 rounded-lg text-center font-mono font-bold text-[10px] sm:text-xs shrink-0 transition-colors ${
+                  className={`w-12 py-1 rounded-md text-center font-mono font-bold text-[10px] shrink-0 transition-colors ${
                     isCurrentActive
                       ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
                       : isCompletedFloor
@@ -361,7 +362,7 @@ export default function DragonTowerGame() {
                 </div>
 
                 {/* Stone Tiles for this Floor */}
-                <div className="flex-1 grid gap-1.5" style={{ gridTemplateColumns: `repeat(${DIFFICULTIES[difficulty].tilesPerRow}, 1fr)` }}>
+                <div className="flex-1 grid gap-1" style={{ gridTemplateColumns: `repeat(${DIFFICULTIES[difficulty].tilesPerRow}, 1fr)` }}>
                   {floorData.tiles.map((tile, tIdx) => {
                     const canClick = isCurrentActive && !isRevealing;
 
@@ -370,7 +371,7 @@ export default function DragonTowerGame() {
                         key={tIdx}
                         disabled={!canClick}
                         onClick={() => handleTilePick(floorIdx, tIdx)}
-                        className={`h-9 sm:h-10 rounded-lg flex items-center justify-center font-bold transition-all transform duration-200 overflow-hidden relative ${
+                        className={`h-7 sm:h-8 rounded-lg flex items-center justify-center font-bold transition-all transform duration-200 overflow-hidden relative ${
                           !tile.isRevealed
                             ? isCurrentActive
                               ? "bg-gradient-to-b from-[#2a4555] to-[#1c303c] border border-amber-400/40 hover:border-amber-300 hover:scale-[1.03] active:scale-95 cursor-pointer shadow-md"
@@ -381,19 +382,16 @@ export default function DragonTowerGame() {
                         }`}
                       >
                         {!tile.isRevealed ? (
-                          // Stone pattern surface
                           <div className="w-full h-full flex items-center justify-center">
-                            <div className="w-2 h-2 rounded-full bg-black/20" />
+                            <div className="w-1.5 h-1.5 rounded-full bg-black/20" />
                           </div>
                         ) : tile.isSafe ? (
-                          // Dragon Egg
                           <div className="flex items-center justify-center animate-in zoom-in-75">
-                            <Egg className="h-5 w-5 text-amber-300 fill-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
+                            <Egg className="h-4 w-4 text-amber-300 fill-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
                           </div>
                         ) : (
-                          // Dragon Skull Trap
                           <div className="flex items-center justify-center animate-in zoom-in-75">
-                            <Skull className="h-5 w-5 text-red-400 fill-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]" />
+                            <Skull className="h-4 w-4 text-red-400 fill-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]" />
                           </div>
                         )}
                       </button>
@@ -407,18 +405,18 @@ export default function DragonTowerGame() {
 
         {/* Round Feedback Messages */}
         {isCashedOut && (
-          <div className="mt-4 px-6 py-2.5 rounded-xl bg-[#00e701]/10 border border-[#00e701]/40 flex items-center gap-3 animate-in fade-in zoom-in-95">
-            <Sparkles className="h-5 w-5 text-[#00e701]" />
-            <div className="text-sm font-bold text-[#00e701]">
+          <div className="w-full px-4 py-1.5 rounded-xl bg-[#00e701]/10 border border-[#00e701]/40 flex items-center justify-center gap-2 animate-in fade-in zoom-in-95">
+            <Sparkles className="h-3.5 w-3.5 text-[#00e701]" />
+            <div className="text-xs font-bold text-[#00e701]">
               Cashed Out! Won {activeSym}{currentPayout.toFixed(2)} ({currentMultiplier.toFixed(2)}×)
             </div>
           </div>
         )}
 
         {isBust && (
-          <div className="mt-4 px-6 py-2.5 rounded-xl bg-[#e9113c]/10 border border-[#e9113c]/40 flex items-center gap-3 animate-in fade-in">
-            <Flame className="h-5 w-5 text-[#e9113c]" />
-            <div className="text-sm font-bold text-[#e9113c]">
+          <div className="w-full px-4 py-1.5 rounded-xl bg-[#e9113c]/10 border border-[#e9113c]/40 flex items-center justify-center gap-2 animate-in fade-in">
+            <Flame className="h-3.5 w-3.5 text-[#e9113c]" />
+            <div className="text-xs font-bold text-[#e9113c]">
               Dragon Trap Burned Your Climb!
             </div>
           </div>
@@ -426,158 +424,150 @@ export default function DragonTowerGame() {
       </div>
 
       {/* =========================================================================
-          CONTROLS: DIRECTLY BENEATH TOWER (Vertical Flow)
+          2. MINES HARMONIZED BETTING CONTROLS SHELL CONTAINER
       ========================================================================== */}
-      <div className="w-full max-w-4xl bg-[#1a2c38] rounded-2xl p-5 border border-[#213743] shadow-xl space-y-4">
-        
-        {/* Row 1: Bet Amount & Difficulty Selection */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          
-          {/* Bet Amount Input with Quick Modifiers */}
-          <div className="space-y-1.5">
-            <div className="flex justify-between items-center text-xs text-[#b1bad3] font-semibold">
-              <label>Bet Amount</label>
-              <span>{activeSym}{balance.toFixed(2)}</span>
-            </div>
-            <div className="relative flex items-center">
-              <div className="absolute left-3 text-sm font-bold text-[#b1bad3]">
-                {activeSym}
-              </div>
-              <input
-                type="number"
-                disabled={isPlaying}
-                value={betInput}
-                onChange={(e) => {
-                  setBetInput(e.target.value);
-                  const parsed = parseFloat(e.target.value);
-                  if (!isNaN(parsed) && parsed > 0) setBetAmount(parsed);
-                }}
-                className="w-full bg-[#0f212e] border border-[#213743] rounded-xl pl-8 pr-32 py-2.5 text-sm font-bold font-mono text-white focus:outline-none focus:border-[#00e701] disabled:opacity-50"
-                step="any"
-                min="0.01"
-              />
-              <div className="absolute right-1.5 flex items-center gap-1">
-                <button
-                  type="button"
-                  disabled={isPlaying}
-                  onClick={handleHalfBet}
-                  className="px-2 py-1 text-xs font-bold rounded-lg bg-[#213743] text-[#b1bad3] hover:text-white hover:bg-[#2f4553] transition-colors disabled:opacity-50"
-                >
-                  ½
-                </button>
-                <button
-                  type="button"
-                  disabled={isPlaying}
-                  onClick={handleDoubleBet}
-                  className="px-2 py-1 text-xs font-bold rounded-lg bg-[#213743] text-[#b1bad3] hover:text-white hover:bg-[#2f4553] transition-colors disabled:opacity-50"
-                >
-                  2×
-                </button>
-                <button
-                  type="button"
-                  disabled={isPlaying}
-                  onClick={handleMaxBet}
-                  className="px-2 py-1 text-xs font-bold rounded-lg bg-[#213743] text-[#b1bad3] hover:text-white hover:bg-[#2f4553] transition-colors disabled:opacity-50"
-                >
-                  Max
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Difficulty Selector Pills */}
-          <div className="space-y-1.5">
-            <div className="flex justify-between items-center text-xs text-[#b1bad3] font-semibold">
-              <label>Difficulty</label>
-              <span className="capitalize">{DIFFICULTIES[difficulty].safeCount} Eggs / {DIFFICULTIES[difficulty].tilesPerRow} Tiles</span>
-            </div>
-            <div className="grid grid-cols-5 gap-1.5">
-              {(Object.keys(DIFFICULTIES) as TowerDifficulty[]).map((diffKey) => {
-                const isSelected = difficulty === diffKey;
-                return (
-                  <button
-                    key={diffKey}
-                    type="button"
-                    disabled={isPlaying}
-                    onClick={() => {
-                      if (soundEnabled) sounds.playClick();
-                      setDifficulty(diffKey);
-                    }}
-                    className={`py-2.5 rounded-xl text-xs font-bold capitalize transition-all cursor-pointer ${
-                      isSelected
-                        ? "bg-[#213743] text-white border border-[#00e701] shadow-md ring-1 ring-[#00e701]"
-                        : "bg-[#0f212e] text-[#b1bad3] hover:text-white hover:bg-[#213743]/50 border border-transparent"
-                    } disabled:opacity-50 disabled:cursor-not-allowed`}
-                  >
-                    {diffKey}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        {/* Row 2: Dual-State Primary Green CTA Button `#00e701` */}
-        <div>
+      <div className="w-full border-t border-[#213743] bg-[#1a2c38] p-3 sm:p-4 flex flex-col justify-start space-y-2 sm:space-y-2.5 rounded-b-2xl select-none">
+        {/* 1. PRIMARY BET CTA BUTTON (Directly at top of controls) */}
+        <div className="w-full">
           {!isPlaying ? (
             <button
+              type="button"
               onClick={handleStartRound}
-              className="w-full py-4 rounded-xl font-black text-sm tracking-wide uppercase transition-all duration-200 transform active:scale-[0.99] bg-[#00e701] hover:bg-[#00c701] text-black shadow-[0_0_20px_rgba(0,231,1,0.4)] cursor-pointer"
+              disabled={betAmount > balance || betAmount <= 0}
+              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
             >
-              Bet
+              <span>BET</span>
             </button>
           ) : (
             <button
               type="button"
               onClick={handleCashout}
               disabled={isRevealing || currentFloor <= 1}
-              className={`w-full py-4 rounded-xl font-black text-sm tracking-wide uppercase transition-all duration-200 transform active:scale-[0.99] ${
+              className={`w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl shadow-lg transition-all flex items-center justify-center uppercase tracking-wider cursor-pointer ${
                 currentFloor > 1
-                  ? "bg-[#00e701] hover:bg-[#00c701] text-black shadow-[0_0_25px_rgba(0,231,1,0.5)] cursor-pointer animate-pulse"
+                  ? "bg-[#00e701] hover:bg-[#00c701] text-black shadow-[0_0_20px_rgba(0,231,1,0.4)] animate-pulse"
                   : "bg-[#213743] text-[#b1bad3] cursor-not-allowed"
               }`}
             >
-              {currentFloor > 1
-                ? `Cashout ${activeSym}${currentPayout.toFixed(2)} (${currentMultiplier.toFixed(2)}×)`
-                : "Pick a Tile to Climb"}
+              <span>
+                {currentFloor > 1
+                  ? `CASHOUT ${activeSym}${currentPayout.toFixed(2)} (${currentMultiplier.toFixed(2)}×)`
+                  : "PICK A TILE"}
+              </span>
             </button>
           )}
         </div>
 
-        {/* Footer Utility Icons: Sound, Stats, Fairness, Fullscreen */}
-        <div className="flex items-center justify-between pt-2 border-t border-[#213743] text-[#b1bad3]">
+        {/* 2. BET AMOUNT INPUT (Exact Mines Structure) */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-bold text-[#b1bad3]">Bet Amount</span>
+            <span className="font-mono text-[11px] text-[#b1bad3]">
+              Bal: {activeSym}{balance.toFixed(2)}
+            </span>
+          </div>
+
+          <div className="flex rounded-lg bg-[#0f212e] border border-[#213743] focus-within:border-[#2f4553] p-1">
+            <div className="flex flex-1 items-center px-2.5">
+              <span className="text-xs font-bold text-[#b1bad3] mr-1.5">{activeSym}</span>
+              <input
+                type="text"
+                inputMode="decimal"
+                disabled={isPlaying}
+                value={betInput}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                    setBetInput(val);
+                    if (val !== "" && !isNaN(parseFloat(val))) {
+                      setBetAmount(parseFloat(val));
+                    }
+                  }
+                }}
+                onBlur={() => {
+                  if (betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0) {
+                    setBetInput("1.00");
+                    setBetAmount(1);
+                  } else {
+                    const num = parseFloat(betInput);
+                    setBetAmount(num);
+                    setBetInput(num.toFixed(2));
+                  }
+                }}
+                className="w-full bg-transparent text-sm font-bold text-white outline-none font-mono"
+              />
+            </div>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                disabled={isPlaying}
+                onClick={handleHalfBet}
+                className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
+              >
+                ½
+              </button>
+              <button
+                type="button"
+                disabled={isPlaying}
+                onClick={handleDoubleBet}
+                className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
+              >
+                2×
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* 3. DIFFICULTY SELECTOR PILLS */}
+        <div className="space-y-1">
+          <div className="flex justify-between items-center text-[10px] font-bold text-[#b1bad3] uppercase">
+            <span>Difficulty</span>
+            <span className="capitalize">{DIFFICULTIES[difficulty].safeCount} Eggs / {DIFFICULTIES[difficulty].tilesPerRow} Tiles</span>
+          </div>
+          <div className="grid grid-cols-5 gap-1">
+            {(Object.keys(DIFFICULTIES) as TowerDifficulty[]).map((diffKey) => {
+              const isSelected = difficulty === diffKey;
+              return (
+                <button
+                  key={diffKey}
+                  type="button"
+                  disabled={isPlaying}
+                  onClick={() => {
+                    if (soundEnabled) sounds.playClick();
+                    setDifficulty(diffKey);
+                  }}
+                  className={`py-1.5 rounded-lg text-xs font-bold capitalize transition-all cursor-pointer ${
+                    isSelected
+                      ? "bg-[#213743] text-white shadow-sm"
+                      : "bg-[#0f212e] text-[#b1bad3] hover:text-white"
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  {diffKey[0].toUpperCase() + diffKey.slice(1, 4)}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 4. BOTTOM UTILITY BAR */}
+        <div className="flex items-center justify-between rounded-lg bg-[#0f212e] border border-[#213743] px-3 py-2 text-xs text-[#b1bad3] mt-0.5">
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={() => setSoundEnabled(!soundEnabled)}
-              className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors"
-              title={soundEnabled ? "Mute" : "Unmute"}
+              className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
             >
-              {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-            </button>
-
-            <button
-              onClick={() => setShowLiveStats(true)}
-              className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors flex items-center gap-1.5 text-xs font-semibold"
-            >
-              <TrendingUp className="h-4 w-4" />
-              <span className="hidden sm:inline">Live Stats</span>
-            </button>
-
-            <button
-              onClick={() => setShowFairnessModal(true)}
-              className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors flex items-center gap-1.5 text-xs font-semibold"
-            >
-              <ShieldCheck className="h-4 w-4 text-[#00e701]" />
-              <span className="hidden sm:inline">Provably Fair</span>
+              {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-red-400" />}
             </button>
           </div>
 
           <button
-            onClick={toggleFullscreen}
-            className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors"
-            title="Toggle Fullscreen"
+            type="button"
+            onClick={() => setShowFairnessModal(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors cursor-pointer"
           >
-            {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+            <ShieldCheck className="w-4 h-4 text-[#00e701]" />
+            <span>Fairness</span>
           </button>
         </div>
       </div>

@@ -336,15 +336,16 @@ export default function CasesGame() {
   return (
     <div
       ref={gameContainerRef}
-      className="flex flex-col items-center w-full min-h-[calc(100vh-64px)] bg-[#0f212e] text-white p-3 sm:p-6 select-none font-sans"
+      className={`w-full max-w-lg mx-auto px-2 sm:px-3 py-2 select-none flex flex-col space-y-2 ${
+        isFullscreen ? "p-6 bg-[#0f212e] min-h-screen max-w-none" : ""
+      }`}
     >
       {/* =========================================================================
-          TOP: HORIZONTAL ROLLING REEL & CASE ARENA (Top of View)
+          1. GAME ARENA: HORIZONTAL ROLLING REEL & CASE ARENA (Top of View)
       ========================================================================== */}
-      <div className="w-full max-w-4xl bg-[#1a2c38] rounded-2xl p-4 sm:p-6 border border-[#213743] shadow-2xl flex flex-col items-center relative overflow-hidden mb-5">
-        
+      <div className="w-full rounded-t-2xl bg-[#0f212e] border-t border-x border-[#213743] shadow-2xl p-3 sm:p-4 flex flex-col items-center justify-center space-y-3 relative overflow-hidden">
         {/* Tier Selector Pills */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 w-full mb-5">
+        <div className="grid grid-cols-4 gap-1.5 w-full">
           {CASE_TIERS.map((tier) => {
             const isSelected = tier.id === selectedTierId;
             return (
@@ -352,17 +353,17 @@ export default function CasesGame() {
                 key={tier.id}
                 disabled={isUnboxing}
                 onClick={() => handleSelectTier(tier.id)}
-                className={`flex flex-col items-center justify-center p-3 rounded-xl border transition-all duration-200 cursor-pointer ${
+                className={`flex flex-col items-center justify-center p-1.5 rounded-xl border transition-all duration-200 cursor-pointer ${
                   isSelected
                     ? `bg-gradient-to-b ${tier.color} ${tier.border} shadow-lg ring-1 ring-white/20 scale-[1.02]`
-                    : "bg-[#0f212e]/70 border-[#213743] hover:bg-[#213743] text-[#b1bad3]"
+                    : "bg-[#1a2c38] border-[#213743] hover:bg-[#213743] text-[#b1bad3]"
                 } ${isUnboxing ? "opacity-60 cursor-not-allowed" : ""}`}
               >
-                <div className="flex items-center gap-1.5 mb-1">
-                  <Box className={`h-4 w-4 ${isSelected ? "text-white" : "text-[#b1bad3]"}`} />
-                  <span className="text-xs font-black tracking-wide uppercase truncate">{tier.name}</span>
+                <div className="flex items-center gap-1 mb-0.5">
+                  <Box className={`h-3.5 w-3.5 ${isSelected ? "text-white" : "text-[#b1bad3]"}`} />
+                  <span className="text-[10px] font-black tracking-wide uppercase truncate">{tier.name}</span>
                 </div>
-                <span className="text-[11px] font-mono font-bold text-[#00e701]">
+                <span className="text-[10px] font-mono font-bold text-[#00e701]">
                   {activeSym}{tier.basePrice.toFixed(2)}
                 </span>
               </button>
@@ -371,18 +372,17 @@ export default function CasesGame() {
         </div>
 
         {/* Center Horizontal Rolling Reel Viewport */}
-        <div className="relative w-full max-w-2xl h-44 sm:h-52 my-2 bg-[#0c161d] border-2 border-[#213743] rounded-2xl overflow-hidden shadow-inner flex items-center">
-          
+        <div className="relative w-full h-36 sm:h-40 my-1 bg-[#0c161d] border-2 border-[#213743] rounded-xl overflow-hidden shadow-inner flex items-center">
           {/* Top & Bottom Center Needle Marker */}
           <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 z-30 flex flex-col justify-between items-center pointer-events-none">
-            <div className="w-0 h-0 border-x-8 border-x-transparent border-t-[14px] border-t-[#00e701] drop-shadow-[0_0_8px_#00e701]" />
+            <div className="w-0 h-0 border-x-7 border-x-transparent border-t-[12px] border-t-[#00e701] drop-shadow-[0_0_8px_#00e701]" />
             <div className="w-0.5 h-full bg-[#00e701]/80 shadow-[0_0_8px_#00e701]" />
-            <div className="w-0 h-0 border-x-8 border-x-transparent border-b-[14px] border-b-[#00e701] drop-shadow-[0_0_8px_#00e701]" />
+            <div className="w-0 h-0 border-x-7 border-x-transparent border-b-[12px] border-b-[#00e701] drop-shadow-[0_0_8px_#00e701]" />
           </div>
 
           {/* Left and Right Shading Overlays */}
-          <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-[#0c161d] to-transparent z-20 pointer-events-none" />
-          <div className="absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-[#0c161d] to-transparent z-20 pointer-events-none" />
+          <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-[#0c161d] to-transparent z-20 pointer-events-none" />
+          <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[#0c161d] to-transparent z-20 pointer-events-none" />
 
           {/* Sliding Cards Strip */}
           <div
@@ -397,7 +397,7 @@ export default function CasesGame() {
             {reelItems.map((item, idx) => (
               <div
                 key={idx}
-                className={`w-[122px] h-36 sm:h-44 shrink-0 rounded-xl bg-gradient-to-b from-[#1a2c38] to-[#0f212e] border-2 flex flex-col items-center justify-between p-2 shadow-lg ${
+                className={`w-[110px] h-32 shrink-0 rounded-xl bg-gradient-to-b from-[#1a2c38] to-[#0f212e] border-2 flex flex-col items-center justify-between p-2 shadow-lg ${
                   item.rarity === "legendary"
                     ? "border-yellow-400"
                     : item.rarity === "epic"
@@ -408,7 +408,7 @@ export default function CasesGame() {
                 }`}
               >
                 <div className="w-full flex justify-between items-center text-[9px] font-black uppercase text-[#b1bad3]">
-                  <span className={`px-1.5 py-0.5 rounded ${getRarityBadge(item.rarity)}`}>
+                  <span className={`px-1 py-0.2 rounded ${getRarityBadge(item.rarity)}`}>
                     {item.rarity}
                   </span>
                   <span className="text-[#00e701] font-mono">{item.multiplier.toFixed(2)}×</span>
@@ -416,17 +416,17 @@ export default function CasesGame() {
 
                 <div className="my-auto flex items-center justify-center">
                   {item.rarity === "legendary" ? (
-                    <Crown className="h-10 w-10 text-yellow-400 animate-pulse" />
+                    <Crown className="h-8 w-8 text-yellow-400 animate-pulse" />
                   ) : item.rarity === "epic" ? (
-                    <Sparkles className="h-10 w-10 text-purple-400" />
+                    <Sparkles className="h-8 w-8 text-purple-400" />
                   ) : item.rarity === "rare" ? (
-                    <Gem className="h-10 w-10 text-blue-400" />
+                    <Gem className="h-8 w-8 text-blue-400" />
                   ) : (
-                    <Award className="h-10 w-10 text-slate-400" />
+                    <Award className="h-8 w-8 text-slate-400" />
                   )}
                 </div>
 
-                <div className="w-full text-center text-[10px] font-bold text-white truncate">
+                <div className="w-full text-center text-[9px] font-bold text-white truncate">
                   {item.name}
                 </div>
               </div>
@@ -436,35 +436,35 @@ export default function CasesGame() {
 
         {/* Revealed Outcome Badge */}
         {winningItem && (
-          <div className="mt-3 px-6 py-2 rounded-xl bg-[#00e701]/10 border border-[#00e701]/40 flex items-center gap-2 animate-in zoom-in-95">
-            <Sparkles className="h-4 w-4 text-[#00e701]" />
-            <span className="text-xs sm:text-sm font-bold text-[#00e701]">
+          <div className="w-full px-4 py-1.5 rounded-xl bg-[#00e701]/10 border border-[#00e701]/40 flex items-center justify-center gap-2 animate-in zoom-in-95">
+            <Sparkles className="h-3.5 w-3.5 text-[#00e701]" />
+            <span className="text-xs font-bold text-[#00e701]">
               Unboxed: {winningItem.name} ({winningItem.multiplier.toFixed(2)}×)! Won {activeSym}{lastPayout?.toFixed(2)}
             </span>
           </div>
         )}
 
         {/* Case Loot Drop Odds Table */}
-        <div className="w-full mt-4 bg-[#0f212e]/70 border border-[#213743] rounded-xl p-3">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-[#b1bad3] uppercase tracking-wider flex items-center gap-1.5">
-              <Sparkles className="h-3.5 w-3.5 text-[#00e701]" />
-              <span>Potential Items & Odds ({activeTier.name})</span>
+        <div className="w-full bg-[#1a2c38] border border-[#213743] rounded-xl p-2.5">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[10px] font-bold text-[#b1bad3] uppercase tracking-wider flex items-center gap-1.5">
+              <Sparkles className="h-3 w-3 text-[#00e701]" />
+              <span>Items & Odds ({activeTier.name})</span>
             </span>
-            <span className="text-[11px] text-[#00e701] font-mono font-bold">99.0% RTP</span>
+            <span className="text-[10px] text-[#00e701] font-mono font-bold">99.0% RTP</span>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-1">
             {activeTier.items.map((item) => (
               <div
                 key={item.id}
-                className="p-2 rounded-lg border bg-[#1a2c38]/60 border-[#213743] text-center"
+                className="p-1 rounded-lg border bg-[#0f212e] border-[#213743] text-center"
               >
-                <div className="text-[10px] font-bold text-white truncate">{item.name}</div>
-                <div className="text-xs font-black font-mono text-[#00e701] my-0.5">
+                <div className="text-[9px] font-bold text-white truncate">{item.name}</div>
+                <div className="text-[10px] font-black font-mono text-[#00e701] my-0.2">
                   {item.multiplier}×
                 </div>
-                <div className="flex justify-between items-center text-[9px] text-[#b1bad3]">
+                <div className="flex justify-between items-center text-[8px] text-[#b1bad3]">
                   <span className="capitalize">{item.rarity}</span>
                   <span className="font-mono">{item.probability}%</span>
                 </div>
@@ -475,132 +475,120 @@ export default function CasesGame() {
       </div>
 
       {/* =========================================================================
-          CONTROLS: DIRECTLY BENEATH ARENA (Vertical Flow)
+          2. MINES HARMONIZED BETTING CONTROLS SHELL CONTAINER
       ========================================================================== */}
-      <div className="w-full max-w-4xl bg-[#1a2c38] rounded-2xl p-5 border border-[#213743] shadow-xl space-y-4">
-        
-        {/* Row 1: Bet Amount & Fast Open Toggle */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-          
-          {/* Bet Amount Input with Quick Modifiers */}
-          <div className="md:col-span-2 space-y-1.5">
-            <div className="flex justify-between items-center text-xs text-[#b1bad3] font-semibold">
-              <label>Case Cost / Bet Amount</label>
-              <span>{activeSym}{balance.toFixed(2)}</span>
-            </div>
-            <div className="relative flex items-center">
-              <div className="absolute left-3 text-sm font-bold text-[#b1bad3]">
-                {activeSym}
-              </div>
-              <input
-                type="number"
-                disabled={isUnboxing}
-                value={betInput}
-                onChange={(e) => {
-                  setBetInput(e.target.value);
-                  const parsed = parseFloat(e.target.value);
-                  if (!isNaN(parsed) && parsed > 0) setBetAmount(parsed);
-                }}
-                className="w-full bg-[#0f212e] border border-[#213743] rounded-xl pl-8 pr-32 py-2.5 text-sm font-bold font-mono text-white focus:outline-none focus:border-[#00e701] disabled:opacity-50"
-                step="any"
-                min="0.01"
-              />
-              <div className="absolute right-1.5 flex items-center gap-1">
-                <button
-                  type="button"
-                  disabled={isUnboxing}
-                  onClick={handleHalfBet}
-                  className="px-2 py-1 text-xs font-bold rounded-lg bg-[#213743] text-[#b1bad3] hover:text-white hover:bg-[#2f4553] transition-colors disabled:opacity-50"
-                >
-                  ½
-                </button>
-                <button
-                  type="button"
-                  disabled={isUnboxing}
-                  onClick={handleDoubleBet}
-                  className="px-2 py-1 text-xs font-bold rounded-lg bg-[#213743] text-[#b1bad3] hover:text-white hover:bg-[#2f4553] transition-colors disabled:opacity-50"
-                >
-                  2×
-                </button>
-                <button
-                  type="button"
-                  disabled={isUnboxing}
-                  onClick={handleMaxBet}
-                  className="px-2 py-1 text-xs font-bold rounded-lg bg-[#213743] text-[#b1bad3] hover:text-white hover:bg-[#2f4553] transition-colors disabled:opacity-50"
-                >
-                  Max
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Fast Open / Turbo Toggle */}
-          <div className="flex items-center justify-end md:justify-center pt-2 md:pt-4">
-            <button
-              type="button"
-              disabled={isUnboxing}
-              onClick={() => setIsFastOpen(!isFastOpen)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${
-                isFastOpen
-                  ? "bg-[#00e701]/10 border-[#00e701] text-[#00e701]"
-                  : "bg-[#0f212e] border-[#213743] text-[#b1bad3] hover:text-white"
-              }`}
-            >
-              <Zap className={`h-4 w-4 ${isFastOpen ? "fill-[#00e701]" : ""}`} />
-              <span>Fast Open</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Row 2: Stake Green `#00e701` CTA Button */}
-        <div>
+      <div className="w-full border-t border-[#213743] bg-[#1a2c38] p-3 sm:p-4 flex flex-col justify-start space-y-2 sm:space-y-2.5 rounded-b-2xl select-none">
+        {/* 1. PRIMARY BET CTA BUTTON (Directly at top of controls) */}
+        <div className="w-full">
           <button
+            type="button"
             onClick={handleOpenCase}
-            disabled={isUnboxing}
-            className={`w-full py-4 rounded-xl font-black text-sm tracking-wide uppercase transition-all duration-200 transform active:scale-[0.99] ${
-              !isUnboxing
-                ? "bg-[#00e701] hover:bg-[#00c701] text-black shadow-[0_0_20px_rgba(0,231,1,0.4)] cursor-pointer"
-                : "bg-[#213743] text-[#b1bad3] cursor-not-allowed"
-            }`}
+            disabled={isUnboxing || betAmount > balance || betAmount <= 0}
+            className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
           >
-            {isUnboxing ? "Unboxing Case..." : `Open Case (${activeSym}${betAmount.toFixed(2)})`}
+            <span>{isUnboxing ? "UNBOXING..." : "OPEN CASE"}</span>
           </button>
         </div>
 
-        {/* Footer Utility Icons: Sound, Stats, Fairness, Fullscreen */}
-        <div className="flex items-center justify-between pt-2 border-t border-[#213743] text-[#b1bad3]">
+        {/* 2. BET AMOUNT INPUT (Exact Mines Structure) */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-bold text-[#b1bad3]">Case Cost</span>
+            <span className="font-mono text-[11px] text-[#b1bad3]">
+              Bal: {activeSym}{balance.toFixed(2)}
+            </span>
+          </div>
+
+          <div className="flex rounded-lg bg-[#0f212e] border border-[#213743] focus-within:border-[#2f4553] p-1">
+            <div className="flex flex-1 items-center px-2.5">
+              <span className="text-xs font-bold text-[#b1bad3] mr-1.5">{activeSym}</span>
+              <input
+                type="text"
+                inputMode="decimal"
+                disabled={isUnboxing}
+                value={betInput}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                    setBetInput(val);
+                    if (val !== "" && !isNaN(parseFloat(val))) {
+                      setBetAmount(parseFloat(val));
+                    }
+                  }
+                }}
+                onBlur={() => {
+                  if (betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0) {
+                    setBetInput("1.00");
+                    setBetAmount(1);
+                  } else {
+                    const num = parseFloat(betInput);
+                    setBetAmount(num);
+                    setBetInput(num.toFixed(2));
+                  }
+                }}
+                className="w-full bg-transparent text-sm font-bold text-white outline-none font-mono"
+              />
+            </div>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                disabled={isUnboxing}
+                onClick={handleHalfBet}
+                className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
+              >
+                ½
+              </button>
+              <button
+                type="button"
+                disabled={isUnboxing}
+                onClick={handleDoubleBet}
+                className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
+              >
+                2×
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* 3. FAST OPEN TOGGLE */}
+        <div className="flex items-center justify-between rounded-lg bg-[#0f212e] p-2 border border-[#213743]">
+          <div className="flex items-center gap-2 text-xs font-bold text-[#b1bad3]">
+            <Zap className={`h-4 w-4 ${isFastOpen ? "fill-[#00e701] text-[#00e701]" : ""}`} />
+            <span>Fast Open Mode</span>
+          </div>
+          <button
+            type="button"
+            disabled={isUnboxing}
+            onClick={() => setIsFastOpen(!isFastOpen)}
+            className={`px-3 py-1 rounded-md text-xs font-bold transition-all cursor-pointer ${
+              isFastOpen
+                ? "bg-[#00e701] text-black"
+                : "bg-[#213743] text-[#b1bad3] hover:text-white"
+            }`}
+          >
+            {isFastOpen ? "ON" : "OFF"}
+          </button>
+        </div>
+
+        {/* 4. BOTTOM UTILITY BAR */}
+        <div className="flex items-center justify-between rounded-lg bg-[#0f212e] border border-[#213743] px-3 py-2 text-xs text-[#b1bad3] mt-0.5">
           <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={() => setSoundEnabled(!soundEnabled)}
-              className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors"
-              title={soundEnabled ? "Mute" : "Unmute"}
+              className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
             >
-              {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-            </button>
-
-            <button
-              onClick={() => setShowLiveStats(true)}
-              className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors flex items-center gap-1.5 text-xs font-semibold"
-            >
-              <TrendingUp className="h-4 w-4" />
-              <span className="hidden sm:inline">Live Stats</span>
-            </button>
-
-            <button
-              onClick={() => setShowFairnessModal(true)}
-              className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors flex items-center gap-1.5 text-xs font-semibold"
-            >
-              <ShieldCheck className="h-4 w-4 text-[#00e701]" />
-              <span className="hidden sm:inline">Provably Fair</span>
+              {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-red-400" />}
             </button>
           </div>
 
           <button
-            onClick={toggleFullscreen}
-            className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors"
-            title="Toggle Fullscreen"
+            type="button"
+            onClick={() => setShowFairnessModal(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors cursor-pointer"
           >
-            {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+            <ShieldCheck className="w-4 h-4 text-[#00e701]" />
+            <span>Fairness</span>
           </button>
         </div>
       </div>

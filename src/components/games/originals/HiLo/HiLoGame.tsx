@@ -454,524 +454,483 @@ export default function HiLoGame() {
   return (
     <div
       ref={gameContainerRef}
-      className={`w-full max-w-6xl mx-auto px-2 sm:px-4 py-4 select-none flex flex-col space-y-4 ${
-        isFullscreen ? "p-6 bg-[#0f212e] min-h-screen" : ""
+      className={`w-full max-w-lg mx-auto px-2 sm:px-3 py-2 select-none flex flex-col space-y-2 ${
+        isFullscreen ? "p-6 bg-[#0f212e] min-h-screen max-w-none" : ""
       }`}
     >
-      {/* Main Game Shell: Left Sidebar (Desktop) / Bottom Controls (Mobile) + Right Center Arena */}
-      <div className="rounded-2xl border border-[#213743] bg-[#1a2c38] overflow-hidden shadow-2xl flex flex-col">
-        {/* ========================================================= */}
-        {/* RIGHT / CENTER ARENA: CARD DISPLAY & ACTION CHOICES        */}
-        {/* ========================================================= */}
-        <div className="flex-1 bg-[#0f212e] flex flex-col justify-between p-4 sm:p-6 lg:p-8 min-h-[460px] sm:min-h-[520px]">
-          {/* Top Card Streak / Round History Bar */}
-          <div className="w-full flex items-center justify-between pb-4">
-            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-              {cardHistory.map((item, idx) => (
-                <div
-                  key={idx}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-mono font-bold shrink-0 ${
-                    idx === 0
-                      ? "bg-[#213743] border-[#2f4553] text-white"
-                      : item.wasCorrect
-                      ? "bg-[#00e701]/15 border-[#00e701]/30 text-[#00e701]"
-                      : "bg-[#e9113c]/15 border-[#e9113c]/30 text-[#e9113c]"
+      {/* ========================================================= */}
+      {/* 1. ARENA: CARD DISPLAY & ACTION CHOICES                   */}
+      {/* ========================================================= */}
+      <div className="w-full rounded-t-2xl bg-[#0f212e] border-t border-x border-[#213743] shadow-2xl flex flex-col justify-between p-3 sm:p-4 min-h-[360px] relative overflow-hidden">
+        {/* Top Card Streak / Round History Bar */}
+        <div className="w-full flex items-center justify-between pb-2 z-10">
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 max-w-full">
+            {cardHistory.map((item, idx) => (
+              <div
+                key={idx}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[11px] font-mono font-bold shrink-0 ${
+                  idx === 0
+                    ? "bg-[#213743] border-[#2f4553] text-white"
+                    : item.wasCorrect
+                    ? "bg-[#00e701]/15 border-[#00e701]/30 text-[#00e701]"
+                    : "bg-[#e9113c]/15 border-[#e9113c]/30 text-[#e9113c]"
+                }`}
+              >
+                <span className={item.card.isRed ? "text-red-400" : "text-white"}>
+                  {item.card.rankLabel}
+                  {item.card.suitSymbol}
+                </span>
+                {item.guess && (
+                  <span className="text-[10px]">
+                    {item.guess === "higher" ? "↑" : item.guess === "lower" ? "↓" : "↷"}
+                  </span>
+                )}
+                {item.wasCorrect && <Check className="h-3 w-3 text-[#00e701]" />}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* CENTER ARENA: INTERACTIVE CARD & CHOICE BUTTONS */}
+        <div className="flex-1 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 py-2 z-10">
+          {/* Current Card Graphic */}
+          <div className="relative group perspective">
+            <div
+              className={`w-32 h-44 sm:w-36 sm:h-52 rounded-xl border-2 border-slate-200/20 bg-gradient-to-b from-white via-[#fcfcfc] to-[#e8ebee] shadow-2xl p-3 flex flex-col justify-between transition-transform duration-300 ${
+                isAnimating ? "scale-95 rotate-1" : "scale-100"
+              } ${
+                lastGuessResult === "win"
+                  ? "ring-4 ring-[#00e701]/50 shadow-[0_0_30px_rgba(0,231,1,0.4)]"
+                  : lastGuessResult === "loss"
+                  ? "ring-4 ring-[#e9113c]/50 shadow-[0_0_30px_rgba(233,17,60,0.4)]"
+                  : ""
+              }`}
+            >
+              {/* Top Left Rank & Suit */}
+              <div className="flex flex-col items-center self-start">
+                <span
+                  className={`text-xl font-black font-mono leading-none ${
+                    currentCard.isRed ? "text-[#e9113c]" : "text-[#0f212e]"
                   }`}
                 >
-                  <span className={item.card.isRed ? "text-red-400" : "text-white"}>
-                    {item.card.rankLabel}
-                    {item.card.suitSymbol}
-                  </span>
-                  {item.guess && (
-                    <span className="text-[10px]">
-                      {item.guess === "higher" ? "↑" : item.guess === "lower" ? "↓" : "↷"}
-                    </span>
-                  )}
-                  {item.wasCorrect && <Check className="h-3 w-3 text-[#00e701]" />}
-                </div>
-              ))}
+                  {currentCard.rankLabel}
+                </span>
+                <span
+                  className={`text-lg leading-none mt-0.5 ${
+                    currentCard.isRed ? "text-[#e9113c]" : "text-[#0f212e]"
+                  }`}
+                >
+                  {currentCard.suitSymbol}
+                </span>
+              </div>
+
+              {/* Big Center Graphic */}
+              <div className="flex flex-col items-center justify-center">
+                <span
+                  className={`text-4xl sm:text-5xl select-none filter drop-shadow-sm ${
+                    currentCard.isRed ? "text-[#e9113c]" : "text-[#0f212e]"
+                  }`}
+                >
+                  {currentCard.suitSymbol}
+                </span>
+              </div>
+
+              {/* Bottom Right Rank & Suit (Inverted) */}
+              <div className="flex flex-col items-center self-end rotate-180">
+                <span
+                  className={`text-xl font-black font-mono leading-none ${
+                    currentCard.isRed ? "text-[#e9113c]" : "text-[#0f212e]"
+                  }`}
+                >
+                  {currentCard.rankLabel}
+                </span>
+                <span
+                  className={`text-lg leading-none mt-0.5 ${
+                    currentCard.isRed ? "text-[#e9113c]" : "text-[#0f212e]"
+                  }`}
+                >
+                  {currentCard.suitSymbol}
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* CENTER ARENA: INTERACTIVE CARD & CHOICE BUTTONS */}
-          <div className="flex-1 flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 py-4">
-            {/* The Main Current Card Graphic */}
-            <div className="relative group perspective">
-              <div
-                className={`w-40 h-56 sm:w-48 sm:h-68 rounded-2xl border-4 border-slate-200/20 bg-gradient-to-b from-white via-[#fcfcfc] to-[#e8ebee] shadow-2xl p-4 flex flex-col justify-between transition-transform duration-300 ${
-                  isAnimating ? "scale-95 rotate-1" : "scale-100"
-                } ${
-                  lastGuessResult === "win"
-                    ? "ring-4 ring-[#00e701]/50 shadow-[0_0_40px_rgba(0,231,1,0.4)]"
-                    : lastGuessResult === "loss"
-                    ? "ring-4 ring-[#e9113c]/50 shadow-[0_0_40px_rgba(233,17,60,0.4)]"
-                    : ""
-                }`}
-              >
-                {/* Top Left Rank & Suit */}
-                <div className="flex flex-col items-center self-start">
-                  <span
-                    className={`text-2xl sm:text-3xl font-black font-mono leading-none ${
-                      currentCard.isRed ? "text-[#e9113c]" : "text-[#0f212e]"
-                    }`}
-                  >
-                    {currentCard.rankLabel}
-                  </span>
-                  <span
-                    className={`text-xl sm:text-2xl leading-none mt-0.5 ${
-                      currentCard.isRed ? "text-[#e9113c]" : "text-[#0f212e]"
-                    }`}
-                  >
-                    {currentCard.suitSymbol}
-                  </span>
-                </div>
-
-                {/* Big Center Graphic */}
-                <div className="flex flex-col items-center justify-center">
-                  <span
-                    className={`text-5xl sm:text-7xl select-none filter drop-shadow-sm ${
-                      currentCard.isRed ? "text-[#e9113c]" : "text-[#0f212e]"
-                    }`}
-                  >
-                    {currentCard.suitSymbol}
-                  </span>
-                </div>
-
-                {/* Bottom Right Rank & Suit (Inverted) */}
-                <div className="flex flex-col items-center self-end rotate-180">
-                  <span
-                    className={`text-2xl sm:text-3xl font-black font-mono leading-none ${
-                      currentCard.isRed ? "text-[#e9113c]" : "text-[#0f212e]"
-                    }`}
-                  >
-                    {currentCard.rankLabel}
-                  </span>
-                  <span
-                    className={`text-xl sm:text-2xl leading-none mt-0.5 ${
-                      currentCard.isRed ? "text-[#e9113c]" : "text-[#0f212e]"
-                    }`}
-                  >
-                    {currentCard.suitSymbol}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* CHOICE ACTION BUTTONS (Higher or Same / Lower or Same / Skip) */}
-            <div className="flex flex-col gap-3 w-full max-w-[280px]">
-              {/* Higher or Same Button */}
-              <button
-                type="button"
-                disabled={!isRoundActive || isAnimating}
-                onClick={() => handleGuess("higher")}
-                className="w-full p-4 rounded-2xl border border-[#213743] bg-[#1a2c38] hover:bg-[#213743] hover:border-[#00e701]/40 text-left transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed group cursor-pointer shadow-lg"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded-xl bg-[#00e701]/15 text-[#00e701] group-hover:scale-110 transition-transform">
-                      <ArrowUp className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-extrabold text-white flex items-center gap-1.5">
-                        <span>Higher or Same</span>
-                      </div>
-                      <div className="text-xs font-bold text-[#b1bad3]">
-                        Win Chance: <span className="text-[#00e701]">{higherChance}%</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-base font-black text-[#00e701] font-mono">
-                      {higherStepMult.toFixed(2)}×
-                    </div>
-                  </div>
-                </div>
-              </button>
-
-              {/* Lower or Same Button */}
-              <button
-                type="button"
-                disabled={!isRoundActive || isAnimating}
-                onClick={() => handleGuess("lower")}
-                className="w-full p-4 rounded-2xl border border-[#213743] bg-[#1a2c38] hover:bg-[#213743] hover:border-[#00e701]/40 text-left transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed group cursor-pointer shadow-lg"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded-xl bg-[#1475e1]/15 text-[#1475e1] group-hover:scale-110 transition-transform">
-                      <ArrowDown className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-extrabold text-white flex items-center gap-1.5">
-                        <span>Lower or Same</span>
-                      </div>
-                      <div className="text-xs font-bold text-[#b1bad3]">
-                        Win Chance: <span className="text-[#00e701]">{lowerChance}%</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-base font-black text-[#00e701] font-mono">
-                      {lowerStepMult.toFixed(2)}×
-                    </div>
-                  </div>
-                </div>
-              </button>
-
-              {/* Skip Card Button */}
-              <button
-                type="button"
-                disabled={!isRoundActive || isAnimating || skipsRemaining <= 0}
-                onClick={handleSkip}
-                className="w-full py-3 px-4 rounded-xl border border-[#213743] bg-[#0f212e] hover:bg-[#1a2c38] text-xs font-bold text-[#b1bad3] hover:text-white transition-all flex items-center justify-between disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-              >
+          {/* CHOICE ACTION BUTTONS (Higher or Same / Lower or Same / Skip) */}
+          <div className="flex flex-col gap-2 w-full max-w-[220px]">
+            {/* Higher or Same Button */}
+            <button
+              type="button"
+              disabled={!isRoundActive || isAnimating}
+              onClick={() => handleGuess("higher")}
+              className="w-full p-2.5 rounded-xl border border-[#213743] bg-[#1a2c38] hover:bg-[#213743] hover:border-[#00e701]/40 text-left transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed group cursor-pointer shadow-md"
+            >
+              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <RotateCw className="h-4 w-4" />
-                  <span>Skip Card</span>
+                  <div className="p-1.5 rounded-lg bg-[#00e701]/15 text-[#00e701] group-hover:scale-110 transition-transform">
+                    <ArrowUp className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-extrabold text-white">Higher / Same</div>
+                    <div className="text-[10px] text-[#b1bad3]">
+                      Chance: <span className="text-[#00e701]">{higherChance}%</span>
+                    </div>
+                  </div>
                 </div>
-                <span className="font-mono text-white">{skipsRemaining} left</span>
-              </button>
-            </div>
-          </div>
+                <div className="text-right">
+                  <div className="text-sm font-black text-[#00e701] font-mono">
+                    {higherStepMult.toFixed(2)}×
+                  </div>
+                </div>
+              </div>
+            </button>
 
-          {/* BOTTOM UTILITY TOOLBAR */}
-          <div className="w-full flex items-center justify-between pt-4 border-t border-[#213743] text-[#b1bad3]">
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  const next = !soundEnabled;
-                  setSoundEnabled(next);
-                  sounds.enabled = next;
-                  if (next) sounds.playClick();
-                }}
-                className="p-2 rounded-lg bg-[#1a2c38] border border-[#213743] hover:text-white transition-colors cursor-pointer"
-                title={soundEnabled ? "Mute Sound" : "Enable Sound"}
-              >
-                {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4 text-red-400" />}
-              </button>
+            {/* Lower or Same Button */}
+            <button
+              type="button"
+              disabled={!isRoundActive || isAnimating}
+              onClick={() => handleGuess("lower")}
+              className="w-full p-2.5 rounded-xl border border-[#213743] bg-[#1a2c38] hover:bg-[#213743] hover:border-[#00e701]/40 text-left transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed group cursor-pointer shadow-md"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 rounded-lg bg-[#1475e1]/15 text-[#1475e1] group-hover:scale-110 transition-transform">
+                    <ArrowDown className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-extrabold text-white">Lower / Same</div>
+                    <div className="text-[10px] text-[#b1bad3]">
+                      Chance: <span className="text-[#00e701]">{lowerChance}%</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm font-black text-[#00e701] font-mono">
+                    {lowerStepMult.toFixed(2)}×
+                  </div>
+                </div>
+              </div>
+            </button>
 
-              <button
-                type="button"
-                onClick={() => setShowHelpModal(true)}
-                className="p-2 rounded-lg bg-[#1a2c38] border border-[#213743] hover:text-white transition-colors cursor-pointer"
-                title="Game Rules"
-              >
-                <Info className="h-4 w-4" />
-              </button>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setShowLiveStats(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#1a2c38] border border-[#213743] hover:text-white transition-colors cursor-pointer"
-              >
-                <TrendingUp className="h-3.5 w-3.5 text-[#00e701]" />
-                <span className="hidden sm:inline">Live Stats</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={toggleFullscreen}
-                className="p-2 rounded-lg bg-[#1a2c38] border border-[#213743] hover:text-white transition-colors cursor-pointer"
-                title="Toggle Fullscreen"
-              >
-                {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-              </button>
-            </div>
+            {/* Skip Card Button */}
+            <button
+              type="button"
+              disabled={!isRoundActive || isAnimating || skipsRemaining <= 0}
+              onClick={handleSkip}
+              className="w-full py-2 px-3 rounded-lg border border-[#213743] bg-[#0f212e] hover:bg-[#1a2c38] text-[11px] font-bold text-[#b1bad3] hover:text-white transition-all flex items-center justify-between disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+            >
+              <div className="flex items-center gap-1.5">
+                <RotateCw className="h-3.5 w-3.5" />
+                <span>Skip Card</span>
+              </div>
+              <span className="font-mono text-white">{skipsRemaining} left</span>
+            </button>
           </div>
         </div>
-      {/* LEFT / BOTTOM CONTROLS PANEL                              */}
-        {/* ========================================================= */}
-        <div className="w-full border-t border-[#213743] bg-[#1a2c38] p-4 sm:p-5 flex flex-col justify-between space-y-5">
-          <div className="space-y-4">
-            {/* Mode Switcher Tabs */}
-            <div className="grid grid-cols-2 p-1 bg-[#0f212e] rounded-xl border border-[#213743]">
+
+        {/* BOTTOM ARENA INFO */}
+        <div className="w-full flex items-center justify-between pt-2 border-t border-[#213743] text-[10px] text-[#b1bad3] font-mono z-10">
+          <span>99.00% RTP</span>
+          <span>1.00% House Edge</span>
+        </div>
+      </div>
+
+      {/* ========================================================= */}
+      {/* 2. MINES HARMONIZED BETTING CONTROLS SHELL CONTAINER      */}
+      {/* ========================================================= */}
+      <div className="w-full border-t border-[#213743] bg-[#1a2c38] p-3 sm:p-4 flex flex-col justify-start space-y-2 sm:space-y-2.5 rounded-b-2xl select-none">
+        {/* 1. PRIMARY BET / CASHOUT CTA BUTTON (Directly at top of controls) */}
+        <div className="w-full">
+          {!isRoundActive ? (
+            mode === "manual" ? (
               <button
                 type="button"
-                disabled={isRoundActive || isAutoRunning}
-                onClick={() => {
-                  sounds.playClick();
-                  setMode("manual");
-                }}
-                className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                  mode === "manual"
-                    ? "bg-[#213743] text-white shadow-sm"
-                    : "text-[#b1bad3] hover:text-white"
-                }`}
+                onClick={startRound}
+                disabled={betAmount > balance || betAmount <= 0}
+                className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
               >
-                Manual
+                <span>BET</span>
               </button>
+            ) : isAutoRunning ? (
               <button
                 type="button"
-                disabled={isRoundActive || isAutoRunning}
-                onClick={() => {
-                  sounds.playClick();
-                  setMode("auto");
-                }}
-                className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                  mode === "auto"
-                    ? "bg-[#213743] text-white shadow-sm"
-                    : "text-[#b1bad3] hover:text-white"
-                }`}
+                onClick={() => setIsAutoRunning(false)}
+                className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/25 active:scale-[0.98] transition-all flex items-center justify-center cursor-pointer uppercase tracking-wider"
               >
-                Auto
+                <span>STOP AUTOBET ({autoBetsCount})</span>
               </button>
-            </div>
-
-            {/* Bet Amount Input with currency icon, 1/2, 2x, Max */}
-            <div className="space-y-1.5">
-              <div className="flex justify-between text-xs font-bold text-[#b1bad3]">
-                <span>Bet Amount</span>
-                <span className="text-[#00e701] font-mono">
-                  {activeSym}
-                  {formatBalance(balance)}
-                </span>
-              </div>
-              <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] p-1 focus-within:border-[#00e701] transition-colors">
-                <span className="px-2.5 text-sm font-bold text-[#00e701]">{activeSym}</span>
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  disabled={isRoundActive || isAutoRunning}
-                  value={betInput}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
-                      setBetInput(val);
-                      if (val !== "" && !isNaN(parseFloat(val))) {
-                        setBetAmount(parseFloat(val));
-                      }
-                    }
-                  }}
-                  onBlur={() => {
-                    if (betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0) {
-                      setBetInput("1");
-                      setBetAmount(1);
-                    } else {
-                      const num = parseFloat(betInput);
-                      setBetInput(num.toString());
-                      setBetAmount(num);
-                    }
-                  }}
-                  className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono"
-                />
-                <button
-                  type="button"
-                  disabled={isRoundActive || isAutoRunning}
-                  onClick={handleHalfBet}
-                  className="rounded-lg px-2.5 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer"
-                >
-                  ½
-                </button>
-                <button
-                  type="button"
-                  disabled={isRoundActive || isAutoRunning}
-                  onClick={handleDoubleBet}
-                  className="rounded-lg px-2.5 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer"
-                >
-                  2×
-                </button>
-                <button
-                  type="button"
-                  disabled={isRoundActive || isAutoRunning}
-                  onClick={handleMaxBet}
-                  className="rounded-lg px-2.5 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer"
-                >
-                  Max
-                </button>
-              </div>
-            </div>
-
-            {/* Current Round Profit Ladder (When Round is Active) */}
-            {isRoundActive && (
-              <div className="space-y-2 p-3 bg-[#0f212e] rounded-xl border border-[#213743]">
-                <div className="flex justify-between items-center text-xs font-bold text-[#b1bad3]">
-                  <span>Total Multiplier</span>
-                  <span className="text-[#00e701] font-mono text-sm font-extrabold">
-                    {currentMultiplier.toFixed(2)}×
-                  </span>
-                </div>
-                <div className="flex justify-between items-center text-xs font-bold text-[#b1bad3]">
-                  <span>Accumulated Profit</span>
-                  <span
-                    className={`font-mono text-sm font-extrabold ${
-                      currentProfit > 0 ? "text-[#00e701]" : "text-white"
-                    }`}
-                  >
-                    {currentProfit > 0 ? "+" : ""}
-                    {activeSym}
-                    {currentProfit.toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center text-xs font-bold text-[#b1bad3]">
-                  <span>Skips Remaining</span>
-                  <span className="text-white font-mono">{skipsRemaining} / 3</span>
-                </div>
-              </div>
-            )}
-
-            {/* AUTO BETTING SETTINGS */}
-            {mode === "auto" && (
-              <div className="space-y-3 pt-2 border-t border-[#213743]">
-                {/* Auto Strategy */}
-                <div className="space-y-1">
-                  <label className="text-[11px] font-bold text-[#b1bad3]">Prediction Strategy</label>
-                  <div className="grid grid-cols-3 gap-1.5 p-1 bg-[#0f212e] rounded-xl border border-[#213743]">
-                    <button
-                      type="button"
-                      disabled={isAutoRunning}
-                      onClick={() => setAutoStrategy("smart")}
-                      className={`py-1.5 text-[11px] font-bold rounded-lg ${
-                        autoStrategy === "smart"
-                          ? "bg-[#213743] text-white"
-                          : "text-[#b1bad3] hover:text-white"
-                      }`}
-                    >
-                      Smart
-                    </button>
-                    <button
-                      type="button"
-                      disabled={isAutoRunning}
-                      onClick={() => setAutoStrategy("higher")}
-                      className={`py-1.5 text-[11px] font-bold rounded-lg ${
-                        autoStrategy === "higher"
-                          ? "bg-[#213743] text-white"
-                          : "text-[#b1bad3] hover:text-white"
-                      }`}
-                    >
-                      Higher
-                    </button>
-                    <button
-                      type="button"
-                      disabled={isAutoRunning}
-                      onClick={() => setAutoStrategy("lower")}
-                      className={`py-1.5 text-[11px] font-bold rounded-lg ${
-                        autoStrategy === "lower"
-                          ? "bg-[#213743] text-white"
-                          : "text-[#b1bad3] hover:text-white"
-                      }`}
-                    >
-                      Lower
-                    </button>
-                  </div>
-                </div>
-
-                {/* Auto Cashout Cards Target */}
-                <div className="space-y-1">
-                  <div className="flex justify-between text-[11px] font-bold text-[#b1bad3]">
-                    <span>Cards Before Cashout</span>
-                    <span className="text-[#00e701] font-mono">{autoTargetCards} cards</span>
-                  </div>
-                  <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] p-1.5">
-                    <input
-                      type="number"
-                      min={1}
-                      max={12}
-                      disabled={isAutoRunning}
-                      value={autoTargetCards}
-                      onChange={(e) =>
-                        setAutoTargetCards(Math.max(1, Math.min(12, parseInt(e.target.value) || 1)))
-                      }
-                      className="w-full bg-transparent px-1 text-xs font-bold text-white focus:outline-none font-mono"
-                    />
-                  </div>
-                </div>
-
-                {/* Number of Bets */}
-                <div className="space-y-1">
-                  <label className="text-[11px] font-bold text-[#b1bad3]">Number of Bets</label>
-                  <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] p-1">
-                    <input
-                      type="number"
-                      disabled={isAutoRunning}
-                      value={autoBetsLimit === 0 ? "" : autoBetsLimit}
-                      placeholder="∞ (Infinite)"
-                      onChange={(e) => {
-                        const val = parseInt(e.target.value);
-                        setAutoBetsLimit(isNaN(val) || val < 0 ? 0 : val);
-                      }}
-                      className="w-full bg-transparent px-2 text-xs font-bold text-white focus:outline-none font-mono"
-                    />
-                    <button
-                      type="button"
-                      disabled={isAutoRunning}
-                      onClick={() => setAutoBetsLimit(0)}
-                      className="rounded-lg px-2 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white"
-                    >
-                      ∞
-                    </button>
-                    <button
-                      type="button"
-                      disabled={isAutoRunning}
-                      onClick={() => setAutoBetsLimit(10)}
-                      className="rounded-lg px-2 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white"
-                    >
-                      10
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* PRIMARY CTA ACTION BUTTON: BET or CASHOUT */}
-          <div className="w-full pt-2">
-            {!isRoundActive ? (
-              mode === "manual" ? (
-                <button
-                  type="button"
-                  onClick={startRound}
-                  disabled={betAmount > balance || betAmount <= 0}
-                  className="w-full py-4 text-base font-extrabold rounded-xl bg-[#00e701] hover:bg-[#00c201] text-black shadow-lg hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider"
-                >
-                  <Zap className="h-5 w-5 fill-current" />
-                  <span>Bet</span>
-                </button>
-              ) : isAutoRunning ? (
-                <button
-                  type="button"
-                  onClick={() => setIsAutoRunning(false)}
-                  className="w-full py-4 text-base font-extrabold rounded-xl bg-[#e9113c] hover:bg-[#c40e32] text-white shadow-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider"
-                >
-                  <span>Stop Autobet ({autoBetsCount})</span>
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => {
-                    initialAutoBalanceRef.current = balance;
-                    baseBetRef.current = betAmount;
-                    setAutoBetsCount(0);
-                    setIsAutoRunning(true);
-                  }}
-                  disabled={betAmount > balance || betAmount <= 0}
-                  className="w-full py-4 text-base font-extrabold rounded-xl bg-[#00e701] hover:bg-[#00c201] text-black shadow-lg hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider"
-                >
-                  <Zap className="h-5 w-5 fill-current" />
-                  <span>Start Autobet</span>
-                </button>
-              )
             ) : (
-              /* ACTIVE ROUND CASHOUT BUTTON */
               <button
                 type="button"
-                onClick={handleCashout}
-                disabled={cardHistory.length <= 1 || isAnimating}
-                className="w-full py-4 text-base font-extrabold rounded-xl bg-[#00e701] hover:bg-[#00c201] text-black shadow-lg hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider"
+                onClick={() => {
+                  initialAutoBalanceRef.current = balance;
+                  baseBetRef.current = betAmount;
+                  setAutoBetsCount(0);
+                  setIsAutoRunning(true);
+                }}
+                disabled={betAmount > balance || betAmount <= 0}
+                className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
               >
-                <Coins className="h-5 w-5" />
-                <span>
-                  Cashout {activeSym}
-                  {currentPayout.toFixed(2)}
-                </span>
+                <span>START AUTOBET</span>
               </button>
-            )}
+            )
+          ) : (
+            /* ACTIVE ROUND CASHOUT BUTTON */
+            <button
+              type="button"
+              onClick={handleCashout}
+              disabled={cardHistory.length <= 1 || isAnimating}
+              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#00e701] hover:bg-[#00c201] text-black shadow-lg shadow-[#00e701]/25 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
+            >
+              <span>
+                CASHOUT {activeSym}
+                {currentPayout.toFixed(2)}
+              </span>
+            </button>
+          )}
+        </div>
+
+        {/* 2. BET AMOUNT INPUT (Exact Mines Structure) */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-bold text-[#b1bad3]">Bet Amount</span>
+            <span className="font-mono text-[11px] text-[#b1bad3]">
+              Bal: {activeSym}{balance.toFixed(2)}
+            </span>
+          </div>
+
+          <div className="flex rounded-lg bg-[#0f212e] border border-[#213743] focus-within:border-[#2f4553] p-1">
+            <div className="flex flex-1 items-center px-2.5">
+              <span className="text-xs font-bold text-[#b1bad3] mr-1.5">{activeSym}</span>
+              <input
+                type="text"
+                inputMode="decimal"
+                disabled={isRoundActive || isAutoRunning}
+                value={betInput}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                    setBetInput(val);
+                    if (val !== "" && !isNaN(parseFloat(val))) {
+                      setBetAmount(parseFloat(val));
+                    }
+                  }
+                }}
+                onBlur={() => {
+                  if (betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0) {
+                    setBetInput("1.00");
+                    setBetAmount(1);
+                  } else {
+                    const num = parseFloat(betInput);
+                    setBetAmount(num);
+                    setBetInput(num.toFixed(2));
+                  }
+                }}
+                className="w-full bg-transparent text-sm font-bold text-white outline-none font-mono"
+              />
+            </div>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                disabled={isRoundActive || isAutoRunning}
+                onClick={handleHalfBet}
+                className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
+              >
+                ½
+              </button>
+              <button
+                type="button"
+                disabled={isRoundActive || isAutoRunning}
+                onClick={handleDoubleBet}
+                className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
+              >
+                2×
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* ========================================================= */}
+        {/* 3. CURRENT ACTIVE ROUND STATUS (Multiplier & Accumulated Profit) */}
+        {isRoundActive && (
+          <div className="grid grid-cols-2 gap-2">
+            <div className="rounded-lg bg-[#0f212e] border border-[#213743] p-2 flex flex-col justify-center">
+              <span className="text-[10px] text-[#b1bad3] uppercase font-bold">Total Multiplier</span>
+              <span className="text-sm font-black text-[#00e701] font-mono mt-0.5">
+                {currentMultiplier.toFixed(2)}×
+              </span>
+            </div>
+            <div className="rounded-lg bg-[#0f212e] border border-[#213743] p-2 flex flex-col justify-center">
+              <span className="text-[10px] text-[#b1bad3] uppercase font-bold">Accumulated Profit</span>
+              <span
+                className={`text-sm font-black font-mono mt-0.5 ${
+                  currentProfit > 0 ? "text-[#00e701]" : "text-white"
+                }`}
+              >
+                {currentProfit > 0 ? "+" : ""}
+                {activeSym}
+                {currentProfit.toFixed(2)}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* 4. AUTO BETTING INPUTS */}
+        {mode === "auto" && !isRoundActive && (
+          <div className="space-y-2 pt-1 border-t border-[#213743]/60 text-xs">
+            {/* Auto Strategy */}
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-[#b1bad3] uppercase">Prediction Strategy</label>
+              <div className="grid grid-cols-3 gap-1 p-1 bg-[#0f212e] rounded-lg border border-[#213743]">
+                <button
+                  type="button"
+                  disabled={isAutoRunning}
+                  onClick={() => setAutoStrategy("smart")}
+                  className={`py-1 text-[11px] font-bold rounded ${
+                    autoStrategy === "smart"
+                      ? "bg-[#213743] text-white"
+                      : "text-[#b1bad3] hover:text-white"
+                  }`}
+                >
+                  Smart
+                </button>
+                <button
+                  type="button"
+                  disabled={isAutoRunning}
+                  onClick={() => setAutoStrategy("higher")}
+                  className={`py-1 text-[11px] font-bold rounded ${
+                    autoStrategy === "higher"
+                      ? "bg-[#213743] text-white"
+                      : "text-[#b1bad3] hover:text-white"
+                  }`}
+                >
+                  Higher
+                </button>
+                <button
+                  type="button"
+                  disabled={isAutoRunning}
+                  onClick={() => setAutoStrategy("lower")}
+                  className={`py-1 text-[11px] font-bold rounded ${
+                    autoStrategy === "lower"
+                      ? "bg-[#213743] text-white"
+                      : "text-[#b1bad3] hover:text-white"
+                  }`}
+                >
+                  Lower
+                </button>
+              </div>
+            </div>
+
+            {/* Target Cards & Number of Bets */}
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-[#b1bad3] uppercase">Cards to Cashout</label>
+                <div className="flex rounded-lg bg-[#0f212e] border border-[#213743] p-1.5 items-center">
+                  <input
+                    type="number"
+                    min={1}
+                    max={12}
+                    disabled={isAutoRunning}
+                    value={autoTargetCards}
+                    onChange={(e) =>
+                      setAutoTargetCards(Math.max(1, Math.min(12, parseInt(e.target.value) || 1)))
+                    }
+                    className="w-full bg-transparent text-xs font-bold text-white outline-none font-mono"
+                  />
+                  <span className="text-[10px] text-[#b1bad3]">cards</span>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-[#b1bad3] uppercase">Number of Bets</label>
+                <div className="flex rounded-lg bg-[#0f212e] border border-[#213743] p-1 items-center">
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="∞"
+                    value={autoBetsLimit === 0 ? "" : autoBetsLimit}
+                    onChange={(e) => setAutoBetsLimit(parseInt(e.target.value) || 0)}
+                    className="w-full bg-transparent px-1 text-xs font-bold text-white outline-none font-mono"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setAutoBetsLimit(0)}
+                    className="px-2 py-0.5 rounded text-xs font-black text-[#1475e1] hover:text-white"
+                  >
+                    ∞
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 5. MODE SWITCH TABS: [ Manual | Auto ] (Exact Mines Pattern) */}
+        <div className="flex rounded-lg bg-[#0f212e] p-1 border border-[#213743] mt-auto">
+          <button
+            type="button"
+            disabled={isRoundActive || isAutoRunning}
+            onClick={() => {
+              sounds.playClick();
+              setMode("manual");
+            }}
+            className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+              mode === "manual"
+                ? "bg-[#213743] text-white shadow-sm"
+                : "text-[#b1bad3] hover:text-white"
+            }`}
+          >
+            Manual
+          </button>
+          <button
+            type="button"
+            disabled={isRoundActive || isAutoRunning}
+            onClick={() => {
+              sounds.playClick();
+              setMode("auto");
+            }}
+            className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+              mode === "auto"
+                ? "bg-[#213743] text-white shadow-sm"
+                : "text-[#b1bad3] hover:text-white"
+            }`}
+          >
+            Auto
+          </button>
         </div>
+
+        {/* 6. BOTTOM UTILITY BAR */}
+        <div className="flex items-center justify-between rounded-lg bg-[#0f212e] border border-[#213743] px-3 py-2 text-xs text-[#b1bad3] mt-0.5">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                const next = !soundEnabled;
+                setSoundEnabled(next);
+                sounds.enabled = next;
+                if (next) sounds.playClick();
+              }}
+              className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
+            >
+              {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-red-400" />}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowHelpModal(true)}
+              className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
+            >
+              <Info className="w-4 h-4" />
+            </button>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setShowFairnessModal(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors cursor-pointer"
+          >
+            <ShieldCheck className="w-4 h-4 text-[#00e701]" />
+            <span>Fairness</span>
+          </button>
+        </div>
+      </div>
 
       {/* ========================================================= */}
       {/* PROVABLY FAIR VERIFIER MODAL                              */}
