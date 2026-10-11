@@ -24,7 +24,8 @@ interface RollHistoryItem {
 }
 
 export default function DiceGame() {
-  const { balance, updateBalance, addRecentlyPlayedGame } = useGame();
+  const { balance, updateBalance, currencySymbol, addRecentlyPlayedGame } = useGame();
+  const activeSym = currencySymbol || "$";
 
   // Mode & Betting State
   const [mode, setMode] = useState<"manual" | "auto">("manual");
@@ -116,7 +117,6 @@ export default function DiceGame() {
     sounds.playClick();
     setIsRollOver((prev) => {
       const nextMode = !prev;
-      // Invert target to keep identical win chance (e.g. 50.50 -> 49.50)
       setTarget((t) => {
         const inverted = parseFloat((100.0 - t).toFixed(2));
         return Math.max(2.0, Math.min(98.0, inverted));
@@ -181,7 +181,6 @@ export default function DiceGame() {
       netProfit: prev.netProfit - effectiveBet,
     }));
 
-    // Audio roll rumble
     sounds.playDiceRoll();
 
     // Generate fair cryptographic roll [0.00 to 100.00]
@@ -335,32 +334,21 @@ export default function DiceGame() {
     setTimeout(() => setCopiedField(null), 1800);
   };
 
-  // Secondary XRP conversion display
-  const secondaryCryptoDisplay = useMemo(() => {
-    const xrpValue = (betAmount * 0.0175).toFixed(8);
-    return `${xrpValue} XRP`;
-  }, [betAmount]);
-
   // Calculated Profit on Win
   const profitOnWin = useMemo(() => {
     return parseFloat((betAmount * (multiplier - 1)).toFixed(2));
   }, [betAmount, multiplier]);
 
-  const secondaryProfitCrypto = useMemo(() => {
-    const xrp = (profitOnWin * 0.0175).toFixed(8);
-    return `${xrp} XRP`;
-  }, [profitOnWin]);
-
   return (
     <div className="w-full max-w-lg mx-auto px-2 sm:px-3 py-2 select-none flex flex-col space-y-2">
       {/* ========================================================= */}
-      {/* 1. SLIDER ARENA CONTAINER (Starts directly at top)        */}
+      {/* 1. SLIDER CARD CONTAINER (Compact Capsule)                */}
       {/* ========================================================= */}
-      <div className="w-full rounded-2xl bg-[#0f212e] border border-[#213743] shadow-2xl p-4 sm:p-5 flex flex-col items-center justify-between relative overflow-hidden">
-        {/* Central Result Display Box */}
-        <div className="w-full flex flex-col items-center justify-center my-3 sm:my-4 z-10">
+      <div className="w-full rounded-lg bg-[#0f212e] border border-[#213743] shadow-2xl p-3 sm:p-4 flex flex-col items-center justify-between relative overflow-hidden">
+        {/* Central Result Display Box (Compact height) */}
+        <div className="w-full flex flex-col items-center justify-center my-1 sm:my-2 z-10">
           <div
-            className={`rounded-2xl border-2 px-6 py-3.5 bg-[#1a2c38] shadow-2xl transition-all duration-200 min-w-[200px] text-center ${
+            className={`rounded-xl border-2 px-5 py-2 bg-[#1a2c38] shadow-lg transition-all duration-200 min-w-[170px] text-center ${
               hasWon === true
                 ? "border-[#00e701] shadow-[#00e701]/25"
                 : hasWon === false
@@ -369,19 +357,19 @@ export default function DiceGame() {
             }`}
           >
             <div
-              className={`text-5xl sm:text-6xl font-black font-mono tracking-tight transition-colors ${
+              className={`text-4xl sm:text-5xl font-black font-mono tracking-tight transition-colors ${
                 hasWon === true
-                  ? "text-[#00e701] drop-shadow-[0_0_16px_rgba(0,231,1,0.5)]"
+                  ? "text-[#00e701] drop-shadow-[0_0_12px_rgba(0,231,1,0.5)]"
                   : hasWon === false
-                  ? "text-[#e9113c] drop-shadow-[0_0_16px_rgba(233,17,60,0.5)]"
+                  ? "text-[#e9113c] drop-shadow-[0_0_12px_rgba(233,17,60,0.5)]"
                   : "text-white"
               }`}
             >
               {displayRoll.toFixed(2)}
             </div>
-            <div className="mt-0.5 text-[11px] font-extrabold uppercase tracking-widest text-[#8596a5]">
+            <div className="mt-0.5 text-[10px] font-extrabold uppercase tracking-wider text-[#87909e]">
               {hasWon === true
-                ? `Won +₹${profitOnWin.toFixed(2)}`
+                ? `Won +${activeSym}${profitOnWin.toFixed(2)}`
                 : hasWon === false
                 ? "Loss"
                 : `Target: ${isRollOver ? ">" : "<"} ${target.toFixed(2)}`}
@@ -390,11 +378,11 @@ export default function DiceGame() {
         </div>
 
         {/* ======================================================= */}
-        {/* SLIDER BAR TRACK & COLOR TRANSITION ANIMATION           */}
+        {/* SLIDER BAR TRACK & THUMB (Sleek h-2.5 & tight scale)     */}
         {/* ======================================================= */}
-        <div className="w-full px-1 sm:px-3 space-y-2 z-10 my-2">
-          {/* Numbers scale on top of track: Exactly "0", "25", "50", "75", "100" evenly spaced */}
-          <div className="flex justify-between px-1 text-xs font-mono font-bold text-[#8596a5] select-none">
+        <div className="w-full px-1 sm:px-2 z-10 my-1">
+          {/* Numbers scale: "0", "25", "50", "75", "100" tightly aligned above track */}
+          <div className="flex justify-between px-1 text-[11px] font-mono font-semibold text-[#b1bad3] select-none mb-1">
             <span>0</span>
             <span>25</span>
             <span>50</span>
@@ -407,11 +395,11 @@ export default function DiceGame() {
             {/* Rolled Result Pointer on Track */}
             {lastRoll !== null && (
               <div
-                className="absolute -top-7 z-30 transition-all duration-300 pointer-events-none transform -translate-x-1/2 flex flex-col items-center"
+                className="absolute -top-6 z-30 transition-all duration-300 pointer-events-none transform -translate-x-1/2 flex flex-col items-center"
                 style={{ left: `${Math.min(98, Math.max(2, lastRoll))}%` }}
               >
                 <div
-                  className={`rounded-md px-1.5 py-0.5 text-[10px] font-black font-mono shadow-md ${
+                  className={`rounded-md px-1 py-0.2 text-[9px] font-black font-mono shadow-md ${
                     hasWon ? "bg-[#00e701] text-[#0f212e]" : "bg-[#e9113c] text-white"
                   }`}
                 >
@@ -425,9 +413,8 @@ export default function DiceGame() {
               </div>
             )}
 
-            {/* Dark rounded track container with split Red and Green progress segments */}
-            {/* Dynamic Inversion Animation: Sleek 250ms CSS transform/transition */}
-            <div className="relative w-full h-8 sm:h-9 rounded-full bg-[#07131b] border-2 border-[#213743] overflow-hidden shadow-inner flex select-none">
+            {/* Sleek slim track height: h-2 sm:h-2.5 with 250ms dynamic inversion animation */}
+            <div className="relative w-full h-2 sm:h-2.5 rounded-full bg-[#07131b] border border-[#213743] overflow-hidden shadow-inner flex select-none">
               {/* Left Segment: Red in Roll Over, Green in Roll Under */}
               <div
                 className={`h-full transition-all duration-[250ms] ease-in-out ${
@@ -444,12 +431,12 @@ export default function DiceGame() {
               />
             </div>
 
-            {/* Draggable thumb: Blue pill button with three subtle vertical grip lines (|||) */}
+            {/* Draggable thumb: Compact pill (w-8 h-7) with 3 slim vertical lines (|||) */}
             <div
               className="absolute top-1/2 -translate-y-1/2 z-20 pointer-events-none transform -translate-x-1/2 transition-[left] duration-75"
               style={{ left: `${target}%` }}
             >
-              <div className="flex h-9 w-7 sm:h-10 sm:w-8 items-center justify-center rounded-lg bg-[#1475e1] text-white shadow-xl border-2 border-white/80 active:scale-105 transition-transform">
+              <div className="flex h-7 w-8 sm:h-7.5 sm:w-8.5 items-center justify-center rounded-md bg-[#1475e1] text-white shadow-md border border-white/80 active:scale-105 transition-transform">
                 <div className="flex items-center gap-[2px]">
                   <span className="w-[1.5px] h-3 bg-white/70 rounded-full" />
                   <span className="w-[1.5px] h-3 bg-white/70 rounded-full" />
@@ -458,7 +445,7 @@ export default function DiceGame() {
               </div>
             </div>
 
-            {/* Invisible Range Slider for Smooth Touch & Drag */}
+            {/* Range Slider for Touch & Drag */}
             <input
               type="range"
               min="2.00"
@@ -473,33 +460,33 @@ export default function DiceGame() {
         </div>
 
         {/* ======================================================= */}
-        {/* 3. 3-METRIC STATS BAR (Directly Below Slider)           */}
+        {/* 2. 3-METRIC STATS BOXES (Slim & Clean, max height 40px) */}
         {/* ======================================================= */}
-        <div className="w-full grid grid-cols-3 gap-2 mt-3 z-10">
+        <div className="w-full grid grid-cols-3 gap-2 mt-2 z-10">
           {/* Multiplier Box */}
-          <div className="rounded-xl bg-[#1a2c38] border border-[#213743] p-2 flex flex-col justify-center">
-            <span className="text-[10px] sm:text-[11px] font-semibold text-[#8596a5]">
+          <div className="rounded-md bg-[#1a2c38] border border-[#2f4553] py-1.5 px-2.5 flex flex-col justify-center min-h-[38px] max-h-[42px]">
+            <span className="text-[10px] uppercase font-semibold text-[#87909e] leading-none">
               Multiplier
             </span>
-            <div className="text-xs sm:text-sm font-bold font-mono text-white mt-0.5 truncate">
+            <div className="text-sm font-bold font-mono text-white mt-0.5 truncate leading-tight">
               {multiplier.toFixed(4)} ×
             </div>
           </div>
 
-          {/* Roll Target Box with circular sync icon */}
-          <div className="rounded-xl bg-[#1a2c38] border border-[#213743] p-2 flex flex-col justify-center relative">
-            <span className="text-[10px] sm:text-[11px] font-semibold text-[#8596a5]">
+          {/* Roll Target Box with circular swap icon */}
+          <div className="rounded-md bg-[#1a2c38] border border-[#2f4553] py-1.5 px-2.5 flex flex-col justify-center min-h-[38px] max-h-[42px] relative">
+            <span className="text-[10px] uppercase font-semibold text-[#87909e] leading-none">
               {isRollOver ? "Roll Over" : "Roll Under"}
             </span>
-            <div className="flex items-center justify-between mt-0.5">
-              <span className="text-xs sm:text-sm font-bold font-mono text-white">
+            <div className="flex items-center justify-between mt-0.5 leading-tight">
+              <span className="text-sm font-bold font-mono text-white">
                 {target.toFixed(2)}
               </span>
               <button
                 type="button"
                 onClick={toggleRollMode}
                 title="Toggle Roll Over / Roll Under"
-                className="p-1 rounded-md hover:bg-[#213743] text-[#8596a5] hover:text-white transition-colors cursor-pointer"
+                className="p-0.5 text-[#87909e] hover:text-white transition-colors cursor-pointer"
               >
                 <RotateCw className="w-3.5 h-3.5 transition-transform active:rotate-180" />
               </button>
@@ -507,11 +494,11 @@ export default function DiceGame() {
           </div>
 
           {/* Win Chance Box */}
-          <div className="rounded-xl bg-[#1a2c38] border border-[#213743] p-2 flex flex-col justify-center">
-            <span className="text-[10px] sm:text-[11px] font-semibold text-[#8596a5]">
+          <div className="rounded-md bg-[#1a2c38] border border-[#2f4553] py-1.5 px-2.5 flex flex-col justify-center min-h-[38px] max-h-[42px]">
+            <span className="text-[10px] uppercase font-semibold text-[#87909e] leading-none">
               Win Chance
             </span>
-            <div className="text-xs sm:text-sm font-bold font-mono text-white mt-0.5 truncate">
+            <div className="text-sm font-bold font-mono text-white mt-0.5 truncate leading-tight">
               {winChance.toFixed(4)} %
             </div>
           </div>
@@ -519,10 +506,10 @@ export default function DiceGame() {
       </div>
 
       {/* ========================================================= */}
-      {/* 4. BETTING CONTROLS (Vertical sequence & compact gap-2)   */}
+      {/* 3. BETTING CONTROLS (Mines Pattern, gap-2 compact layout) */}
       {/* ========================================================= */}
-      <div className="w-full flex flex-col gap-2">
-        {/* 1. Primary CTA Bet Button (Directly beneath 3 metrics bar) */}
+      <div className="w-full rounded-lg bg-[#0f212e] sm:bg-[#1a2c38] border border-[#213743] p-3 sm:p-4 flex flex-col gap-2 shadow-xl">
+        {/* 1. Primary CTA Bet Button (Strict height h-11 / h-12 max) */}
         <button
           onClick={() => {
             if (mode === "auto") {
@@ -539,10 +526,10 @@ export default function DiceGame() {
             }
           }}
           disabled={isRolling || betAmount > balance || betAmount <= 0}
-          className={`w-full py-3.5 rounded-xl font-bold text-base text-white tracking-wide transition-all active:scale-[0.98] shadow-lg shadow-[#1475e1]/25 flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+          className={`w-full h-11 sm:h-12 rounded-md font-bold text-sm text-white tracking-wide transition-all active:scale-[0.99] shadow-lg shadow-[#1475e1]/20 flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
             isAutoRunning
               ? "bg-rose-600 hover:bg-rose-700"
-              : "bg-[#1475e1] hover:bg-[#1a7bf2]"
+              : "bg-[#1475e1] hover:bg-[#1165c4]"
           }`}
         >
           {isAutoRunning
@@ -554,19 +541,20 @@ export default function DiceGame() {
             : "Bet"}
         </button>
 
-        {/* 2. Bet Amount Section */}
+        {/* 2. Bet Amount Section (No Flag, Dynamic Balance, h-10 to h-11) */}
         <div className="flex flex-col gap-1">
-          <div className="flex items-center justify-between text-xs font-semibold px-0.5">
-            <span className="text-[#8596a5]">Bet Amount</span>
-            <span className="text-[#8596a5] font-mono text-[11px]">{secondaryCryptoDisplay}</span>
+          <div className="flex items-center justify-between text-xs text-[#b1bad3] px-0.5">
+            <span>Bet Amount</span>
+            <span className="font-mono text-[11px] text-[#87909e]">
+              {activeSym}{balance.toFixed(2)}
+            </span>
           </div>
 
-          <div className="flex items-center rounded-xl bg-[#0f212e] border border-[#213743] px-2.5 py-1 focus-within:border-[#1475e1] transition-colors">
-            {/* Indian Flag Badge & Currency Prefix */}
-            <div className="flex items-center gap-1.5 pr-2 select-none shrink-0">
-              <span className="text-sm">🇮🇳</span>
-              <span className="text-xs font-bold text-[#b1bad3]">₹</span>
-            </div>
+          <div className="h-10 sm:h-11 flex items-center rounded-md bg-[#0f212e] border border-[#2f4553] px-3 focus-within:border-[#1475e1] transition-colors">
+            {/* Active Currency Symbol Prefix (No Flag) */}
+            <span className="text-xs font-bold text-[#b1bad3] mr-2 select-none shrink-0">
+              {activeSym}
+            </span>
 
             {/* Input Field */}
             <input
@@ -597,19 +585,17 @@ export default function DiceGame() {
                   setBetInput(num.toFixed(2));
                 }
               }}
-              className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono py-1"
+              className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono py-0.5"
             />
 
-            {/* Vertical Divider */}
-            <div className="w-[1px] h-5 bg-[#213743] mx-1.5 shrink-0" />
-
-            {/* Compact ½ and 2× buttons */}
+            {/* Right Divider & Compact ½ / 2× Buttons */}
+            <div className="h-5 border-l border-[#2f4553] mx-1.5 shrink-0" />
             <div className="flex items-center gap-1 shrink-0">
               <button
                 type="button"
                 disabled={isRolling || isAutoRunning}
                 onClick={handleHalfBet}
-                className="px-2.5 py-1 rounded-lg bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors cursor-pointer disabled:opacity-50"
+                className="px-2.5 py-1 rounded hover:bg-[#213743] text-[#b1bad3] hover:text-white font-semibold text-xs transition-colors cursor-pointer disabled:opacity-50"
               >
                 ½
               </button>
@@ -617,7 +603,7 @@ export default function DiceGame() {
                 type="button"
                 disabled={isRolling || isAutoRunning}
                 onClick={handleDoubleBet}
-                className="px-2.5 py-1 rounded-lg bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors cursor-pointer disabled:opacity-50"
+                className="px-2.5 py-1 rounded hover:bg-[#213743] text-[#b1bad3] hover:text-white font-semibold text-xs transition-colors cursor-pointer disabled:opacity-50"
               >
                 2×
               </button>
@@ -625,19 +611,20 @@ export default function DiceGame() {
           </div>
         </div>
 
-        {/* 3. Profit on Win Section (Manual Mode Only) */}
+        {/* 3. Profit on Win Section (Manual Mode Only, No Flag, h-10 to h-11) */}
         {mode === "manual" && (
           <div className="flex flex-col gap-1">
-            <div className="flex items-center justify-between text-xs font-semibold px-0.5">
-              <span className="text-[#8596a5]">Profit on Win</span>
-              <span className="text-[#8596a5] font-mono text-[11px]">{secondaryProfitCrypto}</span>
+            <div className="flex items-center justify-between text-xs text-[#b1bad3] px-0.5">
+              <span>Profit on Win</span>
+              <span className="font-mono text-[11px] text-[#87909e]">
+                {activeSym}{balance.toFixed(2)}
+              </span>
             </div>
 
-            <div className="flex items-center rounded-xl bg-[#0f212e] border border-[#213743] px-2.5 py-2">
-              <div className="flex items-center gap-1.5 pr-2 select-none shrink-0">
-                <span className="text-sm">🇮🇳</span>
-                <span className="text-xs font-bold text-[#b1bad3]">₹</span>
-              </div>
+            <div className="h-10 sm:h-11 flex items-center rounded-md bg-[#0f212e] border border-[#2f4553] px-3">
+              <span className="text-xs font-bold text-[#b1bad3] mr-2 select-none shrink-0">
+                {activeSym}
+              </span>
               <span className="text-sm font-bold text-white font-mono">
                 {profitOnWin.toFixed(2)}
               </span>
@@ -650,8 +637,8 @@ export default function DiceGame() {
           <div className="flex flex-col gap-2">
             {/* Number of Bets */}
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold text-[#8596a5] px-0.5">Number of Bets</label>
-              <div className="flex items-center rounded-xl bg-[#0f212e] border border-[#213743] px-3 py-1.5 focus-within:border-[#1475e1] transition-colors">
+              <label className="text-xs text-[#b1bad3] px-0.5">Number of Bets</label>
+              <div className="h-10 sm:h-11 flex items-center rounded-md bg-[#0f212e] border border-[#2f4553] px-3 focus-within:border-[#1475e1] transition-colors">
                 <input
                   type="number"
                   min="0"
@@ -672,17 +659,17 @@ export default function DiceGame() {
             </div>
 
             {/* Advanced Toggle Switch Row */}
-            <div className="flex items-center justify-between px-0.5 py-1">
-              <span className="text-xs font-semibold text-[#8596a5]">Advanced</span>
+            <div className="flex items-center justify-between px-0.5 py-0.5">
+              <span className="text-xs text-[#b1bad3]">Advanced</span>
               <button
                 type="button"
                 onClick={() => setIsAdvancedAuto(!isAdvancedAuto)}
-                className={`w-10 h-5 rounded-full transition-colors relative cursor-pointer ${
+                className={`w-9 h-5 rounded-full transition-colors relative cursor-pointer ${
                   isAdvancedAuto ? "bg-[#1475e1]" : "bg-[#213743]"
                 }`}
               >
                 <div
-                  className={`w-4 h-4 rounded-full bg-white absolute top-0.5 transition-transform ${
+                  className={`w-3.5 h-3.5 rounded-full bg-white absolute top-0.5 transition-transform ${
                     isAdvancedAuto ? "right-0.5" : "left-0.5"
                   }`}
                 />
@@ -691,24 +678,24 @@ export default function DiceGame() {
 
             {/* Advanced On Win / On Loss Settings */}
             {isAdvancedAuto && (
-              <div className="grid grid-cols-2 gap-2 pt-1 border-t border-[#213743]/50">
+              <div className="grid grid-cols-2 gap-2 pt-1 border-t border-[#2f4553]/50">
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-[#8596a5] uppercase">On Win</label>
+                  <label className="text-[10px] font-bold text-[#87909e] uppercase">On Win</label>
                   <select
                     value={onWinAction}
                     onChange={(e) => setOnWinAction(e.target.value as "reset" | "increase")}
-                    className="w-full rounded-xl bg-[#0f212e] border border-[#213743] p-2 text-xs font-bold text-white"
+                    className="w-full rounded-md bg-[#0f212e] border border-[#2f4553] p-1.5 text-xs font-bold text-white"
                   >
                     <option value="reset">Reset</option>
                     <option value="increase">Increase %</option>
                   </select>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-[#8596a5] uppercase">On Loss</label>
+                  <label className="text-[10px] font-bold text-[#87909e] uppercase">On Loss</label>
                   <select
                     value={onLossAction}
                     onChange={(e) => setOnLossAction(e.target.value as "reset" | "increase")}
-                    className="w-full rounded-xl bg-[#0f212e] border border-[#213743] p-2 text-xs font-bold text-white"
+                    className="w-full rounded-md bg-[#0f212e] border border-[#2f4553] p-1.5 text-xs font-bold text-white"
                   >
                     <option value="reset">Reset</option>
                     <option value="increase">Increase %</option>
@@ -718,7 +705,7 @@ export default function DiceGame() {
             )}
 
             {isAutoRunning && (
-              <div className="flex justify-between items-center text-[10px] text-[#8596a5] px-1 font-mono">
+              <div className="flex justify-between items-center text-[10px] text-[#87909e] px-1 font-mono">
                 <span>Bets Dropped:</span>
                 <span className="text-white font-bold">
                   {autoBetsCount} / {autoBetsLimit === 0 ? "∞" : autoBetsLimit}
@@ -728,8 +715,8 @@ export default function DiceGame() {
           </div>
         )}
 
-        {/* 5. Mode Selector: Pill toggle Manual / Auto with script icon on the far right */}
-        <div className="flex items-center gap-1.5 rounded-xl bg-[#0f212e] p-1 border border-[#213743]">
+        {/* 5. Mode Selector: Pill toggle Manual / Auto with script icon */}
+        <div className="flex items-center gap-1.5 rounded-md bg-[#0f212e] p-1 border border-[#2f4553]">
           <div className="grid grid-cols-2 flex-1">
             <button
               type="button"
@@ -738,10 +725,10 @@ export default function DiceGame() {
                 setMode("manual");
                 setIsAutoRunning(false);
               }}
-              className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+              className={`py-1.5 text-xs font-bold rounded-md transition-all cursor-pointer ${
                 mode === "manual"
                   ? "bg-[#213743] text-white shadow-sm"
-                  : "text-[#8596a5] hover:text-white"
+                  : "text-[#87909e] hover:text-white"
               }`}
             >
               Manual
@@ -752,10 +739,10 @@ export default function DiceGame() {
                 sounds.playClick();
                 setMode("auto");
               }}
-              className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+              className={`py-1.5 text-xs font-bold rounded-md transition-all cursor-pointer ${
                 mode === "auto"
                   ? "bg-[#213743] text-white shadow-sm"
-                  : "text-[#8596a5] hover:text-white"
+                  : "text-[#87909e] hover:text-white"
               }`}
             >
               Auto
@@ -765,42 +752,42 @@ export default function DiceGame() {
             type="button"
             title="Script / Strategy Mode"
             onClick={() => sounds.playClick()}
-            className="px-2.5 py-2 rounded-lg bg-[#1a2c38] hover:bg-[#213743] text-[#8596a5] hover:text-white text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors"
+            className="px-2 py-1.5 rounded-md bg-[#1a2c38] hover:bg-[#213743] text-[#87909e] hover:text-white text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors"
           >
             <span>A</span>
             <Zap className="w-3.5 h-3.5 text-[#1475e1]" />
           </button>
         </div>
 
-        {/* 6. Bottom Utility Bar */}
-        <div className="flex items-center justify-between rounded-xl bg-[#1a2c38] border border-[#213743] px-3 py-2 text-xs text-[#8596a5] mt-1">
+        {/* 6. Bottom Utility Bar (Settings, Stats, Clean Subtle Fairness Pill) */}
+        <div className="flex items-center justify-between rounded-md bg-[#0f212e] border border-[#2f4553] px-3 py-1.5 text-xs text-[#87909e] mt-0.5">
           {/* Left: Settings gear & Live Stats chart icons */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => setIsSettingsOpen(true)}
-              className="p-1.5 rounded-lg hover:bg-[#213743] text-[#8596a5] hover:text-white transition-colors cursor-pointer"
+              className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
               title="Settings"
             >
-              <Settings className="w-4 h-4" />
+              <Settings className="w-5 h-5" />
             </button>
             <button
               type="button"
               onClick={() => setIsStatsOpen(true)}
-              className="p-1.5 rounded-lg hover:bg-[#213743] text-[#8596a5] hover:text-white transition-colors cursor-pointer"
+              className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
               title="Live Stats"
             >
-              <BarChart2 className="w-4 h-4" />
+              <BarChart2 className="w-5 h-5" />
             </button>
           </div>
 
-          {/* Right: Rounded pill button with checkmark badge and text "Fairness" */}
+          {/* Right: Clean Subtle Dark-Pill Fairness Button */}
           <button
             type="button"
             onClick={() => setIsFairnessOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#213743] hover:bg-[#2f4553] text-[#00e701] font-bold text-xs transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#2f4553]/60 hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-semibold text-xs transition-colors cursor-pointer"
           >
-            <ShieldCheck className="w-3.5 h-3.5" />
+            <ShieldCheck className="w-4 h-4 text-[#b1bad3]" />
             <span>Fairness</span>
           </button>
         </div>
@@ -811,15 +798,15 @@ export default function DiceGame() {
       {/* ========================================================= */}
       {isFairnessOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
-          <div className="w-full max-w-md rounded-2xl border border-[#213743] bg-[#1a2c38] p-5 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-[#213743] pb-3">
+          <div className="w-full max-w-md rounded-xl border border-[#2f4553] bg-[#1a2c38] p-5 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-[#2f4553] pb-3">
               <div className="flex items-center gap-2 text-sm font-bold text-white">
-                <ShieldCheck className="w-5 h-5 text-[#00e701]" />
+                <ShieldCheck className="w-5 h-5 text-[#b1bad3]" />
                 <span>Provably Fair Verification</span>
               </div>
               <button
                 onClick={() => setIsFairnessOpen(false)}
-                className="p-1 text-[#8596a5] hover:text-white rounded-lg hover:bg-[#213743]"
+                className="p-1 text-[#87909e] hover:text-white rounded-md hover:bg-[#213743]"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -830,11 +817,11 @@ export default function DiceGame() {
                 <label className="text-[11px] font-bold text-white block mb-1">
                   Active Server Seed (Hashed)
                 </label>
-                <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#0f212e] font-mono text-[11px] text-white">
+                <div className="flex items-center justify-between p-2.5 rounded-md bg-[#0f212e] font-mono text-[11px] text-white border border-[#2f4553]">
                   <span className="truncate">{serverSeedHash}</span>
                   <button
                     onClick={() => copyToClipboard(serverSeedHash, "server")}
-                    className="p-1 text-[#8596a5] hover:text-white"
+                    className="p-1 text-[#87909e] hover:text-white"
                   >
                     {copiedField === "server" ? (
                       <Check className="w-3.5 h-3.5 text-[#00e701]" />
@@ -847,19 +834,19 @@ export default function DiceGame() {
 
               <div>
                 <label className="text-[11px] font-bold text-white block mb-1">Client Seed</label>
-                <div className="p-2.5 rounded-xl bg-[#0f212e] font-mono text-[11px] text-white">
+                <div className="p-2.5 rounded-md bg-[#0f212e] font-mono text-[11px] text-white border border-[#2f4553]">
                   {clientSeed}
                 </div>
               </div>
 
               <div>
                 <label className="text-[11px] font-bold text-white block mb-1">Nonce</label>
-                <div className="p-2.5 rounded-xl bg-[#0f212e] font-mono text-[11px] text-white">
+                <div className="p-2.5 rounded-md bg-[#0f212e] font-mono text-[11px] text-white border border-[#2f4553]">
                   {nonce}
                 </div>
               </div>
 
-              <div className="p-2.5 rounded-xl bg-[#0f212e] text-[11px] space-y-1">
+              <div className="p-2.5 rounded-md bg-[#0f212e] text-[11px] space-y-1 border border-[#2f4553]">
                 <div className="font-bold text-white">Dice Formula:</div>
                 <div className="font-mono text-[#00e701]">
                   Roll = (Hash(ServerSeed, ClientSeed, Nonce) % 10001) / 100
@@ -870,7 +857,7 @@ export default function DiceGame() {
 
             <button
               onClick={() => setIsFairnessOpen(false)}
-              className="w-full py-2.5 rounded-xl bg-[#213743] hover:bg-[#2f4553] text-white text-xs font-bold transition-colors"
+              className="w-full py-2.5 rounded-md bg-[#213743] hover:bg-[#2f4553] text-white text-xs font-bold transition-colors cursor-pointer"
             >
               Close
             </button>
@@ -883,54 +870,54 @@ export default function DiceGame() {
       {/* ========================================================= */}
       {isStatsOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
-          <div className="w-full max-w-md rounded-2xl border border-[#213743] bg-[#1a2c38] p-5 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-[#213743] pb-3">
+          <div className="w-full max-w-md rounded-xl border border-[#2f4553] bg-[#1a2c38] p-5 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-[#2f4553] pb-3">
               <div className="flex items-center gap-2 text-sm font-bold text-white">
                 <BarChart2 className="w-5 h-5 text-[#1475e1]" />
                 <span>Live Dice Statistics</span>
               </div>
               <button
                 onClick={() => setIsStatsOpen(false)}
-                className="p-1 text-[#8596a5] hover:text-white rounded-lg hover:bg-[#213743]"
+                className="p-1 text-[#87909e] hover:text-white rounded-md hover:bg-[#213743]"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="grid grid-cols-2 gap-2.5">
-              <div className="p-3 rounded-xl bg-[#0f212e] border border-[#213743] text-center">
-                <div className="text-[11px] font-semibold text-[#8596a5]">Total Bets</div>
+              <div className="p-3 rounded-md bg-[#0f212e] border border-[#2f4553] text-center">
+                <div className="text-[11px] font-semibold text-[#87909e]">Total Bets</div>
                 <div className="text-lg font-black text-white font-mono mt-0.5">
                   {stats.totalBets}
                 </div>
               </div>
-              <div className="p-3 rounded-xl bg-[#0f212e] border border-[#213743] text-center">
-                <div className="text-[11px] font-semibold text-[#8596a5]">Best Roll</div>
+              <div className="p-3 rounded-md bg-[#0f212e] border border-[#2f4553] text-center">
+                <div className="text-[11px] font-semibold text-[#87909e]">Best Roll</div>
                 <div className="text-lg font-black text-[#1475e1] font-mono mt-0.5">
                   {stats.bestRoll.toFixed(2)}
                 </div>
               </div>
-              <div className="p-3 rounded-xl bg-[#0f212e] border border-[#213743] text-center">
-                <div className="text-[11px] font-semibold text-[#8596a5]">Total Wagered</div>
+              <div className="p-3 rounded-md bg-[#0f212e] border border-[#2f4553] text-center">
+                <div className="text-[11px] font-semibold text-[#87909e]">Total Wagered</div>
                 <div className="text-lg font-black text-white font-mono mt-0.5">
-                  ₹{stats.totalWagered.toFixed(2)}
+                  {activeSym}{stats.totalWagered.toFixed(2)}
                 </div>
               </div>
-              <div className="p-3 rounded-xl bg-[#0f212e] border border-[#213743] text-center">
-                <div className="text-[11px] font-semibold text-[#8596a5]">Net Profit</div>
+              <div className="p-3 rounded-md bg-[#0f212e] border border-[#2f4553] text-center">
+                <div className="text-[11px] font-semibold text-[#87909e]">Net Profit</div>
                 <div
                   className={`text-lg font-black font-mono mt-0.5 ${
                     stats.netProfit >= 0 ? "text-[#00e701]" : "text-[#e9113c]"
                   }`}
                 >
-                  {stats.netProfit >= 0 ? "+" : ""}₹{stats.netProfit.toFixed(2)}
+                  {stats.netProfit >= 0 ? "+" : ""}{activeSym}{stats.netProfit.toFixed(2)}
                 </div>
               </div>
             </div>
 
             <button
               onClick={() => setIsStatsOpen(false)}
-              className="w-full py-2.5 rounded-xl bg-[#213743] hover:bg-[#2f4553] text-white text-xs font-bold transition-colors"
+              className="w-full py-2.5 rounded-md bg-[#213743] hover:bg-[#2f4553] text-white text-xs font-bold transition-colors cursor-pointer"
             >
               Close
             </button>
@@ -943,15 +930,15 @@ export default function DiceGame() {
       {/* ========================================================= */}
       {isSettingsOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
-          <div className="w-full max-w-sm rounded-2xl border border-[#213743] bg-[#1a2c38] p-5 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-[#213743] pb-3">
+          <div className="w-full max-w-sm rounded-xl border border-[#2f4553] bg-[#1a2c38] p-5 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-[#2f4553] pb-3">
               <div className="flex items-center gap-2 text-sm font-bold text-white">
-                <Settings className="w-5 h-5 text-[#8596a5]" />
+                <Settings className="w-5 h-5 text-[#87909e]" />
                 <span>Dice Settings</span>
               </div>
               <button
                 onClick={() => setIsSettingsOpen(false)}
-                className="p-1 text-[#8596a5] hover:text-white rounded-lg hover:bg-[#213743]"
+                className="p-1 text-[#87909e] hover:text-white rounded-md hover:bg-[#213743]"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -959,7 +946,7 @@ export default function DiceGame() {
 
             <div className="space-y-3 text-xs">
               {/* Sound Toggle */}
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#0f212e]">
+              <div className="flex items-center justify-between p-2.5 rounded-md bg-[#0f212e] border border-[#2f4553]">
                 <div className="flex items-center gap-2 text-white font-bold">
                   {isMuted ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4 text-[#00e701]" />}
                   <span>Sound Effects</span>
@@ -984,7 +971,7 @@ export default function DiceGame() {
               </div>
 
               {/* Hotkeys Toggle */}
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#0f212e]">
+              <div className="flex items-center justify-between p-2.5 rounded-md bg-[#0f212e] border border-[#2f4553]">
                 <div className="flex items-center gap-2 text-white font-bold">
                   <span>Spacebar Hotkey</span>
                 </div>
@@ -1006,7 +993,7 @@ export default function DiceGame() {
 
             <button
               onClick={() => setIsSettingsOpen(false)}
-              className="w-full py-2.5 rounded-xl bg-[#213743] hover:bg-[#2f4553] text-white text-xs font-bold transition-colors"
+              className="w-full py-2.5 rounded-md bg-[#213743] hover:bg-[#2f4553] text-white text-xs font-bold transition-colors cursor-pointer"
             >
               Done
             </button>
