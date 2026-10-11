@@ -429,12 +429,14 @@ const RAW_STAKE_ORIGINALS: GameItem[] = [
     id: "stake-originals-tarot",
     title: "Tarot",
     slug: "stake-originals-tarot",
+    href: "/games/tarot",
     provider: "Stake Originals",
     playersCount: 1530,
     badge: "ORIGINAL",
     badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
     category: "originals",
     bgGradient: "from-rose-950/90 via-[#1a2c38] to-[#0f212e]",
+    isPlayable: true,
   },
 ];
 export const STAKE_ORIGINALS: GameItem[] = RAW_STAKE_ORIGINALS.map(attachThumbnail);
