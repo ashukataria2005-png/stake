@@ -95,6 +95,7 @@ export default function BaccaratGame() {
   }, [addRecentlyPlayedGame]);
 
   // Bets State
+  const [mode, setMode] = useState<"manual" | "auto">("manual");
   const [selectedChip, setSelectedChip] = useState<number>(1);
   const [bets, setBets] = useState<{ player: number; banker: number; tie: number }>({
     player: 0,
@@ -369,12 +370,14 @@ export default function BaccaratGame() {
   return (
     <div
       ref={gameContainerRef}
-      className="flex flex-col items-center w-full max-w-4xl mx-auto px-2 sm:px-4 py-4 select-none"
+      className={`w-full max-w-4xl mx-auto px-2 sm:px-4 py-2 select-none flex flex-col space-y-0 ${
+        isFullscreen ? "p-6 bg-[#0f212e] min-h-screen max-w-none" : ""
+      }`}
     >
       {/* ========================================================= */}
       {/* 1. TOP INTERACTIVE ARENA: CASINO FELT TABLE               */}
       {/* ========================================================= */}
-      <div className="w-full rounded-2xl bg-[#09151e] border border-[#213743] shadow-2xl p-4 sm:p-6 flex flex-col items-center relative overflow-hidden">
+      <div className="w-full rounded-t-2xl bg-[#09151e] border-t border-x border-[#213743] shadow-2xl p-4 sm:p-6 flex flex-col items-center relative overflow-hidden">
         {/* Felt Texture Gradient */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#0e251a]/60 via-[#0a1c13]/40 to-[#09151e] pointer-events-none" />
 
@@ -585,40 +588,28 @@ export default function BaccaratGame() {
       </div>
 
       {/* ========================================================= */}
-      {/* 2. BOTTOM CONTROLS (Directly Beneath Arena)               */}
+      {/* 2. MINES HARMONIZED BETTING CONTROLS SHELL CONTAINER      */}
       {/* ========================================================= */}
-      <div className="w-full mt-4 rounded-2xl bg-[#1a2c38] border border-[#213743] p-4 sm:p-5 flex flex-col gap-4 shadow-xl">
-        {/* Chip Value Selectors */}
-        <div className="w-full flex items-center justify-between">
-          <label className="text-xs font-bold text-[#b1bad3]">Select Chip Value</label>
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            {CHIP_VALUES.map((val) => (
-              <button
-                key={val}
-                onClick={() => {
-                  if (isDealing) return;
-                  sounds.playClick();
-                  setSelectedChip(val);
-                }}
-                disabled={isDealing}
-                className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full border-2 font-mono font-black text-xs flex items-center justify-center transition-all disabled:opacity-50 cursor-pointer ${
-                  selectedChip === val
-                    ? "bg-[#00e701] border-white text-[#011e01] scale-110 shadow-lg shadow-[#00e701]/30"
-                    : "bg-[#0f212e] border-[#213743] text-white hover:border-[#2f4553]"
-                }`}
-              >
-                {val >= 1 ? `$${val}` : `${val * 100}¢`}
-              </button>
-            ))}
-          </div>
+      <div className="w-full border-t border-[#213743] bg-[#1a2c38] p-3 sm:p-4 flex flex-col justify-start space-y-2 sm:space-y-2.5 rounded-b-2xl select-none">
+        {/* 1. PRIMARY BET CTA BUTTON (Directly at top of controls) */}
+        <div className="w-full">
+          <button
+            type="button"
+            onClick={handleDeal}
+            disabled={isDealing || totalBet <= 0}
+            className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
+          >
+            <span>{isDealing ? "DEALING..." : mode === "auto" ? "START AUTOBET" : "DEAL"}</span>
+          </button>
         </div>
 
-        {/* Bet Placement Buttons (Player, Tie, Banker) */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+        {/* 2. BET PLACEMENT BUTTONS (Player, Tie, Banker) */}
+        <div className="grid grid-cols-3 gap-2">
           <button
+            type="button"
             onClick={() => handlePlaceChip("player")}
             disabled={isDealing}
-            className="py-3.5 rounded-xl border border-blue-500/40 bg-blue-950/20 hover:bg-blue-950/40 active:scale-95 text-blue-300 font-black text-xs sm:text-sm uppercase tracking-wider transition-all disabled:opacity-50 cursor-pointer flex flex-col items-center gap-1"
+            className="py-2.5 rounded-lg border border-blue-500/40 bg-blue-950/20 hover:bg-blue-950/40 active:scale-95 text-blue-300 font-bold text-xs uppercase tracking-wider transition-all disabled:opacity-50 cursor-pointer flex flex-col items-center gap-0.5"
           >
             <span>+ PLAYER (1:1)</span>
             <span className="font-mono text-[11px] text-white">
@@ -627,9 +618,10 @@ export default function BaccaratGame() {
           </button>
 
           <button
+            type="button"
             onClick={() => handlePlaceChip("tie")}
             disabled={isDealing}
-            className="py-3.5 rounded-xl border border-emerald-500/40 bg-emerald-950/20 hover:bg-emerald-950/40 active:scale-95 text-emerald-300 font-black text-xs sm:text-sm uppercase tracking-wider transition-all disabled:opacity-50 cursor-pointer flex flex-col items-center gap-1"
+            className="py-2.5 rounded-lg border border-emerald-500/40 bg-emerald-950/20 hover:bg-emerald-950/40 active:scale-95 text-emerald-300 font-bold text-xs uppercase tracking-wider transition-all disabled:opacity-50 cursor-pointer flex flex-col items-center gap-0.5"
           >
             <span>+ TIE (8:1)</span>
             <span className="font-mono text-[11px] text-white">
@@ -638,9 +630,10 @@ export default function BaccaratGame() {
           </button>
 
           <button
+            type="button"
             onClick={() => handlePlaceChip("banker")}
             disabled={isDealing}
-            className="py-3.5 rounded-xl border border-amber-500/40 bg-amber-950/20 hover:bg-amber-950/40 active:scale-95 text-amber-300 font-black text-xs sm:text-sm uppercase tracking-wider transition-all disabled:opacity-50 cursor-pointer flex flex-col items-center gap-1"
+            className="py-2.5 rounded-lg border border-amber-500/40 bg-amber-950/20 hover:bg-amber-950/40 active:scale-95 text-amber-300 font-bold text-xs uppercase tracking-wider transition-all disabled:opacity-50 cursor-pointer flex flex-col items-center gap-0.5"
           >
             <span>+ BANKER (0.95:1)</span>
             <span className="font-mono text-[11px] text-white">
@@ -649,42 +642,90 @@ export default function BaccaratGame() {
           </button>
         </div>
 
-        {/* Bet Modifiers & Total Display */}
-        <div className="w-full flex items-center justify-between pt-1">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleClearBets}
-              disabled={isDealing || totalBet === 0}
-              className="px-3 py-2 rounded-xl bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors disabled:opacity-50 cursor-pointer flex items-center gap-1"
-            >
-              <RotateCcw className="h-3.5 w-3.5" />
-              <span>Clear</span>
-            </button>
-            <button
-              onClick={handleDoubleBets}
-              disabled={isDealing || totalBet === 0}
-              className="px-3 py-2 rounded-xl bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors disabled:opacity-50 cursor-pointer"
-            >
-              2×
-            </button>
+        {/* 3. CHIP SELECTOR & BET MODIFIERS ROW */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-bold text-[#b1bad3]">Select Chip</span>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-bold text-[#8596a5]">
+                Total: <span className="text-white font-mono">{activeSym}{totalBet.toFixed(2)}</span>
+              </span>
+              <span className="font-mono text-[11px] text-[#b1bad3]">
+                Bal: {activeSym}{balance.toFixed(2)}
+              </span>
+            </div>
           </div>
 
-          <div className="text-right">
-            <span className="text-[11px] font-bold text-[#8596a5] block">Total Bet</span>
-            <span className="text-base font-black font-mono text-white">
-              {activeSym}{totalBet.toFixed(2)}
-            </span>
+          <div className="flex items-center justify-between gap-1 p-1 rounded-lg bg-[#0f212e] border border-[#213743]">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {CHIP_VALUES.map((val) => (
+                <button
+                  key={val}
+                  type="button"
+                  onClick={() => {
+                    if (isDealing) return;
+                    sounds.playClick();
+                    setSelectedChip(val);
+                  }}
+                  disabled={isDealing}
+                  className={`px-2.5 py-1 rounded-md border font-mono font-bold text-xs transition-all disabled:opacity-50 cursor-pointer ${
+                    selectedChip === val
+                      ? "bg-[#00e701] border-white text-black font-extrabold shadow-sm"
+                      : "bg-[#1a2c38] border-[#213743] text-white hover:border-[#2f4553]"
+                  }`}
+                >
+                  {val >= 1 ? `${activeSym}${val}` : `${val * 100}¢`}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={handleDoubleBets}
+                disabled={isDealing || totalBet === 0}
+                className="px-2.5 py-1 rounded-md bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors disabled:opacity-50 cursor-pointer"
+              >
+                2×
+              </button>
+              <button
+                type="button"
+                onClick={handleClearBets}
+                disabled={isDealing || totalBet === 0}
+                className="px-2.5 py-1 rounded-md bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors disabled:opacity-50 cursor-pointer flex items-center gap-1"
+              >
+                <RotateCcw className="h-3 w-3" />
+                <span>Clear</span>
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Stake Green Deal CTA Button */}
-        <button
-          onClick={handleDeal}
-          disabled={isDealing || totalBet <= 0}
-          className="w-full py-4 rounded-xl bg-[#00e701] hover:bg-[#00c701] active:scale-[0.99] text-[#011e01] font-black text-sm sm:text-base uppercase tracking-wider shadow-lg shadow-[#00e701]/25 transition-all disabled:opacity-50 cursor-pointer mt-1"
-        >
-          {isDealing ? "Dealing..." : "Deal"}
-        </button>
+        {/* 4. MODE SWITCHER TABS (Manual / Auto) */}
+        <div className="flex rounded-lg bg-[#0f212e] p-1 border border-[#213743] mt-auto">
+          <button
+            type="button"
+            onClick={() => setMode("manual")}
+            className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+              mode === "manual"
+                ? "bg-[#213743] text-white shadow-sm"
+                : "text-[#b1bad3] hover:text-white"
+            }`}
+          >
+            Manual
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode("auto")}
+            className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+              mode === "auto"
+                ? "bg-[#213743] text-white shadow-sm"
+                : "text-[#b1bad3] hover:text-white"
+            }`}
+          >
+            Auto
+          </button>
+        </div>
       </div>
 
       {/* ========================================================= */}

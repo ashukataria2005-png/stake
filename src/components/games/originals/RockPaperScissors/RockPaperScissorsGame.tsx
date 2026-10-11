@@ -54,6 +54,7 @@ export default function RockPaperScissorsGame() {
   }, [addRecentlyPlayedGame]);
 
   // Betting & Choice State
+  const [mode, setMode] = useState<"manual" | "auto">("manual");
   const [betAmount, setBetAmount] = useState<number>(10);
   const [betInput, setBetInput] = useState<string>("10");
   const [playerChoice, setPlayerChoice] = useState<RPSChoice>("rock");
@@ -244,12 +245,14 @@ export default function RockPaperScissorsGame() {
   return (
     <div
       ref={gameContainerRef}
-      className="flex flex-col items-center w-full max-w-4xl mx-auto px-2 sm:px-4 py-4 select-none"
+      className={`w-full max-w-lg mx-auto px-2 sm:px-3 py-2 select-none flex flex-col space-y-0 ${
+        isFullscreen ? "p-6 bg-[#0f212e] min-h-screen max-w-none" : ""
+      }`}
     >
       {/* ========================================================= */}
       {/* 1. TOP INTERACTIVE ARENA: HAND CLASH & STREAK ARENA       */}
       {/* ========================================================= */}
-      <div className="w-full rounded-2xl bg-[#0f212e] border border-[#213743] shadow-2xl p-4 sm:p-6 flex flex-col items-center relative overflow-hidden">
+      <div className="w-full rounded-t-2xl bg-[#0f212e] border-t border-x border-[#213743] shadow-2xl p-4 sm:p-5 flex flex-col items-center relative overflow-hidden">
         {/* Subtle Ambient Glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-fuchsia-600/5 rounded-full blur-3xl pointer-events-none" />
 
@@ -414,111 +417,153 @@ export default function RockPaperScissorsGame() {
       </div>
 
       {/* ========================================================= */}
-      {/* 2. BOTTOM CONTROLS (Directly Beneath Hand Arena)          */}
+      {/* 2. MINES HARMONIZED BETTING CONTROLS SHELL CONTAINER      */}
       {/* ========================================================= */}
-      <div className="w-full mt-4 rounded-2xl bg-[#1a2c38] border border-[#213743] p-4 sm:p-5 flex flex-col gap-4 shadow-xl">
-        {/* Choice Selector: Rock / Paper / Scissors */}
-        <div className="w-full flex flex-col gap-1.5">
+      <div className="w-full border-t border-[#213743] bg-[#1a2c38] p-3 sm:p-4 flex flex-col justify-start space-y-2 sm:space-y-2.5 rounded-b-2xl select-none">
+        {/* 1. PRIMARY BET CTA BUTTON (Directly at top of controls) */}
+        <div className="w-full">
+          {streak > 0 ? (
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={handleShoot}
+                disabled={isPlaying}
+                className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#213743] hover:bg-[#2f4553] text-white shadow-md hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
+              >
+                <span>{isPlaying ? (countdownStep || "BATTLING...") : "SHOOT NEXT"}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleCashout}
+                disabled={isPlaying}
+                className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#00e701] hover:bg-[#00c701] text-black shadow-lg shadow-[#00e701]/25 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
+              >
+                <span>CASHOUT {activeSym}{currentCashout.toFixed(2)}</span>
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={handleShoot}
+              disabled={isPlaying}
+              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
+            >
+              <span>{isPlaying ? (countdownStep || "BATTLING...") : mode === "auto" ? "START AUTOBET" : "SHOOT / PLAY"}</span>
+            </button>
+          )}
+        </div>
+
+        {/* 2. CHOICE SELECTOR: ROCK / PAPER / SCISSORS */}
+        <div className="space-y-1">
           <label className="text-xs font-bold text-[#b1bad3]">Select Your Move</label>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 gap-1.5">
             {CHOICES.map((choice) => (
               <button
                 key={choice.id}
+                type="button"
                 onClick={() => {
                   if (isPlaying) return;
                   sounds.playClick();
                   setPlayerChoice(choice.id);
                 }}
                 disabled={isPlaying}
-                className={`py-3 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all disabled:opacity-50 cursor-pointer ${
+                className={`py-2 rounded-lg border flex flex-col items-center justify-center gap-0.5 transition-all disabled:opacity-50 cursor-pointer ${
                   playerChoice === choice.id
-                    ? "bg-[#00e701]/15 border-[#00e701] text-white shadow-lg shadow-[#00e701]/20 scale-102"
+                    ? "bg-[#00e701]/15 border-[#00e701] text-white shadow-sm"
                     : "bg-[#0f212e] border-[#213743] text-[#b1bad3] hover:text-white hover:border-[#2f4553]"
                 }`}
               >
-                <span className="text-2xl">{choice.icon}</span>
-                <span className="text-xs font-black uppercase tracking-wider">{choice.label}</span>
+                <span className="text-xl">{choice.icon}</span>
+                <span className="text-[11px] font-bold uppercase tracking-wider">{choice.label}</span>
               </button>
             ))}
           </div>
         </div>
 
-        {/* Bet Amount Input & Modifiers (Enabled only when streak = 0) */}
-        <div className="w-full flex flex-col gap-1.5">
-          <div className="flex items-center justify-between text-xs font-bold text-[#b1bad3]">
-            <span>Bet Amount</span>
-            <span>
-              Balance: <span className="text-white font-mono">{activeSym}{balance.toFixed(2)}</span>
+        {/* 3. BET AMOUNT INPUT (Exact Mines Structure) */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-bold text-[#b1bad3]">Bet Amount</span>
+            <span className="font-mono text-[11px] text-[#b1bad3]">
+              Bal: {activeSym}{balance.toFixed(2)}
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
-            <div className="sm:col-span-2 relative flex items-center">
-              <span className="absolute left-3 text-sm font-bold text-[#8596a5]">
-                {activeSym}
-              </span>
+          <div className="flex rounded-lg bg-[#0f212e] border border-[#213743] focus-within:border-[#2f4553] p-1">
+            <div className="flex flex-1 items-center px-2.5">
+              <span className="text-xs font-bold text-[#b1bad3] mr-1.5">{activeSym}</span>
               <input
-                type="number"
-                step="any"
+                type="text"
+                inputMode="decimal"
                 disabled={isPlaying || streak > 0}
                 value={betInput}
                 onChange={(e) => {
-                  setBetInput(e.target.value);
-                  const val = parseFloat(e.target.value);
-                  if (!isNaN(val) && val >= 0) setBetAmount(val);
+                  const val = e.target.value;
+                  if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                    setBetInput(val);
+                    if (val !== "" && !isNaN(parseFloat(val))) {
+                      setBetAmount(parseFloat(val));
+                    }
+                  }
                 }}
-                className="w-full pl-8 pr-3 py-2.5 rounded-xl bg-[#0f212e] border border-[#213743] text-white font-mono font-bold text-sm focus:outline-none focus:border-[#00e701] disabled:opacity-50"
+                onBlur={() => {
+                  if (betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0) {
+                    setBetInput("1.00");
+                    setBetAmount(1);
+                  } else {
+                    const num = parseFloat(betInput);
+                    setBetAmount(num);
+                    setBetInput(num.toFixed(2));
+                  }
+                }}
+                className="w-full bg-transparent text-sm font-bold text-white outline-none font-mono"
               />
             </div>
-
-            <div className="sm:col-span-2 grid grid-cols-3 gap-1.5">
+            <div className="flex items-center gap-1">
               <button
-                onClick={handleHalfBet}
+                type="button"
                 disabled={isPlaying || streak > 0}
-                className="py-2.5 rounded-xl bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors disabled:opacity-50 cursor-pointer"
+                onClick={handleHalfBet}
+                className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
               >
                 ½
               </button>
               <button
-                onClick={handleDoubleBet}
+                type="button"
                 disabled={isPlaying || streak > 0}
-                className="py-2.5 rounded-xl bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors disabled:opacity-50 cursor-pointer"
+                onClick={handleDoubleBet}
+                className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
               >
                 2×
-              </button>
-              <button
-                onClick={handleMaxBet}
-                disabled={isPlaying || streak > 0}
-                className="py-2.5 rounded-xl bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors disabled:opacity-50 cursor-pointer"
-              >
-                Max
               </button>
             </div>
           </div>
         </div>
 
-        {/* Dynamic CTA Buttons: Shoot / Cashout */}
-        <div className="w-full pt-1 flex flex-col sm:flex-row gap-2">
-          {streak > 0 && (
-            <button
-              onClick={handleCashout}
-              disabled={isPlaying}
-              className="w-full py-4 rounded-xl bg-[#00e701] hover:bg-[#00c701] active:scale-[0.99] text-[#011e01] font-black text-sm sm:text-base uppercase tracking-wider shadow-lg shadow-[#00e701]/25 transition-all cursor-pointer"
-            >
-              Cashout {activeSym}{currentCashout.toFixed(2)} ({currentMultiplier}×)
-            </button>
-          )}
-
+        {/* 4. MODE SWITCHER TABS (Manual / Auto) */}
+        <div className="flex rounded-lg bg-[#0f212e] p-1 border border-[#213743] mt-auto">
           <button
-            onClick={handleShoot}
-            disabled={isPlaying}
-            className={`w-full py-4 rounded-xl font-black text-sm sm:text-base uppercase tracking-wider shadow-lg transition-all cursor-pointer ${
-              streak > 0
-                ? "bg-[#213743] hover:bg-[#2f4553] text-white"
-                : "bg-[#00e701] hover:bg-[#00c701] text-[#011e01] shadow-[#00e701]/25"
+            type="button"
+            onClick={() => setMode("manual")}
+            className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+              mode === "manual"
+                ? "bg-[#213743] text-white shadow-sm"
+                : "text-[#b1bad3] hover:text-white"
             }`}
           >
-            {isPlaying ? (countdownStep || "Battling...") : streak > 0 ? "Shoot Next (Keep Streak)" : "Shoot / Play"}
+            Manual
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode("auto")}
+            className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+              mode === "auto"
+                ? "bg-[#213743] text-white shadow-sm"
+                : "text-[#b1bad3] hover:text-white"
+            }`}
+          >
+            Auto
           </button>
         </div>
       </div>

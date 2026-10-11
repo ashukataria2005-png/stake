@@ -183,6 +183,7 @@ export default function TombOfLifeGame() {
   }, [addRecentlyPlayedGame]);
 
   // Betting & Mode State
+  const [mode, setMode] = useState<"manual" | "auto">("manual");
   const [betAmount, setBetAmount] = useState<number>(10);
   const [betInput, setBetInput] = useState<string>("10");
   const [isTurbo, setIsTurbo] = useState<boolean>(false);
@@ -442,12 +443,14 @@ export default function TombOfLifeGame() {
   return (
     <div
       ref={gameContainerRef}
-      className="flex flex-col items-center w-full max-w-4xl mx-auto px-2 sm:px-4 py-4 select-none"
+      className={`w-full max-w-lg mx-auto px-2 sm:px-3 py-2 select-none flex flex-col space-y-0 ${
+        isFullscreen ? "p-6 bg-[#0f212e] min-h-screen max-w-none" : ""
+      }`}
     >
       {/* ========================================================= */}
       {/* 1. TOP INTERACTIVE ARENA: ANCIENT TOMB CRYPT REELS        */}
       {/* ========================================================= */}
-      <div className="w-full rounded-2xl bg-[#0a1824] border border-[#1b3445] shadow-2xl p-4 sm:p-6 flex flex-col items-center relative overflow-hidden">
+      <div className="w-full rounded-t-2xl bg-[#0a1824] border-t border-x border-[#1b3445] shadow-2xl p-4 sm:p-5 flex flex-col items-center relative overflow-hidden">
         {/* Ancient ambient green glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -570,94 +573,137 @@ export default function TombOfLifeGame() {
       </div>
 
       {/* ========================================================= */}
-      {/* 2. BOTTOM CONTROLS (Directly Below Tomb Arena)            */}
+      {/* 2. MINES HARMONIZED BETTING CONTROLS SHELL CONTAINER      */}
       {/* ========================================================= */}
-      <div className="w-full mt-4 rounded-2xl bg-[#1a2c38] border border-[#213743] p-4 sm:p-5 flex flex-col gap-4 shadow-xl">
-        {/* Turbo Mode Toggle */}
-        <div className="flex items-center justify-between">
-          <label className="text-xs font-bold text-[#b1bad3]">Spin Speed</label>
+      <div className="w-full border-t border-[#213743] bg-[#1a2c38] p-3 sm:p-4 flex flex-col justify-start space-y-2 sm:space-y-2.5 rounded-b-2xl select-none">
+        {/* 1. PRIMARY BET CTA BUTTON (Directly at top of controls) */}
+        <div className="w-full">
           <button
+            type="button"
+            onClick={handleSpin}
+            disabled={isSpinning}
+            className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
+          >
+            <span>
+              {isSpinning
+                ? "OPENING CRYPT..."
+                : freeSpinsLeft > 0
+                ? `FREE SPIN (${freeSpinsLeft} LEFT)`
+                : mode === "auto"
+                ? "START AUTOBET"
+                : "SPIN"}
+            </span>
+          </button>
+        </div>
+
+        {/* 2. TURBO SPEED TOGGLE */}
+        <div className="flex items-center justify-between rounded-lg bg-[#0f212e] p-2 border border-[#213743]">
+          <div className="flex items-center gap-2 text-xs font-bold text-[#b1bad3]">
+            <Zap className={`h-4 w-4 ${isTurbo ? "fill-[#00e701] text-[#00e701]" : ""}`} />
+            <span>Turbo Spin Mode</span>
+          </div>
+          <button
+            type="button"
+            disabled={isSpinning}
             onClick={() => {
               sounds.playClick();
               setIsTurbo(!isTurbo);
             }}
-            className={`px-3 py-1.5 rounded-xl border text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer ${
+            className={`px-3 py-1 rounded-md text-xs font-bold transition-all cursor-pointer ${
               isTurbo
-                ? "bg-amber-500/20 border-amber-400 text-amber-300"
-                : "bg-[#0f212e] border-[#213743] text-[#8596a5] hover:text-white"
+                ? "bg-[#00e701] text-black"
+                : "bg-[#213743] text-[#b1bad3] hover:text-white"
             }`}
           >
-            <Zap className="h-3.5 w-3.5" />
-            <span>{isTurbo ? "Turbo Mode Active" : "Normal Speed"}</span>
+            {isTurbo ? "ON" : "OFF"}
           </button>
         </div>
 
-        {/* Bet Amount Input & Quick Modifiers */}
-        <div className="w-full flex flex-col gap-1.5">
-          <div className="flex items-center justify-between text-xs font-bold text-[#b1bad3]">
-            <span>Bet Amount</span>
-            <span>
-              Balance: <span className="text-white font-mono">{activeSym}{balance.toFixed(2)}</span>
+        {/* 3. BET AMOUNT INPUT (Exact Mines Structure) */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-bold text-[#b1bad3]">Bet Amount</span>
+            <span className="font-mono text-[11px] text-[#b1bad3]">
+              Bal: {activeSym}{balance.toFixed(2)}
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
-            <div className="sm:col-span-2 relative flex items-center">
-              <span className="absolute left-3 text-sm font-bold text-[#8596a5]">
-                {activeSym}
-              </span>
+          <div className="flex rounded-lg bg-[#0f212e] border border-[#213743] focus-within:border-[#2f4553] p-1">
+            <div className="flex flex-1 items-center px-2.5">
+              <span className="text-xs font-bold text-[#b1bad3] mr-1.5">{activeSym}</span>
               <input
-                type="number"
-                step="any"
+                type="text"
+                inputMode="decimal"
                 disabled={isSpinning || freeSpinsLeft > 0}
                 value={betInput}
                 onChange={(e) => {
-                  setBetInput(e.target.value);
-                  const val = parseFloat(e.target.value);
-                  if (!isNaN(val) && val >= 0) setBetAmount(val);
+                  const val = e.target.value;
+                  if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                    setBetInput(val);
+                    if (val !== "" && !isNaN(parseFloat(val))) {
+                      setBetAmount(parseFloat(val));
+                    }
+                  }
                 }}
-                className="w-full pl-8 pr-3 py-2.5 rounded-xl bg-[#0f212e] border border-[#213743] text-white font-mono font-bold text-sm focus:outline-none focus:border-[#00e701] disabled:opacity-50"
+                onBlur={() => {
+                  if (betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0) {
+                    setBetInput("1.00");
+                    setBetAmount(1);
+                  } else {
+                    const num = parseFloat(betInput);
+                    setBetAmount(num);
+                    setBetInput(num.toFixed(2));
+                  }
+                }}
+                className="w-full bg-transparent text-sm font-bold text-white outline-none font-mono"
               />
             </div>
-
-            <div className="sm:col-span-2 grid grid-cols-3 gap-1.5">
+            <div className="flex items-center gap-1">
               <button
-                onClick={handleHalfBet}
+                type="button"
                 disabled={isSpinning || freeSpinsLeft > 0}
-                className="py-2.5 rounded-xl bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors disabled:opacity-50 cursor-pointer"
+                onClick={handleHalfBet}
+                className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
               >
                 ½
               </button>
               <button
-                onClick={handleDoubleBet}
+                type="button"
                 disabled={isSpinning || freeSpinsLeft > 0}
-                className="py-2.5 rounded-xl bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors disabled:opacity-50 cursor-pointer"
+                onClick={handleDoubleBet}
+                className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
               >
                 2×
-              </button>
-              <button
-                onClick={handleMaxBet}
-                disabled={isSpinning || freeSpinsLeft > 0}
-                className="py-2.5 rounded-xl bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors disabled:opacity-50 cursor-pointer"
-              >
-                Max
               </button>
             </div>
           </div>
         </div>
 
-        {/* Stake Green Spin CTA Button */}
-        <button
-          onClick={handleSpin}
-          disabled={isSpinning}
-          className="w-full py-4 rounded-xl bg-[#00e701] hover:bg-[#00c701] active:scale-[0.99] text-[#011e01] font-black text-sm sm:text-base uppercase tracking-wider shadow-lg shadow-[#00e701]/25 transition-all disabled:opacity-50 cursor-pointer mt-1"
-        >
-          {isSpinning
-            ? "Opening Ancient Crypt..."
-            : freeSpinsLeft > 0
-            ? `Free Spin (${freeSpinsLeft} Left)`
-            : "Spin"}
-        </button>
+        {/* 4. MODE SWITCHER TABS (Manual / Auto) */}
+        <div className="flex rounded-lg bg-[#0f212e] p-1 border border-[#213743] mt-auto">
+          <button
+            type="button"
+            onClick={() => setMode("manual")}
+            className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+              mode === "manual"
+                ? "bg-[#213743] text-white shadow-sm"
+                : "text-[#b1bad3] hover:text-white"
+            }`}
+          >
+            Manual
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode("auto")}
+            className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+              mode === "auto"
+                ? "bg-[#213743] text-white shadow-sm"
+                : "text-[#b1bad3] hover:text-white"
+            }`}
+          >
+            Auto
+          </button>
+        </div>
       </div>
 
       {/* ========================================================= */}
