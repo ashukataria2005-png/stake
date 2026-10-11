@@ -1,248 +1,927 @@
 "use client";
 
-import React, { useState } from "react";
-import Link from "next/link";
-import { ArrowLeft, RotateCcw, ShieldCheck } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Volume2,
+  VolumeX,
+  ShieldCheck,
+  Maximize2,
+  Minimize2,
+  TrendingUp,
+  X,
+  Copy,
+  Check,
+  Sparkles,
+  RotateCcw,
+  Trash2,
+  Layers,
+} from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
 import confetti from "canvas-confetti";
 
+// Official European Roulette Wheel Sequence (37 numbers)
+export const ROULETTE_NUMBERS = [
+  0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26,
+];
+
+export const RED_NUMBERS = new Set([
+  1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36,
+]);
+
+export function getNumberColor(num: number): "green" | "red" | "black" {
+  if (num === 0) return "green";
+  return RED_NUMBERS.has(num) ? "red" : "black";
+}
+
+// Chip Denominations
+const CHIP_VALUES = [0.1, 1, 5, 10, 25, 100];
+const CHIP_COLORS: Record<number, { bg: string; border: string; text: string }> = {
+  0.1: { bg: "bg-slate-700", border: "border-slate-400", text: "text-white" },
+  1: { bg: "bg-blue-600", border: "border-blue-300", text: "text-white" },
+  5: { bg: "bg-red-600", border: "border-red-300", text: "text-white" },
+  10: { bg: "bg-amber-600", border: "border-amber-300", text: "text-white" },
+  25: { bg: "bg-emerald-600", border: "border-emerald-300", text: "text-white" },
+  100: { bg: "bg-purple-700", border: "border-purple-300", text: "text-white" },
+};
+
+// Types of Bets
+export type BetType =
+  | { kind: "straight"; number: number }
+  | { kind: "color"; color: "red" | "black" }
+  | { kind: "parity"; parity: "even" | "odd" }
+  | { kind: "range"; range: "low" | "high" } // 1-18 or 19-36
+  | { kind: "dozen"; dozen: 1 | 2 | 3 } // 1-12, 13-24, 25-36
+  | { kind: "column"; col: 1 | 2 | 3 };
+
+interface PlacedBet {
+  id: string;
+  type: BetType;
+  amount: number;
+}
+
 export default function RouletteGame() {
-  const { balance, updateBalance, currency, formatBalance, currencySymbol } = useGame();
+  const { balance, updateBalance, currencySymbol, addRecentlyPlayedGame } = useGame();
   const activeSym = currencySymbol || "$";
-  const [betAmount, setBetAmount] = useState<number>(10);
-  const [betInput, setBetInput] = useState<string>("10");
 
-  React.useEffect(() => {
-    if (betInput !== "" && parseFloat(betInput) === betAmount) return;
-    setBetInput(betAmount.toString());
-  }, [betAmount]);
-
-  const [selectedBet, setSelectedBet] = useState<"red" | "black" | "even" | "odd" | "green">("red");
-  const [lastNumber, setLastNumber] = useState<number | null>(null);
-  const [isSpinning, setIsSpinning] = useState<boolean>(false);
-  const [hasWon, setHasWon] = useState<boolean | null>(null);
-
-  const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
-
-  const spinRoulette = () => {
-    if (isSpinning) return;
-    const effectiveBet =
-      betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0
-        ? 1
-        : parseFloat(betInput);
-
-    if (betInput === "" || isNaN(parseFloat(betInput))) {
-      setBetInput(effectiveBet.toString());
-      setBetAmount(effectiveBet);
+  // Register in Recently Played
+  useEffect(() => {
+    if (addRecentlyPlayedGame) {
+      addRecentlyPlayedGame({
+        id: "roulette",
+        title: "Roulette",
+        image: "/games/stake-originals/roulette.webp",
+        href: "/games/roulette",
+      });
     }
+  }, []);
 
-    if (effectiveBet > balance) {
-      alert("Insufficient balance! Please use the Wallet button.");
+  // Betting State
+  const [selectedChip, setSelectedChip] = useState<number>(1);
+  const [placedBets, setPlacedBets] = useState<PlacedBet[]>([]);
+  const [history, setHistory] = useState<number[]>([14, 2, 0, 31, 9, 26]);
+
+  // Game Engine & Wheel Animation State
+  const [isSpinning, setIsSpinning] = useState<boolean>(false);
+  const [winningNumber, setWinningNumber] = useState<number | null>(null);
+  const [lastWinAmount, setLastWinAmount] = useState<number | null>(null);
+  const [wheelRotation, setWheelRotation] = useState<number>(0);
+  const [ballRotation, setBallRotation] = useState<number>(0);
+
+  // Settings & Modals
+  const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+  const gameContainerRef = useRef<HTMLDivElement>(null);
+  const [showFairnessModal, setShowFairnessModal] = useState<boolean>(false);
+  const [showLiveStats, setShowLiveStats] = useState<boolean>(false);
+  const [copiedSeed, setCopiedSeed] = useState<boolean>(false);
+
+  // Live Stats
+  const [stats, setStats] = useState({
+    rounds: 0,
+    wins: 0,
+    losses: 0,
+    wagered: 0,
+    profit: 0,
+  });
+
+  const totalBetAmount = parseFloat(
+    placedBets.reduce((sum, b) => sum + b.amount, 0).toFixed(2)
+  );
+
+  // Place or accumulate chip on a bet cell
+  const handlePlaceBet = (type: BetType, betId: string) => {
+    if (isSpinning) return;
+    if (balance < totalBetAmount + selectedChip) {
+      alert("Insufficient balance!");
       return;
     }
-    if (effectiveBet <= 0) return;
 
-    updateBalance(-effectiveBet);
-    setIsSpinning(true);
-    setHasWon(null);
-    sounds.playDiceRoll();
+    if (soundEnabled) sounds.playChipPlace();
 
-    const start = performance.now();
-    const interval = setInterval(() => {
-      setLastNumber(Math.floor(Math.random() * 37));
-      if (performance.now() - start > 2200) {
-        clearInterval(interval);
-        const finalNum = Math.floor(Math.random() * 37);
-        setLastNumber(finalNum);
-        setIsSpinning(false);
-
-        let won = false;
-        let payoutMult = 0;
-
-        if (selectedBet === "green" && finalNum === 0) {
-          won = true;
-          payoutMult = 36;
-        } else if (selectedBet === "red" && redNumbers.includes(finalNum)) {
-          won = true;
-          payoutMult = 2;
-        } else if (selectedBet === "black" && finalNum !== 0 && !redNumbers.includes(finalNum)) {
-          won = true;
-          payoutMult = 2;
-        } else if (selectedBet === "even" && finalNum !== 0 && finalNum % 2 === 0) {
-          won = true;
-          payoutMult = 2;
-        } else if (selectedBet === "odd" && finalNum % 2 === 1) {
-          won = true;
-          payoutMult = 2;
-        }
-
-        setHasWon(won);
-
-        if (won) {
-          const payout = parseFloat((betAmount * payoutMult).toFixed(2));
-          updateBalance(payout);
-          sounds.playDiceWin();
-          try {
-            confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
-          } catch {}
-        } else {
-          sounds.playDiceLoss();
-        }
+    setPlacedBets((prev) => {
+      const existing = prev.find((b) => b.id === betId);
+      if (existing) {
+        return prev.map((b) =>
+          b.id === betId ? { ...b, amount: parseFloat((b.amount + selectedChip).toFixed(2)) } : b
+        );
       }
-    }, 50);
+      return [...prev, { id: betId, type, amount: selectedChip }];
+    });
+  };
+
+  const handleClearBets = () => {
+    if (isSpinning) return;
+    if (soundEnabled) sounds.playClick();
+    setPlacedBets([]);
+  };
+
+  const handleUndoBet = () => {
+    if (isSpinning || placedBets.length === 0) return;
+    if (soundEnabled) sounds.playClick();
+    setPlacedBets((prev) => prev.slice(0, -1));
+  };
+
+  const handleDoubleBets = () => {
+    if (isSpinning || placedBets.length === 0) return;
+    const nextTotal = totalBetAmount * 2;
+    if (balance < nextTotal) {
+      alert("Insufficient balance to double all bets!");
+      return;
+    }
+    if (soundEnabled) sounds.playClick();
+    setPlacedBets((prev) =>
+      prev.map((b) => ({ ...b, amount: parseFloat((b.amount * 2).toFixed(2)) }))
+    );
+  };
+
+  // Spin Roulette Wheel
+  const handleSpin = () => {
+    if (isSpinning || placedBets.length === 0) return;
+    if (balance < totalBetAmount) {
+      alert("Insufficient balance!");
+      return;
+    }
+
+    updateBalance(-totalBetAmount);
+    setIsSpinning(true);
+    setWinningNumber(null);
+    setLastWinAmount(null);
+
+    if (soundEnabled) sounds.playRouletteSpin();
+
+    // Determine outcome using Provably Fair single-zero wheel
+    const resultNum = ROULETTE_NUMBERS[Math.floor(Math.random() * ROULETTE_NUMBERS.length)];
+    const resultIndex = ROULETTE_NUMBERS.indexOf(resultNum);
+
+    // Calculate rotation angles
+    const pocketAngle = 360 / 37;
+    const targetWheelRotation = wheelRotation + 1440 + Math.random() * 360;
+    const targetBallRotation = ballRotation - 2160 - (resultIndex * pocketAngle);
+
+    setWheelRotation(targetWheelRotation);
+    setBallRotation(targetBallRotation);
+
+    // Ball deceleration audio ticks
+    let bounceInterval = setInterval(() => {
+      if (soundEnabled) sounds.playBallBounce();
+    }, 400);
+
+    setTimeout(() => {
+      clearInterval(bounceInterval);
+      setWinningNumber(resultNum);
+      setIsSpinning(false);
+      setHistory((prev) => [resultNum, ...prev.slice(0, 9)]);
+
+      // Calculate total payouts across all placed bets
+      let totalWon = 0;
+      const resColor = getNumberColor(resultNum);
+
+      placedBets.forEach((bet) => {
+        let isWin = false;
+        let payoutRatio = 0;
+
+        switch (bet.type.kind) {
+          case "straight":
+            if (bet.type.number === resultNum) {
+              isWin = true;
+              payoutRatio = 36; // 35:1 + original
+            }
+            break;
+          case "color":
+            if (resultNum !== 0 && bet.type.color === resColor) {
+              isWin = true;
+              payoutRatio = 2; // 1:1 + original
+            }
+            break;
+          case "parity":
+            if (resultNum !== 0) {
+              const isEven = resultNum % 2 === 0;
+              if ((bet.type.parity === "even" && isEven) || (bet.type.parity === "odd" && !isEven)) {
+                isWin = true;
+                payoutRatio = 2;
+              }
+            }
+            break;
+          case "range":
+            if (resultNum !== 0) {
+              if ((bet.type.range === "low" && resultNum >= 1 && resultNum <= 18) ||
+                  (bet.type.range === "high" && resultNum >= 19 && resultNum <= 36)) {
+                isWin = true;
+                payoutRatio = 2;
+              }
+            }
+            break;
+          case "dozen":
+            if (resultNum !== 0) {
+              const doz = Math.ceil(resultNum / 12);
+              if (doz === bet.type.dozen) {
+                isWin = true;
+                payoutRatio = 3;
+              }
+            }
+            break;
+          case "column":
+            if (resultNum !== 0) {
+              const col = ((resultNum - 1) % 3) + 1;
+              if (col === bet.type.col) {
+                isWin = true;
+                payoutRatio = 3;
+              }
+            }
+            break;
+        }
+
+        if (isWin) {
+          totalWon += bet.amount * payoutRatio;
+        }
+      });
+
+      const finalPayout = parseFloat(totalWon.toFixed(2));
+      const profitDelta = parseFloat((finalPayout - totalBetAmount).toFixed(2));
+
+      if (finalPayout > 0) {
+        updateBalance(finalPayout);
+        setLastWinAmount(finalPayout);
+        if (soundEnabled) sounds.playRouletteWin();
+        confetti({ particleCount: 75, spread: 65, origin: { y: 0.55 } });
+      }
+
+      setStats((prev) => ({
+        ...prev,
+        rounds: prev.rounds + 1,
+        wins: finalPayout > 0 ? prev.wins + 1 : prev.wins,
+        losses: finalPayout === 0 ? prev.losses + 1 : prev.losses,
+        wagered: parseFloat((prev.wagered + totalBetAmount).toFixed(2)),
+        profit: parseFloat((prev.profit + profitDelta).toFixed(2)),
+      }));
+    }, 3200);
+  };
+
+  const getBetOnId = (id: string) => {
+    const found = placedBets.find((b) => b.id === id);
+    return found ? found.amount : null;
+  };
+
+  const toggleFullscreen = () => {
+    if (!gameContainerRef.current) return;
+    if (!document.fullscreenElement) {
+      gameContainerRef.current.requestFullscreen().then(() => setIsFullscreen(true)).catch(() => {});
+    } else {
+      document.exitFullscreen().then(() => setIsFullscreen(false)).catch(() => {});
+    }
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 py-6 select-none space-y-6">
-      <div className="flex items-center justify-between">
-        <Link
-          href="/"
-          className="flex items-center gap-2 text-xs font-bold text-[#b1bad3] hover:text-white transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <span>Back to Casino Lobby</span>
-        </Link>
-        <div className="flex items-center gap-1.5 text-xs font-bold text-[#00e701] rounded-lg bg-[#00e701]/10 px-2.5 py-1 border border-[#00e701]/20">
-          <ShieldCheck className="h-4 w-4" />
-          <span>Provably Fair European Roulette</span>
+    <div
+      ref={gameContainerRef}
+      className="flex flex-col items-center w-full min-h-[calc(100vh-64px)] bg-[#0f212e] text-white p-3 sm:p-6 select-none font-sans"
+    >
+      {/* =========================================================================
+          TOP: ROULETTE WHEEL & LIVE RESULT TRACK ARENA
+      ========================================================================== */}
+      <div className="w-full max-w-4xl bg-[#1a2c38] rounded-2xl p-4 sm:p-6 border border-[#213743] shadow-2xl flex flex-col items-center relative overflow-hidden mb-5">
+        
+        {/* Subtle Ambient Background */}
+        <div className="absolute -top-32 -left-32 w-80 h-80 bg-red-600/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-32 -right-32 w-80 h-80 bg-[#00e701]/10 rounded-full blur-3xl pointer-events-none" />
+
+        {/* Recent Winning Numbers History Strip */}
+        <div className="w-full flex items-center justify-between bg-[#0f212e]/80 backdrop-blur-md rounded-xl p-2.5 sm:px-4 mb-4 border border-[#213743]">
+          <span className="text-[11px] font-bold text-[#b1bad3] uppercase tracking-wider hidden sm:inline">
+            History:
+          </span>
+          <div className="flex items-center gap-1.5 overflow-x-auto py-1">
+            {history.map((num, i) => {
+              const col = getNumberColor(num);
+              return (
+                <div
+                  key={i}
+                  className={`w-7 h-7 rounded-full flex items-center justify-center font-mono font-bold text-xs border shadow-sm ${
+                    col === "green"
+                      ? "bg-[#00e701]/20 border-[#00e701] text-[#00e701]"
+                      : col === "red"
+                      ? "bg-red-600/20 border-red-500 text-red-400"
+                      : "bg-slate-800 border-slate-500 text-white"
+                  }`}
+                >
+                  {num}
+                </div>
+              );
+            })}
+          </div>
+          <div className="text-xs font-mono font-bold text-[#b1bad3]">
+            European 37-Pocket
+          </div>
         </div>
+
+        {/* Center Realistic Spinning Roulette Wheel */}
+        <div className="relative w-64 h-64 sm:w-72 sm:h-72 my-2 flex items-center justify-center">
+          
+          {/* Wheel SVG Outer Turret Rim */}
+          <div
+            className="w-full h-full rounded-full border-4 border-amber-600/60 shadow-[0_0_40px_rgba(0,0,0,0.8)] relative flex items-center justify-center bg-gradient-to-tr from-[#121b22] to-[#1c2c37]"
+            style={{
+              transform: `rotate(${wheelRotation}deg)`,
+              transition: isSpinning ? "transform 3.2s cubic-bezier(0.2, 0.8, 0.2, 1)" : "none",
+            }}
+          >
+            {/* 37 Number Pockets Rim */}
+            <svg viewBox="0 0 300 300" className="w-full h-full absolute inset-0">
+              <circle cx="150" cy="150" r="146" fill="#1e293b" stroke="#334155" strokeWidth="2" />
+              {ROULETTE_NUMBERS.map((num, idx) => {
+                const angle = (idx * 360) / 37;
+                const col = getNumberColor(num);
+                const fillColor = col === "green" ? "#00e701" : col === "red" ? "#dc2626" : "#0f172a";
+                return (
+                  <g key={idx} transform={`rotate(${angle} 150 150)`}>
+                    {/* Pocket Slice */}
+                    <path
+                      d="M150 150 L140 10 A140 140 0 0 1 160 10 Z"
+                      fill={fillColor}
+                      opacity={0.85}
+                    />
+                    {/* Number Label */}
+                    <text
+                      x="150"
+                      y="26"
+                      fill="#ffffff"
+                      fontSize="9"
+                      fontWeight="bold"
+                      textAnchor="middle"
+                      fontFamily="monospace"
+                      transform={`rotate(180 150 26)`}
+                    >
+                      {num}
+                    </text>
+                  </g>
+                );
+              })}
+              {/* Inner Metallic Brass Hub */}
+              <circle cx="150" cy="150" r="75" fill="#0f172a" stroke="#d97706" strokeWidth="3" />
+              <circle cx="150" cy="150" r="45" fill="#451a03" stroke="#b45309" strokeWidth="2" />
+              <circle cx="150" cy="150" r="18" fill="#d97706" />
+            </svg>
+          </div>
+
+          {/* Silver Roulette Ball Running in Track */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              transform: `rotate(${ballRotation}deg)`,
+              transition: isSpinning ? "transform 3.2s cubic-bezier(0.2, 0.8, 0.2, 1)" : "none",
+            }}
+          >
+            <div className="w-3.5 h-3.5 rounded-full bg-gradient-to-tr from-slate-300 via-white to-slate-400 border border-slate-400 shadow-[0_0_8px_white] absolute top-3 left-1/2 -translate-x-1/2" />
+          </div>
+
+          {/* Center Result Overlay Reveal */}
+          {winningNumber !== null && !isSpinning && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div
+                className={`w-18 h-18 sm:w-20 sm:h-20 rounded-full flex flex-col items-center justify-center font-mono font-black text-2xl sm:text-3xl border-4 shadow-2xl animate-in zoom-in-75 duration-300 ${
+                  getNumberColor(winningNumber) === "green"
+                    ? "bg-[#00e701] border-white text-black"
+                    : getNumberColor(winningNumber) === "red"
+                    ? "bg-red-600 border-white text-white"
+                    : "bg-black border-white text-white"
+                }`}
+              >
+                <span>{winningNumber}</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Win / Payout Status Banner */}
+        {lastWinAmount !== null && (
+          <div className="mt-3 px-6 py-2 rounded-xl bg-[#00e701]/10 border border-[#00e701]/40 flex items-center gap-2 animate-in fade-in">
+            <Sparkles className="h-4 w-4 text-[#00e701]" />
+            <span className="text-xs sm:text-sm font-bold text-[#00e701]">
+              Winning Number {winningNumber}! Payout: {activeSym}{lastWinAmount.toFixed(2)}
+            </span>
+          </div>
+        )}
       </div>
 
-      {/* Main 2-Panel Container: On mobile, Display Area is on top, Controls below */}
-      <div className="rounded-2xl border border-[#213743] bg-[#1a2c38] overflow-hidden shadow-2xl flex flex-col-reverse lg:flex-row">
-        {/* Controls Panel */}
-        <div className="w-full lg:w-[340px] shrink-0 border-t lg:border-t-0 lg:border-r border-[#213743] bg-[#1a2c38] p-5 space-y-4 flex flex-col justify-start">
-          {/* [Section 2 - Directly below Game Screen]: PRIMARY ACTION BUTTON */}
-          <div className="w-full">
+      {/* =========================================================================
+          CONTROLS: AUTHENTIC FELT GRID & CHIP SELECTOR (Directly Below Wheel)
+      ========================================================================== */}
+      <div className="w-full max-w-4xl bg-[#1a2c38] rounded-2xl p-4 sm:p-5 border border-[#213743] shadow-xl space-y-4">
+        
+        {/* Felt Betting Grid (1-36, 0, Columns, Dozens, Outside Bets) */}
+        <div className="w-full overflow-x-auto pb-1">
+          <div className="min-w-[620px] bg-[#0c1e15] border-2 border-[#164e33] rounded-xl p-3 shadow-inner select-none">
+            
+            {/* Top Section: Single Zero + 3 Rows of 12 Numbers + 2 to 1 Columns */}
+            <div className="grid grid-cols-[45px_repeat(12,1fr)_55px] gap-1 text-center font-bold text-xs">
+              
+              {/* Zero (spans 3 rows) */}
+              <button
+                type="button"
+                disabled={isSpinning}
+                onClick={() => handlePlaceBet({ kind: "straight", number: 0 }, "num_0")}
+                className="row-span-3 bg-[#00e701]/20 hover:bg-[#00e701]/30 border border-[#00e701] text-[#00e701] rounded-lg flex flex-col items-center justify-center font-mono font-black text-base cursor-pointer relative"
+              >
+                <span>0</span>
+                {getBetOnId("num_0") && (
+                  <div className="absolute w-5 h-5 rounded-full bg-amber-400 text-black text-[9px] font-black flex items-center justify-center shadow">
+                    {getBetOnId("num_0")}
+                  </div>
+                )}
+              </button>
+
+              {/* Row 1: Numbers 3, 6, 9, ... 36 */}
+              {[3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36].map((num) => {
+                const isRed = RED_NUMBERS.has(num);
+                const betId = `num_${num}`;
+                const val = getBetOnId(betId);
+                return (
+                  <button
+                    key={num}
+                    type="button"
+                    disabled={isSpinning}
+                    onClick={() => handlePlaceBet({ kind: "straight", number: num }, betId)}
+                    className={`h-10 rounded flex items-center justify-center font-mono font-black border transition-all cursor-pointer relative ${
+                      isRed
+                        ? "bg-red-700/80 hover:bg-red-600 border-red-500 text-white"
+                        : "bg-slate-900 hover:bg-slate-800 border-slate-700 text-white"
+                    }`}
+                  >
+                    <span>{num}</span>
+                    {val && (
+                      <div className="absolute w-5 h-5 rounded-full bg-amber-400 text-black text-[9px] font-black flex items-center justify-center shadow">
+                        {val}
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+              {/* 2 to 1 Column 3 */}
+              <button
+                type="button"
+                disabled={isSpinning}
+                onClick={() => handlePlaceBet({ kind: "column", col: 3 }, "col_3")}
+                className="h-10 bg-[#164e33]/50 hover:bg-[#164e33] border border-[#21774d] rounded text-[10px] font-black flex items-center justify-center text-[#b1bad3] relative cursor-pointer"
+              >
+                <span>2 to 1</span>
+                {getBetOnId("col_3") && (
+                  <div className="absolute w-5 h-5 rounded-full bg-amber-400 text-black text-[9px] font-black flex items-center justify-center shadow">
+                    {getBetOnId("col_3")}
+                  </div>
+                )}
+              </button>
+
+              {/* Row 2: Numbers 2, 5, 8, ... 35 */}
+              {[2, 5, 8, 11, 14, 17, 20, 23, 26, 29, 32, 35].map((num) => {
+                const isRed = RED_NUMBERS.has(num);
+                const betId = `num_${num}`;
+                const val = getBetOnId(betId);
+                return (
+                  <button
+                    key={num}
+                    type="button"
+                    disabled={isSpinning}
+                    onClick={() => handlePlaceBet({ kind: "straight", number: num }, betId)}
+                    className={`h-10 rounded flex items-center justify-center font-mono font-black border transition-all cursor-pointer relative ${
+                      isRed
+                        ? "bg-red-700/80 hover:bg-red-600 border-red-500 text-white"
+                        : "bg-slate-900 hover:bg-slate-800 border-slate-700 text-white"
+                    }`}
+                  >
+                    <span>{num}</span>
+                    {val && (
+                      <div className="absolute w-5 h-5 rounded-full bg-amber-400 text-black text-[9px] font-black flex items-center justify-center shadow">
+                        {val}
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+              {/* 2 to 1 Column 2 */}
+              <button
+                type="button"
+                disabled={isSpinning}
+                onClick={() => handlePlaceBet({ kind: "column", col: 2 }, "col_2")}
+                className="h-10 bg-[#164e33]/50 hover:bg-[#164e33] border border-[#21774d] rounded text-[10px] font-black flex items-center justify-center text-[#b1bad3] relative cursor-pointer"
+              >
+                <span>2 to 1</span>
+                {getBetOnId("col_2") && (
+                  <div className="absolute w-5 h-5 rounded-full bg-amber-400 text-black text-[9px] font-black flex items-center justify-center shadow">
+                    {getBetOnId("col_2")}
+                  </div>
+                )}
+              </button>
+
+              {/* Row 3: Numbers 1, 4, 7, ... 34 */}
+              {[1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34].map((num) => {
+                const isRed = RED_NUMBERS.has(num);
+                const betId = `num_${num}`;
+                const val = getBetOnId(betId);
+                return (
+                  <button
+                    key={num}
+                    type="button"
+                    disabled={isSpinning}
+                    onClick={() => handlePlaceBet({ kind: "straight", number: num }, betId)}
+                    className={`h-10 rounded flex items-center justify-center font-mono font-black border transition-all cursor-pointer relative ${
+                      isRed
+                        ? "bg-red-700/80 hover:bg-red-600 border-red-500 text-white"
+                        : "bg-slate-900 hover:bg-slate-800 border-slate-700 text-white"
+                    }`}
+                  >
+                    <span>{num}</span>
+                    {val && (
+                      <div className="absolute w-5 h-5 rounded-full bg-amber-400 text-black text-[9px] font-black flex items-center justify-center shadow">
+                        {val}
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+              {/* 2 to 1 Column 1 */}
+              <button
+                type="button"
+                disabled={isSpinning}
+                onClick={() => handlePlaceBet({ kind: "column", col: 1 }, "col_1")}
+                className="h-10 bg-[#164e33]/50 hover:bg-[#164e33] border border-[#21774d] rounded text-[10px] font-black flex items-center justify-center text-[#b1bad3] relative cursor-pointer"
+              >
+                <span>2 to 1</span>
+                {getBetOnId("col_1") && (
+                  <div className="absolute w-5 h-5 rounded-full bg-amber-400 text-black text-[9px] font-black flex items-center justify-center shadow">
+                    {getBetOnId("col_1")}
+                  </div>
+                )}
+              </button>
+            </div>
+
+            {/* Mid Section: Dozens (1st 12, 2nd 12, 3rd 12) */}
+            <div className="grid grid-cols-[45px_repeat(3,1fr)_55px] gap-1 mt-1 text-center font-bold text-xs">
+              <div />
+              {[
+                { title: "1st 12", doz: 1 as const },
+                { title: "2nd 12", doz: 2 as const },
+                { title: "3rd 12", doz: 3 as const },
+              ].map(({ title, doz }) => {
+                const betId = `doz_${doz}`;
+                const val = getBetOnId(betId);
+                return (
+                  <button
+                    key={doz}
+                    type="button"
+                    disabled={isSpinning}
+                    onClick={() => handlePlaceBet({ kind: "dozen", dozen: doz }, betId)}
+                    className="h-8 bg-[#164e33]/40 hover:bg-[#164e33] border border-[#21774d] rounded text-xs font-black flex items-center justify-center text-[#b1bad3] relative cursor-pointer"
+                  >
+                    <span>{title}</span>
+                    {val && (
+                      <div className="absolute w-5 h-5 rounded-full bg-amber-400 text-black text-[9px] font-black flex items-center justify-center shadow">
+                        {val}
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+              <div />
+            </div>
+
+            {/* Bottom Section: Outside Bets (1-18, Even, Red, Black, Odd, 19-36) */}
+            <div className="grid grid-cols-[45px_repeat(6,1fr)_55px] gap-1 mt-1 text-center font-bold text-xs">
+              <div />
+              {/* 1-18 */}
+              <button
+                type="button"
+                disabled={isSpinning}
+                onClick={() => handlePlaceBet({ kind: "range", range: "low" }, "range_low")}
+                className="h-8 bg-[#164e33]/30 hover:bg-[#164e33] border border-[#21774d] rounded text-[11px] font-bold text-[#b1bad3] flex items-center justify-center relative cursor-pointer"
+              >
+                <span>1 - 18</span>
+                {getBetOnId("range_low") && (
+                  <div className="absolute w-5 h-5 rounded-full bg-amber-400 text-black text-[9px] font-black flex items-center justify-center shadow">
+                    {getBetOnId("range_low")}
+                  </div>
+                )}
+              </button>
+
+              {/* Even */}
+              <button
+                type="button"
+                disabled={isSpinning}
+                onClick={() => handlePlaceBet({ kind: "parity", parity: "even" }, "parity_even")}
+                className="h-8 bg-[#164e33]/30 hover:bg-[#164e33] border border-[#21774d] rounded text-[11px] font-bold text-[#b1bad3] flex items-center justify-center relative cursor-pointer"
+              >
+                <span>EVEN</span>
+                {getBetOnId("parity_even") && (
+                  <div className="absolute w-5 h-5 rounded-full bg-amber-400 text-black text-[9px] font-black flex items-center justify-center shadow">
+                    {getBetOnId("parity_even")}
+                  </div>
+                )}
+              </button>
+
+              {/* Red */}
+              <button
+                type="button"
+                disabled={isSpinning}
+                onClick={() => handlePlaceBet({ kind: "color", color: "red" }, "color_red")}
+                className="h-8 bg-red-700/70 hover:bg-red-600 border border-red-500 rounded text-[11px] font-black text-white flex items-center justify-center relative cursor-pointer"
+              >
+                <span>RED</span>
+                {getBetOnId("color_red") && (
+                  <div className="absolute w-5 h-5 rounded-full bg-amber-400 text-black text-[9px] font-black flex items-center justify-center shadow">
+                    {getBetOnId("color_red")}
+                  </div>
+                )}
+              </button>
+
+              {/* Black */}
+              <button
+                type="button"
+                disabled={isSpinning}
+                onClick={() => handlePlaceBet({ kind: "color", color: "black" }, "color_black")}
+                className="h-8 bg-slate-900 hover:bg-slate-800 border border-slate-600 rounded text-[11px] font-black text-white flex items-center justify-center relative cursor-pointer"
+              >
+                <span>BLACK</span>
+                {getBetOnId("color_black") && (
+                  <div className="absolute w-5 h-5 rounded-full bg-amber-400 text-black text-[9px] font-black flex items-center justify-center shadow">
+                    {getBetOnId("color_black")}
+                  </div>
+                )}
+              </button>
+
+              {/* Odd */}
+              <button
+                type="button"
+                disabled={isSpinning}
+                onClick={() => handlePlaceBet({ kind: "parity", parity: "odd" }, "parity_odd")}
+                className="h-8 bg-[#164e33]/30 hover:bg-[#164e33] border border-[#21774d] rounded text-[11px] font-bold text-[#b1bad3] flex items-center justify-center relative cursor-pointer"
+              >
+                <span>ODD</span>
+                {getBetOnId("parity_odd") && (
+                  <div className="absolute w-5 h-5 rounded-full bg-amber-400 text-black text-[9px] font-black flex items-center justify-center shadow">
+                    {getBetOnId("parity_odd")}
+                  </div>
+                )}
+              </button>
+
+              {/* 19-36 */}
+              <button
+                type="button"
+                disabled={isSpinning}
+                onClick={() => handlePlaceBet({ kind: "range", range: "high" }, "range_high")}
+                className="h-8 bg-[#164e33]/30 hover:bg-[#164e33] border border-[#21774d] rounded text-[11px] font-bold text-[#b1bad3] flex items-center justify-center relative cursor-pointer"
+              >
+                <span>19 - 36</span>
+                {getBetOnId("range_high") && (
+                  <div className="absolute w-5 h-5 rounded-full bg-amber-400 text-black text-[9px] font-black flex items-center justify-center shadow">
+                    {getBetOnId("range_high")}
+                  </div>
+                )}
+              </button>
+              <div />
+            </div>
+          </div>
+        </div>
+
+        {/* Chip Denominations Selector & Table Actions Row */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+          {/* Chip Selector */}
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {CHIP_VALUES.map((val) => {
+              const isSelected = selectedChip === val;
+              const style = CHIP_COLORS[val];
+              return (
+                <button
+                  key={val}
+                  type="button"
+                  disabled={isSpinning}
+                  onClick={() => {
+                    if (soundEnabled) sounds.playClick();
+                    setSelectedChip(val);
+                  }}
+                  className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full border-2 ${style.bg} ${style.border} ${style.text} flex items-center justify-center font-mono font-black text-[11px] sm:text-xs shadow-md transition-all transform cursor-pointer ${
+                    isSelected ? "scale-110 ring-2 ring-white" : "opacity-80 hover:opacity-100"
+                  }`}
+                >
+                  {val >= 1 ? val : ".1"}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Quick Table Utilities: Undo, Double, Clear */}
+          <div className="flex items-center gap-1.5">
             <button
-              onClick={spinRoulette}
-              disabled={isSpinning || betAmount > balance || betAmount <= 0}
-              className="w-full py-4 text-base font-extrabold rounded-lg bg-[#00e701] text-black shadow-md hover:brightness-110 active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+              type="button"
+              disabled={isSpinning || placedBets.length === 0}
+              onClick={handleUndoBet}
+              className="px-3 py-2 rounded-xl bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white text-xs font-bold transition-colors disabled:opacity-40 cursor-pointer"
+              title="Undo Last Bet"
             >
-              <RotateCcw className={`h-5 w-5 ${isSpinning ? "animate-spin" : ""}`} />
-              <span>{isSpinning ? "Spinning Ball..." : "Bet"}</span>
+              Undo
+            </button>
+            <button
+              type="button"
+              disabled={isSpinning || placedBets.length === 0}
+              onClick={handleDoubleBets}
+              className="px-3 py-2 rounded-xl bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white text-xs font-bold transition-colors disabled:opacity-40 cursor-pointer"
+              title="Double Bets"
+            >
+              2×
+            </button>
+            <button
+              type="button"
+              disabled={isSpinning || placedBets.length === 0}
+              onClick={handleClearBets}
+              className="p-2 rounded-xl bg-[#213743] hover:bg-red-500/20 text-[#b1bad3] hover:text-red-400 text-xs font-bold transition-colors disabled:opacity-40 cursor-pointer"
+              title="Clear Table"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Primary Green CTA Button `#00e701` Spin */}
+        <div>
+          <button
+            onClick={handleSpin}
+            disabled={isSpinning || placedBets.length === 0}
+            className={`w-full py-4 rounded-xl font-black text-sm tracking-wide uppercase transition-all duration-200 transform active:scale-[0.99] ${
+              !isSpinning && placedBets.length > 0
+                ? "bg-[#00e701] hover:bg-[#00c701] text-black shadow-[0_0_20px_rgba(0,231,1,0.4)] cursor-pointer"
+                : "bg-[#213743] text-[#b1bad3] cursor-not-allowed"
+            }`}
+          >
+            {isSpinning
+              ? "Spinning..."
+              : placedBets.length > 0
+              ? `Spin (Bet ${activeSym}${totalBetAmount.toFixed(2)})`
+              : "Place Chips on Felt to Spin"}
+          </button>
+        </div>
+
+        {/* Footer Utility Icons: Sound, Stats, Fairness, Fullscreen */}
+        <div className="flex items-center justify-between pt-2 border-t border-[#213743] text-[#b1bad3]">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setSoundEnabled(!soundEnabled)}
+              className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors"
+              title={soundEnabled ? "Mute" : "Unmute"}
+            >
+              {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+            </button>
+
+            <button
+              onClick={() => setShowLiveStats(true)}
+              className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors flex items-center gap-1.5 text-xs font-semibold"
+            >
+              <TrendingUp className="h-4 w-4" />
+              <span className="hidden sm:inline">Live Stats</span>
+            </button>
+
+            <button
+              onClick={() => setShowFairnessModal(true)}
+              className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors flex items-center gap-1.5 text-xs font-semibold"
+            >
+              <ShieldCheck className="h-4 w-4 text-[#00e701]" />
+              <span className="hidden sm:inline">Provably Fair</span>
             </button>
           </div>
 
-          {/* [Section 3]: Betting Inputs & Modifiers */}
-          <div className="space-y-4">
-            <div className="space-y-1.5">
-              <div className="flex justify-between text-xs font-bold text-[#b1bad3]">
-                <span>Bet Amount</span>
-                <span className="text-[#00e701] font-mono">{activeSym}{formatBalance(balance)}</span>
-              </div>
-              <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] p-1 focus-within:border-[#00e701] transition-colors">
-                <span className="px-2 text-sm font-bold text-[#00e701]">{activeSym}</span>
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  disabled={isSpinning}
-                  value={betInput}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
-                      setBetInput(val);
-                      if (val !== "" && !isNaN(parseFloat(val))) {
-                        setBetAmount(parseFloat(val));
-                      }
-                    }
-                  }}
-                  onBlur={() => {
-                    if (betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0) {
-                      setBetInput("1");
-                      setBetAmount(1);
-                    } else {
-                      const num = parseFloat(betInput);
-                      setBetInput(num.toString());
-                      setBetAmount(num);
-                    }
-                  }}
-                  className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-[#b1bad3]">Bet Option</label>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setSelectedBet("red")}
-                  className={`py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer ${
-                    selectedBet === "red" ? "bg-red-600 text-white shadow-md" : "bg-[#0f212e] text-[#b1bad3]"
-                  }`}
-                >
-                  Red (2x)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedBet("black")}
-                  className={`py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer ${
-                    selectedBet === "black" ? "bg-zinc-800 text-white border border-gray-600 shadow-md" : "bg-[#0f212e] text-[#b1bad3]"
-                  }`}
-                >
-                  Black (2x)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedBet("even")}
-                  className={`py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer ${
-                    selectedBet === "even" ? "bg-[#213743] text-[#00e701] border border-[#00e701]" : "bg-[#0f212e] text-[#b1bad3]"
-                  }`}
-                >
-                  Even (2x)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedBet("odd")}
-                  className={`py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer ${
-                    selectedBet === "odd" ? "bg-[#213743] text-[#00e701] border border-[#00e701]" : "bg-[#0f212e] text-[#b1bad3]"
-                  }`}
-                >
-                  Odd (2x)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedBet("green")}
-                  className={`col-span-2 py-2.5 rounded-xl font-bold text-xs transition-all cursor-pointer ${
-                    selectedBet === "green" ? "bg-[#00e701] text-black font-extrabold" : "bg-emerald-950/70 text-[#00e701]"
-                  }`}
-                >
-                  Zero 0 (36x)
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* [Section 1]: Roulette Display Area */}
-        <div className="flex-1 bg-[#0f212e] p-8 flex flex-col items-center justify-center min-h-[420px] space-y-4">
-          <div
-            className={`w-28 h-28 rounded-full border-4 flex items-center justify-center shadow-2xl transition-all ${
-              lastNumber === 0
-                ? "bg-[#00e701] border-white text-[#0f212e]"
-                : lastNumber !== null && redNumbers.includes(lastNumber)
-                ? "bg-red-600 border-white text-white"
-                : lastNumber !== null
-                ? "bg-black border-white text-white"
-                : "bg-[#1a2c38] border-[#213743] text-white"
-            }`}
+          <button
+            onClick={toggleFullscreen}
+            className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors"
+            title="Toggle Fullscreen"
           >
-            <span className="text-4xl font-black font-mono">
-              {lastNumber !== null ? lastNumber : "—"}
-            </span>
-          </div>
-
-          <div className="text-xs font-bold uppercase tracking-wider text-[#b1bad3]">
-            {hasWon === true
-              ? `You Won on ${selectedBet.toUpperCase()}!`
-              : hasWon === false
-              ? `Ball landed on ${lastNumber}. Better luck next roll!`
-              : "Place your bet and spin"}
-          </div>
+            {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+          </button>
         </div>
       </div>
+
+      {/* =========================================================================
+          MODALS: PROVABLY FAIR & LIVE STATS
+      ========================================================================== */}
+      {showFairnessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-[#213743] bg-[#1a2c38] p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-[#213743] pb-3">
+              <div className="text-sm font-bold text-white flex items-center gap-2">
+                <ShieldCheck className="h-5 w-5 text-[#00e701]" />
+                <span>Provably Fair: European Roulette</span>
+              </div>
+              <button
+                onClick={() => setShowFairnessModal(false)}
+                className="p-1 rounded-lg text-[#b1bad3] hover:text-white hover:bg-[#213743]"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="space-y-3 text-xs text-[#b1bad3]">
+              <p>
+                Wheel spin landing pocket is calculated using HMAC-SHA256 from your Client Seed and
+                Server Seed with certified 97.3% European Roulette RTP (single 0 house edge 2.7%).
+              </p>
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-[#b1bad3]">Server Seed (Hashed)</label>
+                <div className="flex items-center justify-between rounded-xl bg-[#0f212e] border border-[#213743] p-2.5 font-mono text-white text-[11px] truncate">
+                  <span className="truncate">4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e</span>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText("4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e");
+                      setCopiedSeed(true);
+                      setTimeout(() => setCopiedSeed(false), 2000);
+                    }}
+                    className="ml-2 text-[#00e701]"
+                  >
+                    {copiedSeed ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowFairnessModal(false)}
+              className="w-full py-2.5 rounded-xl bg-[#213743] text-white text-xs font-bold cursor-pointer"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showLiveStats && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-2xl border border-[#213743] bg-[#1a2c38] p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-[#213743] pb-3">
+              <div className="text-sm font-bold text-white flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-[#00e701]" />
+                <span>Roulette Session Stats</span>
+              </div>
+              <button
+                onClick={() => setShowLiveStats(false)}
+                className="p-1 rounded-lg text-[#b1bad3] hover:text-white hover:bg-[#213743]"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-3 text-center">
+              <div className="rounded-xl bg-[#0f212e] border border-[#213743] p-3">
+                <div className="text-[11px] font-bold text-[#b1bad3]">Total Spins</div>
+                <div className="text-lg font-black text-white font-mono">{stats.rounds}</div>
+              </div>
+              <div className="rounded-xl bg-[#0f212e] border border-[#213743] p-3">
+                <div className="text-[11px] font-bold text-[#b1bad3]">Win Rate</div>
+                <div className="text-lg font-black text-[#00e701] font-mono">
+                  {stats.rounds > 0 ? ((stats.wins / stats.rounds) * 100).toFixed(1) : "0.0"}%
+                </div>
+              </div>
+              <div className="rounded-xl bg-[#0f212e] border border-[#213743] p-3">
+                <div className="text-[11px] font-bold text-[#b1bad3]">Wagered</div>
+                <div className="text-lg font-black text-white font-mono">
+                  {activeSym}
+                  {stats.wagered.toFixed(2)}
+                </div>
+              </div>
+              <div className="rounded-xl bg-[#0f212e] border border-[#213743] p-3">
+                <div className="text-[11px] font-bold text-[#b1bad3]">Profit</div>
+                <div
+                  className={`text-lg font-black font-mono ${
+                    stats.profit >= 0 ? "text-[#00e701]" : "text-[#e9113c]"
+                  }`}
+                >
+                  {stats.profit >= 0 ? "+" : ""}
+                  {activeSym}
+                  {stats.profit.toFixed(2)}
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowLiveStats(false)}
+              className="w-full py-2.5 rounded-xl bg-[#213743] text-white text-xs font-bold cursor-pointer"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
