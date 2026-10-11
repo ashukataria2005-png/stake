@@ -255,11 +255,13 @@ const RAW_STAKE_ORIGINALS: GameItem[] = [
     id: "stake-originals-snakes",
     title: "Snakes",
     slug: "stake-originals-snakes",
+    href: "/games/snakes",
     provider: "Stake Originals",
     playersCount: 1110,
     badge: "ORIGINAL",
     category: "originals",
     bgGradient: "from-teal-950/90 via-[#1a2c38] to-[#0f212e]",
+    isPlayable: true,
   },
   {
     id: "roulette",
