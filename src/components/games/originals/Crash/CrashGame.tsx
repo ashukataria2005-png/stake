@@ -665,148 +665,422 @@ export default function CrashGame() {
 
   return (
     <div
-      className={`w-full max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-2 sm:py-3 select-none space-y-3 relative z-0 pointer-events-auto ${
+      className={`w-full max-w-lg mx-auto px-2 sm:px-3 py-2 select-none flex flex-col space-y-2 relative z-0 pointer-events-auto ${
         isFullscreen ? "fixed inset-0 z-40 bg-[#0f212e] overflow-y-auto p-4 pb-6 max-w-none" : ""
       }`}
     >
-      
-
-      {/* Main 2-Panel Game Container: Left Controls & Right Curve Canvas */}
-      <div className="rounded-2xl border border-[#213743] bg-[#1a2c38] shadow-2xl overflow-hidden flex flex-col">
-        {/* ======================================================== */}
-        {/* 2. LIVE CANVAS ARENA (Right Panel on Desktop)            */}
-        {/* ======================================================== */}
-        <div
-          ref={containerRef}
-          className="flex-1 bg-[#0f212e] p-4 sm:p-6 lg:p-8 flex flex-col items-center justify-between min-h-[400px] sm:min-h-[520px] relative overflow-hidden"
-        >
-          {/* Top Status Indicators inside Arena */}
-          <div className="w-full flex items-center justify-between z-10">
-            <div className="flex items-center gap-2 text-xs font-bold text-[#b1bad3]">
-              <span
-                className={`flex h-2.5 w-2.5 rounded-full ${
-                  phase === "flying"
-                    ? "bg-[#00e701] animate-ping"
-                    : phase === "countdown"
-                    ? "bg-amber-400"
-                    : "bg-red-500"
-                }`}
-              />
-              <span className="uppercase tracking-wider font-mono">
-                {phase === "flying"
-                  ? "In Flight"
+      {/* ======================================================== */}
+      {/* 1. LIVE CANVAS ARENA (TOP PANEL)                         */}
+      {/* ======================================================== */}
+      <div
+        ref={containerRef}
+        className="w-full aspect-[16/10] sm:aspect-[16/9] rounded-t-2xl bg-[#0f212e] border-t border-x border-[#213743] shadow-2xl relative overflow-hidden flex flex-col justify-between p-3 sm:p-4"
+      >
+        {/* Top Status Indicators inside Arena */}
+        <div className="w-full flex items-center justify-between z-10">
+          <div className="flex items-center gap-2 text-xs font-bold text-[#b1bad3]">
+            <span
+              className={`flex h-2.5 w-2.5 rounded-full ${
+                phase === "flying"
+                  ? "bg-[#00e701] animate-ping"
                   : phase === "countdown"
-                  ? "Next Round Soon"
-                  : "Crashed"}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1.5 rounded-lg bg-[#1a2c38] px-2.5 py-1 border border-[#213743] text-xs font-bold">
-                <TrendingUp className="h-3.5 w-3.5 text-[#00e701]" />
-                <span className="text-[#b1bad3]">1% House Edge</span>
-              </div>
-
-              <button
-                type="button"
-                onClick={toggleSound}
-                title={isMuted ? "Unmute Audio" : "Mute Audio"}
-                className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1a2c38] border border-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
-              >
-                {isMuted ? (
-                  <VolumeX className="h-3.5 w-3.5 text-red-400" />
-                ) : (
-                  <Volume2 className="h-3.5 w-3.5 text-[#00e701]" />
-                )}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setIsFullscreen(!isFullscreen)}
-                title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
-                className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1a2c38] border border-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
-              >
-                {isFullscreen ? (
-                  <Minimize2 className="h-3.5 w-3.5" />
-                ) : (
-                  <Maximize2 className="h-3.5 w-3.5" />
-                )}
-              </button>
-            </div>
-          </div>
-
-          {/* Centered Dynamic Multiplier Display & Overlay */}
-          <div className="relative z-10 flex flex-col items-center text-center my-auto pointer-events-none">
-            {phase === "countdown" ? (
-              <div className="space-y-3 animate-in fade-in duration-200">
-                <div className="text-xs font-extrabold uppercase tracking-widest text-[#b1bad3]">
-                  Next Round Starting In
-                </div>
-                <div className="text-5xl sm:text-7xl font-black font-mono text-white tracking-tight">
-                  {countdownSeconds.toFixed(1)}s
-                </div>
-                {/* 5-Second Countdown Progress Bar */}
-                <div className="w-52 sm:w-72 h-2.5 rounded-full bg-[#1a2c38] border border-[#213743] overflow-hidden">
-                  <div
-                    className="h-full bg-[#00e701] transition-all duration-75 ease-linear"
-                    style={{ width: `${(countdownSeconds / 5.0) * 100}%` }}
-                  />
-                </div>
-              </div>
-            ) : phase === "crashed" ? (
-              <div className="space-y-2 animate-bomb-shake">
-                <div className="text-6xl sm:text-8xl font-black font-mono tracking-tight text-red-500 drop-shadow-[0_0_30px_rgba(239,68,68,0.8)]">
-                  {crashPoint.toFixed(2)}×
-                </div>
-                <div className="inline-block rounded-xl bg-red-500/20 border border-red-500/40 px-5 py-1.5 text-sm font-extrabold text-red-400 uppercase tracking-wider">
-                  Crashed @ {crashPoint.toFixed(2)}×
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-1">
-                <div className={`text-6xl sm:text-8xl md:text-9xl font-black font-mono tracking-tight transition-colors duration-200 ${multiplierColor}`}>
-                  {currentMultiplier.toFixed(2)}×
-                </div>
-                <div className="text-xs font-bold uppercase tracking-widest text-[#00e701]">
-                  Current Multiplier
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* HTML5 Canvas Background / 60fps Curve Engine */}
-          <canvas
-            ref={canvasRef}
-            className="absolute inset-0 w-full h-full pointer-events-none"
-          />
-
-          {/* Bottom Game Utilities Bar */}
-          <div className="w-full flex items-center justify-between border-t border-[#213743] pt-3 z-10">
-            <button
-              type="button"
-              onClick={() => setIsFairnessOpen(true)}
-              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold text-[#b1bad3] hover:text-white hover:bg-[#1a2c38] transition-colors cursor-pointer"
-            >
-              <ShieldCheck className="h-4 w-4 text-[#00e701]" />
-              <span>Fairness</span>
-            </button>
-
-            <span className="text-[11px] text-[#b1bad3] font-mono">
-              Live Multiplayer Engine
+                  ? "bg-amber-400"
+                  : "bg-red-500"
+              }`}
+            />
+            <span className="uppercase tracking-wider font-mono text-[11px]">
+              {phase === "flying"
+                ? "In Flight"
+                : phase === "countdown"
+                ? "Next Round Soon"
+                : "Crashed"}
             </span>
           </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={toggleSound}
+              title={isMuted ? "Unmute Audio" : "Mute Audio"}
+              className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1a2c38] border border-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
+            >
+              {isMuted ? (
+                <VolumeX className="h-3.5 w-3.5 text-red-400" />
+              ) : (
+                <Volume2 className="h-3.5 w-3.5 text-[#00e701]" />
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsFullscreen(!isFullscreen)}
+              title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+              className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1a2c38] border border-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
+            >
+              {isFullscreen ? (
+                <Minimize2 className="h-3.5 w-3.5" />
+              ) : (
+                <Maximize2 className="h-3.5 w-3.5" />
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Centered Dynamic Multiplier Display & Overlay */}
+        <div className="relative z-10 flex flex-col items-center text-center my-auto pointer-events-none">
+          {phase === "countdown" ? (
+            <div className="space-y-2 animate-in fade-in duration-200">
+              <div className="text-[11px] font-extrabold uppercase tracking-widest text-[#b1bad3]">
+                Next Round Starting In
+              </div>
+              <div className="text-4xl sm:text-6xl font-black font-mono text-white tracking-tight">
+                {countdownSeconds.toFixed(1)}s
+              </div>
+              <div className="w-48 sm:w-60 h-2 rounded-full bg-[#1a2c38] border border-[#213743] overflow-hidden">
+                <div
+                  className="h-full bg-[#00e701] transition-all duration-75 ease-linear"
+                  style={{ width: `${(countdownSeconds / 5.0) * 100}%` }}
+                />
+              </div>
+            </div>
+          ) : phase === "crashed" ? (
+            <div className="space-y-1.5 animate-bomb-shake">
+              <div className="text-5xl sm:text-7xl font-black font-mono tracking-tight text-red-500 drop-shadow-[0_0_24px_rgba(239,68,68,0.8)]">
+                {crashPoint.toFixed(2)}×
+              </div>
+              <div className="inline-block rounded-lg bg-red-500/20 border border-red-500/40 px-3.5 py-1 text-xs font-extrabold text-red-400 uppercase tracking-wider">
+                Crashed @ {crashPoint.toFixed(2)}×
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-0.5">
+              <div className={`text-5xl sm:text-7xl md:text-8xl font-black font-mono tracking-tight transition-colors duration-200 ${multiplierColor}`}>
+                {currentMultiplier.toFixed(2)}×
+              </div>
+              <div className="text-[10px] font-bold uppercase tracking-widest text-[#00e701]">
+                Current Multiplier
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* HTML5 Canvas Background / 60fps Curve Engine */}
+        <canvas
+          ref={canvasRef}
+          className="absolute inset-0 w-full h-full pointer-events-none"
+        />
+
+        {/* Bottom Game Arena Tag */}
+        <div className="w-full flex items-center justify-between z-10 text-[10px] text-[#b1bad3]">
+          <span className="font-mono">1.00% House Edge</span>
+          <span className="font-mono">Live Multiplayer Engine</span>
         </div>
       </div>
 
       {/* ======================================================== */}
-      {/* 3. LIVE MULTIPLAYER BETS BOARD (STAKE 1:1 TABLE)         */}
+      {/* 2. MINES HARMONIZED BETTING CONTROLS SHELL CONTAINER     */}
       {/* ======================================================== */}
-      <div className="rounded-2xl border border-[#213743] bg-[#1a2c38] p-4 sm:p-5 space-y-3 shadow-xl">
-        <div className="flex items-center justify-between border-b border-[#213743] pb-3">
+      <div className="w-full border-t border-[#213743] bg-[#1a2c38] p-3 sm:p-4 flex flex-col justify-start space-y-2 sm:space-y-2.5 rounded-b-2xl select-none">
+        {/* 1. PRIMARY BET CTA BUTTON (Directly at top of controls) */}
+        <div className="w-full">
+          {phase === "flying" && activeBetAmount > 0 && !hasCashedOut ? (
+            <button
+              type="button"
+              onClick={() => cashout()}
+              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#00e701] hover:bg-[#00c201] text-black shadow-lg shadow-[#00e701]/25 hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider"
+            >
+              <Zap className="h-4 w-4 fill-current" />
+              <span>
+                Cashout {activeSym}{(activeBetAmount * currentMultiplier).toFixed(2)}
+              </span>
+            </button>
+          ) : mode === "auto" ? (
+            <button
+              type="button"
+              onClick={() => {
+                if (isAutoRunning) {
+                  setIsAutoRunning(false);
+                } else {
+                  initialAutoBalanceRef.current = balance;
+                  baseBetRef.current = betAmount;
+                  setAutoBetsCount(0);
+                  setIsAutoRunning(true);
+                }
+              }}
+              className={`w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl transition-all active:scale-[0.98] flex items-center justify-center cursor-pointer uppercase tracking-wider ${
+                isAutoRunning
+                  ? "bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/25"
+                  : "bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25"
+              }`}
+            >
+              <span>{isAutoRunning ? "STOP AUTOBET" : "START AUTOBET"}</span>
+            </button>
+          ) : hasBetNextRound ? (
+            <button
+              type="button"
+              onClick={toggleBetForNextRound}
+              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl border border-[#213743] bg-[#213743] text-white hover:bg-[#2f4553] active:scale-[0.98] transition-all flex items-center justify-center cursor-pointer uppercase tracking-wider"
+            >
+              <span>Cancel Bet ({activeSym}{activeBetAmount.toFixed(2)})</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={toggleBetForNextRound}
+              disabled={betAmount > balance || betAmount <= 0}
+              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
+            >
+              <span>Bet (Next Round)</span>
+            </button>
+          )}
+        </div>
+
+        {/* 2. BET AMOUNT INPUT (Exact Mines Structure) */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-bold text-[#b1bad3]">Bet Amount</span>
+            <span className="font-mono text-[11px] text-[#b1bad3]">
+              Bal: {activeSym}{balance.toFixed(2)}
+            </span>
+          </div>
+
+          <div className="flex rounded-lg bg-[#0f212e] border border-[#213743] focus-within:border-[#2f4553] p-1">
+            <div className="flex flex-1 items-center px-2.5">
+              <span className="text-xs font-bold text-[#b1bad3] mr-1.5">{activeSym}</span>
+              <input
+                type="text"
+                inputMode="decimal"
+                disabled={phase === "flying" && activeBetAmount > 0}
+                value={betInput}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                    setBetInput(val);
+                    if (val !== "" && !isNaN(parseFloat(val))) {
+                      setBetAmount(parseFloat(val));
+                    }
+                  }
+                }}
+                onBlur={() => {
+                  if (betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0) {
+                    setBetInput("1");
+                    setBetAmount(1);
+                  } else {
+                    const num = parseFloat(betInput);
+                    setBetInput(num.toString());
+                    setBetAmount(num);
+                  }
+                }}
+                className="w-full bg-transparent text-sm font-bold text-white outline-none font-mono disabled:opacity-50"
+              />
+            </div>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                disabled={phase === "flying" && activeBetAmount > 0}
+                onClick={handleHalfBet}
+                className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
+              >
+                ½
+              </button>
+              <button
+                type="button"
+                disabled={phase === "flying" && activeBetAmount > 0}
+                onClick={handleDoubleBet}
+                className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
+              >
+                2×
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* 3. AUTO CASHOUT INPUT (Exact Mines Aesthetic) */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-xs">
+            <label className="cursor-pointer flex items-center gap-1.5 font-bold text-[#b1bad3]">
+              <input
+                type="checkbox"
+                checked={autoCashoutEnabled}
+                onChange={(e) => setAutoCashoutEnabled(e.target.checked)}
+                className="rounded accent-[#1475e1] cursor-pointer"
+              />
+              <span>Auto Cashout</span>
+            </label>
+            <span className="text-[#b1bad3] font-mono text-[11px]">{autoCashout.toFixed(2)}×</span>
+          </div>
+          <div className="flex rounded-lg bg-[#0f212e] border border-[#213743] focus-within:border-[#2f4553] p-1">
+            <div className="flex flex-1 items-center px-2.5">
+              <input
+                type="text"
+                inputMode="decimal"
+                disabled={!autoCashoutEnabled}
+                value={autoCashoutInput}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                    setAutoCashoutInput(val);
+                    if (val !== "") {
+                      const num = parseFloat(val);
+                      if (!isNaN(num) && num >= 1.01) {
+                        setAutoCashout(num);
+                      }
+                    }
+                  }
+                }}
+                onBlur={() => {
+                  if (autoCashoutInput === "" || parseFloat(autoCashoutInput) < 1.01 || isNaN(parseFloat(autoCashoutInput))) {
+                    setAutoCashout(2.0);
+                    setAutoCashoutInput("2.00");
+                  } else {
+                    const num = parseFloat(autoCashoutInput);
+                    setAutoCashout(num);
+                    setAutoCashoutInput(num.toFixed(2));
+                  }
+                }}
+                className="w-full bg-transparent text-sm font-bold text-white outline-none font-mono disabled:opacity-40"
+              />
+              <span className="text-xs font-bold text-[#b1bad3]">×</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 4. AUTO MODE CONFIGURATION INPUTS */}
+        {mode === "auto" && (
+          <div className="space-y-2 pt-1 border-t border-[#213743]/60 text-xs">
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-bold text-[#b1bad3]">Number of Bets</span>
+              </div>
+              <div className="flex rounded-lg bg-[#0f212e] border border-[#213743] focus-within:border-[#2f4553] p-1 items-center">
+                <div className="flex flex-1 items-center px-2.5">
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="0"
+                    value={autoBetsLimit === 0 ? "" : autoBetsLimit}
+                    onChange={(e) => setAutoBetsLimit(parseInt(e.target.value) || 0)}
+                    className="w-full bg-transparent text-sm font-bold text-white outline-none font-mono"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setAutoBetsLimit(0)}
+                  className="px-3 py-1 rounded-lg text-sm font-black text-[#1475e1] hover:text-white transition-colors cursor-pointer select-none"
+                >
+                  ∞
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-[#b1bad3] uppercase">On Win</label>
+                <select
+                  value={onWinAction}
+                  onChange={(e) => setOnWinAction(e.target.value as "reset" | "increase")}
+                  className="w-full rounded-lg bg-[#0f212e] border border-[#213743] p-1.5 text-xs font-bold text-white"
+                >
+                  <option value="reset">Reset</option>
+                  <option value="increase">Increase %</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-[#b1bad3] uppercase">On Loss</label>
+                <select
+                  value={onLossAction}
+                  onChange={(e) => setOnLossAction(e.target.value as "reset" | "increase")}
+                  className="w-full rounded-lg bg-[#0f212e] border border-[#213743] p-1.5 text-xs font-bold text-white"
+                >
+                  <option value="reset">Reset</option>
+                  <option value="increase">Increase %</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center text-[10px] text-[#b1bad3] px-1 font-mono">
+              <span>Bets Completed:</span>
+              <span className="text-white font-bold">{autoBetsCount} / {autoBetsLimit === 0 ? "∞" : autoBetsLimit}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Live Profit Banner if currently in flight */}
+        {phase === "flying" && activeBetAmount > 0 && !hasCashedOut && (
+          <div className="rounded-lg border border-[#213743] bg-[#0f212e] p-2 flex justify-between items-center text-xs">
+            <span className="text-[#b1bad3]">Current Profit:</span>
+            <span className="font-mono font-black text-[#00e701]">
+              +{activeSym}{liveProfit.toFixed(2)}
+            </span>
+          </div>
+        )}
+
+        {/* Cashed Out Banner */}
+        {hasCashedOut && cashedOutMultiplier && (
+          <div className="rounded-lg border border-[#00e701]/40 bg-[#00e701]/10 p-2 text-center text-xs">
+            <span className="font-bold text-[#00e701]">
+              Cashed out @ {cashedOutMultiplier.toFixed(2)}× (+{activeSym}{(activeBetAmount * cashedOutMultiplier).toFixed(2)})
+            </span>
+          </div>
+        )}
+
+        {/* 5. MODE SWITCH TABS: [ Manual | Auto ] (Exact Mines Pattern) */}
+        <div className="flex rounded-lg bg-[#0f212e] p-1 border border-[#213743] mt-auto">
+          <button
+            type="button"
+            onClick={() => {
+              sounds.playClick();
+              setMode("manual");
+              setIsAutoRunning(false);
+            }}
+            className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+              mode === "manual"
+                ? "bg-[#213743] text-white shadow-sm"
+                : "text-[#b1bad3] hover:text-white"
+            }`}
+          >
+            Manual
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              sounds.playClick();
+              setMode("auto");
+            }}
+            className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+              mode === "auto"
+                ? "bg-[#213743] text-white shadow-sm"
+                : "text-[#b1bad3] hover:text-white"
+            }`}
+          >
+            Auto
+          </button>
+        </div>
+
+        {/* 6. BOTTOM UTILITY BAR */}
+        <div className="flex items-center justify-between rounded-lg bg-[#0f212e] border border-[#213743] px-3 py-2 text-xs text-[#b1bad3] mt-0.5">
+          <span className="font-mono text-[11px]">Provably Fair</span>
+          <button
+            type="button"
+            onClick={() => setIsFairnessOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors cursor-pointer"
+          >
+            <ShieldCheck className="w-4 h-4 text-[#00e701]" />
+            <span>Fairness</span>
+          </button>
+        </div>
+      </div>
+
+      {/* ======================================================== */}
+      {/* 3. LIVE MULTIPLAYER BETS BOARD (UNDERNEATH)              */}
+      {/* ======================================================== */}
+      <div className="w-full rounded-2xl border border-[#213743] bg-[#1a2c38] p-3 sm:p-4 space-y-2.5 shadow-xl">
+        <div className="flex items-center justify-between border-b border-[#213743] pb-2.5">
           <div className="flex items-center gap-2">
             <Users className="h-4 w-4 text-[#00e701]" />
-            <h3 className="text-sm font-black text-white">Live Player Bets</h3>
-            <span className="rounded-full bg-[#0f212e] px-2 py-0.5 text-[11px] font-mono font-bold text-[#00e701] border border-[#213743]">
+            <h3 className="text-xs font-black text-white">Live Player Bets</h3>
+            <span className="rounded-full bg-[#0f212e] px-2 py-0.5 text-[10px] font-mono font-bold text-[#00e701] border border-[#213743]">
               {livePlayers.length} Active
             </span>
           </div>
@@ -814,23 +1088,23 @@ export default function CrashGame() {
           <div className="text-xs font-bold text-[#b1bad3]">
             Total Bet:{" "}
             <span className="font-mono text-white">
-              ${livePlayers.reduce((acc, p) => acc + p.betAmount, 0).toFixed(2)}
+              {activeSym}{livePlayers.reduce((acc, p) => acc + p.betAmount, 0).toFixed(2)}
             </span>
           </div>
         </div>
 
         {/* Players Table */}
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto max-h-56 overflow-y-auto">
           <table className="w-full text-left text-xs">
             <thead>
               <tr className="border-b border-[#213743]/60 text-[10px] uppercase font-bold text-[#b1bad3] tracking-wider">
-                <th className="py-2.5 px-3">Player</th>
-                <th className="py-2.5 px-3">Cashout Multiplier</th>
-                <th className="py-2.5 px-3">Bet Amount</th>
-                <th className="py-2.5 px-3 text-right">Payout</th>
+                <th className="py-2 px-2.5">Player</th>
+                <th className="py-2 px-2.5">Cashout</th>
+                <th className="py-2 px-2.5">Bet Amount</th>
+                <th className="py-2 px-2.5 text-right">Payout</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#213743]/30 font-mono">
+            <tbody className="divide-y divide-[#213743]/30 font-mono text-[11px]">
               {livePlayers.map((player) => {
                 const isWin = player.hasCashedOut;
                 const isLost = phase === "crashed" && !player.hasCashedOut;
@@ -844,9 +1118,9 @@ export default function CrashGame() {
                         : "hover:bg-[#213743]/30"
                     }`}
                   >
-                    <td className="py-2.5 px-3 flex items-center gap-2">
+                    <td className="py-2 px-2.5 flex items-center gap-2">
                       <span
-                        className="h-2.5 w-2.5 rounded-full shrink-0"
+                        className="h-2 w-2 rounded-full shrink-0"
                         style={{ backgroundColor: player.avatarColor }}
                       />
                       <span className={player.isCurrentUser ? "text-[#00e701] font-bold" : "text-white"}>
@@ -854,7 +1128,7 @@ export default function CrashGame() {
                       </span>
                     </td>
 
-                    <td className="py-2.5 px-3">
+                    <td className="py-2 px-2.5">
                       {isWin ? (
                         <span className="text-[#00e701] font-bold">
                           {player.targetCashout.toFixed(2)}×
@@ -866,17 +1140,17 @@ export default function CrashGame() {
                       )}
                     </td>
 
-                    <td className="py-2.5 px-3 text-white">
-                      ${player.betAmount.toFixed(2)}
+                    <td className="py-2 px-2.5 text-white">
+                      {activeSym}{player.betAmount.toFixed(2)}
                     </td>
 
-                    <td className="py-2.5 px-3 text-right">
+                    <td className="py-2 px-2.5 text-right">
                       {isWin ? (
                         <span className="text-[#00e701] font-bold">
-                          +${player.payout.toFixed(2)}
+                          +{activeSym}{player.payout.toFixed(2)}
                         </span>
                       ) : isLost ? (
-                        <span className="text-red-400/80">$0.00</span>
+                        <span className="text-red-400/80">{activeSym}0.00</span>
                       ) : (
                         <span className="text-[#b1bad3]">—</span>
                       )}
@@ -887,308 +1161,7 @@ export default function CrashGame() {
             </tbody>
           </table>
         </div>
-      {/* 1. BETTING CONTROLS (Left Panel on Desktop)             */}
-        {/* ======================================================== */}
-        <div className="w-full border-t border-[#213743] bg-[#1a2c38] p-4 sm:p-5 flex flex-col justify-between space-y-4">
-          <div className="space-y-4">
-            {/* Mode Switch Tabs: Manual vs Auto */}
-            <div className="flex rounded-xl bg-[#0f212e] p-1 border border-[#213743]">
-              <button
-                type="button"
-                onClick={() => {
-                  sounds.playClick();
-                  setMode("manual");
-                  setIsAutoRunning(false);
-                }}
-                className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
-                  mode === "manual"
-                    ? "bg-[#213743] text-white shadow-sm"
-                    : "text-[#b1bad3] hover:text-white"
-                }`}
-              >
-                Manual
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  sounds.playClick();
-                  setMode("auto");
-                }}
-                className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
-                  mode === "auto"
-                    ? "bg-[#213743] text-white shadow-sm"
-                    : "text-[#b1bad3] hover:text-white"
-                }`}
-              >
-                Auto
-              </button>
-            </div>
-
-            {/* Bet Amount Input with Quick Math Buttons */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between text-xs font-bold text-[#b1bad3]">
-                <span>Bet Amount</span>
-                <span className="font-mono text-[#00e701]">
-                  {activeSym}{formatBalance(balance)}
-                </span>
-              </div>
-              <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] p-1 focus-within:border-[#00e701] transition-colors">
-                <span className="px-2 text-sm font-bold text-[#b1bad3]">{activeSym}</span>
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  disabled={phase === "flying" && activeBetAmount > 0}
-                  value={betInput}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
-                      setBetInput(val);
-                      if (val !== "" && !isNaN(parseFloat(val))) {
-                        setBetAmount(parseFloat(val));
-                      }
-                    }
-                  }}
-                  onBlur={() => {
-                    if (betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0) {
-                      setBetInput("1");
-                      setBetAmount(1);
-                    } else {
-                      const num = parseFloat(betInput);
-                      setBetInput(num.toString());
-                      setBetAmount(num);
-                    }
-                  }}
-                  className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono disabled:opacity-50"
-                />
-                <button
-                  type="button"
-                  disabled={phase === "flying" && activeBetAmount > 0}
-                  onClick={handleHalfBet}
-                  className="rounded-lg px-2.5 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer disabled:opacity-40"
-                >
-                  ½
-                </button>
-                <button
-                  type="button"
-                  disabled={phase === "flying" && activeBetAmount > 0}
-                  onClick={handleDoubleBet}
-                  className="rounded-lg px-2.5 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer disabled:opacity-40"
-                >
-                  2×
-                </button>
-                <button
-                  type="button"
-                  disabled={phase === "flying" && activeBetAmount > 0}
-                  onClick={handleMaxBet}
-                  className="rounded-lg px-2.5 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer disabled:opacity-40"
-                >
-                  Max
-                </button>
-              </div>
-            </div>
-
-            {/* Auto Cashout Input */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between text-xs font-bold text-[#b1bad3]">
-                <label className="cursor-pointer flex items-center gap-1.5">
-                  <input
-                    type="checkbox"
-                    checked={autoCashoutEnabled}
-                    onChange={(e) => setAutoCashoutEnabled(e.target.checked)}
-                    className="rounded accent-[#00e701] cursor-pointer"
-                  />
-                  <span>Auto Cashout</span>
-                </label>
-                <span className="text-white font-mono">{autoCashout.toFixed(2)}x</span>
-              </div>
-              <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] p-2">
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  disabled={!autoCashoutEnabled}
-                  value={autoCashoutInput}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
-                      setAutoCashoutInput(val);
-                      if (val !== "") {
-                        const num = parseFloat(val);
-                        if (!isNaN(num) && num >= 1.01) {
-                          setAutoCashout(num);
-                        }
-                      }
-                    }
-                  }}
-                  onBlur={() => {
-                    if (autoCashoutInput === "" || parseFloat(autoCashoutInput) < 1.01 || isNaN(parseFloat(autoCashoutInput))) {
-                      setAutoCashout(2.0);
-                      setAutoCashoutInput("2.00");
-                    } else {
-                      const num = parseFloat(autoCashoutInput);
-                      setAutoCashout(num);
-                      setAutoCashoutInput(num.toFixed(2));
-                    }
-                  }}
-                  className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono disabled:opacity-50"
-                />
-                <span className="text-xs font-bold text-[#b1bad3]">x</span>
-              </div>
-            </div>
-
-            {/* Auto Mode Configuration Inputs */}
-            {mode === "auto" && (
-              <div className="space-y-3 pt-2 border-t border-[#213743]/60 text-xs">
-                <div className="space-y-1">
-                  <label className="text-[11px] font-bold text-[#b1bad3]">Number of Bets</label>
-                  <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] px-3 py-1.5">
-                    <input
-                      type="number"
-                      min="0"
-                      placeholder="∞"
-                      value={autoBetsLimit === 0 ? "" : autoBetsLimit}
-                      onChange={(e) => setAutoBetsLimit(parseInt(e.target.value) || 0)}
-                      className="w-full bg-transparent text-xs font-bold text-white font-mono focus:outline-none"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setAutoBetsLimit(0)}
-                      className="text-[11px] font-bold text-[#00e701] hover:underline cursor-pointer"
-                    >
-                      ∞
-                    </button>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-[#b1bad3] uppercase">On Win</label>
-                    <select
-                      value={onWinAction}
-                      onChange={(e) => setOnWinAction(e.target.value as "reset" | "increase")}
-                      className="w-full rounded-lg bg-[#0f212e] border border-[#213743] p-1.5 text-xs text-white"
-                    >
-                      <option value="reset">Reset</option>
-                      <option value="increase">Increase %</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-[#b1bad3] uppercase">On Loss</label>
-                    <select
-                      value={onLossAction}
-                      onChange={(e) => setOnLossAction(e.target.value as "reset" | "increase")}
-                      className="w-full rounded-lg bg-[#0f212e] border border-[#213743] p-1.5 text-xs text-white"
-                    >
-                      <option value="reset">Reset</option>
-                      <option value="increase">Increase %</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center text-[11px] text-[#b1bad3] px-1 font-mono">
-                  <span>Bets Completed:</span>
-                  <span className="text-white font-bold">{autoBetsCount} / {autoBetsLimit === 0 ? "∞" : autoBetsLimit}</span>
-                </div>
-              </div>
-            )}
-
-            {/* Live Profit Banner if currently in flight with bet */}
-            {phase === "flying" && activeBetAmount > 0 && !hasCashedOut && (
-              <div className="rounded-xl border border-[#213743] bg-[#0f212e] p-3 space-y-1 animate-in fade-in duration-150">
-                <div className="flex justify-between text-xs text-[#b1bad3]">
-                  <span>Active Bet</span>
-                  <span className="font-mono text-white font-bold">${activeBetAmount.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-xs text-[#b1bad3]">
-                  <span>Current Profit</span>
-                  <span className="font-mono font-black text-[#00e701]">
-                    +${liveProfit.toFixed(2)} {currency}
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {/* Cashed Out Banner */}
-            {hasCashedOut && cashedOutMultiplier && (
-              <div className="rounded-xl border border-[#00e701]/40 bg-[#00e701]/10 p-3 text-center space-y-0.5">
-                <div className="text-xs font-bold text-[#00e701]">
-                  Cashed out @ {cashedOutMultiplier.toFixed(2)}x
-                </div>
-                <div className="text-sm font-black text-white font-mono">
-                  +${(activeBetAmount * cashedOutMultiplier).toFixed(2)} {currency}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* PRIMARY CTA ACTION BUTTON */}
-          <div className="pt-2">
-            {phase === "flying" && activeBetAmount > 0 && !hasCashedOut ? (
-              <button
-                type="button"
-                onClick={() => cashout()}
-                className="w-full py-4 text-base font-black rounded-xl bg-[#00e701] hover:bg-[#00c201] text-[#0f212e] shadow-[0_0_24px_rgba(0,231,1,0.4)] active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Zap className="h-5 w-5 fill-current" />
-                <span>
-                  Cashout ${(activeBetAmount * currentMultiplier).toFixed(2)}
-                </span>
-              </button>
-            ) : mode === "auto" ? (
-              <button
-                type="button"
-                onClick={() => {
-                  if (isAutoRunning) {
-                    setIsAutoRunning(false);
-                  } else {
-                    initialAutoBalanceRef.current = balance;
-                    baseBetRef.current = betAmount;
-                    setAutoBetsCount(0);
-                    setIsAutoRunning(true);
-                  }
-                }}
-                className={`w-full py-4 text-base font-black rounded-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer ${
-                  isAutoRunning
-                    ? "bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/25"
-                    : "bg-[#00e701] hover:bg-[#00c201] text-[#0f212e] shadow-[0_0_20px_rgba(0,231,1,0.25)]"
-                }`}
-              >
-                {isAutoRunning ? (
-                  <>
-                    <RefreshCw className="h-5 w-5 animate-spin" />
-                    <span>Stop Auto Bet</span>
-                  </>
-                ) : (
-                  <>
-                    <Zap className="h-5 w-5 fill-current" />
-                    <span>Start Auto Bet</span>
-                  </>
-                )}
-              </button>
-            ) : hasBetNextRound ? (
-              <button
-                type="button"
-                onClick={toggleBetForNextRound}
-                className="w-full py-4 text-sm font-extrabold rounded-xl border border-[#213743] bg-[#213743] text-white hover:bg-[#2f4553] active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <span>Queued (${betAmount.toFixed(2)}) - Cancel</span>
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={toggleBetForNextRound}
-                disabled={betAmount > balance || betAmount <= 0}
-                className="w-full py-4 text-base font-black rounded-xl bg-[#00e701] hover:bg-[#00c201] text-[#0f212e] shadow-[0_0_20px_rgba(0,231,1,0.25)] hover:shadow-[0_0_28px_rgba(0,231,1,0.4)] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Sparkles className="h-5 w-5 fill-current" />
-                <span>Bet (Next Round)</span>
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* ======================================================== */}
-        </div>
+      </div>
 
       {/* ======================================================== */}
       {/* 4. PROVABLY FAIR VERIFIER MODAL                          */}
