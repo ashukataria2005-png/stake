@@ -341,11 +341,13 @@ const RAW_STAKE_ORIGINALS: GameItem[] = [
     id: "stake-originals-drill",
     title: "Drill",
     slug: "stake-originals-drill",
+    href: "/games/drill",
     provider: "Stake Originals",
     playersCount: 910,
     badge: "ORIGINAL",
     category: "originals",
     bgGradient: "from-amber-950/90 via-[#1a2c38] to-[#0f212e]",
+    isPlayable: true,
   },
   {
     id: "stake-originals-prime-dice",
