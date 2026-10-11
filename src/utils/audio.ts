@@ -416,6 +416,84 @@ class SoundManager {
   playCardLoss() {
     this.playDiceLoss();
   }
+
+  // Keno number tile select/deselect tick
+  playKenoPick() {
+    this.playClick();
+  }
+
+  // Keno ball draw - distinct ping if hit vs normal ping
+  playKenoDraw(isHit: boolean) {
+    if (!this.enabled) return;
+    try {
+      const ctx = this.initCtx();
+      if (!ctx) return;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = isHit ? "triangle" : "sine";
+      const freq = isHit ? 987.77 : 440; // B5 for hit, A4 for regular
+      osc.frequency.setValueAtTime(freq, ctx.currentTime);
+      gain.gain.setValueAtTime(isHit ? 0.15 : 0.05, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + (isHit ? 0.18 : 0.06));
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + (isHit ? 0.18 : 0.06));
+    } catch {
+      // ignore
+    }
+  }
+
+  // Keno round win fanfare
+  playKenoWin(mult: number) {
+    this.playLimboWin(mult);
+  }
+
+  // Slide conveyor tick
+  playSlideTick() {
+    this.playLimboTick(0.2);
+  }
+
+  // Slide conveyor stop marker chime
+  playSlideStop() {
+    if (!this.enabled) return;
+    try {
+      const ctx = this.initCtx();
+      if (!ctx) return;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.15);
+    } catch {
+      // ignore
+    }
+  }
+
+  // Slide win tone
+  playSlideWin() {
+    this.playCashout();
+  }
+
+  // Chicken cloche lift sound
+  playClocheOpen() {
+    this.playCardFlip();
+  }
+
+  // Chicken safe dish uncovered (sizzle / pleasant chime)
+  playChickenSafe(gemsCount: number = 1) {
+    this.playGem(gemsCount);
+  }
+
+  // Chicken bone trap bust
+  playBoneCrack() {
+    this.playMine();
+  }
 }
 
 export const sounds = new SoundManager();
