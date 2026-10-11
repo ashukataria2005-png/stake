@@ -60,6 +60,7 @@ export default function PumpGame() {
   }, []);
 
   // Mode & Betting State
+  const [mode, setMode] = useState<"manual" | "auto">("manual");
   const [betAmount, setBetAmount] = useState<number>(10);
   const [betInput, setBetInput] = useState<string>("10");
   const [autoTargetInput, setAutoTargetInput] = useState<string>("2.00");
@@ -242,7 +243,7 @@ export default function PumpGame() {
   return (
     <div
       ref={gameContainerRef}
-      className={`w-full max-w-lg mx-auto px-2 sm:px-3 py-2 select-none flex flex-col space-y-2 ${
+      className={`w-full max-w-lg mx-auto px-2 sm:px-3 py-2 select-none flex flex-col space-y-0 ${
         isFullscreen ? "p-6 bg-[#0f212e] min-h-screen max-w-none" : ""
       }`}
     >
@@ -366,7 +367,7 @@ export default function PumpGame() {
               disabled={betAmount > balance || betAmount <= 0}
               className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
             >
-              <span>BET & PUMP</span>
+              <span>{mode === "auto" ? "START AUTOBET" : "BET & PUMP"}</span>
             </button>
           ) : (
             <div className="grid grid-cols-3 gap-2">
@@ -490,7 +491,41 @@ export default function PumpGame() {
           </div>
         </div>
 
-        {/* 4. BOTTOM UTILITY BAR */}
+        {/* 4. MODE SWITCH TABS: [ Manual | Auto ] - Positioned at bottom */}
+        <div className="flex rounded-lg bg-[#0f212e] p-1 border border-[#213743] mt-auto">
+          <button
+            type="button"
+            disabled={isPlaying}
+            onClick={() => {
+              sounds.playClick();
+              setMode("manual");
+            }}
+            className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+              mode === "manual"
+                ? "bg-[#213743] text-white shadow-sm"
+                : "text-[#b1bad3] hover:text-white"
+            }`}
+          >
+            Manual
+          </button>
+          <button
+            type="button"
+            disabled={isPlaying}
+            onClick={() => {
+              sounds.playClick();
+              setMode("auto");
+            }}
+            className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+              mode === "auto"
+                ? "bg-[#213743] text-white shadow-sm"
+                : "text-[#b1bad3] hover:text-white"
+            }`}
+          >
+            Auto
+          </button>
+        </div>
+
+        {/* 5. BOTTOM UTILITY BAR */}
         <div className="flex items-center justify-between rounded-lg bg-[#0f212e] border border-[#213743] px-3 py-2 text-xs text-[#b1bad3] mt-0.5">
           <div className="flex items-center gap-2">
             <button

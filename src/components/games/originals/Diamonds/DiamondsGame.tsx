@@ -249,7 +249,7 @@ export default function DiamondsGame() {
   return (
     <div
       ref={gameContainerRef}
-      className={`w-full max-w-lg mx-auto px-2 sm:px-3 py-2 select-none flex flex-col space-y-2 ${
+      className={`w-full max-w-lg mx-auto px-2 sm:px-3 py-2 select-none flex flex-col space-y-0 ${
         isFullscreen ? "p-6 bg-[#0f212e] min-h-screen max-w-none" : ""
       }`}
     >
@@ -373,7 +373,7 @@ export default function DiamondsGame() {
             disabled={isRevealing || betAmount > balance || betAmount <= 0}
             className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
           >
-            <span>{isRevealing ? "REVEALING..." : "BET"}</span>
+            <span>{isRevealing ? "REVEALING..." : mode === "auto" ? "START AUTOBET" : "BET"}</span>
           </button>
         </div>
 

@@ -77,6 +77,7 @@ export default function RouletteGame() {
   }, []);
 
   // Betting State
+  const [mode, setMode] = useState<"manual" | "auto">("manual");
   const [selectedChip, setSelectedChip] = useState<number>(1);
   const [placedBets, setPlacedBets] = useState<PlacedBet[]>([]);
   const [history, setHistory] = useState<number[]>([14, 2, 0, 31, 9, 26]);
@@ -295,12 +296,14 @@ export default function RouletteGame() {
   return (
     <div
       ref={gameContainerRef}
-      className="flex flex-col items-center w-full min-h-[calc(100vh-64px)] bg-[#0f212e] text-white p-3 sm:p-6 select-none font-sans"
+      className={`w-full max-w-4xl mx-auto px-2 sm:px-3 py-2 select-none flex flex-col space-y-0 ${
+        isFullscreen ? "p-6 bg-[#0f212e] min-h-screen max-w-none" : ""
+      }`}
     >
       {/* =========================================================================
-          TOP: ROULETTE WHEEL & LIVE RESULT TRACK ARENA
+          1. GAME ARENA: ROULETTE WHEEL & BETTING FELT ARENA
       ========================================================================== */}
-      <div className="w-full max-w-4xl bg-[#1a2c38] rounded-2xl p-4 sm:p-6 border border-[#213743] shadow-2xl flex flex-col items-center relative overflow-hidden mb-5">
+      <div className="w-full rounded-t-2xl bg-[#0f212e] border-t border-x border-[#213743] shadow-2xl p-3 sm:p-4 flex flex-col items-center relative overflow-hidden space-y-3">
         
         {/* Subtle Ambient Background */}
         <div className="absolute -top-32 -left-32 w-80 h-80 bg-red-600/10 rounded-full blur-3xl pointer-events-none" />
@@ -422,13 +425,7 @@ export default function RouletteGame() {
             </span>
           </div>
         )}
-      </div>
 
-      {/* =========================================================================
-          CONTROLS: AUTHENTIC FELT GRID & CHIP SELECTOR (Directly Below Wheel)
-      ========================================================================== */}
-      <div className="w-full max-w-4xl bg-[#1a2c38] rounded-2xl p-4 sm:p-5 border border-[#213743] shadow-xl space-y-4">
-        
         {/* Felt Betting Grid (1-36, 0, Columns, Dozens, Outside Bets) */}
         <div className="w-full overflow-x-auto pb-1">
           <div className="min-w-[620px] bg-[#0c1e15] border-2 border-[#164e33] rounded-xl p-3 shadow-inner select-none">
@@ -701,115 +698,166 @@ export default function RouletteGame() {
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Chip Denominations Selector & Table Actions Row */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-          {/* Chip Selector */}
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            {CHIP_VALUES.map((val) => {
-              const isSelected = selectedChip === val;
-              const style = CHIP_COLORS[val];
-              return (
-                <button
-                  key={val}
-                  type="button"
-                  disabled={isSpinning}
-                  onClick={() => {
-                    if (soundEnabled) sounds.playClick();
-                    setSelectedChip(val);
-                  }}
-                  className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full border-2 ${style.bg} ${style.border} ${style.text} flex items-center justify-center font-mono font-black text-[11px] sm:text-xs shadow-md transition-all transform cursor-pointer ${
-                    isSelected ? "scale-110 ring-2 ring-white" : "opacity-80 hover:opacity-100"
-                  }`}
-                >
-                  {val >= 1 ? val : ".1"}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Quick Table Utilities: Undo, Double, Clear */}
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              disabled={isSpinning || placedBets.length === 0}
-              onClick={handleUndoBet}
-              className="px-3 py-2 rounded-xl bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white text-xs font-bold transition-colors disabled:opacity-40 cursor-pointer"
-              title="Undo Last Bet"
-            >
-              Undo
-            </button>
-            <button
-              type="button"
-              disabled={isSpinning || placedBets.length === 0}
-              onClick={handleDoubleBets}
-              className="px-3 py-2 rounded-xl bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white text-xs font-bold transition-colors disabled:opacity-40 cursor-pointer"
-              title="Double Bets"
-            >
-              2×
-            </button>
-            <button
-              type="button"
-              disabled={isSpinning || placedBets.length === 0}
-              onClick={handleClearBets}
-              className="p-2 rounded-xl bg-[#213743] hover:bg-red-500/20 text-[#b1bad3] hover:text-red-400 text-xs font-bold transition-colors disabled:opacity-40 cursor-pointer"
-              title="Clear Table"
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-
-        {/* Primary Green CTA Button `#00e701` Spin */}
-        <div>
+      {/* =========================================================================
+          2. MINES HARMONIZED BETTING CONTROLS SHELL CONTAINER
+      ========================================================================== */}
+      <div className="w-full border-t border-[#213743] bg-[#1a2c38] p-3 sm:p-4 flex flex-col justify-start space-y-2 sm:space-y-2.5 rounded-b-2xl select-none">
+        {/* 1. PRIMARY BET CTA BUTTON (Directly at top of controls) */}
+        <div className="w-full">
           <button
+            type="button"
             onClick={handleSpin}
             disabled={isSpinning || placedBets.length === 0}
-            className={`w-full py-4 rounded-xl font-black text-sm tracking-wide uppercase transition-all duration-200 transform active:scale-[0.99] ${
-              !isSpinning && placedBets.length > 0
-                ? "bg-[#00e701] hover:bg-[#00c701] text-black shadow-[0_0_20px_rgba(0,231,1,0.4)] cursor-pointer"
-                : "bg-[#213743] text-[#b1bad3] cursor-not-allowed"
+            className={`w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider ${
+              placedBets.length > 0 && !isSpinning
+                ? "bg-[#00e701] hover:bg-[#00c701] text-black shadow-lg shadow-[#00e701]/25 hover:brightness-110 active:scale-[0.98]"
+                : "bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25"
             }`}
           >
-            {isSpinning
-              ? "Spinning..."
-              : placedBets.length > 0
-              ? `Spin (Bet ${activeSym}${totalBetAmount.toFixed(2)})`
-              : "Place Chips on Felt to Spin"}
+            <span>
+              {isSpinning
+                ? "SPINNING..."
+                : mode === "auto"
+                ? "START AUTOBET"
+                : placedBets.length > 0
+                ? `SPIN (${activeSym}${totalBetAmount.toFixed(2)})`
+                : "PLACE CHIPS TO SPIN"}
+            </span>
           </button>
         </div>
 
-        {/* Footer Utility Icons: Sound, Stats, Fairness, Fullscreen */}
-        <div className="flex items-center justify-between pt-2 border-t border-[#213743] text-[#b1bad3]">
+        {/* 2. BET AMOUNT & CHIP SELECTOR (Exact Mines Structure) */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-bold text-[#b1bad3]">Chip & Bet Value</span>
+            <span className="font-mono text-[11px] text-[#b1bad3]">
+              Bal: {activeSym}{balance.toFixed(2)} | Total Bet: {activeSym}{totalBetAmount.toFixed(2)}
+            </span>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-2 p-1 rounded-lg bg-[#0f212e] border border-[#213743]">
+            {/* Chips */}
+            <div className="flex items-center gap-1.5 sm:gap-2 px-1">
+              {CHIP_VALUES.map((val) => {
+                const isSelected = selectedChip === val;
+                const style = CHIP_COLORS[val];
+                return (
+                  <button
+                    key={val}
+                    type="button"
+                    disabled={isSpinning}
+                    onClick={() => {
+                      if (soundEnabled) sounds.playClick();
+                      setSelectedChip(val);
+                    }}
+                    className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full border-2 ${style.bg} ${style.border} ${style.text} flex items-center justify-center font-mono font-black text-[10px] sm:text-xs shadow-md transition-all transform cursor-pointer ${
+                      isSelected ? "scale-110 ring-2 ring-white" : "opacity-80 hover:opacity-100"
+                    }`}
+                  >
+                    {val >= 1 ? val : ".1"}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Quick Table Utilities: Undo, Double, Clear */}
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                disabled={isSpinning || placedBets.length === 0}
+                onClick={handleUndoBet}
+                className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
+              >
+                Undo
+              </button>
+              <button
+                type="button"
+                disabled={isSpinning || placedBets.length === 0}
+                onClick={handleDoubleBets}
+                className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
+              >
+                2×
+              </button>
+              <button
+                type="button"
+                disabled={isSpinning || placedBets.length === 0}
+                onClick={handleClearBets}
+                className="rounded-lg bg-[#213743] px-2 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-red-500/20 hover:text-red-400 transition-colors cursor-pointer disabled:opacity-50"
+                title="Clear Table"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* 3. MODE SWITCH TABS: [ Manual | Auto ] - Positioned at bottom */}
+        <div className="flex rounded-lg bg-[#0f212e] p-1 border border-[#213743] mt-auto">
+          <button
+            type="button"
+            disabled={isSpinning}
+            onClick={() => {
+              sounds.playClick();
+              setMode("manual");
+            }}
+            className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+              mode === "manual"
+                ? "bg-[#213743] text-white shadow-sm"
+                : "text-[#b1bad3] hover:text-white"
+            }`}
+          >
+            Manual
+          </button>
+          <button
+            type="button"
+            disabled={isSpinning}
+            onClick={() => {
+              sounds.playClick();
+              setMode("auto");
+            }}
+            className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+              mode === "auto"
+                ? "bg-[#213743] text-white shadow-sm"
+                : "text-[#b1bad3] hover:text-white"
+            }`}
+          >
+            Auto
+          </button>
+        </div>
+
+        {/* 4. BOTTOM UTILITY BAR */}
+        <div className="flex items-center justify-between rounded-lg bg-[#0f212e] border border-[#213743] px-3 py-2 text-xs text-[#b1bad3] mt-0.5">
           <div className="flex items-center gap-2">
             <button
               onClick={() => setSoundEnabled(!soundEnabled)}
-              className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors"
+              className="p-1 rounded-md hover:bg-[#213743] hover:text-white transition-colors cursor-pointer"
               title={soundEnabled ? "Mute" : "Unmute"}
             >
-              {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+              {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4 text-red-400" />}
             </button>
 
             <button
               onClick={() => setShowLiveStats(true)}
-              className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors flex items-center gap-1.5 text-xs font-semibold"
+              className="p-1 rounded-md hover:bg-[#213743] hover:text-white transition-colors flex items-center gap-1 text-xs font-semibold cursor-pointer"
             >
               <TrendingUp className="h-4 w-4" />
-              <span className="hidden sm:inline">Live Stats</span>
+              <span className="hidden sm:inline">Stats</span>
             </button>
 
             <button
               onClick={() => setShowFairnessModal(true)}
-              className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors flex items-center gap-1.5 text-xs font-semibold"
+              className="p-1 rounded-md hover:bg-[#213743] hover:text-white transition-colors flex items-center gap-1 text-xs font-semibold cursor-pointer"
             >
               <ShieldCheck className="h-4 w-4 text-[#00e701]" />
-              <span className="hidden sm:inline">Provably Fair</span>
+              <span className="hidden sm:inline">Fairness</span>
             </button>
           </div>
 
           <button
             onClick={toggleFullscreen}
-            className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors"
+            className="p-1 rounded-md hover:bg-[#213743] hover:text-white transition-colors cursor-pointer"
             title="Toggle Fullscreen"
           >
             {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}

@@ -134,6 +134,9 @@ export default function CasesGame() {
   const [selectedTierId, setSelectedTierId] = useState<string>("novice");
   const activeTier = CASE_TIERS.find((t) => t.id === selectedTierId) || CASE_TIERS[0];
 
+  // Mode Switcher (Manual / Auto)
+  const [mode, setMode] = useState<"manual" | "auto">("manual");
+
   // Betting Controls
   const [betAmount, setBetAmount] = useState<number>(activeTier.basePrice);
   const [betInput, setBetInput] = useState<string>(activeTier.basePrice.toString());
@@ -336,7 +339,7 @@ export default function CasesGame() {
   return (
     <div
       ref={gameContainerRef}
-      className={`w-full max-w-lg mx-auto px-2 sm:px-3 py-2 select-none flex flex-col space-y-2 ${
+      className={`w-full max-w-lg mx-auto px-2 sm:px-3 py-2 select-none flex flex-col space-y-0 ${
         isFullscreen ? "p-6 bg-[#0f212e] min-h-screen max-w-none" : ""
       }`}
     >
@@ -486,7 +489,7 @@ export default function CasesGame() {
             disabled={isUnboxing || betAmount > balance || betAmount <= 0}
             className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
           >
-            <span>{isUnboxing ? "UNBOXING..." : "OPEN CASE"}</span>
+            <span>{isUnboxing ? "UNBOXING..." : mode === "auto" ? "START AUTOBET" : "OPEN CASE"}</span>
           </button>
         </div>
 
@@ -570,7 +573,33 @@ export default function CasesGame() {
           </button>
         </div>
 
-        {/* 4. BOTTOM UTILITY BAR */}
+        {/* 4. MODE SWITCHER TABS (Manual / Auto) */}
+        <div className="flex rounded-lg bg-[#0f212e] p-1 border border-[#213743] mt-auto">
+          <button
+            type="button"
+            onClick={() => setMode("manual")}
+            className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+              mode === "manual"
+                ? "bg-[#213743] text-white shadow-sm"
+                : "text-[#b1bad3] hover:text-white"
+            }`}
+          >
+            Manual
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode("auto")}
+            className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+              mode === "auto"
+                ? "bg-[#213743] text-white shadow-sm"
+                : "text-[#b1bad3] hover:text-white"
+            }`}
+          >
+            Auto
+          </button>
+        </div>
+
+        {/* 5. BOTTOM UTILITY BAR */}
         <div className="flex items-center justify-between rounded-lg bg-[#0f212e] border border-[#213743] px-3 py-2 text-xs text-[#b1bad3] mt-0.5">
           <div className="flex items-center gap-2">
             <button

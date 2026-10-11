@@ -116,6 +116,7 @@ export default function BlackjackGame() {
   }, []);
 
   // Betting Controls
+  const [mode, setMode] = useState<"manual" | "auto">("manual");
   const [betAmount, setBetAmount] = useState<number>(10);
   const [betInput, setBetInput] = useState<string>("10");
 
@@ -542,12 +543,14 @@ export default function BlackjackGame() {
   return (
     <div
       ref={gameContainerRef}
-      className="flex flex-col items-center w-full min-h-[calc(100vh-64px)] bg-[#0f212e] text-white p-3 sm:p-6 select-none font-sans"
+      className={`w-full max-w-4xl mx-auto px-2 sm:px-3 py-2 select-none flex flex-col space-y-0 ${
+        isFullscreen ? "p-6 bg-[#0f212e] min-h-screen max-w-none" : ""
+      }`}
     >
       {/* =========================================================================
-          TOP: AUTHENTIC CASINO FELT TABLE ARENA (Dealer top, Player bottom)
+          1. GAME ARENA: AUTHENTIC CASINO FELT TABLE ARENA (Dealer top, Player bottom)
       ========================================================================== */}
-      <div className="w-full max-w-4xl bg-gradient-to-b from-[#0c2419] to-[#071710] border-2 border-[#164e33] rounded-2xl p-4 sm:p-8 shadow-2xl flex flex-col justify-between min-h-[440px] sm:min-h-[500px] relative overflow-hidden mb-5">
+      <div className="w-full rounded-t-2xl bg-[#0f212e] border-t border-x border-[#213743] shadow-2xl p-3 sm:p-6 flex flex-col justify-between min-h-[440px] relative overflow-hidden">
         
         {/* Golden Table Felt Trim Curved Border */}
         <div className="absolute inset-x-8 top-32 bottom-32 border-2 border-dashed border-amber-500/20 rounded-full pointer-events-none" />
@@ -718,39 +721,115 @@ export default function BlackjackGame() {
       </div>
 
       {/* =========================================================================
-          CONTROLS: ACTION CONTROLS (Directly Beneath Table Arena)
+          2. MINES HARMONIZED BETTING CONTROLS SHELL CONTAINER
       ========================================================================== */}
-      <div className="w-full max-w-4xl bg-[#1a2c38] rounded-2xl p-5 border border-[#213743] shadow-xl space-y-4">
-        
-        {/* Row 1: Bet Amount with Modifiers */}
-        <div className="space-y-1.5">
-          <div className="flex justify-between items-center text-xs text-[#b1bad3] font-semibold">
-            <label>Bet Amount</label>
-            <span>{activeSym}{balance.toFixed(2)}</span>
-          </div>
-          <div className="relative flex items-center">
-            <div className="absolute left-3 text-sm font-bold text-[#b1bad3]">
-              {activeSym}
+      <div className="w-full border-t border-[#213743] bg-[#1a2c38] p-3 sm:p-4 flex flex-col justify-start space-y-2 sm:space-y-2.5 rounded-b-2xl select-none">
+        {/* 1. PRIMARY BET CTA BUTTON (Directly at top of controls) */}
+        <div className="w-full">
+          {gameState === "idle" || gameState === "ended" ? (
+            <button
+              type="button"
+              onClick={handleDeal}
+              disabled={betAmount > balance || betAmount <= 0}
+              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
+            >
+              <span>{mode === "auto" ? "START AUTOBET" : `DEAL (${activeSym}${betAmount.toFixed(2)})`}</span>
+            </button>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <button
+                type="button"
+                onClick={handleHit}
+                disabled={gameState !== "player_turn"}
+                className="py-3 text-xs sm:text-sm font-extrabold rounded-xl bg-[#00e701] hover:bg-[#00c701] text-black shadow-md hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer uppercase tracking-wider"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Hit</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleStand}
+                disabled={gameState !== "player_turn"}
+                className="py-3 text-xs sm:text-sm font-extrabold rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-md active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer uppercase tracking-wider"
+              >
+                <Hand className="h-4 w-4" />
+                <span>Stand</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleDoubleDown}
+                disabled={!canDouble}
+                className={`py-3 text-xs sm:text-sm font-extrabold rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 uppercase tracking-wider ${
+                  canDouble
+                    ? "bg-amber-500 hover:bg-amber-400 text-black cursor-pointer active:scale-[0.98]"
+                    : "bg-[#213743] text-[#b1bad3] cursor-not-allowed opacity-50"
+                }`}
+              >
+                <Sparkles className="h-4 w-4" />
+                <span>Double</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleSplit}
+                disabled={!canSplit}
+                className={`py-3 text-xs sm:text-sm font-extrabold rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 uppercase tracking-wider ${
+                  canSplit
+                    ? "bg-blue-600 hover:bg-blue-500 text-white cursor-pointer active:scale-[0.98]"
+                    : "bg-[#213743] text-[#b1bad3] cursor-not-allowed opacity-50"
+                }`}
+              >
+                <SplitIcon className="h-4 w-4" />
+                <span>Split</span>
+              </button>
             </div>
-            <input
-              type="number"
-              disabled={gameState === "player_turn" || gameState === "dealer_turn"}
-              value={betInput}
-              onChange={(e) => {
-                setBetInput(e.target.value);
-                const parsed = parseFloat(e.target.value);
-                if (!isNaN(parsed) && parsed > 0) setBetAmount(parsed);
-              }}
-              className="w-full bg-[#0f212e] border border-[#213743] rounded-xl pl-8 pr-32 py-2.5 text-sm font-bold font-mono text-white focus:outline-none focus:border-[#00e701] disabled:opacity-50"
-              step="any"
-              min="0.01"
-            />
-            <div className="absolute right-1.5 flex items-center gap-1">
+          )}
+        </div>
+
+        {/* 2. BET AMOUNT INPUT (Exact Mines Structure) */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-bold text-[#b1bad3]">Bet Amount</span>
+            <span className="font-mono text-[11px] text-[#b1bad3]">
+              Bal: {activeSym}{balance.toFixed(2)}
+            </span>
+          </div>
+
+          <div className="flex rounded-lg bg-[#0f212e] border border-[#213743] focus-within:border-[#2f4553] p-1">
+            <div className="flex flex-1 items-center px-2.5">
+              <span className="text-xs font-bold text-[#b1bad3] mr-1.5">{activeSym}</span>
+              <input
+                type="text"
+                inputMode="decimal"
+                disabled={gameState === "player_turn" || gameState === "dealer_turn"}
+                value={betInput}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                    setBetInput(val);
+                    if (val !== "" && !isNaN(parseFloat(val))) {
+                      setBetAmount(parseFloat(val));
+                    }
+                  }
+                }}
+                onBlur={() => {
+                  if (betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0) {
+                    setBetInput("1.00");
+                    setBetAmount(1);
+                  } else {
+                    const num = parseFloat(betInput);
+                    setBetAmount(num);
+                    setBetInput(num.toFixed(2));
+                  }
+                }}
+                className="w-full bg-transparent text-sm font-bold text-white outline-none font-mono"
+              />
+            </div>
+            <div className="flex items-center gap-1">
               <button
                 type="button"
                 disabled={gameState === "player_turn" || gameState === "dealer_turn"}
                 onClick={handleHalfBet}
-                className="px-2 py-1 text-xs font-bold rounded-lg bg-[#213743] text-[#b1bad3] hover:text-white hover:bg-[#2f4553] transition-colors disabled:opacity-50"
+                className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
               >
                 ½
               </button>
@@ -758,119 +837,79 @@ export default function BlackjackGame() {
                 type="button"
                 disabled={gameState === "player_turn" || gameState === "dealer_turn"}
                 onClick={handleDoubleBet}
-                className="px-2 py-1 text-xs font-bold rounded-lg bg-[#213743] text-[#b1bad3] hover:text-white hover:bg-[#2f4553] transition-colors disabled:opacity-50"
+                className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
               >
                 2×
-              </button>
-              <button
-                type="button"
-                disabled={gameState === "player_turn" || gameState === "dealer_turn"}
-                onClick={handleMaxBet}
-                className="px-2 py-1 text-xs font-bold rounded-lg bg-[#213743] text-[#b1bad3] hover:text-white hover:bg-[#2f4553] transition-colors disabled:opacity-50"
-              >
-                Max
               </button>
             </div>
           </div>
         </div>
 
-        {/* Row 2: In-Game Action Buttons or Deal Button */}
-        {gameState === "idle" || gameState === "ended" ? (
-          <div>
-            <button
-              onClick={handleDeal}
-              className="w-full py-4 rounded-xl font-black text-sm tracking-wide uppercase transition-all duration-200 transform active:scale-[0.99] bg-[#00e701] hover:bg-[#00c701] text-black shadow-[0_0_20px_rgba(0,231,1,0.4)] cursor-pointer"
-            >
-              Deal ({activeSym}{betAmount.toFixed(2)})
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-            {/* Hit */}
-            <button
-              type="button"
-              onClick={handleHit}
-              disabled={gameState !== "player_turn"}
-              className="py-3.5 rounded-xl font-black text-sm uppercase bg-[#00e701] hover:bg-[#00c701] text-black shadow-[0_0_15px_rgba(0,231,1,0.3)] flex items-center justify-center gap-1.5 transition-all transform active:scale-95 cursor-pointer disabled:opacity-50"
-            >
-              <Plus className="h-4 w-4" />
-              <span>Hit</span>
-            </button>
+        {/* 3. MODE SWITCH TABS: [ Manual | Auto ] - Positioned at bottom */}
+        <div className="flex rounded-lg bg-[#0f212e] p-1 border border-[#213743] mt-auto">
+          <button
+            type="button"
+            disabled={gameState === "player_turn" || gameState === "dealer_turn"}
+            onClick={() => {
+              sounds.playClick();
+              setMode("manual");
+            }}
+            className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+              mode === "manual"
+                ? "bg-[#213743] text-white shadow-sm"
+                : "text-[#b1bad3] hover:text-white"
+            }`}
+          >
+            Manual
+          </button>
+          <button
+            type="button"
+            disabled={gameState === "player_turn" || gameState === "dealer_turn"}
+            onClick={() => {
+              sounds.playClick();
+              setMode("auto");
+            }}
+            className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+              mode === "auto"
+                ? "bg-[#213743] text-white shadow-sm"
+                : "text-[#b1bad3] hover:text-white"
+            }`}
+          >
+            Auto
+          </button>
+        </div>
 
-            {/* Stand */}
-            <button
-              type="button"
-              onClick={handleStand}
-              disabled={gameState !== "player_turn"}
-              className="py-3.5 rounded-xl font-black text-sm uppercase bg-red-600 hover:bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.3)] flex items-center justify-center gap-1.5 transition-all transform active:scale-95 cursor-pointer disabled:opacity-50"
-            >
-              <Hand className="h-4 w-4" />
-              <span>Stand</span>
-            </button>
-
-            {/* Double Down */}
-            <button
-              type="button"
-              onClick={handleDoubleDown}
-              disabled={!canDouble}
-              className={`py-3.5 rounded-xl font-black text-sm uppercase flex items-center justify-center gap-1.5 transition-all transform active:scale-95 ${
-                canDouble
-                  ? "bg-amber-500 hover:bg-amber-400 text-black shadow-[0_0_15px_rgba(245,158,11,0.3)] cursor-pointer"
-                  : "bg-[#213743] text-[#b1bad3] cursor-not-allowed opacity-50"
-              }`}
-            >
-              <Sparkles className="h-4 w-4" />
-              <span>Double</span>
-            </button>
-
-            {/* Split */}
-            <button
-              type="button"
-              onClick={handleSplit}
-              disabled={!canSplit}
-              className={`py-3.5 rounded-xl font-black text-sm uppercase flex items-center justify-center gap-1.5 transition-all transform active:scale-95 ${
-                canSplit
-                  ? "bg-blue-600 hover:bg-blue-500 text-white shadow-[0_0_15px_rgba(37,99,235,0.3)] cursor-pointer"
-                  : "bg-[#213743] text-[#b1bad3] cursor-not-allowed opacity-50"
-              }`}
-            >
-              <SplitIcon className="h-4 w-4" />
-              <span>Split</span>
-            </button>
-          </div>
-        )}
-
-        {/* Footer Utility Icons: Sound, Stats, Fairness, Fullscreen */}
-        <div className="flex items-center justify-between pt-2 border-t border-[#213743] text-[#b1bad3]">
+        {/* 4. BOTTOM UTILITY BAR */}
+        <div className="flex items-center justify-between rounded-lg bg-[#0f212e] border border-[#213743] px-3 py-2 text-xs text-[#b1bad3] mt-0.5">
           <div className="flex items-center gap-2">
             <button
               onClick={() => setSoundEnabled(!soundEnabled)}
-              className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors"
+              className="p-1 rounded-md hover:bg-[#213743] hover:text-white transition-colors cursor-pointer"
               title={soundEnabled ? "Mute" : "Unmute"}
             >
-              {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+              {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4 text-red-400" />}
             </button>
 
             <button
               onClick={() => setShowLiveStats(true)}
-              className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors flex items-center gap-1.5 text-xs font-semibold"
+              className="p-1 rounded-md hover:bg-[#213743] hover:text-white transition-colors flex items-center gap-1 text-xs font-semibold cursor-pointer"
             >
               <TrendingUp className="h-4 w-4" />
-              <span className="hidden sm:inline">Live Stats</span>
+              <span className="hidden sm:inline">Stats</span>
             </button>
 
             <button
               onClick={() => setShowFairnessModal(true)}
-              className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors flex items-center gap-1.5 text-xs font-semibold"
+              className="p-1 rounded-md hover:bg-[#213743] hover:text-white transition-colors flex items-center gap-1 text-xs font-semibold cursor-pointer"
             >
               <ShieldCheck className="h-4 w-4 text-[#00e701]" />
-              <span className="hidden sm:inline">Provably Fair</span>
+              <span className="hidden sm:inline">Fairness</span>
             </button>
           </div>
 
           <button
             onClick={toggleFullscreen}
-            className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors"
+            className="p-1 rounded-md hover:bg-[#213743] hover:text-white transition-colors cursor-pointer"
             title="Toggle Fullscreen"
           >
             {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}

@@ -50,6 +50,7 @@ export default function DartsGame() {
   }, []);
 
   // Settings & Modes
+  const [mode, setMode] = useState<"manual" | "auto">("manual");
   const [betAmount, setBetAmount] = useState<number>(10);
   const [betInput, setBetInput] = useState<string>("10");
   const [risk, setRisk] = useState<DartsRisk>("medium");
@@ -268,12 +269,14 @@ export default function DartsGame() {
   return (
     <div
       ref={gameContainerRef}
-      className="flex flex-col items-center w-full min-h-[calc(100vh-64px)] bg-[#0f212e] text-white p-3 sm:p-6 select-none font-sans"
+      className={`w-full max-w-lg mx-auto px-2 sm:px-3 py-2 select-none flex flex-col space-y-0 ${
+        isFullscreen ? "p-6 bg-[#0f212e] min-h-screen max-w-none" : ""
+      }`}
     >
       {/* =========================================================================
-          TOP: AUTHENTIC DARTS BOARD ARENA (Top of View)
+          1. GAME ARENA: AUTHENTIC DARTS BOARD ARENA (Top of View)
       ========================================================================== */}
-      <div className="w-full max-w-4xl bg-[#1a2c38] rounded-2xl p-4 sm:p-6 border border-[#213743] shadow-2xl flex flex-col items-center relative overflow-hidden mb-5">
+      <div className="w-full rounded-t-2xl bg-[#0f212e] border-t border-x border-[#213743] shadow-2xl p-3 sm:p-4 flex flex-col items-center relative overflow-hidden space-y-3">
         
         {/* Ambient Target Glow */}
         <div className="absolute -top-32 -left-32 w-80 h-80 bg-red-600/10 rounded-full blur-3xl pointer-events-none" />
@@ -418,143 +421,177 @@ export default function DartsGame() {
       </div>
 
       {/* =========================================================================
-          CONTROLS: DIRECTLY BENEATH BOARD (Vertical Flow)
+          2. MINES HARMONIZED BETTING CONTROLS SHELL CONTAINER
       ========================================================================== */}
-      <div className="w-full max-w-4xl bg-[#1a2c38] rounded-2xl p-5 border border-[#213743] shadow-xl space-y-4">
-        
-        {/* Row 1: Bet Amount & Risk Selector */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          
-          {/* Bet Amount Input with Quick Modifiers */}
-          <div className="space-y-1.5">
-            <div className="flex justify-between items-center text-xs text-[#b1bad3] font-semibold">
-              <label>Bet Amount</label>
-              <span>{activeSym}{balance.toFixed(2)}</span>
-            </div>
-            <div className="relative flex items-center">
-              <div className="absolute left-3 text-sm font-bold text-[#b1bad3]">
-                {activeSym}
-              </div>
-              <input
-                type="number"
-                disabled={isThrowing}
-                value={betInput}
-                onChange={(e) => {
-                  setBetInput(e.target.value);
-                  const parsed = parseFloat(e.target.value);
-                  if (!isNaN(parsed) && parsed > 0) setBetAmount(parsed);
-                }}
-                className="w-full bg-[#0f212e] border border-[#213743] rounded-xl pl-8 pr-32 py-2.5 text-sm font-bold font-mono text-white focus:outline-none focus:border-[#00e701] disabled:opacity-50"
-                step="any"
-                min="0.01"
-              />
-              <div className="absolute right-1.5 flex items-center gap-1">
-                <button
-                  type="button"
-                  disabled={isThrowing}
-                  onClick={handleHalfBet}
-                  className="px-2 py-1 text-xs font-bold rounded-lg bg-[#213743] text-[#b1bad3] hover:text-white hover:bg-[#2f4553] transition-colors disabled:opacity-50"
-                >
-                  ½
-                </button>
-                <button
-                  type="button"
-                  disabled={isThrowing}
-                  onClick={handleDoubleBet}
-                  className="px-2 py-1 text-xs font-bold rounded-lg bg-[#213743] text-[#b1bad3] hover:text-white hover:bg-[#2f4553] transition-colors disabled:opacity-50"
-                >
-                  2×
-                </button>
-                <button
-                  type="button"
-                  disabled={isThrowing}
-                  onClick={handleMaxBet}
-                  className="px-2 py-1 text-xs font-bold rounded-lg bg-[#213743] text-[#b1bad3] hover:text-white hover:bg-[#2f4553] transition-colors disabled:opacity-50"
-                >
-                  Max
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Risk Level Pills */}
-          <div className="space-y-1.5">
-            <div className="flex justify-between items-center text-xs text-[#b1bad3] font-semibold">
-              <label>Risk Level</label>
-              <span className="capitalize">{risk} (3 Darts per Round)</span>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              {(["low", "medium", "high"] as DartsRisk[]).map((r) => {
-                const isSelected = risk === r;
-                return (
-                  <button
-                    key={r}
-                    type="button"
-                    disabled={isThrowing}
-                    onClick={() => {
-                      if (soundEnabled) sounds.playClick();
-                      setRisk(r);
-                    }}
-                    className={`py-2.5 rounded-xl text-xs font-bold capitalize transition-all cursor-pointer ${
-                      isSelected
-                        ? "bg-[#213743] text-white border border-[#00e701] shadow-md ring-1 ring-[#00e701]"
-                        : "bg-[#0f212e] text-[#b1bad3] hover:text-white hover:bg-[#213743]/50 border border-transparent"
-                    } disabled:opacity-50`}
-                  >
-                    {r}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        {/* Row 2: Stake Green `#00e701` Throw CTA Button */}
-        <div>
+      <div className="w-full border-t border-[#213743] bg-[#1a2c38] p-3 sm:p-4 flex flex-col justify-start space-y-2 sm:space-y-2.5 rounded-b-2xl select-none">
+        {/* 1. PRIMARY BET CTA BUTTON (Directly at top of controls) */}
+        <div className="w-full">
           <button
+            type="button"
             onClick={handleThrow}
-            disabled={isThrowing}
-            className={`w-full py-4 rounded-xl font-black text-sm tracking-wide uppercase transition-all duration-200 transform active:scale-[0.99] ${
-              !isThrowing
-                ? "bg-[#00e701] hover:bg-[#00c701] text-black shadow-[0_0_20px_rgba(0,231,1,0.4)] cursor-pointer"
-                : "bg-[#213743] text-[#b1bad3] cursor-not-allowed"
-            }`}
+            disabled={isThrowing || betAmount > balance || betAmount <= 0}
+            className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
           >
-            {isThrowing ? "Throwing Darts..." : `Throw Darts (${activeSym}${betAmount.toFixed(2)})`}
+            <span>{isThrowing ? "THROWING DARTS..." : mode === "auto" ? "START AUTOBET" : `THROW DARTS (${activeSym}${betAmount.toFixed(2)})`}</span>
           </button>
         </div>
 
-        {/* Footer Utility Icons: Sound, Stats, Fairness, Fullscreen */}
-        <div className="flex items-center justify-between pt-2 border-t border-[#213743] text-[#b1bad3]">
+        {/* 2. BET AMOUNT INPUT (Exact Mines Structure) */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-bold text-[#b1bad3]">Bet Amount</span>
+            <span className="font-mono text-[11px] text-[#b1bad3]">
+              Bal: {activeSym}{balance.toFixed(2)}
+            </span>
+          </div>
+
+          <div className="flex rounded-lg bg-[#0f212e] border border-[#213743] focus-within:border-[#2f4553] p-1">
+            <div className="flex flex-1 items-center px-2.5">
+              <span className="text-xs font-bold text-[#b1bad3] mr-1.5">{activeSym}</span>
+              <input
+                type="text"
+                inputMode="decimal"
+                disabled={isThrowing}
+                value={betInput}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                    setBetInput(val);
+                    if (val !== "" && !isNaN(parseFloat(val))) {
+                      setBetAmount(parseFloat(val));
+                    }
+                  }
+                }}
+                onBlur={() => {
+                  if (betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0) {
+                    setBetInput("1.00");
+                    setBetAmount(1);
+                  } else {
+                    const num = parseFloat(betInput);
+                    setBetAmount(num);
+                    setBetInput(num.toFixed(2));
+                  }
+                }}
+                className="w-full bg-transparent text-sm font-bold text-white outline-none font-mono"
+              />
+            </div>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                disabled={isThrowing}
+                onClick={handleHalfBet}
+                className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
+              >
+                ½
+              </button>
+              <button
+                type="button"
+                disabled={isThrowing}
+                onClick={handleDoubleBet}
+                className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
+              >
+                2×
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* 3. RISK LEVEL SELECTOR PILLS */}
+        <div className="space-y-1">
+          <div className="flex justify-between items-center text-[10px] font-bold text-[#b1bad3] uppercase">
+            <span>Risk Level</span>
+            <span className="capitalize">{risk} (3 Darts per Round)</span>
+          </div>
+          <div className="grid grid-cols-3 gap-1">
+            {(["low", "medium", "high"] as DartsRisk[]).map((r) => {
+              const isSelected = risk === r;
+              return (
+                <button
+                  key={r}
+                  type="button"
+                  disabled={isThrowing}
+                  onClick={() => {
+                    if (soundEnabled) sounds.playClick();
+                    setRisk(r);
+                  }}
+                  className={`py-1.5 rounded-lg text-xs font-bold capitalize transition-all cursor-pointer ${
+                    isSelected
+                      ? "bg-[#213743] text-white shadow-sm"
+                      : "bg-[#0f212e] text-[#b1bad3] hover:text-white"
+                  } disabled:opacity-50`}
+                >
+                  {r}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 4. MODE SWITCH TABS: [ Manual | Auto ] - Positioned at bottom */}
+        <div className="flex rounded-lg bg-[#0f212e] p-1 border border-[#213743] mt-auto">
+          <button
+            type="button"
+            disabled={isThrowing}
+            onClick={() => {
+              sounds.playClick();
+              setMode("manual");
+            }}
+            className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+              mode === "manual"
+                ? "bg-[#213743] text-white shadow-sm"
+                : "text-[#b1bad3] hover:text-white"
+            }`}
+          >
+            Manual
+          </button>
+          <button
+            type="button"
+            disabled={isThrowing}
+            onClick={() => {
+              sounds.playClick();
+              setMode("auto");
+            }}
+            className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+              mode === "auto"
+                ? "bg-[#213743] text-white shadow-sm"
+                : "text-[#b1bad3] hover:text-white"
+            }`}
+          >
+            Auto
+          </button>
+        </div>
+
+        {/* 5. BOTTOM UTILITY BAR */}
+        <div className="flex items-center justify-between rounded-lg bg-[#0f212e] border border-[#213743] px-3 py-2 text-xs text-[#b1bad3] mt-0.5">
           <div className="flex items-center gap-2">
             <button
               onClick={() => setSoundEnabled(!soundEnabled)}
-              className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors"
+              className="p-1 rounded-md hover:bg-[#213743] hover:text-white transition-colors cursor-pointer"
               title={soundEnabled ? "Mute" : "Unmute"}
             >
-              {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+              {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4 text-red-400" />}
             </button>
 
             <button
               onClick={() => setShowLiveStats(true)}
-              className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors flex items-center gap-1.5 text-xs font-semibold"
+              className="p-1 rounded-md hover:bg-[#213743] hover:text-white transition-colors flex items-center gap-1 text-xs font-semibold cursor-pointer"
             >
               <TrendingUp className="h-4 w-4" />
-              <span className="hidden sm:inline">Live Stats</span>
+              <span className="hidden sm:inline">Stats</span>
             </button>
 
             <button
               onClick={() => setShowFairnessModal(true)}
-              className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors flex items-center gap-1.5 text-xs font-semibold"
+              className="p-1 rounded-md hover:bg-[#213743] hover:text-white transition-colors flex items-center gap-1 text-xs font-semibold cursor-pointer"
             >
               <ShieldCheck className="h-4 w-4 text-[#00e701]" />
-              <span className="hidden sm:inline">Provably Fair</span>
+              <span className="hidden sm:inline">Fairness</span>
             </button>
           </div>
 
           <button
             onClick={toggleFullscreen}
-            className="p-2 rounded-lg hover:bg-[#213743] hover:text-white transition-colors"
+            className="p-1 rounded-md hover:bg-[#213743] hover:text-white transition-colors cursor-pointer"
             title="Toggle Fullscreen"
           >
             {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
