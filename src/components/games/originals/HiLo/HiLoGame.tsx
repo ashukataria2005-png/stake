@@ -1,9 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import Link from "next/link";
 import {
-  ArrowLeft,
   Volume2,
   VolumeX,
   ShieldCheck,
