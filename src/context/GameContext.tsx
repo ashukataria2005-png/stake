@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { CRYPTO_CURRENCIES, ALL_FIAT_CURRENCIES } from "@/data/currencies";
 
 export interface UserProfile {
@@ -53,9 +53,9 @@ interface GameContextType {
   recentlyPlayedGames: RecentlyPlayedGame[];
   addRecentlyPlayedGame: (game: RecentlyPlayedGame) => void;
   toggleSidebar: () => void;
-  setSidebarOpen: (open: boolean) => void;
+  setSidebarOpen: (open: boolean | ((prev: boolean) => boolean)) => void;
   toggleChat: () => void;
-  setChatOpen: (open: boolean) => void;
+  setChatOpen: (open: boolean | ((prev: boolean) => boolean)) => void;
   setCurrency: (currency: string) => void;
   setHideZeroBalances: (hide: boolean) => void;
   setDisplayCryptoInFiat: (display: boolean) => void;
@@ -406,21 +406,21 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const toggleSidebar = () => {
+  const toggleSidebar = useCallback(() => {
     setIsSidebarOpen((prev) => !prev);
-  };
+  }, []);
 
-  const setSidebarOpen = (open: boolean) => {
+  const setSidebarOpen = useCallback((open: boolean | ((prev: boolean) => boolean)) => {
     setIsSidebarOpen(open);
-  };
+  }, []);
 
-  const toggleChat = () => {
+  const toggleChat = useCallback(() => {
     setIsChatOpen((prev) => !prev);
-  };
+  }, []);
 
-  const setChatOpen = (open: boolean) => {
+  const setChatOpen = useCallback((open: boolean | ((prev: boolean) => boolean)) => {
     setIsChatOpen(open);
-  };
+  }, []);
 
   const formatBalance = (val?: number): string => {
     const target = val !== undefined ? val : activeBalance;

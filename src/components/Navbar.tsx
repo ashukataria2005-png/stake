@@ -199,8 +199,29 @@ export default function Navbar() {
 
         {/* Right Section: Guest vs Authenticated Controls with exact gap-2 */}
         {!isAuthenticated ? (
-          /* Guest View: Sign In & Register Buttons */
+          /* Guest View: Sign In & Register Buttons + Desktop Chat */
           <div className="flex items-center gap-2 shrink-0">
+            {/* Live Community Chat Trigger (Desktop) */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setChatOpen((prev) => !prev);
+              }}
+              title="Toggle Community Chat"
+              aria-label="Toggle Community Chat"
+              className={`hidden md:flex relative h-10 w-10 items-center justify-center rounded-lg transition-colors cursor-pointer ${isChatOpen
+                ? "bg-[#213743] text-[#00e701]"
+                : "text-[#b1bad3] hover:bg-[#213743] hover:text-white"
+                }`}
+            >
+              <MessageSquare className="h-5 w-5" />
+              <span className="absolute top-2 right-2 flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00e701] opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00e701]" />
+              </span>
+            </button>
             <button
               onClick={openSignIn}
               className="font-medium text-sm text-[#b1bad3] hover:text-white px-3 py-2 transition-colors cursor-pointer"
@@ -232,8 +253,14 @@ export default function Navbar() {
             <div className="hidden md:flex items-center gap-2">
               {/* Live Community Chat Trigger */}
               <button
-                onClick={toggleChat}
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setChatOpen((prev) => !prev);
+                }}
                 title="Toggle Community Chat"
+                aria-label="Toggle Community Chat"
                 className={`relative flex h-10 w-10 items-center justify-center rounded-lg transition-colors cursor-pointer ${isChatOpen
                   ? "bg-[#213743] text-[#00e701]"
                   : "text-[#b1bad3] hover:bg-[#213743] hover:text-white"

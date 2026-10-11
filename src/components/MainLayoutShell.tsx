@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
@@ -20,9 +20,19 @@ export default function MainLayoutShell({
   const pathname = usePathname();
   const isGamePage = pathname?.startsWith("/games") || pathname?.startsWith("/casino/games");
 
-  // Auto-dismiss chat overlay on section / route navigation
+  // Track previous pathname so chat is ONLY closed on actual route changes,
+  // NOT on initial render, component re-renders, or when clicking the chat toggle.
+  const prevPathnameRef = useRef<string | null>(null);
+
   useEffect(() => {
-    setChatOpen(false);
+    if (prevPathnameRef.current === null) {
+      prevPathnameRef.current = pathname;
+      return;
+    }
+    if (prevPathnameRef.current !== pathname) {
+      prevPathnameRef.current = pathname;
+      setChatOpen(false);
+    }
   }, [pathname, setChatOpen]);
 
   return (

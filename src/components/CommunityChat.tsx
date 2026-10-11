@@ -108,7 +108,7 @@ const STAKE_CHAT_RULES = [
 const MAX_CHARS = 160;
 
 export default function CommunityChat() {
-  const { isChatOpen, toggleChat } = useGame();
+  const { isChatOpen, toggleChat, setChatOpen } = useGame();
   const [selectedChannel, setSelectedChannel] = useState(CHANNELS[0]);
   const [isChannelDropdownOpen, setIsChannelDropdownOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
@@ -249,7 +249,13 @@ export default function CommunityChat() {
 
   return (
     <>
-      <aside className="fixed top-14 sm:top-16 bottom-[68px] sm:bottom-[72px] md:bottom-0 right-0 z-50 w-full sm:w-[350px] bg-[#1a2c38] border-l border-[#213743] shadow-2xl flex flex-col select-none animate-in slide-in-from-right duration-200">
+      {/* Mobile backdrop for outside dismissal */}
+      <div
+        onClick={() => setChatOpen(false)}
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998] md:hidden pointer-events-auto transition-opacity"
+        aria-hidden="true"
+      />
+      <aside className="fixed top-14 sm:top-16 bottom-[58px] md:bottom-0 right-0 z-[9999] pointer-events-auto w-full sm:w-[350px] bg-[#1a2c38] border-l border-[#213743] shadow-2xl flex flex-col select-none animate-in slide-in-from-right duration-200">
         <div className="h-full flex flex-col justify-between overflow-hidden">
           {/* 1. Channel Header: Dropdown Pill with Flag (e.g. 🇮🇳 India ⌄) & Minimal Close '✕' */}
           <div className="flex items-center justify-between border-b border-[#213743] px-3.5 py-3 bg-[#14232f] shrink-0 relative">
@@ -290,7 +296,7 @@ export default function CommunityChat() {
 
             {/* Minimal Clean '✕' Dismiss Button */}
             <button
-              onClick={toggleChat}
+              onClick={() => setChatOpen(false)}
               className="flex h-7 w-7 items-center justify-center rounded-lg text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer text-sm font-semibold"
               aria-label="Close Chat"
             >

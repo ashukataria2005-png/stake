@@ -19,11 +19,9 @@ export default function MobileBottomNav() {
   const handleTabClick = (tabId: string) => {
     setActiveTab(tabId);
     if (tabId === "chat") {
-      toggleChat();
+      setChatOpen((prev) => !prev);
     } else if (tabId === "menu") {
       toggleSidebar();
-    } else {
-      setChatOpen(false);
     }
   };
 
@@ -199,8 +197,15 @@ export default function MobileBottomNav() {
 
         {/* Tab 5: Chat */}
         <button
-          onClick={() => handleTabClick("chat")}
-          className="flex flex-col items-center justify-center flex-1 py-1 transition-colors relative bg-transparent hover:bg-transparent active:bg-transparent cursor-pointer"
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setActiveTab("chat");
+            setChatOpen((prev) => !prev);
+          }}
+          aria-label="Toggle Community Chat"
+          className="flex flex-col items-center justify-center flex-1 py-1 transition-colors relative bg-transparent hover:bg-transparent active:bg-transparent cursor-pointer border-none outline-none"
         >
           <div className="flex h-7 w-7 items-center justify-center relative bg-transparent">
             <MessageSquare
