@@ -646,6 +646,131 @@ class SoundManager {
   playCaseMarkerSnap() {
     this.playClick();
   }
+
+  // Flip: Coin toss flick
+  playCoinToss() {
+    if (!this.enabled) return;
+    try {
+      const ctx = this.initCtx();
+      if (!ctx) return;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(600, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(1400, ctx.currentTime + 0.12);
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.12);
+    } catch {}
+  }
+
+  // Flip: Coin landing slap
+  playCoinSlap() {
+    if (!this.enabled) return;
+    try {
+      const ctx = this.initCtx();
+      if (!ctx) return;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(320, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(90, ctx.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.25, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.1);
+    } catch {}
+  }
+
+  // Bust / explosion loss sound
+  playBust() {
+    this.playMine();
+  }
+
+  // Snakes: Pawn hop click
+  playPawnHop() {
+    this.playClick();
+  }
+
+  // Snakes: Ladder climb chime
+  playLadderClimb() {
+    this.playSuccessChime();
+  }
+
+  // Snakes: Snake hiss / bust
+  playSnakeHiss() {
+    this.playBust();
+  }
+
+  // Baccarat: Score reveal
+  playBaccaratScore() {
+    this.playClick();
+  }
+
+  // Baccarat: Win fanfare
+  playBaccaratWin() {
+    this.playCashout();
+  }
+
+  // Drill: Mechanical rumble
+  playDrillRumble() {
+    if (!this.enabled) return;
+    try {
+      const ctx = this.initCtx();
+      if (!ctx) return;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(75, ctx.currentTime);
+      osc.frequency.linearRampToValueAtTime(110, ctx.currentTime + 0.2);
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.2);
+    } catch {}
+  }
+
+  // Drill: Rock smash
+  playRockSmash() {
+    if (!this.enabled) return;
+    try {
+      const ctx = this.initCtx();
+      if (!ctx) return;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "square";
+      osc.frequency.setValueAtTime(140, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.15);
+    } catch {}
+  }
+
+  // Drill: Jam warning
+  playDrillJam() {
+    this.playBust();
+  }
+
+  // Tarot: Card flip swoosh
+  playTarotFlip() {
+    this.playCardFlip();
+  }
+
+  // Tarot: Arcane shimmer tone
+  playTarotChime() {
+    this.playSuccessChime();
+  }
 }
 
 export const sounds = new SoundManager();
