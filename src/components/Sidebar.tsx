@@ -238,8 +238,8 @@ export default function Sidebar() {
 
                 {searchResults.length === 0 ? (
                   <div className="py-12 px-4 text-center">
-                    <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[#1a2c38] flex items-center justify-center text-xl">
-                      🔍
+                    <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[#1a2c38] flex items-center justify-center">
+                      <Search className="w-6 h-6 text-[#b1bad3]" />
                     </div>
                     <p className="text-white font-bold text-sm">No games found</p>
                     <p className="text-xs text-[#b1bad3] mt-1">
@@ -308,29 +308,27 @@ export default function Sidebar() {
               </div>
             ) : (
               <>
-                {/* Segmented Toggle: [ 🎰 Casino | ⚽ Sports ] (blue gradient capsule active state) */}
+                {/* Segmented Toggle: [ Casino | Sports ] (blue gradient capsule active state) */}
                 <div className="px-3 pt-2.5 pb-2 border-b border-[#213743]">
                   <div className="grid grid-cols-2 bg-[#1a2c38] p-1 rounded-xl border border-[#213743]">
                     <button
                       onClick={() => setActiveDrawerTab("casino")}
-                      className={`py-2 px-3 rounded-lg text-xs sm:text-sm font-extrabold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      className={`py-2 px-3 rounded-lg text-xs sm:text-sm font-extrabold flex items-center justify-center transition-all cursor-pointer ${
                         activeDrawerTab === "casino"
                           ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-md"
                           : "text-[#b1bad3] hover:text-white"
                       }`}
                     >
-                      <span className="text-sm filter grayscale contrast-200 brightness-200">🎰</span>
                       <span>Casino</span>
                     </button>
                     <button
                       onClick={() => setActiveDrawerTab("sports")}
-                      className={`py-2 px-3 rounded-lg text-xs sm:text-sm font-extrabold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                      className={`py-2 px-3 rounded-lg text-xs sm:text-sm font-extrabold flex items-center justify-center transition-all cursor-pointer ${
                         activeDrawerTab === "sports"
                           ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-md"
                           : "text-[#b1bad3] hover:text-white"
                       }`}
                     >
-                      <span className="text-sm filter grayscale contrast-200 brightness-200">⚽</span>
                       <span>Sports</span>
                     </button>
                   </div>
@@ -349,9 +347,8 @@ export default function Sidebar() {
                           key={item.name}
                           href={item.href}
                           onClick={handleMobileNavClick}
-                          className="group flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-[#213743]/70 font-medium text-[15px] text-[#b1bad3] hover:text-white transition-colors cursor-pointer tracking-wide"
+                          className="group flex items-center px-3 py-2 rounded-xl hover:bg-[#213743]/70 font-medium text-[15px] text-[#b1bad3] hover:text-white transition-colors cursor-pointer tracking-wide"
                         >
-                          <span className="text-base sm:text-lg shrink-0 filter grayscale contrast-200 brightness-200 opacity-80 group-hover:opacity-100 transition-opacity">{item.emoji}</span>
                           <span className="truncate">{item.name}</span>
                         </Link>
                       ))}
@@ -377,10 +374,7 @@ export default function Sidebar() {
                                 : "text-[#b1bad3] hover:bg-[#213743]/70 hover:text-white"
                             }`}
                           >
-                            <div className="flex items-center gap-3 truncate">
-                              <span className="text-base sm:text-lg shrink-0 filter grayscale contrast-200 brightness-200 opacity-80 group-hover:opacity-100 transition-opacity">{item.emoji}</span>
-                              <span className="truncate">{item.name}</span>
-                            </div>
+                            <span className="truncate">{item.name}</span>
                             {item.badge && (
                               <span className="rounded-md bg-[#213743] px-2 py-0.5 text-[10px] font-semibold text-[#00e701] border border-[#2f4553] shrink-0">
                                 {item.badge}
@@ -404,10 +398,7 @@ export default function Sidebar() {
                           onClick={() => setIsPromosOpen(!isPromosOpen)}
                           className="w-full group flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[#213743]/70 font-medium text-[15px] text-[#b1bad3] hover:text-white transition-colors cursor-pointer tracking-wide"
                         >
-                          <div className="flex items-center gap-3">
-                            <span className="text-base sm:text-lg shrink-0 filter grayscale contrast-200 brightness-200 opacity-80 group-hover:opacity-100 transition-opacity">🎁</span>
-                            <span>Promotions</span>
-                          </div>
+                          <span>Promotions</span>
                           <ChevronDown
                             className={`w-4 h-4 transition-transform text-[#b1bad3] group-hover:text-white ${
                               isPromosOpen ? "rotate-180 text-white" : ""
@@ -446,9 +437,8 @@ export default function Sidebar() {
                           key={item.name}
                           href={item.href}
                           onClick={handleMobileNavClick}
-                          className="group flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-[#213743]/70 font-medium text-[15px] text-[#b1bad3] hover:text-white transition-colors cursor-pointer tracking-wide"
+                          className="group flex items-center px-3 py-2 rounded-xl hover:bg-[#213743]/70 font-medium text-[15px] text-[#b1bad3] hover:text-white transition-colors cursor-pointer tracking-wide"
                         >
-                          <span className="text-base sm:text-lg shrink-0 filter grayscale contrast-200 brightness-200 opacity-80 group-hover:opacity-100 transition-opacity">{item.emoji}</span>
                           <span>{item.name}</span>
                         </a>
                       ))}
@@ -467,10 +457,7 @@ export default function Sidebar() {
                           onClick={() => setIsSponsorshipsOpen(!isSponsorshipsOpen)}
                           className="w-full group flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[#213743]/70 font-medium text-[15px] text-[#b1bad3] hover:text-white transition-colors cursor-pointer tracking-wide"
                         >
-                          <div className="flex items-center gap-3">
-                            <span className="text-base sm:text-lg shrink-0 filter grayscale contrast-200 brightness-200 opacity-80 group-hover:opacity-100 transition-opacity">🤝</span>
-                            <span>Sponsorships</span>
-                          </div>
+                          <span>Sponsorships</span>
                           <ChevronDown
                             className={`w-4 h-4 transition-transform text-[#b1bad3] group-hover:text-white ${
                               isSponsorshipsOpen ? "rotate-180 text-white" : ""

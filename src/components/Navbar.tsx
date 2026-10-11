@@ -122,34 +122,34 @@ export default function Navbar() {
         {/* Center / Middle Section: Dynamically Expanded Wallet Balance Pill with comfortable separation */}
         {isAuthenticated ? (
           <div className="flex-1 flex items-center justify-center min-w-0 max-w-[280px] sm:max-w-[340px] ml-3 sm:ml-4">
-            <div className="flex items-center w-full min-w-0 transition-all h-10">
+            <div className="flex items-center w-full min-w-0 transition-all h-8 sm:h-9">
               {/* Balance Pill Container */}
-              <div className="relative flex-1 min-w-0 h-10">
+              <div className="relative flex-1 min-w-0 h-8 sm:h-9">
                 <div
                   onClick={() => setIsCurrencyDropdownOpen(!isCurrencyDropdownOpen)}
-                  className="flex items-center justify-between gap-1.5 sm:gap-2 rounded-l-xl border border-r-0 border-[#213743] bg-[#0f212e] h-10 px-2.5 sm:px-3 shadow-inner cursor-pointer hover:border-[#2f4553] transition-colors w-full"
+                  className="flex items-center justify-between gap-1.5 sm:gap-2 rounded-l-xl border border-r-0 border-[#213743] bg-[#0f212e] h-8 sm:h-9 px-2 sm:px-2.5 shadow-inner cursor-pointer hover:border-[#2f4553] transition-colors w-full"
                 >
                   {/* Left part: Coin Badge + Centered Bold Balance Typography */}
                   <div className="flex items-center justify-center gap-1.5 sm:gap-2 min-w-0 flex-1">
                     {displayInfo.isFiat ? (
                       <FiatCoinIcon
                         currency={displayInfo.code}
-                        size={20}
-                        className="w-5 h-5 shrink-0"
+                        size={18}
+                        className="w-4 h-4 shrink-0"
                       />
                     ) : (
                       <CryptoIcon
                         symbol={currency}
-                        size={20}
-                        className="w-5 h-5 shrink-0"
+                        size={18}
+                        className="w-4 h-4 shrink-0"
                       />
                     )}
 
-                    <span className="font-mono text-white tracking-wide tabular-nums font-extrabold text-sm sm:text-base md:text-lg truncate text-center">
+                    <span className="font-mono text-white tracking-wide tabular-nums font-extrabold text-xs sm:text-sm md:text-base truncate text-center">
                       {displayInfo.amount}
                     </span>
 
-                    <span className="text-xs font-semibold text-[#b1bad3] hidden md:inline uppercase shrink-0">
+                    <span className="text-[11px] font-semibold text-[#b1bad3] hidden md:inline uppercase shrink-0">
                       {displayInfo.code}
                     </span>
                   </div>
@@ -185,10 +185,10 @@ export default function Navbar() {
               {/* Vibrant Blue Wallet Button Attached Cleanly to the Right of Balance Pill */}
               <button
                 onClick={openWalletModal}
-                className="flex items-center justify-center gap-1 sm:gap-1.5 h-10 w-10 sm:h-10 sm:w-auto rounded-r-xl bg-[#1475e1] hover:bg-[#1268c7] px-2.5 sm:px-4 text-sm sm:text-base font-bold text-white shadow-md transition-all active:scale-95 cursor-pointer border border-[#1475e1] shrink-0"
+                className="flex items-center justify-center gap-1 sm:gap-1.5 h-8 sm:h-9 w-8 sm:w-auto rounded-r-xl bg-[#1475e1] hover:bg-[#1268c7] px-2 sm:px-3.5 text-xs sm:text-sm font-bold text-white shadow-md transition-all active:scale-95 cursor-pointer border border-[#1475e1] shrink-0"
                 title="Wallet"
               >
-                <Wallet className="h-4.5 w-4.5" />
+                <Wallet className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 <span className="hidden sm:inline">Wallet</span>
               </button>
             </div>

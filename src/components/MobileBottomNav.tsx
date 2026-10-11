@@ -144,18 +144,18 @@ export default function MobileBottomNav() {
           </span>
         </button>
 
-        {/* Tab 3 (CENTER): S Logo Contained Comfortably Inside Flush Curve (Dampened micro-interaction) */}
+        {/* Tab 3 (CENTER): S Logo Contained Comfortably Inside Flush Curve (Tactile Tap Zoom) */}
         <button
           type="button"
           onClick={handleHomeClick}
           aria-label="Stake Home"
-          className="flex items-center justify-center flex-1 py-1 -translate-y-3 relative z-[9999] pointer-events-auto cursor-pointer select-none bg-transparent hover:bg-transparent active:scale-95 transition-transform duration-150 border-none outline-none"
+          className="flex items-center justify-center flex-1 py-1 -translate-y-3 relative z-[9999] pointer-events-auto cursor-pointer select-none bg-transparent hover:bg-transparent active:scale-[1.3] transition-transform duration-150 ease-out border-none outline-none"
         >
           <StakeLogo
             collapsed={true}
-            className={`w-6 h-6 transition-all duration-200 ease-out origin-center ${isHomeActive
-              ? "scale-[2.4] fill-[#00e701]/90 text-[#00e701]/90"
-              : "scale-[2.3] fill-[#b1bad3] text-[#b1bad3]"
+            className={`w-5 h-5 transition-all duration-200 ease-out origin-center ${isHomeActive
+              ? "scale-[1.7] fill-[#00e701]/90 text-[#00e701]/90"
+              : "scale-[1.65] fill-[#b1bad3] text-[#b1bad3]"
               }`}
           />
         </button>
