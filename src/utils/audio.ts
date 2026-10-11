@@ -596,6 +596,56 @@ class SoundManager {
   playChipPlace() {
     this.playClick();
   }
+
+  // Darts throw swoosh
+  playDartThrow() {
+    this.playCardFlip();
+  }
+
+  // Darts board thud
+  playDartHit() {
+    if (!this.enabled) return;
+    try {
+      const ctx = this.initCtx();
+      if (!ctx) return;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(180, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.08);
+    } catch {}
+  }
+
+  // Diamonds gem drop chime
+  playGemDrop(idx: number = 1) {
+    this.playGem(idx);
+  }
+
+  // Diamonds reveal shimmer
+  playGemShimmer() {
+    this.playSuccessChime();
+  }
+
+  // Wheel ticker peg click
+  playWheelTick() {
+    this.playPeg();
+  }
+
+  // Cases reel slide tick
+  playCaseReelTick() {
+    this.playPeg();
+  }
+
+  // Cases marker snap
+  playCaseMarkerSnap() {
+    this.playClick();
+  }
 }
 
 export const sounds = new SoundManager();

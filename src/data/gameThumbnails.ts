@@ -536,9 +536,11 @@ export const GAME_THUMBNAILS: Record<string, string> = {
   "stake-originals-packs": "/games/stake-originals/stake-originals-packs.webp",
   "dragontower": "/games/stake-originals/dragontower.webp",
   "stake-originals-dragontower": "/games/stake-originals/dragontower.webp",
+  "darts": "/games/stake-originals/stake-originals-darts.webp",
   "stake-originals-darts": "/games/stake-originals/stake-originals-darts.webp",
   "plinko": "/games/stake-originals/plinko.webp",
   "mines": "/games/stake-originals/mines.webp",
+  "stake-originals-tarot": "/games/stake-originals/stake-originals-tarot.webp",
   "crash": "/games/stake-originals/crash.webp",
   "limbo": "/games/stake-originals/limbo.webp",
   "blackjack": "/games/stake-originals/blackjack.webp",
@@ -553,8 +555,9 @@ export const GAME_THUMBNAILS: Record<string, string> = {
   "scarab-auto": "/games/stake-originals/scarab-auto.webp",
   "scarab-spin": "/games/stake-originals/scarab-auto.webp",
   "dragon-tower": "/games/stake-originals/dragon-tower.webp",
-  "blue-samurai": "/games/stake-originals/blue-samurai.webp",
+  "stake-originals-blue-samurai": "/games/stake-originals/stake-originals-blue-samurai.webp",
   "tome-of-life": "/games/stake-originals/tome-of-life.webp",
+  "cases": "/games/stake-originals/stake-originals-cases.webp",
   "stake-originals-cases": "/games/stake-originals/stake-originals-cases.webp",
 };
 
