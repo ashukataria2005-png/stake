@@ -494,6 +494,68 @@ class SoundManager {
   playBoneCrack() {
     this.playMine();
   }
+
+  // Moles dig / burrow rustle
+  playMoleDig() {
+    this.playCardFlip();
+  }
+
+  // Moles safe mole pop chime
+  playMolePop(safeCount: number = 1) {
+    this.playGem(safeCount);
+  }
+
+  // Moles mud trap bust
+  playMoleBust() {
+    this.playMine();
+  }
+
+  // Packs case tear / unboxing whoosh
+  playPackTear() {
+    this.playCardFlip();
+  }
+
+  // Packs card reveal shimmer
+  playPackReveal() {
+    this.playSuccessChime();
+  }
+
+  // Packs jackpot fanfare
+  playPackJackpot() {
+    this.playCashout();
+  }
+
+  // Pump balloon inflation stroke with rising pitch
+  playPumpInflate(level: number = 1) {
+    if (!this.enabled) return;
+    try {
+      const ctx = this.initCtx();
+      if (!ctx) return;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      const freq = Math.min(1100, 320 + level * 30);
+      osc.frequency.setValueAtTime(freq, ctx.currentTime);
+      gain.gain.setValueAtTime(0.08, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.08);
+    } catch {
+      // ignore
+    }
+  }
+
+  // Pump balloon pop / burst
+  playBalloonPop() {
+    this.playMine();
+  }
+
+  // Crisp bet placement sound
+  playBet() {
+    this.playClick();
+  }
 }
 
 export const sounds = new SoundManager();

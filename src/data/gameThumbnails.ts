@@ -521,11 +521,20 @@ export const GAME_THUMBNAILS: Record<string, string> = {
 
   // Stake Originals (18 Games)
   "dice": "/games/stake-originals/dice.webp",
+  "stake-originals-snakes": "/games/stake-originals/stake-originals-snakes.webp",
+  "stake-originals-prime-dice": "/games/stake-originals/stake-originals-prime-dice.webp",
+  "stake-originals-rock-paper-scissors": "/games/stake-originals/stake-originals-rock-paper-scissors.webp",
+  "stake-originals-drill": "/games/stake-originals/stake-originals-drill.webp",
   "chicken": "/games/stake-originals/stake-originals-chicken.webp",
   "stake-originals-chicken": "/games/stake-originals/stake-originals-chicken.webp",
+  "stake-originals-moles": "/games/stake-originals/stake-originals-moles.webp",
+  "pump": "/games/stake-originals/stake-originals-pump.webp",
   "stake-originals-pump": "/games/stake-originals/stake-originals-pump.webp",
+  "stake-originals-bars": "/games/stake-originals/stake-originals-bars.webp",
   "stake-originals-flip": "/games/stake-originals/stake-originals-flip.webp",
+  "packs": "/games/stake-originals/stake-originals-packs.webp",
   "stake-originals-packs": "/games/stake-originals/stake-originals-packs.webp",
+  "stake-originals-darts": "/games/stake-originals/stake-originals-darts.webp",
   "plinko": "/games/stake-originals/plinko.webp",
   "mines": "/games/stake-originals/mines.webp",
   "crash": "/games/stake-originals/crash.webp",
@@ -544,6 +553,7 @@ export const GAME_THUMBNAILS: Record<string, string> = {
   "dragon-tower": "/games/stake-originals/dragon-tower.webp",
   "blue-samurai": "/games/stake-originals/blue-samurai.webp",
   "tome-of-life": "/games/stake-originals/tome-of-life.webp",
+  "stake-originals-cases": "/games/stake-originals/stake-originals-cases.webp",
 };
 
 /**
