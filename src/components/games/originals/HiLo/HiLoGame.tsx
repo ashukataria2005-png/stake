@@ -460,30 +460,232 @@ export default function HiLoGame() {
         isFullscreen ? "p-6 bg-[#0f212e] min-h-screen" : ""
       }`}
     >
-      {/* Header & Breadcrumbs */}
-      <div className="flex items-center justify-between">
-        <Link
-          href="/"
-          className="flex items-center gap-2 text-xs font-bold text-[#b1bad3] hover:text-white transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <span>Back to Casino Lobby</span>
-        </Link>
-        <button
-          onClick={() => setShowFairnessModal(true)}
-          className="flex items-center gap-1.5 text-xs font-bold text-[#00e701] rounded-lg bg-[#00e701]/10 px-2.5 py-1.5 border border-[#00e701]/20 hover:bg-[#00e701]/20 transition-all cursor-pointer"
-        >
-          <ShieldCheck className="h-4 w-4" />
-          <span>Provably Fair 99% RTP</span>
-        </button>
-      </div>
-
       {/* Main Game Shell: Left Sidebar (Desktop) / Bottom Controls (Mobile) + Right Center Arena */}
-      <div className="rounded-2xl border border-[#213743] bg-[#1a2c38] overflow-hidden shadow-2xl flex flex-col-reverse lg:flex-row">
+      <div className="rounded-2xl border border-[#213743] bg-[#1a2c38] overflow-hidden shadow-2xl flex flex-col">
         {/* ========================================================= */}
-        {/* LEFT / BOTTOM CONTROLS PANEL                              */}
+        {/* RIGHT / CENTER ARENA: CARD DISPLAY & ACTION CHOICES        */}
         {/* ========================================================= */}
-        <div className="w-full lg:w-[340px] xl:w-[360px] shrink-0 border-t lg:border-t-0 lg:border-r border-[#213743] bg-[#1a2c38] p-4 sm:p-5 flex flex-col justify-between space-y-5">
+        <div className="flex-1 bg-[#0f212e] flex flex-col justify-between p-4 sm:p-6 lg:p-8 min-h-[460px] sm:min-h-[520px]">
+          {/* Top Card Streak / Round History Bar */}
+          <div className="w-full flex items-center justify-between pb-4">
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+              {cardHistory.map((item, idx) => (
+                <div
+                  key={idx}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-mono font-bold shrink-0 ${
+                    idx === 0
+                      ? "bg-[#213743] border-[#2f4553] text-white"
+                      : item.wasCorrect
+                      ? "bg-[#00e701]/15 border-[#00e701]/30 text-[#00e701]"
+                      : "bg-[#e9113c]/15 border-[#e9113c]/30 text-[#e9113c]"
+                  }`}
+                >
+                  <span className={item.card.isRed ? "text-red-400" : "text-white"}>
+                    {item.card.rankLabel}
+                    {item.card.suitSymbol}
+                  </span>
+                  {item.guess && (
+                    <span className="text-[10px]">
+                      {item.guess === "higher" ? "↑" : item.guess === "lower" ? "↓" : "↷"}
+                    </span>
+                  )}
+                  {item.wasCorrect && <Check className="h-3 w-3 text-[#00e701]" />}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* CENTER ARENA: INTERACTIVE CARD & CHOICE BUTTONS */}
+          <div className="flex-1 flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 py-4">
+            {/* The Main Current Card Graphic */}
+            <div className="relative group perspective">
+              <div
+                className={`w-40 h-56 sm:w-48 sm:h-68 rounded-2xl border-4 border-slate-200/20 bg-gradient-to-b from-white via-[#fcfcfc] to-[#e8ebee] shadow-2xl p-4 flex flex-col justify-between transition-transform duration-300 ${
+                  isAnimating ? "scale-95 rotate-1" : "scale-100"
+                } ${
+                  lastGuessResult === "win"
+                    ? "ring-4 ring-[#00e701]/50 shadow-[0_0_40px_rgba(0,231,1,0.4)]"
+                    : lastGuessResult === "loss"
+                    ? "ring-4 ring-[#e9113c]/50 shadow-[0_0_40px_rgba(233,17,60,0.4)]"
+                    : ""
+                }`}
+              >
+                {/* Top Left Rank & Suit */}
+                <div className="flex flex-col items-center self-start">
+                  <span
+                    className={`text-2xl sm:text-3xl font-black font-mono leading-none ${
+                      currentCard.isRed ? "text-[#e9113c]" : "text-[#0f212e]"
+                    }`}
+                  >
+                    {currentCard.rankLabel}
+                  </span>
+                  <span
+                    className={`text-xl sm:text-2xl leading-none mt-0.5 ${
+                      currentCard.isRed ? "text-[#e9113c]" : "text-[#0f212e]"
+                    }`}
+                  >
+                    {currentCard.suitSymbol}
+                  </span>
+                </div>
+
+                {/* Big Center Graphic */}
+                <div className="flex flex-col items-center justify-center">
+                  <span
+                    className={`text-5xl sm:text-7xl select-none filter drop-shadow-sm ${
+                      currentCard.isRed ? "text-[#e9113c]" : "text-[#0f212e]"
+                    }`}
+                  >
+                    {currentCard.suitSymbol}
+                  </span>
+                </div>
+
+                {/* Bottom Right Rank & Suit (Inverted) */}
+                <div className="flex flex-col items-center self-end rotate-180">
+                  <span
+                    className={`text-2xl sm:text-3xl font-black font-mono leading-none ${
+                      currentCard.isRed ? "text-[#e9113c]" : "text-[#0f212e]"
+                    }`}
+                  >
+                    {currentCard.rankLabel}
+                  </span>
+                  <span
+                    className={`text-xl sm:text-2xl leading-none mt-0.5 ${
+                      currentCard.isRed ? "text-[#e9113c]" : "text-[#0f212e]"
+                    }`}
+                  >
+                    {currentCard.suitSymbol}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* CHOICE ACTION BUTTONS (Higher or Same / Lower or Same / Skip) */}
+            <div className="flex flex-col gap-3 w-full max-w-[280px]">
+              {/* Higher or Same Button */}
+              <button
+                type="button"
+                disabled={!isRoundActive || isAnimating}
+                onClick={() => handleGuess("higher")}
+                className="w-full p-4 rounded-2xl border border-[#213743] bg-[#1a2c38] hover:bg-[#213743] hover:border-[#00e701]/40 text-left transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed group cursor-pointer shadow-lg"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-xl bg-[#00e701]/15 text-[#00e701] group-hover:scale-110 transition-transform">
+                      <ArrowUp className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-extrabold text-white flex items-center gap-1.5">
+                        <span>Higher or Same</span>
+                      </div>
+                      <div className="text-xs font-bold text-[#b1bad3]">
+                        Win Chance: <span className="text-[#00e701]">{higherChance}%</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-base font-black text-[#00e701] font-mono">
+                      {higherStepMult.toFixed(2)}×
+                    </div>
+                  </div>
+                </div>
+              </button>
+
+              {/* Lower or Same Button */}
+              <button
+                type="button"
+                disabled={!isRoundActive || isAnimating}
+                onClick={() => handleGuess("lower")}
+                className="w-full p-4 rounded-2xl border border-[#213743] bg-[#1a2c38] hover:bg-[#213743] hover:border-[#00e701]/40 text-left transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed group cursor-pointer shadow-lg"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-xl bg-[#1475e1]/15 text-[#1475e1] group-hover:scale-110 transition-transform">
+                      <ArrowDown className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-extrabold text-white flex items-center gap-1.5">
+                        <span>Lower or Same</span>
+                      </div>
+                      <div className="text-xs font-bold text-[#b1bad3]">
+                        Win Chance: <span className="text-[#00e701]">{lowerChance}%</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-base font-black text-[#00e701] font-mono">
+                      {lowerStepMult.toFixed(2)}×
+                    </div>
+                  </div>
+                </div>
+              </button>
+
+              {/* Skip Card Button */}
+              <button
+                type="button"
+                disabled={!isRoundActive || isAnimating || skipsRemaining <= 0}
+                onClick={handleSkip}
+                className="w-full py-3 px-4 rounded-xl border border-[#213743] bg-[#0f212e] hover:bg-[#1a2c38] text-xs font-bold text-[#b1bad3] hover:text-white transition-all flex items-center justify-between disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <RotateCw className="h-4 w-4" />
+                  <span>Skip Card</span>
+                </div>
+                <span className="font-mono text-white">{skipsRemaining} left</span>
+              </button>
+            </div>
+          </div>
+
+          {/* BOTTOM UTILITY TOOLBAR */}
+          <div className="w-full flex items-center justify-between pt-4 border-t border-[#213743] text-[#b1bad3]">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const next = !soundEnabled;
+                  setSoundEnabled(next);
+                  sounds.enabled = next;
+                  if (next) sounds.playClick();
+                }}
+                className="p-2 rounded-lg bg-[#1a2c38] border border-[#213743] hover:text-white transition-colors cursor-pointer"
+                title={soundEnabled ? "Mute Sound" : "Enable Sound"}
+              >
+                {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4 text-red-400" />}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowHelpModal(true)}
+                className="p-2 rounded-lg bg-[#1a2c38] border border-[#213743] hover:text-white transition-colors cursor-pointer"
+                title="Game Rules"
+              >
+                <Info className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowLiveStats(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#1a2c38] border border-[#213743] hover:text-white transition-colors cursor-pointer"
+              >
+                <TrendingUp className="h-3.5 w-3.5 text-[#00e701]" />
+                <span className="hidden sm:inline">Live Stats</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={toggleFullscreen}
+                className="p-2 rounded-lg bg-[#1a2c38] border border-[#213743] hover:text-white transition-colors cursor-pointer"
+                title="Toggle Fullscreen"
+              >
+                {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
+        </div>
+      {/* LEFT / BOTTOM CONTROLS PANEL                              */}
+        {/* ========================================================= */}
+        <div className="w-full border-t border-[#213743] bg-[#1a2c38] p-4 sm:p-5 flex flex-col justify-between space-y-5">
           <div className="space-y-4">
             {/* Mode Switcher Tabs */}
             <div className="grid grid-cols-2 p-1 bg-[#0f212e] rounded-xl border border-[#213743]">
@@ -771,227 +973,7 @@ export default function HiLoGame() {
         </div>
 
         {/* ========================================================= */}
-        {/* RIGHT / CENTER ARENA: CARD DISPLAY & ACTION CHOICES        */}
-        {/* ========================================================= */}
-        <div className="flex-1 bg-[#0f212e] flex flex-col justify-between p-4 sm:p-6 lg:p-8 min-h-[460px] sm:min-h-[520px]">
-          {/* Top Card Streak / Round History Bar */}
-          <div className="w-full flex items-center justify-between pb-4">
-            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-              {cardHistory.map((item, idx) => (
-                <div
-                  key={idx}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-mono font-bold shrink-0 ${
-                    idx === 0
-                      ? "bg-[#213743] border-[#2f4553] text-white"
-                      : item.wasCorrect
-                      ? "bg-[#00e701]/15 border-[#00e701]/30 text-[#00e701]"
-                      : "bg-[#e9113c]/15 border-[#e9113c]/30 text-[#e9113c]"
-                  }`}
-                >
-                  <span className={item.card.isRed ? "text-red-400" : "text-white"}>
-                    {item.card.rankLabel}
-                    {item.card.suitSymbol}
-                  </span>
-                  {item.guess && (
-                    <span className="text-[10px]">
-                      {item.guess === "higher" ? "↑" : item.guess === "lower" ? "↓" : "↷"}
-                    </span>
-                  )}
-                  {item.wasCorrect && <Check className="h-3 w-3 text-[#00e701]" />}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* CENTER ARENA: INTERACTIVE CARD & CHOICE BUTTONS */}
-          <div className="flex-1 flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 py-4">
-            {/* The Main Current Card Graphic */}
-            <div className="relative group perspective">
-              <div
-                className={`w-40 h-56 sm:w-48 sm:h-68 rounded-2xl border-4 border-slate-200/20 bg-gradient-to-b from-white via-[#fcfcfc] to-[#e8ebee] shadow-2xl p-4 flex flex-col justify-between transition-transform duration-300 ${
-                  isAnimating ? "scale-95 rotate-1" : "scale-100"
-                } ${
-                  lastGuessResult === "win"
-                    ? "ring-4 ring-[#00e701]/50 shadow-[0_0_40px_rgba(0,231,1,0.4)]"
-                    : lastGuessResult === "loss"
-                    ? "ring-4 ring-[#e9113c]/50 shadow-[0_0_40px_rgba(233,17,60,0.4)]"
-                    : ""
-                }`}
-              >
-                {/* Top Left Rank & Suit */}
-                <div className="flex flex-col items-center self-start">
-                  <span
-                    className={`text-2xl sm:text-3xl font-black font-mono leading-none ${
-                      currentCard.isRed ? "text-[#e9113c]" : "text-[#0f212e]"
-                    }`}
-                  >
-                    {currentCard.rankLabel}
-                  </span>
-                  <span
-                    className={`text-xl sm:text-2xl leading-none mt-0.5 ${
-                      currentCard.isRed ? "text-[#e9113c]" : "text-[#0f212e]"
-                    }`}
-                  >
-                    {currentCard.suitSymbol}
-                  </span>
-                </div>
-
-                {/* Big Center Graphic */}
-                <div className="flex flex-col items-center justify-center">
-                  <span
-                    className={`text-5xl sm:text-7xl select-none filter drop-shadow-sm ${
-                      currentCard.isRed ? "text-[#e9113c]" : "text-[#0f212e]"
-                    }`}
-                  >
-                    {currentCard.suitSymbol}
-                  </span>
-                </div>
-
-                {/* Bottom Right Rank & Suit (Inverted) */}
-                <div className="flex flex-col items-center self-end rotate-180">
-                  <span
-                    className={`text-2xl sm:text-3xl font-black font-mono leading-none ${
-                      currentCard.isRed ? "text-[#e9113c]" : "text-[#0f212e]"
-                    }`}
-                  >
-                    {currentCard.rankLabel}
-                  </span>
-                  <span
-                    className={`text-xl sm:text-2xl leading-none mt-0.5 ${
-                      currentCard.isRed ? "text-[#e9113c]" : "text-[#0f212e]"
-                    }`}
-                  >
-                    {currentCard.suitSymbol}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* CHOICE ACTION BUTTONS (Higher or Same / Lower or Same / Skip) */}
-            <div className="flex flex-col gap-3 w-full max-w-[280px]">
-              {/* Higher or Same Button */}
-              <button
-                type="button"
-                disabled={!isRoundActive || isAnimating}
-                onClick={() => handleGuess("higher")}
-                className="w-full p-4 rounded-2xl border border-[#213743] bg-[#1a2c38] hover:bg-[#213743] hover:border-[#00e701]/40 text-left transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed group cursor-pointer shadow-lg"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded-xl bg-[#00e701]/15 text-[#00e701] group-hover:scale-110 transition-transform">
-                      <ArrowUp className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-extrabold text-white flex items-center gap-1.5">
-                        <span>Higher or Same</span>
-                      </div>
-                      <div className="text-xs font-bold text-[#b1bad3]">
-                        Win Chance: <span className="text-[#00e701]">{higherChance}%</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-base font-black text-[#00e701] font-mono">
-                      {higherStepMult.toFixed(2)}×
-                    </div>
-                  </div>
-                </div>
-              </button>
-
-              {/* Lower or Same Button */}
-              <button
-                type="button"
-                disabled={!isRoundActive || isAnimating}
-                onClick={() => handleGuess("lower")}
-                className="w-full p-4 rounded-2xl border border-[#213743] bg-[#1a2c38] hover:bg-[#213743] hover:border-[#00e701]/40 text-left transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed group cursor-pointer shadow-lg"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded-xl bg-[#1475e1]/15 text-[#1475e1] group-hover:scale-110 transition-transform">
-                      <ArrowDown className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-extrabold text-white flex items-center gap-1.5">
-                        <span>Lower or Same</span>
-                      </div>
-                      <div className="text-xs font-bold text-[#b1bad3]">
-                        Win Chance: <span className="text-[#00e701]">{lowerChance}%</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-base font-black text-[#00e701] font-mono">
-                      {lowerStepMult.toFixed(2)}×
-                    </div>
-                  </div>
-                </div>
-              </button>
-
-              {/* Skip Card Button */}
-              <button
-                type="button"
-                disabled={!isRoundActive || isAnimating || skipsRemaining <= 0}
-                onClick={handleSkip}
-                className="w-full py-3 px-4 rounded-xl border border-[#213743] bg-[#0f212e] hover:bg-[#1a2c38] text-xs font-bold text-[#b1bad3] hover:text-white transition-all flex items-center justify-between disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-              >
-                <div className="flex items-center gap-2">
-                  <RotateCw className="h-4 w-4" />
-                  <span>Skip Card</span>
-                </div>
-                <span className="font-mono text-white">{skipsRemaining} left</span>
-              </button>
-            </div>
-          </div>
-
-          {/* BOTTOM UTILITY TOOLBAR */}
-          <div className="w-full flex items-center justify-between pt-4 border-t border-[#213743] text-[#b1bad3]">
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  const next = !soundEnabled;
-                  setSoundEnabled(next);
-                  sounds.enabled = next;
-                  if (next) sounds.playClick();
-                }}
-                className="p-2 rounded-lg bg-[#1a2c38] border border-[#213743] hover:text-white transition-colors cursor-pointer"
-                title={soundEnabled ? "Mute Sound" : "Enable Sound"}
-              >
-                {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4 text-red-400" />}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setShowHelpModal(true)}
-                className="p-2 rounded-lg bg-[#1a2c38] border border-[#213743] hover:text-white transition-colors cursor-pointer"
-                title="Game Rules"
-              >
-                <Info className="h-4 w-4" />
-              </button>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setShowLiveStats(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#1a2c38] border border-[#213743] hover:text-white transition-colors cursor-pointer"
-              >
-                <TrendingUp className="h-3.5 w-3.5 text-[#00e701]" />
-                <span className="hidden sm:inline">Live Stats</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={toggleFullscreen}
-                className="p-2 rounded-lg bg-[#1a2c38] border border-[#213743] hover:text-white transition-colors cursor-pointer"
-                title="Toggle Fullscreen"
-              >
-                {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-              </button>
-            </div>
-          </div>
         </div>
-      </div>
 
       {/* ========================================================= */}
       {/* PROVABLY FAIR VERIFIER MODAL                              */}

@@ -521,6 +521,11 @@ export const GAME_THUMBNAILS: Record<string, string> = {
 
   // Stake Originals (18 Games)
   "dice": "/games/stake-originals/dice.webp",
+  "chicken": "/games/stake-originals/stake-originals-chicken.webp",
+  "stake-originals-chicken": "/games/stake-originals/stake-originals-chicken.webp",
+  "stake-originals-pump": "/games/stake-originals/stake-originals-pump.webp",
+  "stake-originals-flip": "/games/stake-originals/stake-originals-flip.webp",
+  "stake-originals-packs": "/games/stake-originals/stake-originals-packs.webp",
   "plinko": "/games/stake-originals/plinko.webp",
   "mines": "/games/stake-originals/mines.webp",
   "crash": "/games/stake-originals/crash.webp",

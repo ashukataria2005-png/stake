@@ -780,11 +780,62 @@ export default function PlinkoGame() {
       {/* Left: Betting Controls Sidebar                           */}
       {/* Right: Plinko Peg Arena Canvas                           */}
       {/* ======================================================== */}
-      <div className="rounded-2xl border border-[#213743] bg-[#1a2c38] shadow-2xl overflow-hidden flex flex-col-reverse lg:flex-row">
+      <div className="rounded-2xl border border-[#213743] bg-[#1a2c38] shadow-2xl overflow-hidden flex flex-col">
         {/* ======================================================== */}
-        {/* PART 1: BETTING CONTROLS SIDEBAR (LEFT ON DESKTOP)       */}
+        {/* PART 2: PLINKO PEG ARENA CANVAS (RIGHT ON DESKTOP)       */}
         {/* ======================================================== */}
-        <div className="w-full lg:w-[320px] xl:w-[340px] shrink-0 border-t lg:border-t-0 lg:border-r border-[#213743] bg-[#1a2c38] p-4 sm:p-5 flex flex-col justify-between space-y-4">
+        <div
+          ref={containerRef}
+          className="flex-1 bg-[#0f212e] p-3 sm:p-5 flex flex-col items-center justify-between min-h-[480px] sm:min-h-[560px] relative overflow-hidden"
+        >
+          {/* Top Status Bar inside Canvas */}
+          <div className="w-full flex items-center justify-between z-10">
+            <div className="flex items-center gap-2 text-xs font-bold text-[#b1bad3]">
+              <span className="flex h-2 w-2 rounded-full bg-[#00e701] animate-pulse" />
+              <span className="text-white">Provably Fair Physics</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-[#b1bad3] bg-[#1a2c38] px-2.5 py-1 rounded-lg border border-[#213743] flex items-center gap-1.5">
+                <Layers className="h-3.5 w-3.5 text-[#00e701]" />
+                <span>{rows} Rows</span>
+              </span>
+
+              <button
+                onClick={toggleSound}
+                title={isMuted ? "Unmute Audio" : "Mute Audio"}
+                className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1a2c38] border border-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
+              >
+                {isMuted ? (
+                  <VolumeX className="h-3.5 w-3.5 text-red-400" />
+                ) : (
+                  <Volume2 className="h-3.5 w-3.5 text-[#00e701]" />
+                )}
+              </button>
+
+              <button
+                onClick={() => setIsFullscreen(!isFullscreen)}
+                title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+                className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1a2c38] border border-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
+              >
+                {isFullscreen ? (
+                  <Minimize2 className="h-3.5 w-3.5" />
+                ) : (
+                  <Maximize2 className="h-3.5 w-3.5" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Real-time HTML5 2D Canvas */}
+          <canvas
+            ref={canvasRef}
+            className="w-full h-full min-h-[420px] sm:min-h-[480px] flex-1 my-1"
+          />
+        </div>
+      {/* PART 1: BETTING CONTROLS SIDEBAR (LEFT ON DESKTOP)       */}
+        {/* ======================================================== */}
+        <div className="w-full border-t border-[#213743] bg-[#1a2c38] p-4 sm:p-5 flex flex-col justify-between space-y-4">
           <div className="space-y-4">
             {/* Betting Mode Switcher: Segmented Pill [ Manual | Auto ] */}
             <div className="grid grid-cols-2 rounded-xl bg-[#0f212e] p-1 border border-[#213743]">
@@ -987,58 +1038,7 @@ export default function PlinkoGame() {
         </div>
 
         {/* ======================================================== */}
-        {/* PART 2: PLINKO PEG ARENA CANVAS (RIGHT ON DESKTOP)       */}
-        {/* ======================================================== */}
-        <div
-          ref={containerRef}
-          className="flex-1 bg-[#0f212e] p-3 sm:p-5 flex flex-col items-center justify-between min-h-[480px] sm:min-h-[560px] relative overflow-hidden"
-        >
-          {/* Top Status Bar inside Canvas */}
-          <div className="w-full flex items-center justify-between z-10">
-            <div className="flex items-center gap-2 text-xs font-bold text-[#b1bad3]">
-              <span className="flex h-2 w-2 rounded-full bg-[#00e701] animate-pulse" />
-              <span className="text-white">Provably Fair Physics</span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-[#b1bad3] bg-[#1a2c38] px-2.5 py-1 rounded-lg border border-[#213743] flex items-center gap-1.5">
-                <Layers className="h-3.5 w-3.5 text-[#00e701]" />
-                <span>{rows} Rows</span>
-              </span>
-
-              <button
-                onClick={toggleSound}
-                title={isMuted ? "Unmute Audio" : "Mute Audio"}
-                className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1a2c38] border border-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
-              >
-                {isMuted ? (
-                  <VolumeX className="h-3.5 w-3.5 text-red-400" />
-                ) : (
-                  <Volume2 className="h-3.5 w-3.5 text-[#00e701]" />
-                )}
-              </button>
-
-              <button
-                onClick={() => setIsFullscreen(!isFullscreen)}
-                title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
-                className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1a2c38] border border-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
-              >
-                {isFullscreen ? (
-                  <Minimize2 className="h-3.5 w-3.5" />
-                ) : (
-                  <Maximize2 className="h-3.5 w-3.5" />
-                )}
-              </button>
-            </div>
-          </div>
-
-          {/* Real-time HTML5 2D Canvas */}
-          <canvas
-            ref={canvasRef}
-            className="w-full h-full min-h-[420px] sm:min-h-[480px] flex-1 my-1"
-          />
         </div>
-      </div>
 
       {/* ======================================================== */}
       {/* PART 3: BOTTOM UTILITY BAR (FAIRNESS, STATS, SETTINGS)   */}

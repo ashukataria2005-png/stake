@@ -413,9 +413,30 @@ export default function MinesGame() {
         isFullscreen ? "fixed inset-0 z-40 bg-[#0f212e] overflow-y-auto p-4 pb-6 max-w-none" : ""
       }`}
     >
-      {/* Main 2-Panel Game Container: Left Controls & Right 5x5 Grid */}
-      <div className="rounded-2xl border border-[#213743] bg-[#1a2c38] shadow-2xl overflow-hidden flex flex-col-reverse lg:flex-row">
-        {/* Controls Panel */}
+      {/* Main Container: 5x5 Arena Grid on Top, Controls directly beneath */}
+      <div className="rounded-2xl border border-[#213743] bg-[#1a2c38] shadow-2xl overflow-hidden flex flex-col">
+        {/* 5x5 Arena Grid (Top) */}
+        <MinesGrid
+          revealedTiles={revealedTiles}
+          mineLocations={mineLocations}
+          isPlaying={isPlaying}
+          isGameOver={isGameOver}
+          minesCount={minesCount}
+          maxMultiplier={maxMultiplier}
+          currentMultiplier={currentMultiplier}
+          currentProfit={currentProfit}
+          floatingBadges={floatingBadges}
+          selectedAutoTiles={selectedAutoTiles}
+          mode={mode}
+          onTileClick={handleTileClick}
+          onRepeatTiles={handleRepeatTiles}
+          onClearTiles={handleClearTiles}
+          animations={animations}
+          cashoutOverlay={cashoutOverlay}
+          onDismissCashout={() => setCashoutOverlay(null)}
+        />
+
+        {/* Controls Panel (Directly Beneath) */}
         <MinesControls
           mode={mode}
           setMode={setMode}
@@ -448,27 +469,6 @@ export default function MinesGame() {
           setStopOnProfit={setStopOnProfit}
           stopOnLoss={stopOnLoss}
           setStopOnLoss={setStopOnLoss}
-        />
-
-        {/* 5x5 Arena Grid */}
-        <MinesGrid
-          revealedTiles={revealedTiles}
-          mineLocations={mineLocations}
-          isPlaying={isPlaying}
-          isGameOver={isGameOver}
-          minesCount={minesCount}
-          maxMultiplier={maxMultiplier}
-          currentMultiplier={currentMultiplier}
-          currentProfit={currentProfit}
-          floatingBadges={floatingBadges}
-          selectedAutoTiles={selectedAutoTiles}
-          mode={mode}
-          onTileClick={handleTileClick}
-          onRepeatTiles={handleRepeatTiles}
-          onClearTiles={handleClearTiles}
-          animations={animations}
-          cashoutOverlay={cashoutOverlay}
-          onDismissCashout={() => setCashoutOverlay(null)}
         />
       </div>
 

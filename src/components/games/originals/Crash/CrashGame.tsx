@@ -669,48 +669,227 @@ export default function CrashGame() {
         isFullscreen ? "fixed inset-0 z-40 bg-[#0f212e] overflow-y-auto p-4 pb-6 max-w-none" : ""
       }`}
     >
-      {/* Top Header & Navigation */}
-      <div className="flex items-center justify-between">
-        <Link
-          href="/"
-          className="flex items-center gap-2 text-xs font-bold text-[#b1bad3] hover:text-white transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <span>Back to Casino Lobby</span>
-        </Link>
+      
 
-        {/* Live Multiplier History Strip (Last 8 Rounds) */}
-        <div className="flex items-center gap-1.5 overflow-x-auto">
-          <span className="text-[11px] font-bold text-[#b1bad3] uppercase tracking-wider hidden sm:inline mr-1">
-            History:
-          </span>
-          {history.map((h) => {
-            const isHigh = h.multiplier >= 2.0;
-            const isJackpot = h.multiplier >= 10.0;
-            return (
+      {/* Main 2-Panel Game Container: Left Controls & Right Curve Canvas */}
+      <div className="rounded-2xl border border-[#213743] bg-[#1a2c38] shadow-2xl overflow-hidden flex flex-col">
+        {/* ======================================================== */}
+        {/* 2. LIVE CANVAS ARENA (Right Panel on Desktop)            */}
+        {/* ======================================================== */}
+        <div
+          ref={containerRef}
+          className="flex-1 bg-[#0f212e] p-4 sm:p-6 lg:p-8 flex flex-col items-center justify-between min-h-[400px] sm:min-h-[520px] relative overflow-hidden"
+        >
+          {/* Top Status Indicators inside Arena */}
+          <div className="w-full flex items-center justify-between z-10">
+            <div className="flex items-center gap-2 text-xs font-bold text-[#b1bad3]">
               <span
-                key={h.id}
-                className={`rounded-lg px-2 py-0.5 text-xs font-mono font-black border transition-colors shrink-0 ${
-                  isJackpot
-                    ? "bg-amber-400/20 text-[#fbbf24] border-amber-400/40 shadow-sm"
-                    : isHigh
-                    ? "bg-[#00e701]/15 text-[#00e701] border-[#00e701]/30 shadow-sm"
-                    : "bg-[#213743] text-[#b1bad3] border-[#2f4553]"
+                className={`flex h-2.5 w-2.5 rounded-full ${
+                  phase === "flying"
+                    ? "bg-[#00e701] animate-ping"
+                    : phase === "countdown"
+                    ? "bg-amber-400"
+                    : "bg-red-500"
                 }`}
-              >
-                {h.multiplier.toFixed(2)}x
+              />
+              <span className="uppercase tracking-wider font-mono">
+                {phase === "flying"
+                  ? "In Flight"
+                  : phase === "countdown"
+                  ? "Next Round Soon"
+                  : "Crashed"}
               </span>
-            );
-          })}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 rounded-lg bg-[#1a2c38] px-2.5 py-1 border border-[#213743] text-xs font-bold">
+                <TrendingUp className="h-3.5 w-3.5 text-[#00e701]" />
+                <span className="text-[#b1bad3]">1% House Edge</span>
+              </div>
+
+              <button
+                type="button"
+                onClick={toggleSound}
+                title={isMuted ? "Unmute Audio" : "Mute Audio"}
+                className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1a2c38] border border-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
+              >
+                {isMuted ? (
+                  <VolumeX className="h-3.5 w-3.5 text-red-400" />
+                ) : (
+                  <Volume2 className="h-3.5 w-3.5 text-[#00e701]" />
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsFullscreen(!isFullscreen)}
+                title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+                className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1a2c38] border border-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
+              >
+                {isFullscreen ? (
+                  <Minimize2 className="h-3.5 w-3.5" />
+                ) : (
+                  <Maximize2 className="h-3.5 w-3.5" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Centered Dynamic Multiplier Display & Overlay */}
+          <div className="relative z-10 flex flex-col items-center text-center my-auto pointer-events-none">
+            {phase === "countdown" ? (
+              <div className="space-y-3 animate-in fade-in duration-200">
+                <div className="text-xs font-extrabold uppercase tracking-widest text-[#b1bad3]">
+                  Next Round Starting In
+                </div>
+                <div className="text-5xl sm:text-7xl font-black font-mono text-white tracking-tight">
+                  {countdownSeconds.toFixed(1)}s
+                </div>
+                {/* 5-Second Countdown Progress Bar */}
+                <div className="w-52 sm:w-72 h-2.5 rounded-full bg-[#1a2c38] border border-[#213743] overflow-hidden">
+                  <div
+                    className="h-full bg-[#00e701] transition-all duration-75 ease-linear"
+                    style={{ width: `${(countdownSeconds / 5.0) * 100}%` }}
+                  />
+                </div>
+              </div>
+            ) : phase === "crashed" ? (
+              <div className="space-y-2 animate-bomb-shake">
+                <div className="text-6xl sm:text-8xl font-black font-mono tracking-tight text-red-500 drop-shadow-[0_0_30px_rgba(239,68,68,0.8)]">
+                  {crashPoint.toFixed(2)}×
+                </div>
+                <div className="inline-block rounded-xl bg-red-500/20 border border-red-500/40 px-5 py-1.5 text-sm font-extrabold text-red-400 uppercase tracking-wider">
+                  Crashed @ {crashPoint.toFixed(2)}×
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-1">
+                <div className={`text-6xl sm:text-8xl md:text-9xl font-black font-mono tracking-tight transition-colors duration-200 ${multiplierColor}`}>
+                  {currentMultiplier.toFixed(2)}×
+                </div>
+                <div className="text-xs font-bold uppercase tracking-widest text-[#00e701]">
+                  Current Multiplier
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* HTML5 Canvas Background / 60fps Curve Engine */}
+          <canvas
+            ref={canvasRef}
+            className="absolute inset-0 w-full h-full pointer-events-none"
+          />
+
+          {/* Bottom Game Utilities Bar */}
+          <div className="w-full flex items-center justify-between border-t border-[#213743] pt-3 z-10">
+            <button
+              type="button"
+              onClick={() => setIsFairnessOpen(true)}
+              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold text-[#b1bad3] hover:text-white hover:bg-[#1a2c38] transition-colors cursor-pointer"
+            >
+              <ShieldCheck className="h-4 w-4 text-[#00e701]" />
+              <span>Fairness</span>
+            </button>
+
+            <span className="text-[11px] text-[#b1bad3] font-mono">
+              Live Multiplayer Engine
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Main 2-Panel Game Container: Left Controls & Right Curve Canvas */}
-      <div className="rounded-2xl border border-[#213743] bg-[#1a2c38] shadow-2xl overflow-hidden flex flex-col-reverse lg:flex-row">
+      {/* ======================================================== */}
+      {/* 3. LIVE MULTIPLAYER BETS BOARD (STAKE 1:1 TABLE)         */}
+      {/* ======================================================== */}
+      <div className="rounded-2xl border border-[#213743] bg-[#1a2c38] p-4 sm:p-5 space-y-3 shadow-xl">
+        <div className="flex items-center justify-between border-b border-[#213743] pb-3">
+          <div className="flex items-center gap-2">
+            <Users className="h-4 w-4 text-[#00e701]" />
+            <h3 className="text-sm font-black text-white">Live Player Bets</h3>
+            <span className="rounded-full bg-[#0f212e] px-2 py-0.5 text-[11px] font-mono font-bold text-[#00e701] border border-[#213743]">
+              {livePlayers.length} Active
+            </span>
+          </div>
+
+          <div className="text-xs font-bold text-[#b1bad3]">
+            Total Bet:{" "}
+            <span className="font-mono text-white">
+              ${livePlayers.reduce((acc, p) => acc + p.betAmount, 0).toFixed(2)}
+            </span>
+          </div>
+        </div>
+
+        {/* Players Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead>
+              <tr className="border-b border-[#213743]/60 text-[10px] uppercase font-bold text-[#b1bad3] tracking-wider">
+                <th className="py-2.5 px-3">Player</th>
+                <th className="py-2.5 px-3">Cashout Multiplier</th>
+                <th className="py-2.5 px-3">Bet Amount</th>
+                <th className="py-2.5 px-3 text-right">Payout</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#213743]/30 font-mono">
+              {livePlayers.map((player) => {
+                const isWin = player.hasCashedOut;
+                const isLost = phase === "crashed" && !player.hasCashedOut;
+
+                return (
+                  <tr
+                    key={player.id}
+                    className={`transition-colors ${
+                      player.isCurrentUser
+                        ? "bg-[#00e701]/10 font-bold"
+                        : "hover:bg-[#213743]/30"
+                    }`}
+                  >
+                    <td className="py-2.5 px-3 flex items-center gap-2">
+                      <span
+                        className="h-2.5 w-2.5 rounded-full shrink-0"
+                        style={{ backgroundColor: player.avatarColor }}
+                      />
+                      <span className={player.isCurrentUser ? "text-[#00e701] font-bold" : "text-white"}>
+                        {player.username}
+                      </span>
+                    </td>
+
+                    <td className="py-2.5 px-3">
+                      {isWin ? (
+                        <span className="text-[#00e701] font-bold">
+                          {player.targetCashout.toFixed(2)}×
+                        </span>
+                      ) : isLost ? (
+                        <span className="text-red-400">Crashed</span>
+                      ) : (
+                        <span className="text-[#b1bad3]">—</span>
+                      )}
+                    </td>
+
+                    <td className="py-2.5 px-3 text-white">
+                      ${player.betAmount.toFixed(2)}
+                    </td>
+
+                    <td className="py-2.5 px-3 text-right">
+                      {isWin ? (
+                        <span className="text-[#00e701] font-bold">
+                          +${player.payout.toFixed(2)}
+                        </span>
+                      ) : isLost ? (
+                        <span className="text-red-400/80">$0.00</span>
+                      ) : (
+                        <span className="text-[#b1bad3]">—</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      {/* 1. BETTING CONTROLS (Left Panel on Desktop)             */}
         {/* ======================================================== */}
-        {/* 1. BETTING CONTROLS (Left Panel on Desktop)             */}
-        {/* ======================================================== */}
-        <div className="w-full lg:w-[320px] xl:w-[340px] shrink-0 border-t lg:border-t-0 lg:border-r border-[#213743] bg-[#1a2c38] p-4 sm:p-5 flex flex-col justify-between space-y-4">
+        <div className="w-full border-t border-[#213743] bg-[#1a2c38] p-4 sm:p-5 flex flex-col justify-between space-y-4">
           <div className="space-y-4">
             {/* Mode Switch Tabs: Manual vs Auto */}
             <div className="flex rounded-xl bg-[#0f212e] p-1 border border-[#213743]">
@@ -1009,220 +1188,7 @@ export default function CrashGame() {
         </div>
 
         {/* ======================================================== */}
-        {/* 2. LIVE CANVAS ARENA (Right Panel on Desktop)            */}
-        {/* ======================================================== */}
-        <div
-          ref={containerRef}
-          className="flex-1 bg-[#0f212e] p-4 sm:p-6 lg:p-8 flex flex-col items-center justify-between min-h-[400px] sm:min-h-[520px] relative overflow-hidden"
-        >
-          {/* Top Status Indicators inside Arena */}
-          <div className="w-full flex items-center justify-between z-10">
-            <div className="flex items-center gap-2 text-xs font-bold text-[#b1bad3]">
-              <span
-                className={`flex h-2.5 w-2.5 rounded-full ${
-                  phase === "flying"
-                    ? "bg-[#00e701] animate-ping"
-                    : phase === "countdown"
-                    ? "bg-amber-400"
-                    : "bg-red-500"
-                }`}
-              />
-              <span className="uppercase tracking-wider font-mono">
-                {phase === "flying"
-                  ? "In Flight"
-                  : phase === "countdown"
-                  ? "Next Round Soon"
-                  : "Crashed"}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1.5 rounded-lg bg-[#1a2c38] px-2.5 py-1 border border-[#213743] text-xs font-bold">
-                <TrendingUp className="h-3.5 w-3.5 text-[#00e701]" />
-                <span className="text-[#b1bad3]">1% House Edge</span>
-              </div>
-
-              <button
-                type="button"
-                onClick={toggleSound}
-                title={isMuted ? "Unmute Audio" : "Mute Audio"}
-                className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1a2c38] border border-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
-              >
-                {isMuted ? (
-                  <VolumeX className="h-3.5 w-3.5 text-red-400" />
-                ) : (
-                  <Volume2 className="h-3.5 w-3.5 text-[#00e701]" />
-                )}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setIsFullscreen(!isFullscreen)}
-                title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
-                className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1a2c38] border border-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
-              >
-                {isFullscreen ? (
-                  <Minimize2 className="h-3.5 w-3.5" />
-                ) : (
-                  <Maximize2 className="h-3.5 w-3.5" />
-                )}
-              </button>
-            </div>
-          </div>
-
-          {/* Centered Dynamic Multiplier Display & Overlay */}
-          <div className="relative z-10 flex flex-col items-center text-center my-auto pointer-events-none">
-            {phase === "countdown" ? (
-              <div className="space-y-3 animate-in fade-in duration-200">
-                <div className="text-xs font-extrabold uppercase tracking-widest text-[#b1bad3]">
-                  Next Round Starting In
-                </div>
-                <div className="text-5xl sm:text-7xl font-black font-mono text-white tracking-tight">
-                  {countdownSeconds.toFixed(1)}s
-                </div>
-                {/* 5-Second Countdown Progress Bar */}
-                <div className="w-52 sm:w-72 h-2.5 rounded-full bg-[#1a2c38] border border-[#213743] overflow-hidden">
-                  <div
-                    className="h-full bg-[#00e701] transition-all duration-75 ease-linear"
-                    style={{ width: `${(countdownSeconds / 5.0) * 100}%` }}
-                  />
-                </div>
-              </div>
-            ) : phase === "crashed" ? (
-              <div className="space-y-2 animate-bomb-shake">
-                <div className="text-6xl sm:text-8xl font-black font-mono tracking-tight text-red-500 drop-shadow-[0_0_30px_rgba(239,68,68,0.8)]">
-                  {crashPoint.toFixed(2)}×
-                </div>
-                <div className="inline-block rounded-xl bg-red-500/20 border border-red-500/40 px-5 py-1.5 text-sm font-extrabold text-red-400 uppercase tracking-wider">
-                  Crashed @ {crashPoint.toFixed(2)}×
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-1">
-                <div className={`text-6xl sm:text-8xl md:text-9xl font-black font-mono tracking-tight transition-colors duration-200 ${multiplierColor}`}>
-                  {currentMultiplier.toFixed(2)}×
-                </div>
-                <div className="text-xs font-bold uppercase tracking-widest text-[#00e701]">
-                  Current Multiplier
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* HTML5 Canvas Background / 60fps Curve Engine */}
-          <canvas
-            ref={canvasRef}
-            className="absolute inset-0 w-full h-full pointer-events-none"
-          />
-
-          {/* Bottom Game Utilities Bar */}
-          <div className="w-full flex items-center justify-between border-t border-[#213743] pt-3 z-10">
-            <button
-              type="button"
-              onClick={() => setIsFairnessOpen(true)}
-              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-bold text-[#b1bad3] hover:text-white hover:bg-[#1a2c38] transition-colors cursor-pointer"
-            >
-              <ShieldCheck className="h-4 w-4 text-[#00e701]" />
-              <span>Fairness</span>
-            </button>
-
-            <span className="text-[11px] text-[#b1bad3] font-mono">
-              Live Multiplayer Engine
-            </span>
-          </div>
         </div>
-      </div>
-
-      {/* ======================================================== */}
-      {/* 3. LIVE MULTIPLAYER BETS BOARD (STAKE 1:1 TABLE)         */}
-      {/* ======================================================== */}
-      <div className="rounded-2xl border border-[#213743] bg-[#1a2c38] p-4 sm:p-5 space-y-3 shadow-xl">
-        <div className="flex items-center justify-between border-b border-[#213743] pb-3">
-          <div className="flex items-center gap-2">
-            <Users className="h-4 w-4 text-[#00e701]" />
-            <h3 className="text-sm font-black text-white">Live Player Bets</h3>
-            <span className="rounded-full bg-[#0f212e] px-2 py-0.5 text-[11px] font-mono font-bold text-[#00e701] border border-[#213743]">
-              {livePlayers.length} Active
-            </span>
-          </div>
-
-          <div className="text-xs font-bold text-[#b1bad3]">
-            Total Bet:{" "}
-            <span className="font-mono text-white">
-              ${livePlayers.reduce((acc, p) => acc + p.betAmount, 0).toFixed(2)}
-            </span>
-          </div>
-        </div>
-
-        {/* Players Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead>
-              <tr className="border-b border-[#213743]/60 text-[10px] uppercase font-bold text-[#b1bad3] tracking-wider">
-                <th className="py-2.5 px-3">Player</th>
-                <th className="py-2.5 px-3">Cashout Multiplier</th>
-                <th className="py-2.5 px-3">Bet Amount</th>
-                <th className="py-2.5 px-3 text-right">Payout</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#213743]/30 font-mono">
-              {livePlayers.map((player) => {
-                const isWin = player.hasCashedOut;
-                const isLost = phase === "crashed" && !player.hasCashedOut;
-
-                return (
-                  <tr
-                    key={player.id}
-                    className={`transition-colors ${
-                      player.isCurrentUser
-                        ? "bg-[#00e701]/10 font-bold"
-                        : "hover:bg-[#213743]/30"
-                    }`}
-                  >
-                    <td className="py-2.5 px-3 flex items-center gap-2">
-                      <span
-                        className="h-2.5 w-2.5 rounded-full shrink-0"
-                        style={{ backgroundColor: player.avatarColor }}
-                      />
-                      <span className={player.isCurrentUser ? "text-[#00e701] font-bold" : "text-white"}>
-                        {player.username}
-                      </span>
-                    </td>
-
-                    <td className="py-2.5 px-3">
-                      {isWin ? (
-                        <span className="text-[#00e701] font-bold">
-                          {player.targetCashout.toFixed(2)}×
-                        </span>
-                      ) : isLost ? (
-                        <span className="text-red-400">Crashed</span>
-                      ) : (
-                        <span className="text-[#b1bad3]">—</span>
-                      )}
-                    </td>
-
-                    <td className="py-2.5 px-3 text-white">
-                      ${player.betAmount.toFixed(2)}
-                    </td>
-
-                    <td className="py-2.5 px-3 text-right">
-                      {isWin ? (
-                        <span className="text-[#00e701] font-bold">
-                          +${player.payout.toFixed(2)}
-                        </span>
-                      ) : isLost ? (
-                        <span className="text-red-400/80">$0.00</span>
-                      ) : (
-                        <span className="text-[#b1bad3]">—</span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
 
       {/* ======================================================== */}
       {/* 4. PROVABLY FAIR VERIFIER MODAL                          */}

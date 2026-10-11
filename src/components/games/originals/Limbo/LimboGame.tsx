@@ -443,32 +443,163 @@ export default function LimboGame() {
         isFullscreen ? "p-6 bg-[#0f212e] min-h-screen" : ""
       }`}
     >
-      {/* Top Header & Breadcrumbs */}
-      <div className="flex items-center justify-between">
-        <Link
-          href="/"
-          className="flex items-center gap-2 text-xs font-bold text-[#b1bad3] hover:text-white transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <span>Back to Casino Lobby</span>
-        </Link>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setShowFairnessModal(true)}
-            className="flex items-center gap-1.5 text-xs font-bold text-[#00e701] rounded-lg bg-[#00e701]/10 px-2.5 py-1.5 border border-[#00e701]/20 hover:bg-[#00e701]/20 transition-all cursor-pointer"
-          >
-            <ShieldCheck className="h-4 w-4" />
-            <span>Provably Fair 99% RTP</span>
-          </button>
-        </div>
-      </div>
+      
 
       {/* Main Game Shell: Left Sidebar (Desktop) / Bottom Controls (Mobile) + Right Center Arena */}
-      <div className="rounded-2xl border border-[#213743] bg-[#1a2c38] overflow-hidden shadow-2xl flex flex-col-reverse lg:flex-row">
+      <div className="rounded-2xl border border-[#213743] bg-[#1a2c38] overflow-hidden shadow-2xl flex flex-col">
         {/* ========================================================= */}
+        {/* RIGHT / CENTER ARENA & MULTIPLIER REVEAL ENGINE            */}
+        {/* ========================================================= */}
+        <div className="flex-1 bg-[#0f212e] flex flex-col justify-between p-4 sm:p-6 lg:p-8 min-h-[440px] sm:min-h-[500px]">
+          {/* Top History Strip */}
+          <div className="w-full flex items-center justify-between pb-4">
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+              {history.map((item) => {
+                const isChipWin = item.multiplier >= 2.0;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setSelectedHistoryItem(item)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-mono font-bold border transition-transform hover:scale-105 shrink-0 cursor-pointer ${
+                      isChipWin
+                        ? "bg-[#00e701]/15 text-[#00e701] border-[#00e701]/30"
+                        : "bg-[#213743] text-[#b1bad3] border-[#2f4553]"
+                    }`}
+                  >
+                    {item.multiplier.toFixed(2)}×
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* CENTER ARENA: MASSIVE MULTIPLIER DISPLAY */}
+          <div className="flex-1 flex flex-col items-center justify-center py-8 relative">
+            {/* Background subtle radial glow */}
+            <div
+              className={`absolute inset-0 pointer-events-none transition-opacity duration-500 rounded-3xl ${
+                hasWon === true
+                  ? "bg-radial from-[#00e701]/15 via-transparent to-transparent opacity-100"
+                  : hasWon === false
+                  ? "bg-radial from-[#e9113c]/10 via-transparent to-transparent opacity-100"
+                  : "opacity-0"
+              }`}
+            />
+
+            {/* Giant Centered Multiplier Typography */}
+            <div
+              className={`text-6xl sm:text-8xl md:text-9xl font-black font-mono tracking-tighter transition-all select-none ${
+                hasWon === true
+                  ? "text-[#00e701] drop-shadow-[0_0_35px_rgba(0,231,1,0.65)] scale-105"
+                  : hasWon === false
+                  ? "text-[#e9113c] drop-shadow-[0_0_20px_rgba(233,17,60,0.4)]"
+                  : isRolling
+                  ? "text-white"
+                  : "text-white"
+              }`}
+            >
+              {currentDisplayMultiplier.toFixed(2)}×
+            </div>
+
+            {/* Target Multiplier Badge / Target Info */}
+            <div className="mt-4 flex items-center gap-3">
+              <div className="rounded-xl px-4 py-1.5 bg-[#1a2c38] border border-[#213743] text-xs font-bold text-[#b1bad3] flex items-center gap-2">
+                <span>TARGET:</span>
+                <span className="font-mono text-white font-black">{targetMultiplier.toFixed(2)}×</span>
+              </div>
+              <div className="rounded-xl px-4 py-1.5 bg-[#1a2c38] border border-[#213743] text-xs font-bold text-[#b1bad3] flex items-center gap-2">
+                <span>WIN CHANCE:</span>
+                <span className="font-mono text-[#00e701] font-black">{winChance.toFixed(2)}%</span>
+              </div>
+            </div>
+
+            {/* Win/Loss Toast status banner */}
+            {hasWon !== null && !isRolling && (
+              <div
+                className={`mt-4 px-4 py-1.5 rounded-lg text-xs font-extrabold uppercase tracking-wider transition-all animate-in fade-in zoom-in-95 duration-200 ${
+                  hasWon
+                    ? "bg-[#00e701]/20 text-[#00e701] border border-[#00e701]/30"
+                    : "bg-[#e9113c]/20 text-[#e9113c] border border-[#e9113c]/30"
+                }`}
+              >
+                {hasWon
+                  ? `Target hit! Payout +${activeSym}${(betAmount * targetMultiplier).toFixed(2)}`
+                  : `Target ${targetMultiplier.toFixed(2)}× missed`}
+              </div>
+            )}
+          </div>
+
+          {/* BOTTOM UTILITY TOOLBAR */}
+          <div className="w-full flex items-center justify-between pt-4 border-t border-[#213743] text-[#b1bad3]">
+            {/* Turbo Mode & Sound Toggles */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  sounds.playClick();
+                  setTurboMode(!turboMode);
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors cursor-pointer ${
+                  turboMode
+                    ? "bg-[#00e701]/15 text-[#00e701] border-[#00e701]/30"
+                    : "bg-[#1a2c38] border-[#213743] text-[#b1bad3] hover:text-white"
+                }`}
+                title="Toggle Turbo Mode"
+              >
+                <Zap className="h-3.5 w-3.5" />
+                <span>Turbo {turboMode ? "ON" : "OFF"}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const next = !soundEnabled;
+                  setSoundEnabled(next);
+                  sounds.enabled = next;
+                  if (next) sounds.playClick();
+                }}
+                className="p-2 rounded-lg bg-[#1a2c38] border border-[#213743] hover:text-white transition-colors cursor-pointer"
+                title={soundEnabled ? "Mute Sound" : "Enable Sound"}
+              >
+                {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4 text-red-400" />}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowHelpModal(true)}
+                className="p-2 rounded-lg bg-[#1a2c38] border border-[#213743] hover:text-white transition-colors cursor-pointer"
+                title="Game Rules"
+              >
+                <Info className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Right Tools: Live Stats & Fullscreen */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowLiveStats(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#1a2c38] border border-[#213743] hover:text-white transition-colors cursor-pointer"
+              >
+                <TrendingUp className="h-3.5 w-3.5 text-[#00e701]" />
+                <span className="hidden sm:inline">Live Stats</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={toggleFullscreen}
+                className="p-2 rounded-lg bg-[#1a2c38] border border-[#213743] hover:text-white transition-colors cursor-pointer"
+                title="Toggle Fullscreen"
+              >
+                {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
+        </div>
+      {/* ========================================================= */}
         {/* LEFT / BOTTOM CONTROLS PANEL                              */}
         {/* ========================================================= */}
-        <div className="w-full lg:w-[340px] xl:w-[360px] shrink-0 border-t lg:border-t-0 lg:border-r border-[#213743] bg-[#1a2c38] p-4 sm:p-5 flex flex-col justify-between space-y-5">
+        <div className="w-full border-t border-[#213743] bg-[#1a2c38] p-4 sm:p-5 flex flex-col justify-between space-y-5">
           <div className="space-y-4">
             {/* Mode Switcher Tabs (Manual / Auto) */}
             <div className="grid grid-cols-2 p-1 bg-[#0f212e] rounded-xl border border-[#213743]">
@@ -855,156 +986,7 @@ export default function LimboGame() {
           </div>
         </div>
 
-        {/* ========================================================= */}
-        {/* RIGHT / CENTER ARENA & MULTIPLIER REVEAL ENGINE            */}
-        {/* ========================================================= */}
-        <div className="flex-1 bg-[#0f212e] flex flex-col justify-between p-4 sm:p-6 lg:p-8 min-h-[440px] sm:min-h-[500px]">
-          {/* Top History Strip */}
-          <div className="w-full flex items-center justify-between pb-4">
-            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-              {history.map((item) => {
-                const isChipWin = item.multiplier >= 2.0;
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => setSelectedHistoryItem(item)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-mono font-bold border transition-transform hover:scale-105 shrink-0 cursor-pointer ${
-                      isChipWin
-                        ? "bg-[#00e701]/15 text-[#00e701] border-[#00e701]/30"
-                        : "bg-[#213743] text-[#b1bad3] border-[#2f4553]"
-                    }`}
-                  >
-                    {item.multiplier.toFixed(2)}×
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* CENTER ARENA: MASSIVE MULTIPLIER DISPLAY */}
-          <div className="flex-1 flex flex-col items-center justify-center py-8 relative">
-            {/* Background subtle radial glow */}
-            <div
-              className={`absolute inset-0 pointer-events-none transition-opacity duration-500 rounded-3xl ${
-                hasWon === true
-                  ? "bg-radial from-[#00e701]/15 via-transparent to-transparent opacity-100"
-                  : hasWon === false
-                  ? "bg-radial from-[#e9113c]/10 via-transparent to-transparent opacity-100"
-                  : "opacity-0"
-              }`}
-            />
-
-            {/* Giant Centered Multiplier Typography */}
-            <div
-              className={`text-6xl sm:text-8xl md:text-9xl font-black font-mono tracking-tighter transition-all select-none ${
-                hasWon === true
-                  ? "text-[#00e701] drop-shadow-[0_0_35px_rgba(0,231,1,0.65)] scale-105"
-                  : hasWon === false
-                  ? "text-[#e9113c] drop-shadow-[0_0_20px_rgba(233,17,60,0.4)]"
-                  : isRolling
-                  ? "text-white"
-                  : "text-white"
-              }`}
-            >
-              {currentDisplayMultiplier.toFixed(2)}×
-            </div>
-
-            {/* Target Multiplier Badge / Target Info */}
-            <div className="mt-4 flex items-center gap-3">
-              <div className="rounded-xl px-4 py-1.5 bg-[#1a2c38] border border-[#213743] text-xs font-bold text-[#b1bad3] flex items-center gap-2">
-                <span>TARGET:</span>
-                <span className="font-mono text-white font-black">{targetMultiplier.toFixed(2)}×</span>
-              </div>
-              <div className="rounded-xl px-4 py-1.5 bg-[#1a2c38] border border-[#213743] text-xs font-bold text-[#b1bad3] flex items-center gap-2">
-                <span>WIN CHANCE:</span>
-                <span className="font-mono text-[#00e701] font-black">{winChance.toFixed(2)}%</span>
-              </div>
-            </div>
-
-            {/* Win/Loss Toast status banner */}
-            {hasWon !== null && !isRolling && (
-              <div
-                className={`mt-4 px-4 py-1.5 rounded-lg text-xs font-extrabold uppercase tracking-wider transition-all animate-in fade-in zoom-in-95 duration-200 ${
-                  hasWon
-                    ? "bg-[#00e701]/20 text-[#00e701] border border-[#00e701]/30"
-                    : "bg-[#e9113c]/20 text-[#e9113c] border border-[#e9113c]/30"
-                }`}
-              >
-                {hasWon
-                  ? `Target hit! Payout +${activeSym}${(betAmount * targetMultiplier).toFixed(2)}`
-                  : `Target ${targetMultiplier.toFixed(2)}× missed`}
-              </div>
-            )}
-          </div>
-
-          {/* BOTTOM UTILITY TOOLBAR */}
-          <div className="w-full flex items-center justify-between pt-4 border-t border-[#213743] text-[#b1bad3]">
-            {/* Turbo Mode & Sound Toggles */}
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  sounds.playClick();
-                  setTurboMode(!turboMode);
-                }}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors cursor-pointer ${
-                  turboMode
-                    ? "bg-[#00e701]/15 text-[#00e701] border-[#00e701]/30"
-                    : "bg-[#1a2c38] border-[#213743] text-[#b1bad3] hover:text-white"
-                }`}
-                title="Toggle Turbo Mode"
-              >
-                <Zap className="h-3.5 w-3.5" />
-                <span>Turbo {turboMode ? "ON" : "OFF"}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  const next = !soundEnabled;
-                  setSoundEnabled(next);
-                  sounds.enabled = next;
-                  if (next) sounds.playClick();
-                }}
-                className="p-2 rounded-lg bg-[#1a2c38] border border-[#213743] hover:text-white transition-colors cursor-pointer"
-                title={soundEnabled ? "Mute Sound" : "Enable Sound"}
-              >
-                {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4 text-red-400" />}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setShowHelpModal(true)}
-                className="p-2 rounded-lg bg-[#1a2c38] border border-[#213743] hover:text-white transition-colors cursor-pointer"
-                title="Game Rules"
-              >
-                <Info className="h-4 w-4" />
-              </button>
-            </div>
-
-            {/* Right Tools: Live Stats & Fullscreen */}
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setShowLiveStats(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#1a2c38] border border-[#213743] hover:text-white transition-colors cursor-pointer"
-              >
-                <TrendingUp className="h-3.5 w-3.5 text-[#00e701]" />
-                <span className="hidden sm:inline">Live Stats</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={toggleFullscreen}
-                className="p-2 rounded-lg bg-[#1a2c38] border border-[#213743] hover:text-white transition-colors cursor-pointer"
-                title="Toggle Fullscreen"
-              >
-                {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-              </button>
-            </div>
-          </div>
         </div>
-      </div>
 
       {/* ========================================================= */}
       {/* PROVABLY FAIR VERIFIER MODAL                              */}

@@ -366,257 +366,10 @@ export default function DiceGame() {
         isFullscreen ? "fixed inset-0 z-40 bg-[#0f212e] overflow-y-auto p-4 pb-6 max-w-none" : ""
       }`}
     >
-      {/* Top Header & Navigation */}
-      <div className="flex items-center justify-between">
-        <Link
-          href="/"
-          className="flex items-center gap-2 text-xs font-bold text-[#b1bad3] hover:text-white transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <span>Back to Casino Lobby</span>
-        </Link>
-
-        {/* Live Roll History Strip (Last 10 Rolls) */}
-        <div className="flex items-center gap-1.5 overflow-x-auto">
-          <span className="text-[11px] font-bold text-[#b1bad3] uppercase tracking-wider hidden sm:inline mr-1">
-            History:
-          </span>
-          {history.map((h) => (
-            <span
-              key={h.id}
-              className={`rounded-lg px-2 py-0.5 text-xs font-mono font-black border transition-colors shrink-0 ${
-                h.isWin
-                  ? "bg-[#00e701]/15 text-[#00e701] border-[#00e701]/30 shadow-sm"
-                  : "bg-[#213743] text-[#b1bad3] border-[#2f4553]"
-              }`}
-            >
-              {h.roll.toFixed(2)}
-            </span>
-          ))}
-        </div>
-      </div>
+      
 
       {/* Main 2-Panel Game Container: Left Controls & Right Slider Arena */}
-      <div className="rounded-2xl border border-[#213743] bg-[#1a2c38] shadow-2xl overflow-hidden flex flex-col-reverse lg:flex-row">
-        {/* ======================================================== */}
-        {/* 1. BETTING CONTROLS (Left Panel on Desktop)             */}
-        {/* ======================================================== */}
-        <div className="w-full lg:w-[320px] xl:w-[340px] shrink-0 border-t lg:border-t-0 lg:border-r border-[#213743] bg-[#1a2c38] p-4 sm:p-5 flex flex-col justify-between space-y-4">
-          <div className="space-y-4">
-            {/* Mode Switch Tabs: Manual vs Auto */}
-            <div className="grid grid-cols-2 rounded-xl bg-[#0f212e] p-1 border border-[#213743]">
-              <button
-                type="button"
-                onClick={() => {
-                  sounds.playClick();
-                  setMode("manual");
-                  setIsAutoRunning(false);
-                }}
-                className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                  mode === "manual"
-                    ? "bg-[#213743] text-white shadow-sm"
-                    : "text-[#b1bad3] hover:text-white"
-                }`}
-              >
-                Manual
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  sounds.playClick();
-                  setMode("auto");
-                }}
-                className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                  mode === "auto"
-                    ? "bg-[#213743] text-white shadow-sm"
-                    : "text-[#b1bad3] hover:text-white"
-                }`}
-              >
-                Auto
-              </button>
-            </div>
-
-            {/* Bet Amount Input with Quick Math Buttons */}
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between text-xs font-bold text-[#b1bad3]">
-                <span>Bet Amount</span>
-                <span className="font-mono text-[#00e701]">
-                  {activeSym}{formatBalance(balance)}
-                </span>
-              </div>
-              <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] p-1 focus-within:border-[#00e701] transition-colors">
-                <span className="px-2 text-sm font-bold text-[#b1bad3]">{activeSym}</span>
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  disabled={isRolling}
-                  value={betInput}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
-                      setBetInput(val);
-                      if (val !== "" && !isNaN(parseFloat(val))) {
-                        setBetAmount(parseFloat(val));
-                      }
-                    }
-                  }}
-                  onBlur={() => {
-                    if (betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0) {
-                      setBetInput("1");
-                      setBetAmount(1);
-                    } else {
-                      const num = parseFloat(betInput);
-                      setBetInput(num.toString());
-                      setBetAmount(num);
-                    }
-                  }}
-                  className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono"
-                />
-                <button
-                  type="button"
-                  disabled={isRolling}
-                  onClick={handleHalfBet}
-                  className="rounded-lg px-2.5 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer"
-                >
-                  ½
-                </button>
-                <button
-                  type="button"
-                  disabled={isRolling}
-                  onClick={handleDoubleBet}
-                  className="rounded-lg px-2.5 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer"
-                >
-                  2×
-                </button>
-                <button
-                  type="button"
-                  disabled={isRolling}
-                  onClick={handleMaxBet}
-                  className="rounded-lg px-2.5 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer"
-                >
-                  Max
-                </button>
-              </div>
-            </div>
-
-            {/* Profit on Win Display */}
-            <div className="space-y-1.5">
-              <div className="flex justify-between text-xs font-bold text-[#b1bad3]">
-                <span>Profit on Win</span>
-                <span className="font-mono text-[#00e701]">
-                  +{activeSym}{(betAmount * (multiplier - 1)).toFixed(2)} {currency}
-                </span>
-              </div>
-              <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] px-3 py-2 text-sm font-mono font-bold text-white">
-                {activeSym}{(betAmount * multiplier).toFixed(2)}
-              </div>
-            </div>
-
-            {/* Auto Mode Configuration Inputs */}
-            {mode === "auto" && (
-              <div className="space-y-3 pt-2 border-t border-[#213743]/60 text-xs">
-                <div className="space-y-1">
-                  <label className="text-[11px] font-bold text-[#b1bad3]">Number of Bets</label>
-                  <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] px-3 py-1.5">
-                    <input
-                      type="number"
-                      min="0"
-                      placeholder="∞"
-                      value={autoBetsLimit === 0 ? "" : autoBetsLimit}
-                      onChange={(e) => setAutoBetsLimit(parseInt(e.target.value) || 0)}
-                      className="w-full bg-transparent text-xs font-bold text-white font-mono focus:outline-none"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setAutoBetsLimit(0)}
-                      className="text-[11px] font-bold text-[#00e701] hover:underline cursor-pointer"
-                    >
-                      ∞
-                    </button>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-[#b1bad3] uppercase">On Win</label>
-                    <select
-                      value={onWinAction}
-                      onChange={(e) => setOnWinAction(e.target.value as "reset" | "increase")}
-                      className="w-full rounded-lg bg-[#0f212e] border border-[#213743] p-1.5 text-xs text-white"
-                    >
-                      <option value="reset">Reset</option>
-                      <option value="increase">Increase %</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-[#b1bad3] uppercase">On Loss</label>
-                    <select
-                      value={onLossAction}
-                      onChange={(e) => setOnLossAction(e.target.value as "reset" | "increase")}
-                      className="w-full rounded-lg bg-[#0f212e] border border-[#213743] p-1.5 text-xs text-white"
-                    >
-                      <option value="reset">Reset</option>
-                      <option value="increase">Increase %</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center text-[11px] text-[#b1bad3] px-1 font-mono">
-                  <span>Bets Completed:</span>
-                  <span className="text-white font-bold">{autoBetsCount} / {autoBetsLimit === 0 ? "∞" : autoBetsLimit}</span>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* PRIMARY CTA: Full-Width Vibrant Stake Green Button */}
-          <div className="pt-2">
-            {mode === "auto" ? (
-              <button
-                type="button"
-                onClick={() => {
-                  if (isAutoRunning) {
-                    setIsAutoRunning(false);
-                  } else {
-                    initialAutoBalanceRef.current = balance;
-                    baseBetRef.current = betAmount;
-                    setAutoBetsCount(0);
-                    setIsAutoRunning(true);
-                  }
-                }}
-                className={`w-full py-4 text-base font-black rounded-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer ${
-                  isAutoRunning
-                    ? "bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/25"
-                    : "bg-[#00e701] hover:bg-[#00c201] text-[#0f212e] shadow-[0_0_20px_rgba(0,231,1,0.25)]"
-                }`}
-              >
-                {isAutoRunning ? (
-                  <>
-                    <RefreshCw className="h-5 w-5 animate-spin" />
-                    <span>Stop Auto Bet</span>
-                  </>
-                ) : (
-                  <>
-                    <Zap className="h-5 w-5 fill-current" />
-                    <span>Start Auto Bet</span>
-                  </>
-                )}
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={rollDice}
-                disabled={isRolling || betAmount > balance || betAmount <= 0}
-                className="w-full py-4 text-base font-black rounded-xl bg-[#00e701] hover:bg-[#00c201] text-[#0f212e] shadow-[0_0_20px_rgba(0,231,1,0.25)] hover:shadow-[0_0_28px_rgba(0,231,1,0.4)] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Dice5 className={`h-5 w-5 ${isRolling ? "animate-spin" : ""}`} />
-                <span>{isRolling ? "Rolling..." : "Bet"}</span>
-              </button>
-            )}
-          </div>
-        </div>
-
+      <div className="rounded-2xl border border-[#213743] bg-[#1a2c38] shadow-2xl overflow-hidden flex flex-col">
         {/* ======================================================== */}
         {/* 2. DICE SLIDER ARENA (Right Panel on Desktop)            */}
         {/* ======================================================== */}
@@ -908,7 +661,226 @@ export default function DiceGame() {
             </div>
           </div>
         </div>
-      </div>
+      {/* ======================================================== */}
+        {/* 1. BETTING CONTROLS (Left Panel on Desktop)             */}
+        {/* ======================================================== */}
+        <div className="w-full border-t border-[#213743] bg-[#1a2c38] p-4 sm:p-5 flex flex-col justify-between space-y-4">
+          <div className="space-y-4">
+            {/* Mode Switch Tabs: Manual vs Auto */}
+            <div className="grid grid-cols-2 rounded-xl bg-[#0f212e] p-1 border border-[#213743]">
+              <button
+                type="button"
+                onClick={() => {
+                  sounds.playClick();
+                  setMode("manual");
+                  setIsAutoRunning(false);
+                }}
+                className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                  mode === "manual"
+                    ? "bg-[#213743] text-white shadow-sm"
+                    : "text-[#b1bad3] hover:text-white"
+                }`}
+              >
+                Manual
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  sounds.playClick();
+                  setMode("auto");
+                }}
+                className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                  mode === "auto"
+                    ? "bg-[#213743] text-white shadow-sm"
+                    : "text-[#b1bad3] hover:text-white"
+                }`}
+              >
+                Auto
+              </button>
+            </div>
+
+            {/* Bet Amount Input with Quick Math Buttons */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-xs font-bold text-[#b1bad3]">
+                <span>Bet Amount</span>
+                <span className="font-mono text-[#00e701]">
+                  {activeSym}{formatBalance(balance)}
+                </span>
+              </div>
+              <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] p-1 focus-within:border-[#00e701] transition-colors">
+                <span className="px-2 text-sm font-bold text-[#b1bad3]">{activeSym}</span>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  disabled={isRolling}
+                  value={betInput}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                      setBetInput(val);
+                      if (val !== "" && !isNaN(parseFloat(val))) {
+                        setBetAmount(parseFloat(val));
+                      }
+                    }
+                  }}
+                  onBlur={() => {
+                    if (betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0) {
+                      setBetInput("1");
+                      setBetAmount(1);
+                    } else {
+                      const num = parseFloat(betInput);
+                      setBetInput(num.toString());
+                      setBetAmount(num);
+                    }
+                  }}
+                  className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono"
+                />
+                <button
+                  type="button"
+                  disabled={isRolling}
+                  onClick={handleHalfBet}
+                  className="rounded-lg px-2.5 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer"
+                >
+                  ½
+                </button>
+                <button
+                  type="button"
+                  disabled={isRolling}
+                  onClick={handleDoubleBet}
+                  className="rounded-lg px-2.5 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer"
+                >
+                  2×
+                </button>
+                <button
+                  type="button"
+                  disabled={isRolling}
+                  onClick={handleMaxBet}
+                  className="rounded-lg px-2.5 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer"
+                >
+                  Max
+                </button>
+              </div>
+            </div>
+
+            {/* Profit on Win Display */}
+            <div className="space-y-1.5">
+              <div className="flex justify-between text-xs font-bold text-[#b1bad3]">
+                <span>Profit on Win</span>
+                <span className="font-mono text-[#00e701]">
+                  +{activeSym}{(betAmount * (multiplier - 1)).toFixed(2)} {currency}
+                </span>
+              </div>
+              <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] px-3 py-2 text-sm font-mono font-bold text-white">
+                {activeSym}{(betAmount * multiplier).toFixed(2)}
+              </div>
+            </div>
+
+            {/* Auto Mode Configuration Inputs */}
+            {mode === "auto" && (
+              <div className="space-y-3 pt-2 border-t border-[#213743]/60 text-xs">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-[#b1bad3]">Number of Bets</label>
+                  <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] px-3 py-1.5">
+                    <input
+                      type="number"
+                      min="0"
+                      placeholder="∞"
+                      value={autoBetsLimit === 0 ? "" : autoBetsLimit}
+                      onChange={(e) => setAutoBetsLimit(parseInt(e.target.value) || 0)}
+                      className="w-full bg-transparent text-xs font-bold text-white font-mono focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setAutoBetsLimit(0)}
+                      className="text-[11px] font-bold text-[#00e701] hover:underline cursor-pointer"
+                    >
+                      ∞
+                    </button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-[#b1bad3] uppercase">On Win</label>
+                    <select
+                      value={onWinAction}
+                      onChange={(e) => setOnWinAction(e.target.value as "reset" | "increase")}
+                      className="w-full rounded-lg bg-[#0f212e] border border-[#213743] p-1.5 text-xs text-white"
+                    >
+                      <option value="reset">Reset</option>
+                      <option value="increase">Increase %</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-[#b1bad3] uppercase">On Loss</label>
+                    <select
+                      value={onLossAction}
+                      onChange={(e) => setOnLossAction(e.target.value as "reset" | "increase")}
+                      className="w-full rounded-lg bg-[#0f212e] border border-[#213743] p-1.5 text-xs text-white"
+                    >
+                      <option value="reset">Reset</option>
+                      <option value="increase">Increase %</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center text-[11px] text-[#b1bad3] px-1 font-mono">
+                  <span>Bets Completed:</span>
+                  <span className="text-white font-bold">{autoBetsCount} / {autoBetsLimit === 0 ? "∞" : autoBetsLimit}</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* PRIMARY CTA: Full-Width Vibrant Stake Green Button */}
+          <div className="pt-2">
+            {mode === "auto" ? (
+              <button
+                type="button"
+                onClick={() => {
+                  if (isAutoRunning) {
+                    setIsAutoRunning(false);
+                  } else {
+                    initialAutoBalanceRef.current = balance;
+                    baseBetRef.current = betAmount;
+                    setAutoBetsCount(0);
+                    setIsAutoRunning(true);
+                  }
+                }}
+                className={`w-full py-4 text-base font-black rounded-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                  isAutoRunning
+                    ? "bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/25"
+                    : "bg-[#00e701] hover:bg-[#00c201] text-[#0f212e] shadow-[0_0_20px_rgba(0,231,1,0.25)]"
+                }`}
+              >
+                {isAutoRunning ? (
+                  <>
+                    <RefreshCw className="h-5 w-5 animate-spin" />
+                    <span>Stop Auto Bet</span>
+                  </>
+                ) : (
+                  <>
+                    <Zap className="h-5 w-5 fill-current" />
+                    <span>Start Auto Bet</span>
+                  </>
+                )}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={rollDice}
+                disabled={isRolling || betAmount > balance || betAmount <= 0}
+                className="w-full py-4 text-base font-black rounded-xl bg-[#00e701] hover:bg-[#00c201] text-[#0f212e] shadow-[0_0_20px_rgba(0,231,1,0.25)] hover:shadow-[0_0_28px_rgba(0,231,1,0.4)] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Dice5 className={`h-5 w-5 ${isRolling ? "animate-spin" : ""}`} />
+                <span>{isRolling ? "Rolling..." : "Bet"}</span>
+              </button>
+            )}
+          </div>
+        </div>
+
+        </div>
 
       {/* ======================================================== */}
       {/* 3. PROVABLY FAIR VERIFIER MODAL                          */}

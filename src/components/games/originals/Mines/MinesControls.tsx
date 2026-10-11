@@ -119,7 +119,7 @@ export default function MinesControls({
   };
 
   return (
-    <div className="w-full lg:w-[320px] shrink-0 border-t lg:border-t-0 lg:border-r border-[#213743] bg-[#1a2c38] p-3 sm:p-4 flex flex-col justify-start space-y-2 sm:space-y-2.5 rounded-lg select-none">
+    <div className="w-full border-t border-[#213743] bg-[#1a2c38] p-3 sm:p-4 flex flex-col justify-start space-y-2 sm:space-y-2.5 rounded-b-2xl select-none">
       {/* 1. PRIMARY ACTION BUTTON (Directly at top of controls) */}
       <div className="w-full">
         {mode === "manual" ? (
@@ -128,7 +128,7 @@ export default function MinesControls({
               type="button"
               onClick={handleBetClick}
               disabled={betAmount > balance || betAmount <= 0}
-              className="w-full py-2.5 sm:py-3 text-sm sm:text-base font-semibold rounded-lg bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-md active:scale-[0.99] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
+              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#00e701] hover:bg-[#00c201] text-black shadow-lg hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
             >
               <span>Bet</span>
             </button>
