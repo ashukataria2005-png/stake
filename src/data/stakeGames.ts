@@ -446,6 +446,20 @@ const RAW_STAKE_ORIGINALS: GameItem[] = [
     bgGradient: "from-rose-950/90 via-[#1a2c38] to-[#0f212e]",
     isPlayable: true,
   },
+  {
+    id: "stake-originals-tomb-of-life",
+    title: "Tomb of Life",
+    slug: "stake-originals-tomb-of-life",
+    image: "/games/stake-originals/tomb-of-life.webp",
+    href: "/games/tomb-of-life",
+    provider: "Stake Originals",
+    playersCount: 1240,
+    badge: "ORIGINAL",
+    badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+    category: "originals",
+    bgGradient: "from-emerald-950/90 via-[#1a2c38] to-[#0f212e]",
+    isPlayable: true,
+  },
 ];
 export const STAKE_ORIGINALS: GameItem[] = RAW_STAKE_ORIGINALS.map(attachThumbnail);
 
