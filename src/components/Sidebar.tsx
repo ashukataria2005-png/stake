@@ -192,19 +192,19 @@ export default function Sidebar() {
 
             {/* Top Controls: Search games, providers... input with clean ✕ button */}
             <div className="p-3 border-b border-[#213743]">
-              <div className="relative flex items-center">
-                <Search className="absolute left-3 w-4 h-4 text-[#b1bad3]" />
+              <div className="relative flex items-center border border-white/20 hover:border-white/35 focus-within:border-white/35 bg-[#071824] rounded-lg shadow-sm transition-colors px-3.5 py-2">
+                <Search className="stroke-[2.2] text-[#879097] w-4 h-4 shrink-0 mr-2.5" />
                 <input
                   type="text"
                   placeholder="Search games, providers..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-[#1a2c38] border border-[#213743] focus:border-[#2f4553] text-sm font-bold text-white placeholder:font-semibold placeholder-[#b1bad3] pl-9 pr-8 py-2 rounded-xl outline-none"
+                  className="font-medium text-white placeholder:text-[#879097] tracking-wide text-sm outline-none bg-transparent w-full"
                 />
                 {searchQuery ? (
                   <button
                     onClick={() => setSearchQuery("")}
-                    className="absolute right-2.5 text-[#b1bad3] hover:text-white p-1 text-xs cursor-pointer"
+                    className="p-1 text-[#879097] hover:text-white transition-colors cursor-pointer shrink-0 ml-1.5"
                     aria-label="Clear Search"
                   >
                     ✕
@@ -212,7 +212,7 @@ export default function Sidebar() {
                 ) : (
                   <button
                     onClick={() => setSidebarOpen(false)}
-                    className="absolute right-2.5 text-[#b1bad3] hover:text-white p-1 text-xs cursor-pointer"
+                    className="p-1 text-[#879097] hover:text-white transition-colors cursor-pointer shrink-0 ml-1.5"
                     aria-label="Close Drawer"
                   >
                     ✕
@@ -310,255 +310,255 @@ export default function Sidebar() {
               <>
                 {/* Segmented Toggle: [ 🎰 Casino | ⚽ Sports ] (blue gradient capsule active state) */}
                 <div className="px-3 pt-2.5 pb-2 border-b border-[#213743]">
-              <div className="grid grid-cols-2 bg-[#1a2c38] p-1 rounded-xl border border-[#213743]">
-                <button
-                  onClick={() => setActiveDrawerTab("casino")}
-                  className={`py-2 px-3 rounded-lg text-xs sm:text-sm font-extrabold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                    activeDrawerTab === "casino"
-                      ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-md"
-                      : "text-[#b1bad3] hover:text-white"
-                  }`}
-                >
-                  <span className="text-sm">🎰</span>
-                  <span>Casino</span>
-                </button>
-                <button
-                  onClick={() => setActiveDrawerTab("sports")}
-                  className={`py-2 px-3 rounded-lg text-xs sm:text-sm font-extrabold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                    activeDrawerTab === "sports"
-                      ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-md"
-                      : "text-[#b1bad3] hover:text-white"
-                  }`}
-                >
-                  <span className="text-sm">⚽</span>
-                  <span>Sports</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Scrollable Navigation Area (Snug fit, no wide dead space) */}
-            <div className="flex-1 px-3 py-2 space-y-3">
-              {/* Group 1: Personal (Top Section) */}
-              <div>
-                <div className="text-[11px] font-semibold uppercase tracking-wider text-[#b1bad3]/70 px-3 pt-3 pb-1">
-                  PERSONAL
-                </div>
-                <div className="space-y-0.5">
-                  {personalLinks.map((item) => (
-                    <Link
-                      key={item.name}
-                      href={item.href}
-                      onClick={handleMobileNavClick}
-                      className="group flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-[#213743]/70 font-medium text-sm text-[#b1bad3] hover:text-white transition-colors cursor-pointer tracking-wide"
+                  <div className="grid grid-cols-2 bg-[#1a2c38] p-1 rounded-xl border border-[#213743]">
+                    <button
+                      onClick={() => setActiveDrawerTab("casino")}
+                      className={`py-2 px-3 rounded-lg text-xs sm:text-sm font-extrabold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                        activeDrawerTab === "casino"
+                          ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-md"
+                          : "text-[#b1bad3] hover:text-white"
+                      }`}
                     >
-                      <span className="text-base sm:text-lg shrink-0">{item.emoji}</span>
-                      <span className="truncate">{item.name}</span>
-                    </Link>
-                  ))}
+                      <span className="text-sm filter grayscale contrast-200 brightness-200">🎰</span>
+                      <span>Casino</span>
+                    </button>
+                    <button
+                      onClick={() => setActiveDrawerTab("sports")}
+                      className={`py-2 px-3 rounded-lg text-xs sm:text-sm font-extrabold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                        activeDrawerTab === "sports"
+                          ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-md"
+                          : "text-[#b1bad3] hover:text-white"
+                      }`}
+                    >
+                      <span className="text-sm filter grayscale contrast-200 brightness-200">⚽</span>
+                      <span>Sports</span>
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              {/* Group 2: Core Games Directory (Casino or Sports) */}
-              <div>
-                <div className="text-[11px] font-semibold uppercase tracking-wider text-[#b1bad3]/70 px-3 pt-3 pb-1">
-                  {activeDrawerTab === "casino" ? "GAMES" : "SPORTSBOOK"}
-                </div>
-                <div className="space-y-0.5">
-                  {(activeDrawerTab === "casino" ? coreGamesLinks : sportsLinks).map((item) => {
-                    const isActive = pathname === item.href;
-                    return (
-                      <Link
-                        key={item.name}
-                        href={item.href}
-                        onClick={handleMobileNavClick}
-                        className={`group flex items-center justify-between px-3 py-2 rounded-xl transition-colors cursor-pointer font-medium text-sm tracking-wide ${
-                          isActive
-                            ? "bg-[#213743] text-white shadow-sm"
-                            : "text-[#b1bad3] hover:bg-[#213743]/70 hover:text-white"
-                        }`}
-                      >
-                        <div className="flex items-center gap-3 truncate">
-                          <span className="text-base sm:text-lg shrink-0">{item.emoji}</span>
+                {/* Scrollable Navigation Area (Snug fit, no wide dead space) */}
+                <div className="flex-1 px-3 py-2 space-y-3">
+                  {/* Group 1: Personal (Top Section) */}
+                  <div>
+                    <div className="text-[11px] font-semibold uppercase tracking-wider text-[#b1bad3]/70 px-3 pt-3 pb-1">
+                      PERSONAL
+                    </div>
+                    <div className="space-y-0.5">
+                      {personalLinks.map((item) => (
+                        <Link
+                          key={item.name}
+                          href={item.href}
+                          onClick={handleMobileNavClick}
+                          className="group flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-[#213743]/70 font-medium text-[15px] text-[#b1bad3] hover:text-white transition-colors cursor-pointer tracking-wide"
+                        >
+                          <span className="text-base sm:text-lg shrink-0 filter grayscale contrast-200 brightness-200 opacity-80 group-hover:opacity-100 transition-opacity">{item.emoji}</span>
                           <span className="truncate">{item.name}</span>
-                        </div>
-                        {item.badge && (
-                          <span className="rounded-md bg-[#213743] px-2 py-0.5 text-[10px] font-semibold text-[#00e701] border border-[#2f4553] shrink-0">
-                            {item.badge}
-                          </span>
-                        )}
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Group 3: Community & Promos */}
-              <div>
-                <div className="text-[11px] font-semibold uppercase tracking-wider text-[#b1bad3]/70 px-3 pt-3 pb-1">
-                  PROMOTIONS & COMMUNITY
-                </div>
-                <div className="space-y-0.5">
-                  {/* Collapsible Promotions */}
-                  <div>
-                    <button
-                      onClick={() => setIsPromosOpen(!isPromosOpen)}
-                      className="w-full group flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[#213743]/70 font-medium text-sm text-[#b1bad3] hover:text-white transition-colors cursor-pointer tracking-wide"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-base sm:text-lg shrink-0">🎁</span>
-                        <span>Promotions</span>
-                      </div>
-                      <ChevronDown
-                        className={`w-4 h-4 transition-transform text-[#b1bad3] group-hover:text-white ${
-                          isPromosOpen ? "rotate-180 text-white" : ""
-                        }`}
-                      />
-                    </button>
-                    {isPromosOpen && (
-                      <div className="pl-9 pr-3 py-1 space-y-1 bg-[#1a2c38]/60 rounded-xl my-1">
-                        <Link
-                          href="/casino/home"
-                          onClick={handleMobileNavClick}
-                          className="block py-1.5 text-xs font-medium text-[#b1bad3] hover:text-[#00e701]"
-                        >
-                          Casino Promotions
                         </Link>
-                        <Link
-                          href="/sports"
-                          onClick={handleMobileNavClick}
-                          className="block py-1.5 text-xs font-medium text-[#b1bad3] hover:text-[#00e701]"
-                        >
-                          Sports Promotions
-                        </Link>
-                        <Link
-                          href="#vip"
-                          onClick={handleMobileNavClick}
-                          className="block py-1.5 text-xs font-medium text-[#b1bad3] hover:text-[#00e701]"
-                        >
-                          VIP Club Promotions
-                        </Link>
-                      </div>
-                    )}
+                      ))}
+                    </div>
                   </div>
 
-                  {communityLinks.map((item) => (
-                    <a
-                      key={item.name}
-                      href={item.href}
-                      onClick={handleMobileNavClick}
-                      className="group flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-[#213743]/70 font-medium text-sm text-[#b1bad3] hover:text-white transition-colors cursor-pointer tracking-wide"
-                    >
-                      <span className="text-base sm:text-lg shrink-0">{item.emoji}</span>
-                      <span>{item.name}</span>
-                    </a>
-                  ))}
-                </div>
-              </div>
-
-              {/* Group 4: Footer Support & Settings */}
-              <div>
-                <div className="text-[11px] font-semibold uppercase tracking-wider text-[#b1bad3]/70 px-3 pt-3 pb-1">
-                  SUPPORT & SETTINGS
-                </div>
-                <div className="space-y-0.5">
-                  {/* Collapsible Sponsorships */}
+                  {/* Group 2: Core Games Directory (Casino or Sports) */}
                   <div>
-                    <button
-                      onClick={() => setIsSponsorshipsOpen(!isSponsorshipsOpen)}
-                      className="w-full group flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[#213743]/70 font-medium text-sm text-[#b1bad3] hover:text-white transition-colors cursor-pointer tracking-wide"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-base sm:text-lg shrink-0">🤝</span>
-                        <span>Sponsorships</span>
-                      </div>
-                      <ChevronDown
-                        className={`w-4 h-4 transition-transform text-[#b1bad3] group-hover:text-white ${
-                          isSponsorshipsOpen ? "rotate-180 text-white" : ""
-                        }`}
-                      />
-                    </button>
-                    {isSponsorshipsOpen && (
-                      <div className="pl-9 pr-3 py-1 space-y-1 bg-[#1a2c38]/60 rounded-xl my-1">
-                        <span className="block py-1 text-xs font-medium text-[#b1bad3]">
-                          Alfa Romeo F1 Team
-                        </span>
-                        <span className="block py-1 text-xs font-medium text-[#b1bad3]">
-                          Everton Football Club
-                        </span>
-                        <span className="block py-1 text-xs font-medium text-[#b1bad3]">
-                          Official UFC Partner
-                        </span>
-                        <span className="block py-1 text-xs font-medium text-[#b1bad3]">
-                          Drake Partnership
-                        </span>
-                      </div>
-                    )}
+                    <div className="text-[11px] font-semibold uppercase tracking-wider text-[#b1bad3]/70 px-3 pt-3 pb-1">
+                      {activeDrawerTab === "casino" ? "GAMES" : "SPORTSBOOK"}
+                    </div>
+                    <div className="space-y-0.5">
+                      {(activeDrawerTab === "casino" ? coreGamesLinks : sportsLinks).map((item) => {
+                        const isActive = pathname === item.href;
+                        return (
+                          <Link
+                            key={item.name}
+                            href={item.href}
+                            onClick={handleMobileNavClick}
+                            className={`group flex items-center justify-between px-3 py-2 rounded-xl transition-colors cursor-pointer font-medium text-[15px] tracking-wide ${
+                              isActive
+                                ? "bg-[#213743] text-white shadow-sm"
+                                : "text-[#b1bad3] hover:bg-[#213743]/70 hover:text-white"
+                            }`}
+                          >
+                            <div className="flex items-center gap-3 truncate">
+                              <span className="text-base sm:text-lg shrink-0 filter grayscale contrast-200 brightness-200 opacity-80 group-hover:opacity-100 transition-opacity">{item.emoji}</span>
+                              <span className="truncate">{item.name}</span>
+                            </div>
+                            {item.badge && (
+                              <span className="rounded-md bg-[#213743] px-2 py-0.5 text-[10px] font-semibold text-[#00e701] border border-[#2f4553] shrink-0">
+                                {item.badge}
+                              </span>
+                            )}
+                          </Link>
+                        );
+                      })}
+                    </div>
                   </div>
 
-                  {/* Responsible Gambling */}
-                  <a
-                    href="#responsible"
-                    onClick={handleMobileNavClick}
-                    className="group flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-[#213743]/70 font-medium text-sm text-[#b1bad3] hover:text-white transition-colors cursor-pointer tracking-wide"
-                  >
-                    <ShieldCheck className="w-5 h-5 text-[#00e701] shrink-0" />
-                    <span>Responsible Gambling</span>
-                  </a>
-
-                  {/* Live Support */}
-                  <button
-                    onClick={() => {
-                      handleMobileNavClick();
-                      toggleChat();
-                    }}
-                    className="w-full group flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-[#213743]/70 font-medium text-sm text-[#b1bad3] hover:text-white transition-colors cursor-pointer tracking-wide"
-                  >
-                    <Headphones className="w-5 h-5 text-[#1475e1] shrink-0" />
-                    <span>Live Support</span>
-                  </button>
-
-                  {/* Collapsible Language */}
+                  {/* Group 3: Community & Promos */}
                   <div>
-                    <button
-                      onClick={() => setIsLanguageOpen(!isLanguageOpen)}
-                      className="w-full group flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[#213743]/70 font-medium text-sm text-[#b1bad3] hover:text-white transition-colors cursor-pointer tracking-wide"
-                    >
-                      <div className="flex items-center gap-3">
-                        <Globe className="w-5 h-5 text-cyan-400 shrink-0" />
-                        <span>Language: {selectedLanguage}</span>
-                      </div>
-                      <ChevronDown
-                        className={`w-4 h-4 transition-transform text-[#b1bad3] group-hover:text-white ${
-                          isLanguageOpen ? "rotate-180 text-white" : ""
-                        }`}
-                      />
-                    </button>
-                    {isLanguageOpen && (
-                      <div className="pl-9 pr-3 py-1 space-y-1 bg-[#1a2c38]/60 rounded-xl my-1">
-                        {["English", "Español", "Português", "日本語", "हिन्दी"].map(
-                          (lang) => (
-                            <button
-                              key={lang}
-                              onClick={() => {
-                                setSelectedLanguage(lang);
-                                setIsLanguageOpen(false);
-                              }}
-                              className={`block w-full text-left py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
-                                selectedLanguage === lang
-                                  ? "text-[#00e701] font-bold"
-                                  : "text-[#b1bad3] hover:text-white"
-                              }`}
+                    <div className="text-[11px] font-semibold uppercase tracking-wider text-[#b1bad3]/70 px-3 pt-3 pb-1">
+                      PROMOTIONS & COMMUNITY
+                    </div>
+                    <div className="space-y-0.5">
+                      {/* Collapsible Promotions */}
+                      <div>
+                        <button
+                          onClick={() => setIsPromosOpen(!isPromosOpen)}
+                          className="w-full group flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[#213743]/70 font-medium text-[15px] text-[#b1bad3] hover:text-white transition-colors cursor-pointer tracking-wide"
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-base sm:text-lg shrink-0 filter grayscale contrast-200 brightness-200 opacity-80 group-hover:opacity-100 transition-opacity">🎁</span>
+                            <span>Promotions</span>
+                          </div>
+                          <ChevronDown
+                            className={`w-4 h-4 transition-transform text-[#b1bad3] group-hover:text-white ${
+                              isPromosOpen ? "rotate-180 text-white" : ""
+                            }`}
+                          />
+                        </button>
+                        {isPromosOpen && (
+                          <div className="pl-9 pr-3 py-1 space-y-1 bg-[#1a2c38]/60 rounded-xl my-1">
+                            <Link
+                              href="/casino/home"
+                              onClick={handleMobileNavClick}
+                              className="block py-1.5 text-xs font-medium text-[#b1bad3] hover:text-[#00e701]"
                             >
-                              {lang}
-                            </button>
-                          )
+                              Casino Promotions
+                            </Link>
+                            <Link
+                              href="/sports"
+                              onClick={handleMobileNavClick}
+                              className="block py-1.5 text-xs font-medium text-[#b1bad3] hover:text-[#00e701]"
+                            >
+                              Sports Promotions
+                            </Link>
+                            <Link
+                              href="#vip"
+                              onClick={handleMobileNavClick}
+                              className="block py-1.5 text-xs font-medium text-[#b1bad3] hover:text-[#00e701]"
+                            >
+                              VIP Club Promotions
+                            </Link>
+                          </div>
                         )}
                       </div>
-                    )}
+
+                      {communityLinks.map((item) => (
+                        <a
+                          key={item.name}
+                          href={item.href}
+                          onClick={handleMobileNavClick}
+                          className="group flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-[#213743]/70 font-medium text-[15px] text-[#b1bad3] hover:text-white transition-colors cursor-pointer tracking-wide"
+                        >
+                          <span className="text-base sm:text-lg shrink-0 filter grayscale contrast-200 brightness-200 opacity-80 group-hover:opacity-100 transition-opacity">{item.emoji}</span>
+                          <span>{item.name}</span>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Group 4: Footer Support & Settings */}
+                  <div>
+                    <div className="text-[11px] font-semibold uppercase tracking-wider text-[#b1bad3]/70 px-3 pt-3 pb-1">
+                      SUPPORT & SETTINGS
+                    </div>
+                    <div className="space-y-0.5">
+                      {/* Collapsible Sponsorships */}
+                      <div>
+                        <button
+                          onClick={() => setIsSponsorshipsOpen(!isSponsorshipsOpen)}
+                          className="w-full group flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[#213743]/70 font-medium text-[15px] text-[#b1bad3] hover:text-white transition-colors cursor-pointer tracking-wide"
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-base sm:text-lg shrink-0 filter grayscale contrast-200 brightness-200 opacity-80 group-hover:opacity-100 transition-opacity">🤝</span>
+                            <span>Sponsorships</span>
+                          </div>
+                          <ChevronDown
+                            className={`w-4 h-4 transition-transform text-[#b1bad3] group-hover:text-white ${
+                              isSponsorshipsOpen ? "rotate-180 text-white" : ""
+                            }`}
+                          />
+                        </button>
+                        {isSponsorshipsOpen && (
+                          <div className="pl-9 pr-3 py-1 space-y-1 bg-[#1a2c38]/60 rounded-xl my-1">
+                            <span className="block py-1 text-xs font-medium text-[#b1bad3]">
+                              Alfa Romeo F1 Team
+                            </span>
+                            <span className="block py-1 text-xs font-medium text-[#b1bad3]">
+                              Everton Football Club
+                            </span>
+                            <span className="block py-1 text-xs font-medium text-[#b1bad3]">
+                              Official UFC Partner
+                            </span>
+                            <span className="block py-1 text-xs font-medium text-[#b1bad3]">
+                              Drake Partnership
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Responsible Gambling */}
+                      <a
+                        href="#responsible"
+                        onClick={handleMobileNavClick}
+                        className="group flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-[#213743]/70 font-medium text-[15px] text-[#b1bad3] hover:text-white transition-colors cursor-pointer tracking-wide"
+                      >
+                        <ShieldCheck className="w-5 h-5 text-[#b1bad3] group-hover:text-white shrink-0 transition-colors" />
+                        <span>Responsible Gambling</span>
+                      </a>
+
+                      {/* Live Support */}
+                      <button
+                        onClick={() => {
+                          handleMobileNavClick();
+                          toggleChat();
+                        }}
+                        className="w-full group flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-[#213743]/70 font-medium text-[15px] text-[#b1bad3] hover:text-white transition-colors cursor-pointer tracking-wide"
+                      >
+                        <Headphones className="w-5 h-5 text-[#b1bad3] group-hover:text-white shrink-0 transition-colors" />
+                        <span>Live Support</span>
+                      </button>
+
+                      {/* Collapsible Language */}
+                      <div>
+                        <button
+                          onClick={() => setIsLanguageOpen(!isLanguageOpen)}
+                          className="w-full group flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[#213743]/70 font-medium text-[15px] text-[#b1bad3] hover:text-white transition-colors cursor-pointer tracking-wide"
+                        >
+                          <div className="flex items-center gap-3">
+                            <Globe className="w-5 h-5 text-[#b1bad3] group-hover:text-white shrink-0 transition-colors" />
+                            <span>Language: {selectedLanguage}</span>
+                          </div>
+                          <ChevronDown
+                            className={`w-4 h-4 transition-transform text-[#b1bad3] group-hover:text-white ${
+                              isLanguageOpen ? "rotate-180 text-white" : ""
+                            }`}
+                          />
+                        </button>
+                        {isLanguageOpen && (
+                          <div className="pl-9 pr-3 py-1 space-y-1 bg-[#1a2c38]/60 rounded-xl my-1">
+                            {["English", "Español", "Português", "日本語", "हिन्दी"].map(
+                              (lang) => (
+                                <button
+                                  key={lang}
+                                  onClick={() => {
+                                    setSelectedLanguage(lang);
+                                    setIsLanguageOpen(false);
+                                  }}
+                                  className={`block w-full text-left py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
+                                    selectedLanguage === lang
+                                      ? "text-[#00e701] font-bold"
+                                      : "text-[#b1bad3] hover:text-white"
+                                  }`}
+                                >
+                                  {lang}
+                                </button>
+                              )
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
           </>
         )}
           </div>

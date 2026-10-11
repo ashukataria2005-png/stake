@@ -86,7 +86,7 @@ export default function LiveStatusAndSearch({
 
       {/* 2. Global Stake Search Bar with Ctrl+K shortcut badge */}
       {showSearch && (
-        <div className="border border-[#213743] focus-within:border-[#2f4553] bg-[#071824] rounded-lg shadow-sm transition-colors px-3.5 py-2.5 flex items-center gap-3">
+        <div className="border border-white/20 hover:border-white/35 focus-within:border-white/35 bg-[#071824] rounded-lg shadow-sm transition-colors px-3.5 py-2.5 flex items-center gap-3">
           <Search className="stroke-[2.2] text-[#879097] w-4 h-4 shrink-0" />
           <input
             ref={inputRef}

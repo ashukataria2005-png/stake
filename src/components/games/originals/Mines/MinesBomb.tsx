@@ -24,7 +24,7 @@ export default function MinesBomb({
       <div className={`opacity-50 flex items-center justify-center ${className}`}>
         <svg
           viewBox="0 0 64 64"
-          className="h-7 w-7 sm:h-8 sm:w-8 drop-shadow-[0_0_8px_rgba(233,17,60,0.5)]"
+          className="h-9 w-9 sm:h-11 sm:w-11 drop-shadow-[0_0_8px_rgba(233,17,60,0.5)]"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -46,7 +46,7 @@ export default function MinesBomb({
   return (
     <svg
       viewBox="0 0 64 64"
-      className={`h-8 w-8 sm:h-10 sm:w-10 ${
+      className={`h-10 w-10 sm:h-12 sm:w-12 ${
         exploded
           ? `drop-shadow-[0_0_24px_rgba(233,17,60,0.95)] ${animations ? "animate-bomb-shake" : ""}`
           : "drop-shadow-[0_0_16px_rgba(233,17,60,0.8)]"

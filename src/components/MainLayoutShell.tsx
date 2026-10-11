@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
@@ -16,9 +16,14 @@ export default function MainLayoutShell({
 }: {
   children: React.ReactNode;
 }) {
-  const { isSidebarOpen, isChatOpen } = useGame();
+  const { isSidebarOpen, isChatOpen, setChatOpen } = useGame();
   const pathname = usePathname();
   const isGamePage = pathname?.startsWith("/games") || pathname?.startsWith("/casino/games");
+
+  // Auto-dismiss chat overlay on section / route navigation
+  useEffect(() => {
+    setChatOpen(false);
+  }, [pathname, setChatOpen]);
 
   return (
     <div className="min-h-screen bg-[#0f212e] text-white flex flex-col font-sans selection:bg-[#00e701] selection:text-[#0f212e]">

@@ -120,7 +120,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [displayCryptoInFiat, setDisplayCryptoInFiatState] = useState<boolean>(false);
   const [selectedFiat, setSelectedFiatState] = useState<string>("INR");
 
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
   const [isMounted, setIsMounted] = useState<boolean>(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);

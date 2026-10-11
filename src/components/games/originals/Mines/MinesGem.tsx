@@ -22,7 +22,7 @@ export default function MinesGem({
       <div className={`opacity-45 flex items-center justify-center ${className}`}>
         <svg
           viewBox="0 0 64 64"
-          className="h-7 w-7 sm:h-8 sm:w-8 drop-shadow-[0_0_8px_rgba(0,231,1,0.4)]"
+          className="h-9 w-9 sm:h-11 sm:w-11 drop-shadow-[0_0_8px_rgba(0,231,1,0.4)]"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -110,7 +110,7 @@ export default function MinesGem({
   return (
     <svg
       viewBox="0 0 64 64"
-      className={`h-8 w-8 sm:h-10 sm:w-10 drop-shadow-[0_0_14px_rgba(0,231,1,0.85)] ${
+      className={`h-10 w-10 sm:h-12 sm:w-12 drop-shadow-[0_0_14px_rgba(0,231,1,0.85)] ${
         animations ? "animate-gem-pop" : ""
       } ${className}`}
       fill="none"

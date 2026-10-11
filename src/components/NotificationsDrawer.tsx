@@ -181,7 +181,7 @@ export default function NotificationsDrawer({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden select-none">
+    <div className="fixed inset-0 z-[9995] overflow-hidden select-none">
       {/* Backdrop */}
       <div
         onClick={onClose}
@@ -190,7 +190,7 @@ export default function NotificationsDrawer({
 
       {/* Drawer Container (Right-aligned) */}
       <div className="absolute inset-y-0 right-0 flex max-w-full pl-10">
-        <div className="w-screen max-w-md bg-[#1a2c38] border-l border-[#213743] shadow-2xl flex flex-col transform transition-transform animate-in slide-in-from-right duration-250">
+        <div data-notif-drawer className="w-screen max-w-md bg-[#1a2c38] border-l border-[#213743] shadow-2xl flex flex-col transform transition-transform animate-in slide-in-from-right duration-250">
           {/* Header */}
           <div className="flex items-center justify-between border-b border-[#213743] px-4 py-3.5 bg-[#14232d]">
             <div className="flex items-center gap-2">

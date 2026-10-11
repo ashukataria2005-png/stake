@@ -13,7 +13,7 @@ import { StakeLogo } from "@/components/common/StakeLogo";
 export default function MobileBottomNav() {
   const router = useRouter();
   const pathname = usePathname();
-  const { toggleChat, isChatOpen, toggleSidebar, isSidebarOpen } = useGame();
+  const { toggleChat, isChatOpen, setChatOpen, toggleSidebar, isSidebarOpen } = useGame();
   const [activeTab, setActiveTab] = useState<string>("casino");
 
   const handleTabClick = (tabId: string) => {
@@ -22,6 +22,8 @@ export default function MobileBottomNav() {
       toggleChat();
     } else if (tabId === "menu") {
       toggleSidebar();
+    } else {
+      setChatOpen(false);
     }
   };
 
@@ -29,12 +31,11 @@ export default function MobileBottomNav() {
     e.preventDefault();
     e.stopPropagation();
     handleTabClick("home");
-    if (typeof window !== "undefined") {
-      if (window.location.pathname === "/") {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      } else {
-        window.location.assign("/");
-      }
+    setChatOpen(false);
+    if (typeof window !== "undefined" && window.location.pathname === "/") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      router.push("/");
     }
   };
 
@@ -42,12 +43,11 @@ export default function MobileBottomNav() {
     e.preventDefault();
     e.stopPropagation();
     handleTabClick("casino");
-    if (typeof window !== "undefined") {
-      if (window.location.pathname === "/casino/home") {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      } else {
-        window.location.assign("/casino/home");
-      }
+    setChatOpen(false);
+    if (typeof window !== "undefined" && window.location.pathname === "/casino/home") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      router.push("/casino/home");
     }
   };
 
@@ -155,9 +155,9 @@ export default function MobileBottomNav() {
         >
           <StakeLogo
             collapsed={true}
-            className={`w-5 h-5 transition-all duration-200 ease-out origin-center ${isHomeActive
-              ? "scale-[2.35] fill-[#00e701]/90 text-[#00e701]/90"
-              : "scale-[2.25] fill-[#b1bad3] text-[#b1bad3]"
+            className={`w-6 h-6 transition-all duration-200 ease-out origin-center ${isHomeActive
+              ? "scale-[2.4] fill-[#00e701]/90 text-[#00e701]/90"
+              : "scale-[2.3] fill-[#b1bad3] text-[#b1bad3]"
               }`}
           />
         </button>

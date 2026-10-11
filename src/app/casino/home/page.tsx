@@ -1518,7 +1518,7 @@ export default function CasinoHomePage() {
       <CasinoPromoCarousel />
 
       {/* 2. AUTHENTIC STAKE SEARCH BAR */}
-      <div className="relative w-full my-3 flex items-center border border-[#213743] focus-within:border-[#2f4553] bg-[#071824] rounded-lg shadow-sm transition-colors px-3.5 py-2 sm:py-2.5">
+      <div className="relative w-full my-3 flex items-center border border-white/20 hover:border-white/35 focus-within:border-white/35 bg-[#071824] rounded-lg shadow-sm transition-colors px-3.5 py-2 sm:py-2.5">
         <Search className="stroke-[2.2] text-[#879097] w-4 h-4 shrink-0 mr-3" />
         <input
           type="text"

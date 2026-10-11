@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -33,6 +33,7 @@ export default function Navbar() {
     isSidebarOpen,
     toggleChat,
     isChatOpen,
+    setChatOpen,
     isMounted,
     isAuthenticated,
     user,
@@ -54,17 +55,35 @@ export default function Navbar() {
   const [unreadNotifsCount, setUnreadNotifsCount] = useState(3);
   const [showVipPopover, setShowVipPopover] = useState(false);
 
+  // Ref for notification bell + drawer — clicks outside close the drawer
+  const notifBellRef = useRef<HTMLButtonElement>(null);
+
   // Close dropdowns on Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setIsCurrencyDropdownOpen(false);
         setIsProfileMenuOpen(false);
+        setIsNotificationsOpen(false);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+  // Close notification drawer on outside click
+  useEffect(() => {
+    if (!isNotificationsOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (notifBellRef.current && notifBellRef.current.contains(e.target as Node)) return;
+      // Notifications drawer is a full fixed panel — close only if click is on the backdrop
+      const target = e.target as HTMLElement;
+      if (target.closest("[data-notif-drawer]")) return;
+      setIsNotificationsOpen(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isNotificationsOpen]);
 
   const displayInfo = isMounted
     ? formatDisplayBalance(realBalance)
@@ -73,12 +92,14 @@ export default function Navbar() {
   const handleHomeClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (typeof window !== "undefined") {
-      if (window.location.pathname === "/") {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      } else {
-        window.location.assign("/");
-      }
+    setIsNotificationsOpen(false);
+    setIsProfileMenuOpen(false);
+    setIsCurrencyDropdownOpen(false);
+    setChatOpen(false);
+    if (typeof window !== "undefined" && window.location.pathname === "/") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      router.push("/");
     }
   };
 
@@ -94,7 +115,7 @@ export default function Navbar() {
             aria-label="Stake Home"
           >
             {/* Official Stake S Emblem (compact collapsed) */}
-            <StakeLogo className="h-7 sm:h-8 w-auto text-white hover:opacity-90 transition-opacity" collapsed={true} />
+            <StakeLogo className="h-8 sm:h-9 w-auto text-white hover:opacity-90 transition-opacity" collapsed={true} />
           </button>
         </div>
 
@@ -318,7 +339,8 @@ export default function Navbar() {
 
             {/* Notification Bell (Extreme Far-Right Corner) */}
             <button
-              onClick={() => setIsNotificationsOpen(true)}
+              ref={notifBellRef}
+              onClick={() => setIsNotificationsOpen((o) => !o)}
               title="Notifications"
               aria-label="Notifications"
               className="relative p-2 text-[#b1bad3] hover:text-white transition-colors bg-transparent border-none outline-none cursor-pointer flex items-center justify-center shrink-0"
