@@ -315,7 +315,7 @@ export default function SnakesGame() {
         {/* Subtle Ambient Glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-teal-500/5 rounded-full blur-3xl pointer-events-none" />
 
-        {/* Top Header Utilities */}
+        {/* Top Header Information */}
         <div className="w-full flex items-center justify-between mb-4 z-10 text-xs text-[#b1bad3]">
           <div className="flex items-center gap-2">
             <span className="font-bold uppercase tracking-wider text-[11px] text-[#8596a5]">
@@ -329,45 +329,9 @@ export default function SnakesGame() {
           </div>
 
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowRulesModal(true)}
-              className="p-1.5 rounded-lg bg-[#1a2c38] hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors"
-              title="Game Rules"
-            >
-              <Info className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => setShowStatsModal(true)}
-              className="p-1.5 rounded-lg bg-[#1a2c38] hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors"
-              title="Live Stats"
-            >
-              <TrendingUp className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => setShowFairnessModal(true)}
-              className="p-1.5 rounded-lg bg-[#1a2c38] hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors"
-              title="Provably Fair"
-            >
-              <ShieldCheck className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => {
-                const next = !soundEnabled;
-                setSoundEnabled(next);
-                sounds.enabled = next;
-              }}
-              className="p-1.5 rounded-lg bg-[#1a2c38] hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors"
-              title={soundEnabled ? "Mute" : "Unmute"}
-            >
-              {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-            </button>
-            <button
-              onClick={toggleFullscreen}
-              className="p-1.5 rounded-lg bg-[#1a2c38] hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors"
-              title="Fullscreen"
-            >
-              {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-            </button>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#8596a5]">
+              Difficulty: <span className="text-white uppercase font-mono">{difficulty}</span>
+            </span>
           </div>
         </div>
 
@@ -571,6 +535,63 @@ export default function SnakesGame() {
               {isRolling ? "Rolling Dice..." : "Roll Dice"}
             </button>
           )}
+        </div>
+      </div>
+
+      {/* ========================================================= */}
+      {/* 3. BOTTOM UTILITY BAR                                     */}
+      {/* ========================================================= */}
+      <div className="flex items-center justify-between rounded-lg bg-[#0f212e] border border-[#213743] px-3 py-2 text-xs text-[#b1bad3] mt-2">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              const next = !soundEnabled;
+              setSoundEnabled(next);
+              sounds.enabled = next;
+            }}
+            className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
+            title={soundEnabled ? "Mute" : "Unmute"}
+          >
+            {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-red-400" />}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setShowStatsModal(true)}
+            className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
+            title="Live Stats"
+          >
+            <TrendingUp className="w-4 h-4" />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setShowRulesModal(true)}
+            className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
+            title="Rules"
+          >
+            <Info className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowFairnessModal(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors cursor-pointer"
+          >
+            <ShieldCheck className="w-4 h-4 text-[#00e701]" />
+            <span>Fairness</span>
+          </button>
+          <button
+            type="button"
+            onClick={toggleFullscreen}
+            className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
+            title="Fullscreen"
+          >
+            {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+          </button>
         </div>
       </div>
 
