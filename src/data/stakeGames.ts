@@ -245,11 +245,13 @@ const RAW_STAKE_ORIGINALS: GameItem[] = [
     id: "baccarat",
     title: "Baccarat",
     slug: "baccarat",
+    href: "/games/baccarat",
     provider: "Stake Originals",
     playersCount: 960,
     badge: "ORIGINAL",
     category: "originals",
     bgGradient: "from-rose-950/90 via-[#1a2c38] to-[#0f212e]",
+    isPlayable: true,
   },
   {
     id: "stake-originals-snakes",
