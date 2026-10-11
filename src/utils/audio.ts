@@ -556,6 +556,46 @@ class SoundManager {
   playBet() {
     this.playClick();
   }
+
+  // Dragon Tower safe egg reveal
+  playDragonEgg(floor: number = 1) {
+    this.playGem(floor);
+  }
+
+  // Dragon Tower skull / fire bust
+  playDragonBust() {
+    this.playMine();
+  }
+
+  // Dragon Tower stone row transition
+  playStoneSlide() {
+    this.playCardFlip();
+  }
+
+  // Roulette wheel spin rattle
+  playRouletteSpin() {
+    this.playDiceRoll();
+  }
+
+  // Roulette ball bounce tick
+  playBallBounce() {
+    this.playPeg();
+  }
+
+  // Roulette win fanfare
+  playRouletteWin() {
+    this.playCashout();
+  }
+
+  // Blackjack card deal swoosh
+  playCardDeal() {
+    this.playCardFlip();
+  }
+
+  // Blackjack chip place click
+  playChipPlace() {
+    this.playClick();
+  }
 }
 
 export const sounds = new SoundManager();

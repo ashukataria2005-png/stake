@@ -534,6 +534,8 @@ export const GAME_THUMBNAILS: Record<string, string> = {
   "stake-originals-flip": "/games/stake-originals/stake-originals-flip.webp",
   "packs": "/games/stake-originals/stake-originals-packs.webp",
   "stake-originals-packs": "/games/stake-originals/stake-originals-packs.webp",
+  "dragontower": "/games/stake-originals/dragontower.webp",
+  "stake-originals-dragontower": "/games/stake-originals/dragontower.webp",
   "stake-originals-darts": "/games/stake-originals/stake-originals-darts.webp",
   "plinko": "/games/stake-originals/plinko.webp",
   "mines": "/games/stake-originals/mines.webp",
