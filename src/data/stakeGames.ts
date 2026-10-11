@@ -3838,7 +3838,7 @@ const RAW_TURBOGAMES_GAMES: GameItem[] = [
   {
     id: "turbo-vortex-aero",
     title: "Vortex Aero",
-    slug: "vortex-aero",
+    slug: "turbo-vortex-aero",
     provider: "Turbo Games",
     playersCount: 3150,
     livePlayerCount: 3150,
@@ -3950,7 +3950,7 @@ const RAW_TURBOGAMES_GAMES: GameItem[] = [
   {
     id: "turbo-aero",
     title: "Aero",
-    slug: "aero",
+    slug: "turbo-aero",
     provider: "Turbo Games",
     playersCount: 3820,
     livePlayerCount: 3820,

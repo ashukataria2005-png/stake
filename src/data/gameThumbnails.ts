@@ -390,7 +390,7 @@ export const TURBOGAMES_THUMBNAILS: Record<string, string> = {
   "turbo-multiplayer-mines": "/games/turbogames/turbo-multiplayer-mines.webp",
   "turbo-vortex": "/games/turbogames/vortex.webp",
   "turbo-vortex-2": "/games/turbogames/vortex-2.webp",
-  "turbo-vortex-aero": "/games/turbogames/vortex-aero.webp",
+  "turbo-vortex-aero": "/games/turbogames/turbo-vortex-aero.webp",
   "turbo-vortex-power-play": "/games/turbogames/vortex-power-play.webp",
   "turbo-aero": "/games/turbogames/turbo-aero.webp",
   "crash-x": "/games/turbogames/crash-x.webp",
