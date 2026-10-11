@@ -169,7 +169,8 @@ interface BucketHitState {
 }
 
 export default function PlinkoGame() {
-  const { balance, updateBalance, addRecentlyPlayedGame } = useGame();
+  const { balance, updateBalance, currencySymbol, addRecentlyPlayedGame } = useGame();
+  const activeSym = currencySymbol || "$";
 
   // Settings
   const [betAmount, setBetAmount] = useState<number>(10);
@@ -285,7 +286,7 @@ export default function PlinkoGame() {
     setBetInput(capped.toFixed(2));
   };
 
-  // Drop Ball Action
+  // Drop Ball Action (Drops smoothly right at the apex)
   const dropBall = useCallback(() => {
     const effectiveBet =
       betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0
@@ -319,16 +320,16 @@ export default function PlinkoGame() {
 
     const canvas = canvasRef.current;
     const width = canvas ? canvas.getBoundingClientRect().width : 480;
-    // Ball drops smoothly from pyramid apex without any green dot
-    const startX = width / 2 + (Math.random() - 0.5) * 5;
-    const startY = 18;
+    // Ball drops tightly from apex (y=6, row 0 pegs are at y=16)
+    const startX = width / 2 + (Math.random() - 0.5) * 4;
+    const startY = 6;
 
     ballsRef.current.push({
       id: nextBallIdRef.current++,
       x: startX,
       y: startY,
-      vx: (Math.random() - 0.5) * 1.4,
-      vy: Math.random() * 0.4 + 0.2,
+      vx: (Math.random() - 0.5) * 1.3,
+      vy: Math.random() * 0.4 + 0.3,
       radius: 5.5,
       betAmount: effectiveBet,
       color: "#ff003f",
@@ -397,7 +398,7 @@ export default function PlinkoGame() {
   }, [dropBall, hotkeysEnabled]);
 
   // ==========================================================================
-  // CANVAS PHYSICS & PEGS ENGINE (Clean apex drop, NO GREEN DOT)
+  // CANVAS PHYSICS & PEGS ENGINE (TIGHT APEX CLEARANCE, NO TOP DEAD SPACE)
   // ==========================================================================
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -409,16 +410,17 @@ export default function PlinkoGame() {
 
     const generatePegs = (w: number, h: number) => {
       const pegs: Peg[] = [];
-      const startY = 40;
-      const bottomY = h - 56;
-      const spacingY = (bottomY - startY) / (rows + 1);
+      // Tight top clearance: start directly at 16px from top edge
+      const startY = 16;
+      const bottomY = h - 44;
+      const spacingY = (bottomY - startY) / rows;
 
       for (let r = 0; r < rows; r++) {
         const count = r + 3;
         const spacingX = Math.min(38, (w - 28) / (rows + 2));
         const rowWidth = (count - 1) * spacingX;
         const startX = (w - rowWidth) / 2;
-        const y = startY + (r + 1) * spacingY;
+        const y = startY + r * spacingY;
 
         for (let c = 0; c < count; c++) {
           pegs.push({
@@ -467,9 +469,6 @@ export default function PlinkoGame() {
       ctx.fillStyle = radialGrad;
       ctx.fillRect(0, 0, width, height);
 
-      // NOTE: Single Green Dot at top has been completely REMOVED as requested.
-      // Balls smoothly drop directly from the apex of the pyramid.
-
       // Update & Draw Pegs
       for (let i = 0; i < pegsRef.current.length; i++) {
         const peg = pegsRef.current[i];
@@ -496,7 +495,7 @@ export default function PlinkoGame() {
       const gravity = fastDrop ? 0.36 : 0.24;
       const bounce = 0.58;
       const friction = 0.99;
-      const bottomLimit = height - 48;
+      const bottomLimit = height - 40;
 
       // Update & Draw Balls
       for (let i = ballsRef.current.length - 1; i >= 0; i--) {
@@ -654,7 +653,7 @@ export default function PlinkoGame() {
       const bucketSpacing = Math.min(38, (width - 28) / (rows + 2));
       const totalBucketWidth = bucketCount * bucketSpacing;
       const bucketStartX = (width - totalBucketWidth) / 2;
-      const bucketY = height - 40;
+      const bucketY = height - 34;
       const bucketHeight = 26;
 
       for (let bIdx = 0; bIdx < bucketCount; bIdx++) {
@@ -728,20 +727,14 @@ export default function PlinkoGame() {
     setTimeout(() => setCopiedField(null), 1800);
   };
 
-  // Convert bet to approximate XRP representation for secondary display
-  const secondaryCryptoDisplay = useMemo(() => {
-    const xrpValue = (betAmount * 0.0175).toFixed(8);
-    return `${xrpValue} XRP`;
-  }, [betAmount]);
-
   return (
-    <div className="w-full max-w-lg mx-auto px-2 sm:px-3 py-2 select-none flex flex-col space-y-2">
+    <div className="w-full max-w-lg mx-auto px-2 sm:px-3 py-2 select-none flex flex-col space-y-2.5">
       {/* ========================================================= */}
-      {/* 1. PLINKO PEG ARENA & CANVAS (Directly at top, no clutter)*/}
+      {/* 1. GAME ARENA CONTAINER (Dedicated dark card container)   */}
       {/* ========================================================= */}
       <div
         ref={containerRef}
-        className="w-full aspect-[4/3.3] sm:aspect-[4/3] rounded-2xl bg-[#0f212e] border border-[#213743] shadow-2xl relative overflow-hidden flex flex-col items-center justify-center"
+        className="w-full aspect-[4/3.2] sm:aspect-[4/3] rounded-xl bg-[#0f212e] border border-[#213743] shadow-2xl relative overflow-hidden flex flex-col items-center justify-center"
       >
         {/* Top-Right Circular Replay / Refresh Icon Overlay */}
         <div className="absolute top-2.5 right-2.5 z-20">
@@ -759,14 +752,14 @@ export default function PlinkoGame() {
       </div>
 
       {/* ========================================================= */}
-      {/* 2. BETTING CONTROLS (Strict sequence & compact gap-2)      */}
+      {/* 2. BETTING CONTROLS CONTAINER (Clean separated card)      */}
       {/* ========================================================= */}
-      <div className="w-full flex flex-col gap-2">
-        {/* 1. Primary CTA Bet Button (Directly beneath game board) */}
+      <div className="w-full rounded-xl bg-[#0f212e] sm:bg-[#1a2c38] border border-[#213743] p-3 sm:p-4 flex flex-col gap-2.5 shadow-xl">
+        {/* 1. Primary CTA Bet Button */}
         <button
           onClick={handleBetAction}
           disabled={betAmount > balance || betAmount <= 0}
-          className={`w-full py-3.5 rounded-xl font-bold text-base text-white tracking-wide transition-all active:scale-[0.98] shadow-lg shadow-[#1475e1]/25 flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+          className={`w-full py-3.5 rounded-md font-bold text-base text-white tracking-wide transition-all active:scale-[0.98] shadow-lg shadow-[#1475e1]/25 flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
             autoBetting
               ? "bg-rose-600 hover:bg-rose-700"
               : "bg-[#1475e1] hover:bg-[#1a7bf2]"
@@ -777,17 +770,20 @@ export default function PlinkoGame() {
 
         {/* 2. Bet Amount Section */}
         <div className="flex flex-col gap-1">
+          {/* Dynamic Wallet Currency & Balance (No Hardcoded XRP) */}
           <div className="flex items-center justify-between text-xs font-semibold px-0.5">
             <span className="text-[#8596a5]">Bet Amount</span>
-            <span className="text-[#8596a5] font-mono text-[11px]">{secondaryCryptoDisplay}</span>
+            <span className="text-[#8596a5] font-mono text-[11px]">
+              {activeSym}{balance.toFixed(2)}
+            </span>
           </div>
 
-          <div className="flex items-center rounded-xl bg-[#0f212e] border border-[#213743] px-2.5 py-1 focus-within:border-[#1475e1] transition-colors">
-            {/* Indian Flag Badge & Currency Prefix */}
-            <div className="flex items-center gap-1.5 pr-2 select-none shrink-0">
-              <span className="text-sm">🇮🇳</span>
-              <span className="text-xs font-bold text-[#b1bad3]">₹</span>
-            </div>
+          {/* Compact Input Box with border-[#2f4553] & rounded-md */}
+          <div className="flex items-center rounded-md bg-[#0f212e] border border-[#2f4553] px-3 py-1.5 focus-within:border-[#1475e1] transition-colors">
+            {/* Active Currency Symbol Prefix (No Flag) */}
+            <span className="text-xs font-bold text-[#b1bad3] mr-2 select-none shrink-0">
+              {activeSym}
+            </span>
 
             {/* Input Field */}
             <input
@@ -817,25 +813,25 @@ export default function PlinkoGame() {
                   setBetInput(num.toFixed(2));
                 }
               }}
-              className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono py-1"
+              className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono py-0.5"
             />
 
             {/* Vertical Divider */}
-            <div className="w-[1px] h-5 bg-[#213743] mx-1.5 shrink-0" />
+            <div className="w-[1px] h-5 bg-[#2f4553] mx-1.5 shrink-0" />
 
-            {/* Tight Quick Action Buttons: ½ and 2× */}
+            {/* Compact Quick Action Buttons: ½ and 2× */}
             <div className="flex items-center gap-1 shrink-0">
               <button
                 type="button"
                 onClick={handleHalfBet}
-                className="px-2.5 py-1 rounded-lg bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors cursor-pointer"
+                className="px-2.5 py-1 rounded-md bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors cursor-pointer"
               >
                 ½
               </button>
               <button
                 type="button"
                 onClick={handleDoubleBet}
-                className="px-2.5 py-1 rounded-lg bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors cursor-pointer"
+                className="px-2.5 py-1 rounded-md bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors cursor-pointer"
               >
                 2×
               </button>
@@ -843,13 +839,13 @@ export default function PlinkoGame() {
           </div>
         </div>
 
-        {/* 3. Difficulty Dropdown (Custom Dropdown Select Box) */}
+        {/* 3. Difficulty Dropdown (Custom Dropdown with compact rounded-md border-[#2f4553]) */}
         <div ref={difficultyDropdownRef} className="flex flex-col gap-1 relative">
           <label className="text-xs font-semibold text-[#8596a5] px-0.5">Difficulty</label>
           <button
             type="button"
             onClick={() => setIsDifficultyDropdownOpen(!isDifficultyDropdownOpen)}
-            className="w-full flex items-center justify-between rounded-xl bg-[#0f212e] border border-[#213743] px-3 py-2 text-xs font-bold text-white hover:border-[#1475e1] transition-colors cursor-pointer"
+            className="w-full flex items-center justify-between rounded-md bg-[#0f212e] border border-[#2f4553] px-3 py-2 text-xs font-bold text-white hover:border-[#1475e1] transition-colors cursor-pointer"
           >
             <span>{difficulty}</span>
             <ChevronDown
@@ -860,7 +856,7 @@ export default function PlinkoGame() {
           </button>
 
           {isDifficultyDropdownOpen && (
-            <div className="absolute top-[102%] left-0 right-0 z-30 rounded-xl bg-[#1a2c38] border border-[#213743] shadow-xl overflow-hidden py-1">
+            <div className="absolute top-[102%] left-0 right-0 z-30 rounded-md bg-[#1a2c38] border border-[#2f4553] shadow-xl overflow-hidden py-1">
               {(["Low", "Medium", "High", "Expert"] as PlinkoDifficulty[]).map((d) => (
                 <button
                   key={d}
@@ -884,13 +880,13 @@ export default function PlinkoGame() {
           )}
         </div>
 
-        {/* 4. Rows Dropdown (Custom Dropdown Select Box) */}
+        {/* 4. Rows Dropdown (Custom Dropdown with compact rounded-md border-[#2f4553]) */}
         <div ref={rowsDropdownRef} className="flex flex-col gap-1 relative">
           <label className="text-xs font-semibold text-[#8596a5] px-0.5">Rows</label>
           <button
             type="button"
             onClick={() => setIsRowsDropdownOpen(!isRowsDropdownOpen)}
-            className="w-full flex items-center justify-between rounded-xl bg-[#0f212e] border border-[#213743] px-3 py-2 text-xs font-bold text-white hover:border-[#1475e1] transition-colors cursor-pointer"
+            className="w-full flex items-center justify-between rounded-md bg-[#0f212e] border border-[#2f4553] px-3 py-2 text-xs font-bold text-white hover:border-[#1475e1] transition-colors cursor-pointer"
           >
             <span>{rows}</span>
             <ChevronDown
@@ -901,7 +897,7 @@ export default function PlinkoGame() {
           </button>
 
           {isRowsDropdownOpen && (
-            <div className="absolute top-[102%] left-0 right-0 z-30 rounded-xl bg-[#1a2c38] border border-[#213743] shadow-xl overflow-hidden py-1 max-h-48 overflow-y-auto">
+            <div className="absolute top-[102%] left-0 right-0 z-30 rounded-md bg-[#1a2c38] border border-[#2f4553] shadow-xl overflow-hidden py-1 max-h-48 overflow-y-auto">
               {[8, 9, 10, 11, 12, 13, 14, 15, 16].map((cnt) => (
                 <button
                   key={cnt}
@@ -929,7 +925,7 @@ export default function PlinkoGame() {
         {mode === "auto" && (
           <div className="flex flex-col gap-1">
             <label className="text-xs font-semibold text-[#8596a5] px-0.5">Number of Bets</label>
-            <div className="flex items-center rounded-xl bg-[#0f212e] border border-[#213743] px-3 py-1.5 focus-within:border-[#1475e1] transition-colors">
+            <div className="flex items-center rounded-md bg-[#0f212e] border border-[#2f4553] px-3 py-1.5 focus-within:border-[#1475e1] transition-colors">
               <input
                 type="number"
                 min="0"
@@ -958,8 +954,8 @@ export default function PlinkoGame() {
           </div>
         )}
 
-        {/* 6. Manual / Auto Mode Selector (Pill-shaped segmented toggle) */}
-        <div className="grid grid-cols-2 rounded-xl bg-[#0f212e] p-1 border border-[#213743]">
+        {/* 6. Manual / Auto Mode Selector (Segmented toggle with rounded-md) */}
+        <div className="grid grid-cols-2 rounded-md bg-[#0f212e] p-1 border border-[#2f4553]">
           <button
             type="button"
             onClick={() => {
@@ -967,7 +963,7 @@ export default function PlinkoGame() {
               setMode("manual");
               setAutoBetting(false);
             }}
-            className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+            className={`py-2 text-xs font-bold rounded-md transition-all cursor-pointer ${
               mode === "manual"
                 ? "bg-[#213743] text-white shadow-sm"
                 : "text-[#8596a5] hover:text-white"
@@ -981,7 +977,7 @@ export default function PlinkoGame() {
               sounds.playClick();
               setMode("auto");
             }}
-            className={`py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+            className={`py-2 text-xs font-bold rounded-md transition-all cursor-pointer ${
               mode === "auto"
                 ? "bg-[#213743] text-white shadow-sm"
                 : "text-[#8596a5] hover:text-white"
@@ -991,35 +987,35 @@ export default function PlinkoGame() {
           </button>
         </div>
 
-        {/* 7. Bottom Utility Controls Bar */}
-        <div className="flex items-center justify-between rounded-xl bg-[#1a2c38] border border-[#213743] px-3 py-2 text-xs text-[#8596a5] mt-1">
-          {/* Left Side: Settings Gear & Stats Bar-Chart icons */}
-          <div className="flex items-center gap-1.5">
+        {/* 7. Bottom Utility Controls Bar (Enlarged icons & subtle pill fairness) */}
+        <div className="flex items-center justify-between rounded-md bg-[#0f212e] border border-[#2f4553] px-3 py-2 text-xs text-[#8596a5] mt-0.5">
+          {/* Left Side: Settings Gear & Stats Bar-Chart icons (Enlarged to w-5.5 h-5.5) */}
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => setIsSettingsOpen(true)}
-              className="p-1.5 rounded-lg hover:bg-[#213743] text-[#8596a5] hover:text-white transition-colors cursor-pointer"
+              className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
               title="Settings"
             >
-              <Settings className="w-4 h-4" />
+              <Settings className="w-5.5 h-5.5" />
             </button>
             <button
               type="button"
               onClick={() => setIsStatsOpen(true)}
-              className="p-1.5 rounded-lg hover:bg-[#213743] text-[#8596a5] hover:text-white transition-colors cursor-pointer"
+              className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
               title="Live Stats"
             >
-              <BarChart2 className="w-4 h-4" />
+              <BarChart2 className="w-5.5 h-5.5" />
             </button>
           </div>
 
-          {/* Right Side: Rounded pill button with checkmark and text "Fairness" */}
+          {/* Right Side: Clean Subtle Dark-Pill Fairness Button */}
           <button
             type="button"
             onClick={() => setIsFairnessOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#213743] hover:bg-[#2f4553] text-[#00e701] font-bold text-xs transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#2f4553]/60 hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-semibold text-xs transition-colors cursor-pointer"
           >
-            <ShieldCheck className="w-3.5 h-3.5" />
+            <ShieldCheck className="w-4 h-4 text-[#b1bad3]" />
             <span>Fairness</span>
           </button>
         </div>
@@ -1030,15 +1026,15 @@ export default function PlinkoGame() {
       {/* ========================================================= */}
       {isFairnessOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
-          <div className="w-full max-w-md rounded-2xl border border-[#213743] bg-[#1a2c38] p-5 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-[#213743] pb-3">
+          <div className="w-full max-w-md rounded-xl border border-[#2f4553] bg-[#1a2c38] p-5 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-[#2f4553] pb-3">
               <div className="flex items-center gap-2 text-sm font-bold text-white">
-                <ShieldCheck className="w-5 h-5 text-[#00e701]" />
+                <ShieldCheck className="w-5 h-5 text-[#b1bad3]" />
                 <span>Provably Fair Verification</span>
               </div>
               <button
                 onClick={() => setIsFairnessOpen(false)}
-                className="p-1 text-[#8596a5] hover:text-white rounded-lg hover:bg-[#213743]"
+                className="p-1 text-[#8596a5] hover:text-white rounded-md hover:bg-[#213743]"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1049,7 +1045,7 @@ export default function PlinkoGame() {
                 <label className="text-[11px] font-bold text-white block mb-1">
                   Active Server Seed (Hashed)
                 </label>
-                <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#0f212e] font-mono text-[11px] text-white">
+                <div className="flex items-center justify-between p-2.5 rounded-md bg-[#0f212e] font-mono text-[11px] text-white border border-[#2f4553]">
                   <span className="truncate">{serverSeedHash}</span>
                   <button
                     onClick={() => copyToClipboard(serverSeedHash, "server")}
@@ -1066,21 +1062,21 @@ export default function PlinkoGame() {
 
               <div>
                 <label className="text-[11px] font-bold text-white block mb-1">Client Seed</label>
-                <div className="p-2.5 rounded-xl bg-[#0f212e] font-mono text-[11px] text-white">
+                <div className="p-2.5 rounded-md bg-[#0f212e] font-mono text-[11px] text-white border border-[#2f4553]">
                   {clientSeed}
                 </div>
               </div>
 
               <div>
                 <label className="text-[11px] font-bold text-white block mb-1">Nonce</label>
-                <div className="p-2.5 rounded-xl bg-[#0f212e] font-mono text-[11px] text-white">
+                <div className="p-2.5 rounded-md bg-[#0f212e] font-mono text-[11px] text-white border border-[#2f4553]">
                   {nonce}
                 </div>
               </div>
 
               <div>
                 <label className="text-[11px] font-bold text-white block mb-1">RTP</label>
-                <div className="p-2.5 rounded-xl bg-[#0f212e] font-mono text-[11px] text-[#00e701]">
+                <div className="p-2.5 rounded-md bg-[#0f212e] font-mono text-[11px] text-[#00e701] border border-[#2f4553]">
                   99.00%
                 </div>
               </div>
@@ -1088,7 +1084,7 @@ export default function PlinkoGame() {
 
             <button
               onClick={() => setIsFairnessOpen(false)}
-              className="w-full py-2.5 rounded-xl bg-[#213743] hover:bg-[#2f4553] text-white text-xs font-bold transition-colors"
+              className="w-full py-2.5 rounded-md bg-[#213743] hover:bg-[#2f4553] text-white text-xs font-bold transition-colors cursor-pointer"
             >
               Close
             </button>
@@ -1101,54 +1097,54 @@ export default function PlinkoGame() {
       {/* ========================================================= */}
       {isStatsOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
-          <div className="w-full max-w-md rounded-2xl border border-[#213743] bg-[#1a2c38] p-5 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-[#213743] pb-3">
+          <div className="w-full max-w-md rounded-xl border border-[#2f4553] bg-[#1a2c38] p-5 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-[#2f4553] pb-3">
               <div className="flex items-center gap-2 text-sm font-bold text-white">
                 <BarChart2 className="w-5 h-5 text-[#1475e1]" />
                 <span>Live Plinko Statistics</span>
               </div>
               <button
                 onClick={() => setIsStatsOpen(false)}
-                className="p-1 text-[#8596a5] hover:text-white rounded-lg hover:bg-[#213743]"
+                className="p-1 text-[#8596a5] hover:text-white rounded-md hover:bg-[#213743]"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="grid grid-cols-2 gap-2.5">
-              <div className="p-3 rounded-xl bg-[#0f212e] border border-[#213743] text-center">
+              <div className="p-3 rounded-md bg-[#0f212e] border border-[#2f4553] text-center">
                 <div className="text-[11px] font-semibold text-[#8596a5]">Total Bets</div>
                 <div className="text-lg font-black text-white font-mono mt-0.5">
                   {stats.totalBets}
                 </div>
               </div>
-              <div className="p-3 rounded-xl bg-[#0f212e] border border-[#213743] text-center">
+              <div className="p-3 rounded-md bg-[#0f212e] border border-[#2f4553] text-center">
                 <div className="text-[11px] font-semibold text-[#8596a5]">Best Multiplier</div>
                 <div className="text-lg font-black text-[#1475e1] font-mono mt-0.5">
                   {stats.bestMultiplier}x
                 </div>
               </div>
-              <div className="p-3 rounded-xl bg-[#0f212e] border border-[#213743] text-center">
+              <div className="p-3 rounded-md bg-[#0f212e] border border-[#2f4553] text-center">
                 <div className="text-[11px] font-semibold text-[#8596a5]">Total Wagered</div>
                 <div className="text-lg font-black text-white font-mono mt-0.5">
-                  ₹{stats.totalWagered.toFixed(2)}
+                  {activeSym}{stats.totalWagered.toFixed(2)}
                 </div>
               </div>
-              <div className="p-3 rounded-xl bg-[#0f212e] border border-[#213743] text-center">
+              <div className="p-3 rounded-md bg-[#0f212e] border border-[#2f4553] text-center">
                 <div className="text-[11px] font-semibold text-[#8596a5]">Net Profit</div>
                 <div
                   className={`text-lg font-black font-mono mt-0.5 ${
                     stats.netProfit >= 0 ? "text-[#00e701]" : "text-[#e9113c]"
                   }`}
                 >
-                  {stats.netProfit >= 0 ? "+" : ""}₹{stats.netProfit.toFixed(2)}
+                  {stats.netProfit >= 0 ? "+" : ""}{activeSym}{stats.netProfit.toFixed(2)}
                 </div>
               </div>
             </div>
 
             <button
               onClick={() => setIsStatsOpen(false)}
-              className="w-full py-2.5 rounded-xl bg-[#213743] hover:bg-[#2f4553] text-white text-xs font-bold transition-colors"
+              className="w-full py-2.5 rounded-md bg-[#213743] hover:bg-[#2f4553] text-white text-xs font-bold transition-colors cursor-pointer"
             >
               Close
             </button>
@@ -1161,15 +1157,15 @@ export default function PlinkoGame() {
       {/* ========================================================= */}
       {isSettingsOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
-          <div className="w-full max-w-sm rounded-2xl border border-[#213743] bg-[#1a2c38] p-5 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-[#213743] pb-3">
+          <div className="w-full max-w-sm rounded-xl border border-[#2f4553] bg-[#1a2c38] p-5 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-[#2f4553] pb-3">
               <div className="flex items-center gap-2 text-sm font-bold text-white">
                 <Settings className="w-5 h-5 text-[#8596a5]" />
                 <span>Game Settings</span>
               </div>
               <button
                 onClick={() => setIsSettingsOpen(false)}
-                className="p-1 text-[#8596a5] hover:text-white rounded-lg hover:bg-[#213743]"
+                className="p-1 text-[#8596a5] hover:text-white rounded-md hover:bg-[#213743]"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1177,7 +1173,7 @@ export default function PlinkoGame() {
 
             <div className="space-y-3 text-xs">
               {/* Sound Toggle */}
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#0f212e]">
+              <div className="flex items-center justify-between p-2.5 rounded-md bg-[#0f212e] border border-[#2f4553]">
                 <div className="flex items-center gap-2 text-white font-bold">
                   {isMuted ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4 text-[#00e701]" />}
                   <span>Sound Effects</span>
@@ -1202,7 +1198,7 @@ export default function PlinkoGame() {
               </div>
 
               {/* Fast Drop Toggle */}
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#0f212e]">
+              <div className="flex items-center justify-between p-2.5 rounded-md bg-[#0f212e] border border-[#2f4553]">
                 <div className="flex items-center gap-2 text-white font-bold">
                   <Zap className="w-4 h-4 text-amber-400" />
                   <span>Fast Drop (Turbo)</span>
@@ -1223,7 +1219,7 @@ export default function PlinkoGame() {
               </div>
 
               {/* Hotkeys Toggle */}
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#0f212e]">
+              <div className="flex items-center justify-between p-2.5 rounded-md bg-[#0f212e] border border-[#2f4553]">
                 <div className="flex items-center gap-2 text-white font-bold">
                   <span>Spacebar Hotkey</span>
                 </div>
@@ -1245,7 +1241,7 @@ export default function PlinkoGame() {
 
             <button
               onClick={() => setIsSettingsOpen(false)}
-              className="w-full py-2.5 rounded-xl bg-[#213743] hover:bg-[#2f4553] text-white text-xs font-bold transition-colors"
+              className="w-full py-2.5 rounded-md bg-[#213743] hover:bg-[#2f4553] text-white text-xs font-bold transition-colors cursor-pointer"
             >
               Done
             </button>
