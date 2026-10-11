@@ -11,7 +11,6 @@ import {
   X,
   Volume2,
   VolumeX,
-  Zap,
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
@@ -35,9 +34,6 @@ export default function DiceGame() {
   const [target, setTarget] = useState<number>(50.5);
 
   // Derived 99% RTP Math State (House edge = 1%)
-  // Roll Over: winChance = 100 - target
-  // Roll Under: winChance = target
-  // multiplier = 99 / winChance
   const winChance = useMemo(() => {
     return isRollOver
       ? parseFloat((100.0 - target).toFixed(4))
@@ -125,13 +121,11 @@ export default function DiceGame() {
     });
   }, []);
 
-  // Update target directly with clamping
   const updateTargetValue = (newTarget: number) => {
     const clamped = Math.max(2.0, Math.min(98.0, parseFloat(newTarget.toFixed(2))));
     setTarget(clamped);
   };
 
-  // Quick Bet math modifiers
   const handleHalfBet = () => {
     if (isRolling) return;
     sounds.playClick();
@@ -170,7 +164,6 @@ export default function DiceGame() {
     setIsRolling(true);
     setHasWon(null);
 
-    // Deduct wager
     updateBalance(-effectiveBet);
     setNonce((n) => n + 1);
 
@@ -183,10 +176,8 @@ export default function DiceGame() {
 
     sounds.playDiceRoll();
 
-    // Generate fair cryptographic roll [0.00 to 100.00]
     const finalRoll = parseFloat((Math.random() * 100.0).toFixed(2));
 
-    // Staggered roll tick animation
     let tickCount = 0;
     const maxTicks = 12;
     const interval = setInterval(() => {
@@ -229,13 +220,11 @@ export default function DiceGame() {
           sounds.playDiceLoss();
         }
 
-        // Add to history
         setHistory((prev) => [
           { id: `h-${Date.now()}`, roll: finalRoll, isWin: won },
           ...prev.slice(0, 9),
         ]);
 
-        // Auto betting progression if running
         if (isAutoRunning) {
           setAutoBetsCount((c) => {
             const next = c + 1;
@@ -296,7 +285,6 @@ export default function DiceGame() {
     updateBalance,
   ]);
 
-  // Auto Bet Loop
   useEffect(() => {
     let timer: NodeJS.Timeout | null = null;
     if (isAutoRunning && !isRolling) {
@@ -309,7 +297,6 @@ export default function DiceGame() {
     };
   }, [isAutoRunning, isRolling, rollDice]);
 
-  // Spacebar Hotkey
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (
@@ -327,14 +314,12 @@ export default function DiceGame() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [hotkeysEnabled, rollDice]);
 
-  // Copy helper
   const copyToClipboard = (text: string, field: string) => {
     navigator.clipboard.writeText(text);
     setCopiedField(field);
     setTimeout(() => setCopiedField(null), 1800);
   };
 
-  // Calculated Profit on Win
   const profitOnWin = useMemo(() => {
     return parseFloat((betAmount * (multiplier - 1)).toFixed(2));
   }, [betAmount, multiplier]);
@@ -342,10 +327,10 @@ export default function DiceGame() {
   return (
     <div className="w-full max-w-lg mx-auto px-2 sm:px-3 py-2 select-none flex flex-col space-y-2">
       {/* ========================================================= */}
-      {/* 1. SLIDER CARD CONTAINER (Compact Capsule)                */}
+      {/* 1. SLIDER CARD ARENA                                      */}
       {/* ========================================================= */}
-      <div className="w-full rounded-lg bg-[#0f212e] border border-[#213743] shadow-2xl p-3 sm:p-4 flex flex-col items-center justify-between relative overflow-hidden">
-        {/* Central Result Display Box (Compact height) */}
+      <div className="w-full rounded-t-2xl bg-[#0f212e] border-t border-x border-[#213743] shadow-2xl p-3 sm:p-4 flex flex-col items-center justify-between relative overflow-hidden">
+        {/* Central Result Display Box */}
         <div className="w-full flex flex-col items-center justify-center my-1 sm:my-2 z-10">
           <div
             className={`rounded-xl border-2 px-5 py-2 bg-[#1a2c38] shadow-lg transition-all duration-200 min-w-[170px] text-center ${
@@ -377,11 +362,8 @@ export default function DiceGame() {
           </div>
         </div>
 
-        {/* ======================================================= */}
-        {/* SLIDER BAR TRACK & THUMB (Sleek h-2.5 & tight scale)     */}
-        {/* ======================================================= */}
+        {/* Slider Bar Track & Thumb */}
         <div className="w-full px-1 sm:px-2 z-10 my-1">
-          {/* Numbers scale: "0", "25", "50", "75", "100" tightly aligned above track */}
           <div className="flex justify-between px-1 text-[11px] font-mono font-semibold text-[#b1bad3] select-none mb-1">
             <span>0</span>
             <span>25</span>
@@ -390,9 +372,7 @@ export default function DiceGame() {
             <span>100</span>
           </div>
 
-          {/* Slider Bar Track & Thumb */}
           <div className="relative flex flex-col items-center">
-            {/* Rolled Result Pointer on Track */}
             {lastRoll !== null && (
               <div
                 className="absolute -top-6 z-30 transition-all duration-300 pointer-events-none transform -translate-x-1/2 flex flex-col items-center"
@@ -413,16 +393,13 @@ export default function DiceGame() {
               </div>
             )}
 
-            {/* Sleek slim track height: h-2 sm:h-2.5 with 250ms dynamic inversion animation */}
             <div className="relative w-full h-2 sm:h-2.5 rounded-full bg-[#07131b] border border-[#213743] overflow-hidden shadow-inner flex select-none">
-              {/* Left Segment: Red in Roll Over, Green in Roll Under */}
               <div
                 className={`h-full transition-all duration-[250ms] ease-in-out ${
                   isRollOver ? "bg-[#e9113c]" : "bg-[#00e701]"
                 }`}
                 style={{ width: `${target}%` }}
               />
-              {/* Right Segment: Green in Roll Over, Red in Roll Under */}
               <div
                 className={`h-full transition-all duration-[250ms] ease-in-out ${
                   isRollOver ? "bg-[#00e701]" : "bg-[#e9113c]"
@@ -431,7 +408,6 @@ export default function DiceGame() {
               />
             </div>
 
-            {/* Draggable thumb: Compact pill (w-8 h-7) with 3 slim vertical lines (|||) */}
             <div
               className="absolute top-1/2 -translate-y-1/2 z-20 pointer-events-none transform -translate-x-1/2 transition-[left] duration-75"
               style={{ left: `${target}%` }}
@@ -445,7 +421,6 @@ export default function DiceGame() {
               </div>
             </div>
 
-            {/* Range Slider for Touch & Drag */}
             <input
               type="range"
               min="2.00"
@@ -459,12 +434,9 @@ export default function DiceGame() {
           </div>
         </div>
 
-        {/* ======================================================= */}
-        {/* 2. 3-METRIC STATS BOXES (Slim & Clean, max height 40px) */}
-        {/* ======================================================= */}
+        {/* 3-METRIC STATS BOXES */}
         <div className="w-full grid grid-cols-3 gap-2 mt-2 z-10">
-          {/* Multiplier Box */}
-          <div className="rounded-md bg-[#1a2c38] border border-[#2f4553] py-1.5 px-2.5 flex flex-col justify-center min-h-[38px] max-h-[42px]">
+          <div className="rounded-lg bg-[#1a2c38] border border-[#213743] py-1.5 px-2.5 flex flex-col justify-center min-h-[38px] max-h-[42px]">
             <span className="text-[10px] uppercase font-semibold text-[#87909e] leading-none">
               Multiplier
             </span>
@@ -473,8 +445,7 @@ export default function DiceGame() {
             </div>
           </div>
 
-          {/* Roll Target Box with circular swap icon */}
-          <div className="rounded-md bg-[#1a2c38] border border-[#2f4553] py-1.5 px-2.5 flex flex-col justify-center min-h-[38px] max-h-[42px] relative">
+          <div className="rounded-lg bg-[#1a2c38] border border-[#213743] py-1.5 px-2.5 flex flex-col justify-center min-h-[38px] max-h-[42px] relative">
             <span className="text-[10px] uppercase font-semibold text-[#87909e] leading-none">
               {isRollOver ? "Roll Over" : "Roll Under"}
             </span>
@@ -493,8 +464,7 @@ export default function DiceGame() {
             </div>
           </div>
 
-          {/* Win Chance Box */}
-          <div className="rounded-md bg-[#1a2c38] border border-[#2f4553] py-1.5 px-2.5 flex flex-col justify-center min-h-[38px] max-h-[42px]">
+          <div className="rounded-lg bg-[#1a2c38] border border-[#213743] py-1.5 px-2.5 flex flex-col justify-center min-h-[38px] max-h-[42px]">
             <span className="text-[10px] uppercase font-semibold text-[#87909e] leading-none">
               Win Chance
             </span>
@@ -506,96 +476,95 @@ export default function DiceGame() {
       </div>
 
       {/* ========================================================= */}
-      {/* 3. BETTING CONTROLS (Mines Pattern, gap-2 compact layout) */}
+      {/* 2. MINES HARMONIZED BETTING CONTROLS SHELL CONTAINER      */}
       {/* ========================================================= */}
-      <div className="w-full rounded-lg bg-[#0f212e] sm:bg-[#1a2c38] border border-[#213743] p-3 sm:p-4 flex flex-col gap-2 shadow-xl">
-        {/* 1. Primary CTA Bet Button (Strict height h-11 / h-12 max) */}
-        <button
-          onClick={() => {
-            if (mode === "auto") {
-              if (isAutoRunning) {
-                setIsAutoRunning(false);
+      <div className="w-full border-t border-[#213743] bg-[#1a2c38] p-3 sm:p-4 flex flex-col justify-start space-y-2 sm:space-y-2.5 rounded-b-2xl select-none">
+        {/* 1. PRIMARY BET CTA BUTTON (Directly at top of controls) */}
+        <div className="w-full">
+          <button
+            type="button"
+            onClick={() => {
+              if (mode === "auto") {
+                if (isAutoRunning) {
+                  setIsAutoRunning(false);
+                } else {
+                  initialAutoBalanceRef.current = balance;
+                  baseBetRef.current = betAmount;
+                  setAutoBetsCount(0);
+                  setIsAutoRunning(true);
+                }
               } else {
-                initialAutoBalanceRef.current = balance;
-                baseBetRef.current = betAmount;
-                setAutoBetsCount(0);
-                setIsAutoRunning(true);
+                rollDice();
               }
-            } else {
-              rollDice();
-            }
-          }}
-          disabled={isRolling || betAmount > balance || betAmount <= 0}
-          className={`w-full h-11 sm:h-12 rounded-md font-bold text-sm text-white tracking-wide transition-all active:scale-[0.99] shadow-lg shadow-[#1475e1]/20 flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
-            isAutoRunning
-              ? "bg-rose-600 hover:bg-rose-700"
-              : "bg-[#1475e1] hover:bg-[#1165c4]"
-          }`}
-        >
-          {isAutoRunning
-            ? "Stop Autobet"
-            : mode === "auto"
-            ? "Start Autobet"
-            : isRolling
-            ? "Rolling..."
-            : "Bet"}
-        </button>
+            }}
+            disabled={isRolling || betAmount > balance || betAmount <= 0}
+            className={`w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl text-white shadow-lg hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider ${
+              isAutoRunning
+                ? "bg-red-600 hover:bg-red-700 shadow-red-500/25"
+                : "bg-[#1475e1] hover:bg-[#1164c2] shadow-[#1475e1]/25"
+            }`}
+          >
+            <span>
+              {isAutoRunning
+                ? "STOP AUTOBET"
+                : mode === "auto"
+                ? "START AUTOBET"
+                : isRolling
+                ? "ROLLING..."
+                : "BET"}
+            </span>
+          </button>
+        </div>
 
-        {/* 2. Bet Amount Section (No Flag, Dynamic Balance, h-10 to h-11) */}
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center justify-between text-xs text-[#b1bad3] px-0.5">
-            <span>Bet Amount</span>
-            <span className="font-mono text-[11px] text-[#87909e]">
-              {activeSym}{balance.toFixed(2)}
+        {/* 2. BET AMOUNT INPUT (Exact Mines Structure) */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-bold text-[#b1bad3]">Bet Amount</span>
+            <span className="font-mono text-[11px] text-[#b1bad3]">
+              Bal: {activeSym}{balance.toFixed(2)}
             </span>
           </div>
 
-          <div className="h-10 sm:h-11 flex items-center rounded-md bg-[#0f212e] border border-[#2f4553] px-3 focus-within:border-[#1475e1] transition-colors">
-            {/* Active Currency Symbol Prefix (No Flag) */}
-            <span className="text-xs font-bold text-[#b1bad3] mr-2 select-none shrink-0">
-              {activeSym}
-            </span>
-
-            {/* Input Field */}
-            <input
-              type="text"
-              inputMode="decimal"
-              disabled={isRolling || isAutoRunning}
-              value={betInput}
-              onChange={(e) => {
-                const val = e.target.value;
-                if (val === "" || /^\d*\.?\d*$/.test(val)) {
-                  setBetInput(val);
-                  if (val !== "" && !isNaN(parseFloat(val))) {
-                    setBetAmount(parseFloat(val));
+          <div className="flex rounded-lg bg-[#0f212e] border border-[#213743] focus-within:border-[#2f4553] p-1">
+            <div className="flex flex-1 items-center px-2.5">
+              <span className="text-xs font-bold text-[#b1bad3] mr-1.5">{activeSym}</span>
+              <input
+                type="text"
+                inputMode="decimal"
+                disabled={isRolling || isAutoRunning}
+                value={betInput}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                    setBetInput(val);
+                    if (val !== "" && !isNaN(parseFloat(val))) {
+                      setBetAmount(parseFloat(val));
+                    }
                   }
-                }
-              }}
-              onBlur={() => {
-                if (
-                  betInput === "" ||
-                  isNaN(parseFloat(betInput)) ||
-                  parseFloat(betInput) <= 0
-                ) {
-                  setBetInput("1.00");
-                  setBetAmount(1);
-                } else {
-                  const num = parseFloat(betInput);
-                  setBetAmount(num);
-                  setBetInput(num.toFixed(2));
-                }
-              }}
-              className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono py-0.5"
-            />
-
-            {/* Right Divider & Compact ½ / 2× Buttons */}
-            <div className="h-5 border-l border-[#2f4553] mx-1.5 shrink-0" />
-            <div className="flex items-center gap-1 shrink-0">
+                }}
+                onBlur={() => {
+                  if (
+                    betInput === "" ||
+                    isNaN(parseFloat(betInput)) ||
+                    parseFloat(betInput) <= 0
+                  ) {
+                    setBetInput("1.00");
+                    setBetAmount(1);
+                  } else {
+                    const num = parseFloat(betInput);
+                    setBetAmount(num);
+                    setBetInput(num.toFixed(2));
+                  }
+                }}
+                className="w-full bg-transparent text-sm font-bold text-white outline-none font-mono"
+              />
+            </div>
+            <div className="flex items-center gap-1">
               <button
                 type="button"
                 disabled={isRolling || isAutoRunning}
                 onClick={handleHalfBet}
-                className="px-2.5 py-1 rounded hover:bg-[#213743] text-[#b1bad3] hover:text-white font-semibold text-xs transition-colors cursor-pointer disabled:opacity-50"
+                className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
               >
                 ½
               </button>
@@ -603,7 +572,7 @@ export default function DiceGame() {
                 type="button"
                 disabled={isRolling || isAutoRunning}
                 onClick={handleDoubleBet}
-                className="px-2.5 py-1 rounded hover:bg-[#213743] text-[#b1bad3] hover:text-white font-semibold text-xs transition-colors cursor-pointer disabled:opacity-50"
+                className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
               >
                 2×
               </button>
@@ -611,20 +580,14 @@ export default function DiceGame() {
           </div>
         </div>
 
-        {/* 3. Profit on Win Section (Manual Mode Only, No Flag, h-10 to h-11) */}
+        {/* 3. PROFIT ON WIN (Manual Mode Only, Exact Mines Aesthetic) */}
         {mode === "manual" && (
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center justify-between text-xs text-[#b1bad3] px-0.5">
-              <span>Profit on Win</span>
-              <span className="font-mono text-[11px] text-[#87909e]">
-                {activeSym}{balance.toFixed(2)}
-              </span>
+          <div className="space-y-1">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-bold text-[#b1bad3]">Profit on Win</span>
             </div>
-
-            <div className="h-10 sm:h-11 flex items-center rounded-md bg-[#0f212e] border border-[#2f4553] px-3">
-              <span className="text-xs font-bold text-[#b1bad3] mr-2 select-none shrink-0">
-                {activeSym}
-              </span>
+            <div className="flex rounded-lg bg-[#0f212e] border border-[#213743] px-3 py-2 items-center">
+              <span className="text-xs font-bold text-[#b1bad3] mr-1.5">{activeSym}</span>
               <span className="text-sm font-bold text-white font-mono">
                 {profitOnWin.toFixed(2)}
               </span>
@@ -632,35 +595,37 @@ export default function DiceGame() {
           </div>
         )}
 
-        {/* 4. Auto Mode Specific Inputs (Auto Mode Only) */}
+        {/* 4. AUTO MODE SPECIFIC INPUTS */}
         {mode === "auto" && (
-          <div className="flex flex-col gap-2">
-            {/* Number of Bets */}
-            <div className="flex flex-col gap-1">
-              <label className="text-xs text-[#b1bad3] px-0.5">Number of Bets</label>
-              <div className="h-10 sm:h-11 flex items-center rounded-md bg-[#0f212e] border border-[#2f4553] px-3 focus-within:border-[#1475e1] transition-colors">
-                <input
-                  type="number"
-                  min="0"
-                  placeholder="0"
-                  value={autoBetsLimit === 0 ? "" : autoBetsLimit}
-                  onChange={(e) => setAutoBetsLimit(parseInt(e.target.value) || 0)}
-                  className="w-full bg-transparent text-xs font-bold text-white font-mono focus:outline-none"
-                />
+          <div className="space-y-2">
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-bold text-[#b1bad3]">Number of Bets</span>
+              </div>
+              <div className="flex rounded-lg bg-[#0f212e] border border-[#213743] focus-within:border-[#2f4553] p-1 items-center">
+                <div className="flex flex-1 items-center px-2.5">
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="0"
+                    value={autoBetsLimit === 0 ? "" : autoBetsLimit}
+                    onChange={(e) => setAutoBetsLimit(parseInt(e.target.value) || 0)}
+                    className="w-full bg-transparent text-sm font-bold text-white outline-none font-mono"
+                  />
+                </div>
                 <button
                   type="button"
                   onClick={() => setAutoBetsLimit(0)}
                   title="Infinite Bets"
-                  className="px-2 text-sm font-black text-[#1475e1] hover:text-white transition-colors cursor-pointer select-none"
+                  className="px-3 py-1 rounded-lg text-sm font-black text-[#1475e1] hover:text-white transition-colors cursor-pointer select-none"
                 >
                   ∞
                 </button>
               </div>
             </div>
 
-            {/* Advanced Toggle Switch Row */}
             <div className="flex items-center justify-between px-0.5 py-0.5">
-              <span className="text-xs text-[#b1bad3]">Advanced</span>
+              <span className="text-xs font-bold text-[#b1bad3]">Advanced</span>
               <button
                 type="button"
                 onClick={() => setIsAdvancedAuto(!isAdvancedAuto)}
@@ -676,15 +641,14 @@ export default function DiceGame() {
               </button>
             </div>
 
-            {/* Advanced On Win / On Loss Settings */}
             {isAdvancedAuto && (
-              <div className="grid grid-cols-2 gap-2 pt-1 border-t border-[#2f4553]/50">
+              <div className="grid grid-cols-2 gap-2 pt-1 border-t border-[#213743]">
                 <div className="space-y-1">
                   <label className="text-[10px] font-bold text-[#87909e] uppercase">On Win</label>
                   <select
                     value={onWinAction}
                     onChange={(e) => setOnWinAction(e.target.value as "reset" | "increase")}
-                    className="w-full rounded-md bg-[#0f212e] border border-[#2f4553] p-1.5 text-xs font-bold text-white"
+                    className="w-full rounded-lg bg-[#0f212e] border border-[#213743] p-1.5 text-xs font-bold text-white"
                   >
                     <option value="reset">Reset</option>
                     <option value="increase">Increase %</option>
@@ -695,7 +659,7 @@ export default function DiceGame() {
                   <select
                     value={onLossAction}
                     onChange={(e) => setOnLossAction(e.target.value as "reset" | "increase")}
-                    className="w-full rounded-md bg-[#0f212e] border border-[#2f4553] p-1.5 text-xs font-bold text-white"
+                    className="w-full rounded-lg bg-[#0f212e] border border-[#213743] p-1.5 text-xs font-bold text-white"
                   >
                     <option value="reset">Reset</option>
                     <option value="increase">Increase %</option>
@@ -715,53 +679,43 @@ export default function DiceGame() {
           </div>
         )}
 
-        {/* 5. Mode Selector: Pill toggle Manual / Auto with script icon */}
-        <div className="flex items-center gap-1.5 rounded-md bg-[#0f212e] p-1 border border-[#2f4553]">
-          <div className="grid grid-cols-2 flex-1">
-            <button
-              type="button"
-              onClick={() => {
-                sounds.playClick();
-                setMode("manual");
-                setIsAutoRunning(false);
-              }}
-              className={`py-1.5 text-xs font-bold rounded-md transition-all cursor-pointer ${
-                mode === "manual"
-                  ? "bg-[#213743] text-white shadow-sm"
-                  : "text-[#87909e] hover:text-white"
-              }`}
-            >
-              Manual
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                sounds.playClick();
-                setMode("auto");
-              }}
-              className={`py-1.5 text-xs font-bold rounded-md transition-all cursor-pointer ${
-                mode === "auto"
-                  ? "bg-[#213743] text-white shadow-sm"
-                  : "text-[#87909e] hover:text-white"
-              }`}
-            >
-              Auto
-            </button>
-          </div>
+        {/* 5. MODE SWITCH TABS: [ Manual | Auto ] (Exact Mines Pattern) */}
+        <div className="flex rounded-lg bg-[#0f212e] p-1 border border-[#213743] mt-auto">
           <button
             type="button"
-            title="Script / Strategy Mode"
-            onClick={() => sounds.playClick()}
-            className="px-2 py-1.5 rounded-md bg-[#1a2c38] hover:bg-[#213743] text-[#87909e] hover:text-white text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors"
+            disabled={isRolling || isAutoRunning}
+            onClick={() => {
+              sounds.playClick();
+              setMode("manual");
+              setIsAutoRunning(false);
+            }}
+            className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+              mode === "manual"
+                ? "bg-[#213743] text-white shadow-sm"
+                : "text-[#b1bad3] hover:text-white"
+            }`}
           >
-            <span>A</span>
-            <Zap className="w-3.5 h-3.5 text-[#1475e1]" />
+            Manual
+          </button>
+          <button
+            type="button"
+            disabled={isRolling || isAutoRunning}
+            onClick={() => {
+              sounds.playClick();
+              setMode("auto");
+            }}
+            className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+              mode === "auto"
+                ? "bg-[#213743] text-white shadow-sm"
+                : "text-[#b1bad3] hover:text-white"
+            }`}
+          >
+            Auto
           </button>
         </div>
 
-        {/* 6. Bottom Utility Bar (Settings, Stats, Clean Subtle Fairness Pill) */}
-        <div className="flex items-center justify-between rounded-md bg-[#0f212e] border border-[#2f4553] px-3 py-1.5 text-xs text-[#87909e] mt-0.5">
-          {/* Left: Settings gear & Live Stats chart icons */}
+        {/* 6. BOTTOM UTILITY BAR */}
+        <div className="flex items-center justify-between rounded-lg bg-[#0f212e] border border-[#213743] px-3 py-2 text-xs text-[#b1bad3] mt-0.5">
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -781,32 +735,29 @@ export default function DiceGame() {
             </button>
           </div>
 
-          {/* Right: Clean Subtle Dark-Pill Fairness Button */}
           <button
             type="button"
             onClick={() => setIsFairnessOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#2f4553]/60 hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-semibold text-xs transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors cursor-pointer"
           >
-            <ShieldCheck className="w-4 h-4 text-[#b1bad3]" />
+            <ShieldCheck className="w-4 h-4 text-[#00e701]" />
             <span>Fairness</span>
           </button>
         </div>
       </div>
 
-      {/* ========================================================= */}
-      {/* PROVABLY FAIR VERIFIER MODAL                              */}
-      {/* ========================================================= */}
+      {/* PROVABLY FAIR VERIFIER MODAL */}
       {isFairnessOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
-          <div className="w-full max-w-md rounded-xl border border-[#2f4553] bg-[#1a2c38] p-5 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-[#2f4553] pb-3">
+          <div className="w-full max-w-md rounded-2xl border border-[#213743] bg-[#1a2c38] p-5 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-[#213743] pb-3">
               <div className="flex items-center gap-2 text-sm font-bold text-white">
-                <ShieldCheck className="w-5 h-5 text-[#b1bad3]" />
+                <ShieldCheck className="w-5 h-5 text-[#00e701]" />
                 <span>Provably Fair Verification</span>
               </div>
               <button
                 onClick={() => setIsFairnessOpen(false)}
-                className="p-1 text-[#87909e] hover:text-white rounded-md hover:bg-[#213743]"
+                className="p-1 text-[#b1bad3] hover:text-white rounded-lg hover:bg-[#213743]"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -817,11 +768,11 @@ export default function DiceGame() {
                 <label className="text-[11px] font-bold text-white block mb-1">
                   Active Server Seed (Hashed)
                 </label>
-                <div className="flex items-center justify-between p-2.5 rounded-md bg-[#0f212e] font-mono text-[11px] text-white border border-[#2f4553]">
+                <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#0f212e] font-mono text-[11px] text-white border border-[#213743]">
                   <span className="truncate">{serverSeedHash}</span>
                   <button
                     onClick={() => copyToClipboard(serverSeedHash, "server")}
-                    className="p-1 text-[#87909e] hover:text-white"
+                    className="p-1 text-[#b1bad3] hover:text-white"
                   >
                     {copiedField === "server" ? (
                       <Check className="w-3.5 h-3.5 text-[#00e701]" />
@@ -834,19 +785,19 @@ export default function DiceGame() {
 
               <div>
                 <label className="text-[11px] font-bold text-white block mb-1">Client Seed</label>
-                <div className="p-2.5 rounded-md bg-[#0f212e] font-mono text-[11px] text-white border border-[#2f4553]">
+                <div className="p-2.5 rounded-lg bg-[#0f212e] font-mono text-[11px] text-white border border-[#213743]">
                   {clientSeed}
                 </div>
               </div>
 
               <div>
                 <label className="text-[11px] font-bold text-white block mb-1">Nonce</label>
-                <div className="p-2.5 rounded-md bg-[#0f212e] font-mono text-[11px] text-white border border-[#2f4553]">
+                <div className="p-2.5 rounded-lg bg-[#0f212e] font-mono text-[11px] text-white border border-[#213743]">
                   {nonce}
                 </div>
               </div>
 
-              <div className="p-2.5 rounded-md bg-[#0f212e] text-[11px] space-y-1 border border-[#2f4553]">
+              <div className="p-2.5 rounded-lg bg-[#0f212e] text-[11px] space-y-1 border border-[#213743]">
                 <div className="font-bold text-white">Dice Formula:</div>
                 <div className="font-mono text-[#00e701]">
                   Roll = (Hash(ServerSeed, ClientSeed, Nonce) % 10001) / 100
@@ -857,7 +808,7 @@ export default function DiceGame() {
 
             <button
               onClick={() => setIsFairnessOpen(false)}
-              className="w-full py-2.5 rounded-md bg-[#213743] hover:bg-[#2f4553] text-white text-xs font-bold transition-colors cursor-pointer"
+              className="w-full py-2.5 rounded-lg bg-[#213743] hover:bg-[#2f4553] text-white text-xs font-bold transition-colors cursor-pointer"
             >
               Close
             </button>
@@ -865,46 +816,44 @@ export default function DiceGame() {
         </div>
       )}
 
-      {/* ========================================================= */}
-      {/* LIVE STATS MODAL                                          */}
-      {/* ========================================================= */}
+      {/* LIVE STATS MODAL */}
       {isStatsOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
-          <div className="w-full max-w-md rounded-xl border border-[#2f4553] bg-[#1a2c38] p-5 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-[#2f4553] pb-3">
+          <div className="w-full max-w-md rounded-2xl border border-[#213743] bg-[#1a2c38] p-5 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-[#213743] pb-3">
               <div className="flex items-center gap-2 text-sm font-bold text-white">
                 <BarChart2 className="w-5 h-5 text-[#1475e1]" />
                 <span>Live Dice Statistics</span>
               </div>
               <button
                 onClick={() => setIsStatsOpen(false)}
-                className="p-1 text-[#87909e] hover:text-white rounded-md hover:bg-[#213743]"
+                className="p-1 text-[#b1bad3] hover:text-white rounded-lg hover:bg-[#213743]"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="grid grid-cols-2 gap-2.5">
-              <div className="p-3 rounded-md bg-[#0f212e] border border-[#2f4553] text-center">
-                <div className="text-[11px] font-semibold text-[#87909e]">Total Bets</div>
+              <div className="p-3 rounded-lg bg-[#0f212e] border border-[#213743] text-center">
+                <div className="text-[11px] font-semibold text-[#b1bad3]">Total Bets</div>
                 <div className="text-lg font-black text-white font-mono mt-0.5">
                   {stats.totalBets}
                 </div>
               </div>
-              <div className="p-3 rounded-md bg-[#0f212e] border border-[#2f4553] text-center">
-                <div className="text-[11px] font-semibold text-[#87909e]">Best Roll</div>
+              <div className="p-3 rounded-lg bg-[#0f212e] border border-[#213743] text-center">
+                <div className="text-[11px] font-semibold text-[#b1bad3]">Best Roll</div>
                 <div className="text-lg font-black text-[#1475e1] font-mono mt-0.5">
                   {stats.bestRoll.toFixed(2)}
                 </div>
               </div>
-              <div className="p-3 rounded-md bg-[#0f212e] border border-[#2f4553] text-center">
-                <div className="text-[11px] font-semibold text-[#87909e]">Total Wagered</div>
+              <div className="p-3 rounded-lg bg-[#0f212e] border border-[#213743] text-center">
+                <div className="text-[11px] font-semibold text-[#b1bad3]">Total Wagered</div>
                 <div className="text-lg font-black text-white font-mono mt-0.5">
                   {activeSym}{stats.totalWagered.toFixed(2)}
                 </div>
               </div>
-              <div className="p-3 rounded-md bg-[#0f212e] border border-[#2f4553] text-center">
-                <div className="text-[11px] font-semibold text-[#87909e]">Net Profit</div>
+              <div className="p-3 rounded-lg bg-[#0f212e] border border-[#213743] text-center">
+                <div className="text-[11px] font-semibold text-[#b1bad3]">Net Profit</div>
                 <div
                   className={`text-lg font-black font-mono mt-0.5 ${
                     stats.netProfit >= 0 ? "text-[#00e701]" : "text-[#e9113c]"
@@ -917,7 +866,7 @@ export default function DiceGame() {
 
             <button
               onClick={() => setIsStatsOpen(false)}
-              className="w-full py-2.5 rounded-md bg-[#213743] hover:bg-[#2f4553] text-white text-xs font-bold transition-colors cursor-pointer"
+              className="w-full py-2.5 rounded-lg bg-[#213743] hover:bg-[#2f4553] text-white text-xs font-bold transition-colors cursor-pointer"
             >
               Close
             </button>
@@ -925,28 +874,25 @@ export default function DiceGame() {
         </div>
       )}
 
-      {/* ========================================================= */}
-      {/* GAME SETTINGS MODAL                                       */}
-      {/* ========================================================= */}
+      {/* GAME SETTINGS MODAL */}
       {isSettingsOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
-          <div className="w-full max-w-sm rounded-xl border border-[#2f4553] bg-[#1a2c38] p-5 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-[#2f4553] pb-3">
+          <div className="w-full max-w-sm rounded-2xl border border-[#213743] bg-[#1a2c38] p-5 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-[#213743] pb-3">
               <div className="flex items-center gap-2 text-sm font-bold text-white">
-                <Settings className="w-5 h-5 text-[#87909e]" />
+                <Settings className="w-5 h-5 text-[#b1bad3]" />
                 <span>Dice Settings</span>
               </div>
               <button
                 onClick={() => setIsSettingsOpen(false)}
-                className="p-1 text-[#87909e] hover:text-white rounded-md hover:bg-[#213743]"
+                className="p-1 text-[#b1bad3] hover:text-white rounded-lg hover:bg-[#213743]"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="space-y-3 text-xs">
-              {/* Sound Toggle */}
-              <div className="flex items-center justify-between p-2.5 rounded-md bg-[#0f212e] border border-[#2f4553]">
+              <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#0f212e] border border-[#213743]">
                 <div className="flex items-center gap-2 text-white font-bold">
                   {isMuted ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4 text-[#00e701]" />}
                   <span>Sound Effects</span>
@@ -970,8 +916,7 @@ export default function DiceGame() {
                 </button>
               </div>
 
-              {/* Hotkeys Toggle */}
-              <div className="flex items-center justify-between p-2.5 rounded-md bg-[#0f212e] border border-[#2f4553]">
+              <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#0f212e] border border-[#213743]">
                 <div className="flex items-center gap-2 text-white font-bold">
                   <span>Spacebar Hotkey</span>
                 </div>
@@ -993,7 +938,7 @@ export default function DiceGame() {
 
             <button
               onClick={() => setIsSettingsOpen(false)}
-              className="w-full py-2.5 rounded-md bg-[#213743] hover:bg-[#2f4553] text-white text-xs font-bold transition-colors cursor-pointer"
+              className="w-full py-2.5 rounded-lg bg-[#213743] hover:bg-[#2f4553] text-white text-xs font-bold transition-colors cursor-pointer"
             >
               Done
             </button>
