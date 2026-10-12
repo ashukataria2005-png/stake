@@ -120,8 +120,7 @@ model AdminUser {
   id           String   @id @default(cuid())
   username     String   @unique
   passwordHash String
-  role         String   @default("ADMIN")
-  permissions  String[] @default(["ALL"])
+  role         String   @default("SUPER_ADMIN")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
