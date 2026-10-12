@@ -55,7 +55,7 @@ interface SlotModalGame {
 }
 
 export default function HomePage() {
-  const { balance, realBalance, hasVerifiedDeposit, updateBalance, currency, currencySymbol, addRecentlyPlayedGame } = useGame();
+  const { balance, realBalance, hasVerifiedDeposit, updateBalance, currency, currencySymbol, addRecentlyPlayedGame, openGamePreview } = useGame();
   const activeSym = currencySymbol || "$";
 
   // Search state
@@ -86,6 +86,7 @@ export default function HomePage() {
       image: card.image,
       playersCount: card.playersCount,
     });
+    openGamePreview(card);
   };
 
   // Instant real-time search across ALL_GAMES
@@ -207,18 +208,10 @@ export default function HomePage() {
                 const thumb = getGameThumbnail(game.slug || game.id, game.image);
                 const gameHref = game.href || `/games/${game.slug || game.id}`;
                 return (
-                  <Link
+                  <div
                     key={game.id}
-                    href={gameHref}
                     onClick={() => {
-                      addRecentlyPlayedGame({
-                        id: game.id,
-                        slug: game.slug,
-                        title: game.title,
-                        href: gameHref,
-                        image: thumb,
-                        playersCount: game.playersCount,
-                      });
+                      openGamePreview(game);
                     }}
                     className="group relative flex flex-col select-none cursor-pointer"
                   >
@@ -252,7 +245,7 @@ export default function HomePage() {
                         {game.provider}
                       </span>
                     </div>
-                  </Link>
+                  </div>
                 );
               })}
             </div>

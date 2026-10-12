@@ -66,7 +66,7 @@ export default function CasinoGameRow({
           setStage(parsed);
         }
       }
-    } catch {}
+    } catch { }
   }, [storageKey]);
 
   let displayedCards: CasinoCardData[] = [];
@@ -110,7 +110,7 @@ export default function CasinoGameRow({
       setStage(0);
       try {
         sessionStorage.removeItem(storageKey);
-      } catch {}
+      } catch { }
       if (rowRef.current) {
         rowRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
       }
@@ -119,7 +119,7 @@ export default function CasinoGameRow({
         const next = prev + 1;
         try {
           sessionStorage.setItem(storageKey, String(next));
-        } catch {}
+        } catch { }
         return next;
       });
     }
@@ -143,7 +143,7 @@ export default function CasinoGameRow({
       </div>
 
       {/* Exact 3-Item Layout Grid */}
-      <div className="grid grid-cols-3 gap-2.5 sm:gap-3.5 w-full transition-all duration-300 ease-in-out">
+      <div className="grid grid-cols-3 gap-1.5 sm:gap-2.5 w-full transition-all duration-300 ease-in-out">
         {displayedCards.map((card) => {
           const thumb = getGameThumbnail(card.id, card.image);
 
@@ -184,9 +184,8 @@ export default function CasinoGameRow({
           const handleCardClick = () => {
             if (onCardClick) {
               onCardClick(card);
-            } else {
-              openGamePreview(card);
             }
+            openGamePreview(card);
           };
 
           // Full-Bleed Game Card with crisp uppercase title, subtitle/provider, and pulsing counter

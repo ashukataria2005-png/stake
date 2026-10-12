@@ -46,7 +46,7 @@ import { sounds } from "@/utils/audio";
 import confetti from "canvas-confetti";
 
 export default function CasinoHomePage() {
-  const { balance, updateBalance, currency } = useGame();
+  const { balance, updateBalance, currency, openGamePreview } = useGame();
   const [activeCategory, setActiveCategory] = useState<string>("home");
   const [searchQuery, setSearchQuery] = useState<string>("");
 
@@ -1458,10 +1458,9 @@ export default function CasinoHomePage() {
     },
   ];
 
-  // Handle slot card clicks to open demo spin modal
+  // Handle slot card clicks to open game preview
   const handleCardClick = (card: CasinoCardData) => {
-    if (card.href) return;
-    setActiveSlotModal(card);
+    openGamePreview(card);
   };
 
   const spinSlotDemo = (game: CasinoCardData) => {
@@ -1518,19 +1517,19 @@ export default function CasinoHomePage() {
       <CasinoPromoCarousel />
 
       {/* 2. AUTHENTIC STAKE SEARCH BAR */}
-      <div className="relative w-full my-3 flex items-center border border-white/20 hover:border-white/35 focus-within:border-white/35 bg-[#071824] rounded-lg shadow-sm transition-colors px-3.5 py-2 sm:py-2.5">
-        <Search className="stroke-[2.2] text-[#879097] w-4 h-4 shrink-0 mr-3" />
+      <div className="relative w-full my-3 flex items-center bg-[#0f212e] border border-[#213743] focus-within:border-[#2f4553] rounded-lg shadow-sm transition-colors px-3.5 py-2 sm:py-2.5">
+        <Search className="stroke-[2.2] text-[#b1bad3] w-4 h-4 shrink-0 mr-3" />
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search Stake.com"
-          className="font-medium text-white placeholder:text-[#879097] tracking-wide text-sm sm:text-base outline-none bg-transparent w-full"
+          className="text-sm font-semibold text-white placeholder:text-[#b1bad3] tracking-wide outline-none bg-transparent w-full"
         />
         {searchQuery.trim().length > 0 && (
           <button
             onClick={() => setSearchQuery("")}
-            className="p-1 text-[#879097] hover:text-white transition-colors cursor-pointer ml-2"
+            className="p-1 text-[#b1bad3] hover:text-white transition-colors cursor-pointer ml-2"
             title="Clear Search"
           >
             <X className="w-4 h-4" />
@@ -1583,52 +1582,40 @@ export default function CasinoHomePage() {
                   <div
                     key={game.id}
                     onClick={() => {
-                      if (!game.href) {
-                        handleCardClick({
-                          id: game.id,
-                          title: game.title,
-                          provider: game.provider,
-                          playersCount: game.playersCount,
-                          badge: game.badge,
-                          badgeColor: game.badgeColor,
-                          image: thumb,
-                        });
-                      }
+                      openGamePreview(game);
                     }}
                     className="group relative flex flex-col select-none cursor-pointer"
                   >
-                    <Link href={gameHref} className="block">
-                      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-[#1a2c38] border border-[#213743] hover:border-[#2f4553] transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg">
-                        {thumb ? (
-                          <img
-                            src={thumb}
-                            alt={game.title}
-                            className="w-full h-full object-cover object-center rounded-xl"
-                            loading="lazy"
-                            onError={(e) => {
-                              (e.currentTarget as HTMLElement).style.display = "none";
-                            }}
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center p-3">
-                            <StakeGameArtwork gameId={game.slug || game.id} />
-                          </div>
-                        )}
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#00e701] text-[#0f212e] shadow-lg shadow-[#00e701]/40 transform scale-75 group-hover:scale-100 transition-transform">
-                            <Play className="h-4 w-4 fill-current ml-0.5" />
-                          </div>
+                    <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-[#1a2c38] border border-[#213743] hover:border-[#2f4553] transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg">
+                      {thumb ? (
+                        <img
+                          src={thumb}
+                          alt={game.title}
+                          className="w-full h-full object-cover object-center rounded-xl"
+                          loading="lazy"
+                          onError={(e) => {
+                            (e.currentTarget as HTMLElement).style.display = "none";
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center p-3">
+                          <StakeGameArtwork gameId={game.slug || game.id} />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#00e701] text-[#0f212e] shadow-lg shadow-[#00e701]/40 transform scale-75 group-hover:scale-100 transition-transform">
+                          <Play className="h-4 w-4 fill-current ml-0.5" />
                         </div>
                       </div>
-                      <div className="flex flex-col mt-1.5 px-0.5">
-                        <span className="font-black uppercase tracking-wider text-xs sm:text-sm text-white truncate">
-                          {game.title}
-                        </span>
-                        <span className="text-[9px] sm:text-[10px] uppercase font-bold text-white/70 truncate">
-                          {game.provider}
-                        </span>
-                      </div>
-                    </Link>
+                    </div>
+                    <div className="flex flex-col mt-1.5 px-0.5">
+                      <span className="font-black uppercase tracking-wider text-xs sm:text-sm text-white truncate">
+                        {game.title}
+                      </span>
+                      <span className="text-[9px] sm:text-[10px] uppercase font-bold text-white/70 truncate">
+                        {game.provider}
+                      </span>
+                    </div>
                   </div>
                 );
               })}

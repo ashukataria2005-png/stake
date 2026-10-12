@@ -33,7 +33,7 @@ export default function TrendingGames({
   title = "Slots",
   categoryHref = "/casino/group/slots",
 }: TrendingGamesProps) {
-  const { addRecentlyPlayedGame } = useGame();
+  const { addRecentlyPlayedGame, openGamePreview } = useGame();
 
   const initialGames: TrendingGameItem[] = [
     {
@@ -188,6 +188,7 @@ export default function TrendingGames({
         symbols: game.symbols,
       });
     }
+    openGamePreview(game);
   };
 
   return (

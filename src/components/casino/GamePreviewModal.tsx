@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   X,
@@ -24,6 +24,24 @@ export default function GamePreviewModal() {
   const [isSaved, setIsSaved] = useState<boolean>(false);
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
   const [showFairnessInfo, setShowFairnessInfo] = useState<boolean>(false);
+
+  // Background Scroll-Lock: prevent window from scrolling when modal is open
+  useEffect(() => {
+    if (!previewGame) return;
+    const originalOverflow = document.body.style.overflow;
+    const originalPaddingRight = document.body.style.paddingRight;
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+
+    document.body.style.overflow = "hidden";
+    if (scrollbarWidth > 0) {
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+    }
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.body.style.paddingRight = originalPaddingRight;
+    };
+  }, [previewGame]);
 
   if (!previewGame) return null;
 
@@ -70,7 +88,7 @@ export default function GamePreviewModal() {
       onClick={(e) => {
         if (e.target === e.currentTarget) closeGamePreview();
       }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto overscroll-contain animate-in fade-in duration-200"
     >
       <div className="w-full max-w-md space-y-3 relative text-white my-auto select-none">
         {/* Floating Close Button */}

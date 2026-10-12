@@ -8,7 +8,7 @@ import StakeGameArtwork from "@/components/casino/StakeGameArtwork";
 import { getGameThumbnail } from "@/data/gameThumbnails";
 
 export default function ContinuePlayingSlider() {
-  const { recentlyPlayedGames } = useGame();
+  const { recentlyPlayedGames, openGamePreview } = useGame();
 
   // STRICT REQUIREMENT: MUST be strictly hidden for new users or when recentlyPlayedGames is empty
   if (!recentlyPlayedGames || recentlyPlayedGames.length === 0) {
@@ -37,12 +37,11 @@ export default function ContinuePlayingSlider() {
       <div className="flex items-center gap-3 overflow-x-auto no-scrollbar scroll-smooth flex-nowrap py-1">
         {recentlyPlayedGames.map((game: RecentlyPlayedGame) => {
           const thumb = getGameThumbnail(game.slug || game.id, game.image);
-          const linkHref = game.href || `/games/${game.slug || game.id}`;
 
           return (
-            <Link
+            <div
               key={game.id}
-              href={linkHref}
+              onClick={() => openGamePreview(game)}
               className="flex-shrink-0 w-28 sm:w-36 group flex flex-col select-none cursor-pointer"
             >
               {/* Compact 3:4 aspect ratio full-bleed box */}
@@ -76,7 +75,7 @@ export default function ContinuePlayingSlider() {
                 <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] animate-pulse shrink-0"></span>
                 <span>{(game.playersCount || 61).toLocaleString("en-US")} playing</span>
               </div>
-            </Link>
+            </div>
           );
         })}
       </div>

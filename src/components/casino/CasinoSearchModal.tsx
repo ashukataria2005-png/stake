@@ -32,7 +32,7 @@ export default function CasinoSearchModal({
 }: CasinoSearchModalProps) {
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
-  const { addRecentlyPlayedGame } = useGame();
+  const { addRecentlyPlayedGame, openGamePreview } = useGame();
 
   useEffect(() => {
     if (isOpen) {
@@ -89,15 +89,15 @@ export default function CasinoSearchModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Search Header Input */}
-        <div className="relative flex items-center p-3.5 sm:p-4 border-b border-[#213743] bg-[#071824]">
-          <Search className="w-5 h-5 text-[#879097] shrink-0 ml-1.5" />
+        <div className="relative flex items-center p-3.5 sm:p-4 border-b border-[#213743] bg-[#0f212e]">
+          <Search className="w-5 h-5 text-[#b1bad3] shrink-0 ml-1.5" />
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search games, providers..."
-            className="w-full bg-transparent border-none outline-none text-white placeholder-[#879097] px-3 text-sm sm:text-base font-semibold"
+            className="w-full bg-transparent border-none outline-none text-white placeholder:text-[#b1bad3] px-3 text-sm font-semibold"
           />
           {query ? (
             <button
@@ -151,18 +151,10 @@ export default function CasinoSearchModal({
                     const thumb = getGameThumbnail(game.slug || game.id, game.image);
                     const gameHref = game.href || `/casino/games/${game.slug || game.id}`;
                     return (
-                      <Link
+                      <div
                         key={game.id}
-                        href={gameHref}
                         onClick={() => {
-                          addRecentlyPlayedGame({
-                            id: game.id,
-                            slug: game.slug,
-                            title: game.title,
-                            href: gameHref,
-                            image: thumb,
-                            playersCount: game.playersCount,
-                          });
+                          openGamePreview(game);
                           onClose();
                         }}
                         className="group relative flex flex-col select-none cursor-pointer"
@@ -194,7 +186,7 @@ export default function CasinoSearchModal({
                             {game.provider || "Stake"}
                           </span>
                         </div>
-                      </Link>
+                      </div>
                     );
                   })}
                 </div>
@@ -223,18 +215,10 @@ export default function CasinoSearchModal({
                   const thumb = getGameThumbnail(game.slug || game.id, game.image);
                   const gameHref = game.href || `/casino/games/${game.slug || game.id}`;
                   return (
-                    <Link
+                    <div
                       key={game.id}
-                      href={gameHref}
                       onClick={() => {
-                        addRecentlyPlayedGame({
-                          id: game.id,
-                          slug: game.slug,
-                          title: game.title,
-                          href: gameHref,
-                          image: thumb,
-                          playersCount: game.playersCount,
-                        });
+                        openGamePreview(game);
                         onClose();
                       }}
                       className="group relative flex flex-col select-none cursor-pointer"
@@ -266,7 +250,7 @@ export default function CasinoSearchModal({
                           {game.provider || "Stake"}
                         </span>
                       </div>
-                    </Link>
+                    </div>
                   );
                 })}
               </div>

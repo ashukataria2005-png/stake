@@ -16,7 +16,7 @@ interface GameItem {
 }
 
 export default function GamesForYou() {
-  const { addRecentlyPlayedGame } = useGame();
+  const { addRecentlyPlayedGame, openGamePreview } = useGame();
 
   const games: GameItem[] = [
     {
@@ -113,6 +113,7 @@ export default function GamesForYou() {
       href: game.href,
       playersCount: game.playersCount,
     });
+    openGamePreview(game);
   };
 
   return (
@@ -150,8 +151,7 @@ export default function GamesForYou() {
               key={game.id}
               className="w-[calc(33.333%-7px)] min-w-[110px] sm:min-w-[150px] md:w-[150px] lg:w-[165px] flex-shrink-0 snap-start"
             >
-              <Link
-                href={linkHref}
+              <div
                 onClick={() => handleGameClick(game)}
                 className="group flex flex-col select-none cursor-pointer"
               >
@@ -190,7 +190,7 @@ export default function GamesForYou() {
                     {game.provider || "Stake Originals"}
                   </span>
                 </div>
-              </Link>
+              </div>
             </div>
           );
         })}

@@ -108,7 +108,7 @@ export default function SportsbookPage() {
             placeholder="Search sports..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-[#1a2c38] border border-[#213743] rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-[#b1bad3] focus:outline-none focus:border-[#00e701] transition-colors"
+            className="w-full bg-[#0f212e] border border-[#213743] rounded-lg pl-9 pr-3 py-2 text-sm font-semibold text-white placeholder:text-[#b1bad3] focus:outline-none focus:border-[#2f4553] transition-colors"
           />
         </div>
       </div>

@@ -48,7 +48,7 @@ interface NavEntry {
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { isSidebarOpen, setSidebarOpen, toggleChat } = useGame();
+  const { isSidebarOpen, setSidebarOpen, toggleChat, openGamePreview } = useGame();
   const [activeDrawerTab, setActiveDrawerTab] = useState<"casino" | "sports">("casino");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -191,19 +191,19 @@ export default function Sidebar() {
 
             {/* Top Controls: Search games, providers... input with clean ✕ button */}
             <div className="p-3 border-b border-[#213743]">
-              <div className="relative flex items-center border border-white/20 hover:border-white/35 focus-within:border-white/35 bg-[#071824] rounded-lg shadow-sm transition-colors px-3.5 py-2">
-                <Search className="stroke-[2.2] text-[#879097] w-4 h-4 shrink-0 mr-2.5" />
+              <div className="relative flex items-center bg-[#0f212e] border border-[#213743] focus-within:border-[#2f4553] rounded-lg shadow-sm transition-colors px-3.5 py-2">
+                <Search className="stroke-[2.2] text-[#b1bad3] w-4 h-4 shrink-0 mr-2.5" />
                 <input
                   type="text"
                   placeholder="Search games, providers..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="font-medium text-white placeholder:text-[#879097] tracking-wide text-sm outline-none bg-transparent w-full"
+                  className="text-sm font-semibold text-white placeholder:text-[#b1bad3] tracking-wide outline-none bg-transparent w-full"
                 />
                 {searchQuery ? (
                   <button
                     onClick={() => setSearchQuery("")}
-                    className="p-1 text-[#879097] hover:text-white transition-colors cursor-pointer shrink-0 ml-1.5"
+                    className="p-1 text-[#b1bad3] hover:text-white transition-colors cursor-pointer shrink-0 ml-1.5"
                     aria-label="Clear Search"
                   >
                     ✕
@@ -211,7 +211,7 @@ export default function Sidebar() {
                 ) : (
                   <button
                     onClick={() => setSidebarOpen(false)}
-                    className="p-1 text-[#879097] hover:text-white transition-colors cursor-pointer shrink-0 ml-1.5"
+                    className="p-1 text-[#b1bad3] hover:text-white transition-colors cursor-pointer shrink-0 ml-1.5"
                     aria-label="Close Drawer"
                   >
                     ✕
@@ -261,11 +261,14 @@ export default function Sidebar() {
                           ? `/games/${game.slug || game.id}`
                           : `/casino/home`);
                       return (
-                        <Link
+                        <button
+                          type="button"
                           key={game.id}
-                          href={gameHref}
-                          onClick={handleMobileNavClick}
-                          className="flex items-center gap-3 p-2 rounded-xl bg-[#1a2c38]/70 hover:bg-[#213743] border border-[#213743]/60 hover:border-[#2f4553] transition-all cursor-pointer group"
+                          onClick={() => {
+                            openGamePreview(game);
+                            setSidebarOpen(false);
+                          }}
+                          className="w-full text-left flex items-center gap-3 p-2 rounded-xl bg-[#1a2c38]/70 hover:bg-[#213743] border border-[#213743]/60 hover:border-[#2f4553] transition-all cursor-pointer group"
                         >
                           <div className="relative w-11 h-11 shrink-0 rounded-lg overflow-hidden bg-[#0f212e] border border-[#213743]">
                             {thumb ? (
@@ -299,7 +302,7 @@ export default function Sidebar() {
                             </div>
                           </div>
                           <ChevronRight className="w-4 h-4 text-[#b1bad3] group-hover:text-white shrink-0" />
-                        </Link>
+                        </button>
                       );
                     })}
                   </div>

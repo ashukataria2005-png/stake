@@ -121,7 +121,11 @@ export default function Navbar() {
         </div>
 
         {/* Center / Middle Section: Dynamically Expanded Wallet Balance Pill with comfortable separation */}
-        {isAuthenticated ? (
+        {!isMounted ? (
+          <div className="flex-1 flex items-center justify-center min-w-0 max-w-[280px] sm:max-w-[340px] ml-3 sm:ml-4">
+            <div className="h-8 sm:h-9 w-36 sm:w-56 bg-[#213743]/50 rounded-xl animate-pulse" />
+          </div>
+        ) : isAuthenticated ? (
           <div className="flex-1 flex items-center justify-center min-w-0 max-w-[280px] sm:max-w-[340px] ml-3 sm:ml-4">
             <div className="flex items-center w-full min-w-0 transition-all h-8 sm:h-9">
               {/* Balance Pill Container */}
@@ -199,7 +203,13 @@ export default function Navbar() {
         )}
 
         {/* Right Section: Guest vs Authenticated Controls with exact gap-2 */}
-        {!isAuthenticated ? (
+        {!isMounted ? (
+          /* Neutral Skeleton Loader while Session Hydrates - Prevents Guest Button Flash */
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="h-8 sm:h-9 w-16 sm:w-20 rounded-lg bg-[#213743]/50 animate-pulse" />
+            <div className="h-8 sm:h-9 w-20 sm:w-24 rounded-xl bg-[#213743]/50 animate-pulse" />
+          </div>
+        ) : !isAuthenticated ? (
           /* Guest View: Sign In & Register Buttons + Desktop Chat */
           <div className="flex items-center gap-2 shrink-0">
             {/* Live Community Chat Trigger (Desktop) */}

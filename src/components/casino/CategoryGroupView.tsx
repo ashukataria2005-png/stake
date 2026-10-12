@@ -459,13 +459,13 @@ export default function CategoryGroupView({ slug }: CategoryGroupViewProps) {
       <div className="space-y-2.5">
         {/* Full-width Search Bar */}
         <div className="relative w-full">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7a889b]" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#b1bad3]" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search Stake.com"
-            className="w-full bg-[#0f212e] border border-[#213743] hover:border-[#2f4553] focus:border-[#1475e1] text-white text-xs rounded-lg pl-9.5 pr-4 py-2.5 outline-none transition-colors placeholder-[#7a889b]"
+            className="w-full bg-[#0f212e] border border-[#213743] hover:border-[#2f4553] focus:border-[#2f4553] text-white text-sm font-semibold rounded-lg pl-9.5 pr-4 py-2.5 outline-none transition-colors placeholder:text-[#b1bad3]"
           />
         </div>
 
