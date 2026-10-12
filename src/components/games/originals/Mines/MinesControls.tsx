@@ -128,7 +128,7 @@ export default function MinesControls({
               type="button"
               onClick={handleBetClick}
               disabled={betAmount > balance || betAmount <= 0}
-              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#00e701] hover:bg-[#00c201] text-black shadow-lg hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
+              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-lg bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
             >
               <span>Bet</span>
             </button>
@@ -137,10 +137,10 @@ export default function MinesControls({
               type="button"
               onClick={onCashout}
               disabled={currentGemsOpened === 0}
-              className={`w-full py-2.5 sm:py-3 text-sm sm:text-base font-semibold rounded-lg shadow-md transition-all active:scale-[0.99] flex items-center justify-center cursor-pointer ${
+              className={`w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-lg shadow-lg transition-all active:scale-[0.98] flex items-center justify-center cursor-pointer uppercase tracking-wider ${
                 currentGemsOpened === 0
                   ? "bg-[#213743] text-[#b1bad3] cursor-not-allowed"
-                  : "bg-[#00e701] hover:bg-[#00c701] text-black shadow-[0_0_15px_rgba(0,231,1,0.35)]"
+                  : "bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-[#1475e1]/30 hover:brightness-110"
               }`}
             >
               <span>Cashout {activeSym}{cashoutValue.toFixed(2)}</span>

@@ -721,7 +721,7 @@ export default function PlinkoGame() {
             type="button"
             onClick={handleBetAction}
             disabled={betAmount > balance || betAmount <= 0}
-            className={`w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl text-white shadow-lg hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider ${
+            className={`w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-lg text-white shadow-lg hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider ${
               autoBetting
                 ? "bg-red-600 hover:bg-red-700 shadow-red-500/25"
                 : "bg-[#1475e1] hover:bg-[#1164c2] shadow-[#1475e1]/25"

@@ -37,7 +37,7 @@ export default function MainLayoutShell({
   }, [pathname, setChatOpen]);
 
   return (
-    <div className="min-h-screen bg-[#0f212e] text-white flex flex-col font-sans selection:bg-[#00e701] selection:text-[#0f212e]">
+    <div className="min-h-screen bg-[#1a2c38] text-white flex flex-col font-sans selection:bg-[#00e701] selection:text-[#0f212e]">
       {/* Top Navbar */}
       <Navbar />
 

@@ -788,7 +788,7 @@ export default function CrashGame() {
             <button
               type="button"
               onClick={() => cashout()}
-              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#00e701] hover:bg-[#00c201] text-black shadow-lg shadow-[#00e701]/25 hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider"
+              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-lg bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25 hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider"
             >
               <Zap className="h-4 w-4 fill-current" />
               <span>
@@ -808,7 +808,7 @@ export default function CrashGame() {
                   setIsAutoRunning(true);
                 }
               }}
-              className={`w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl transition-all active:scale-[0.98] flex items-center justify-center cursor-pointer uppercase tracking-wider ${
+              className={`w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-lg transition-all active:scale-[0.98] flex items-center justify-center cursor-pointer uppercase tracking-wider ${
                 isAutoRunning
                   ? "bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-500/25"
                   : "bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25"
@@ -820,7 +820,7 @@ export default function CrashGame() {
             <button
               type="button"
               onClick={toggleBetForNextRound}
-              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl border border-[#213743] bg-[#213743] text-white hover:bg-[#2f4553] active:scale-[0.98] transition-all flex items-center justify-center cursor-pointer uppercase tracking-wider"
+              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-lg border border-[#213743] bg-[#213743] text-white hover:bg-[#2f4553] active:scale-[0.98] transition-all flex items-center justify-center cursor-pointer uppercase tracking-wider"
             >
               <span>Cancel Bet ({activeSym}{activeBetAmount.toFixed(2)})</span>
             </button>
@@ -829,7 +829,7 @@ export default function CrashGame() {
               type="button"
               onClick={toggleBetForNextRound}
               disabled={betAmount > balance || betAmount <= 0}
-              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
+              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-lg bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
             >
               <span>Bet (Next Round)</span>
             </button>

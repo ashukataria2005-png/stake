@@ -364,13 +364,13 @@ export default function ChickenGame() {
         {/* 2. BETTING CONTROLS (EXACT 1:1 MINES TOKEN LAYOUT)         */}
         {/* ========================================================= */}
         <div className="w-full border-t border-[#213743] bg-[#1a2c38] p-3 sm:p-4 flex flex-col justify-start space-y-2 sm:space-y-2.5 rounded-b-2xl select-none">
-          {/* Top Primary CTA Button: BET (Blue) transitioning to CASHOUT (Green) */}
+          {/* Top Primary CTA Button: BET transitioning to CASHOUT */}
           {!isPlaying ? (
             <button
               type="button"
               onClick={startRound}
               disabled={betAmount > balance || betAmount <= 0}
-              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg active:scale-[0.98] uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
+              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-lg bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg active:scale-[0.98] uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
             >
               <span>Bet</span>
             </button>
@@ -379,10 +379,10 @@ export default function ChickenGame() {
               type="button"
               onClick={handleCashout}
               disabled={safeChickensFound === 0 || isRevealing}
-              className={`w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl uppercase tracking-wider transition-all flex items-center justify-center cursor-pointer shadow-lg active:scale-[0.98] ${
+              className={`w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-lg uppercase tracking-wider transition-all flex items-center justify-center cursor-pointer shadow-lg active:scale-[0.98] ${
                 safeChickensFound === 0
                   ? "bg-[#213743] text-[#b1bad3] cursor-not-allowed opacity-60"
-                  : "bg-[#00e701] hover:bg-[#00c201] text-black shadow-[0_0_15px_rgba(0,231,1,0.35)]"
+                  : "bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-[#1475e1]/30 hover:brightness-110"
               }`}
             >
               <span>

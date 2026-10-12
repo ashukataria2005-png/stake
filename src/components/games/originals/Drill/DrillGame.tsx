@@ -489,7 +489,7 @@ export default function DrillGame() {
             <button
               type="button"
               onClick={handleCashout}
-              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#00e701] hover:bg-[#00c701] text-black shadow-lg shadow-[#00e701]/25 hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center cursor-pointer uppercase tracking-wider"
+              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-lg bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25 hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center cursor-pointer uppercase tracking-wider"
             >
               <span>CASHOUT {activeSym}{currentCashout.toFixed(2)} ({currentMultiplier}×)</span>
             </button>
@@ -498,7 +498,7 @@ export default function DrillGame() {
               type="button"
               onClick={handleStartDrilling}
               disabled={isDrilling}
-              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
+              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-lg bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
             >
               <span>{mode === "auto" ? "START AUTOBET" : "START DRILLING"}</span>
             </button>

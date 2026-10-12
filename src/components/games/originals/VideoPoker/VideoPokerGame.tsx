@@ -531,11 +531,7 @@ export default function VideoPokerGame() {
           type="button"
           onClick={handlePrimaryCTA}
           disabled={phase === "idle" && (betAmount > balance || betAmount <= 0)}
-          className={`w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl text-white shadow-lg active:scale-[0.98] uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 ${
-            phase === "draw"
-              ? "bg-[#00e701] hover:bg-[#00c201] text-black shadow-[0_0_15px_rgba(0,231,1,0.3)] font-black"
-              : "bg-[#1475e1] hover:bg-[#1164c2]"
-          }`}
+          className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-lg text-white shadow-lg active:scale-[0.98] uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2 bg-[#1475e1] hover:bg-[#1164c2]"
         >
           <span>{phase === "idle" ? "BET" : "DRAW"}</span>
         </button>

@@ -39,7 +39,7 @@ export default function StakeGameCard({
       className="group relative flex flex-col select-none cursor-pointer"
     >
       {/* 100% Full-Bleed Image Box */}
-      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-[#1a2c38] border border-[#213743] hover:border-[#2f4553] transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg">
+      <div className="relative aspect-[3/4] w-full overflow-hidden rounded-lg bg-[#1a2c38] border border-[#213743] hover:border-[#2f4553] transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg">
         {thumbnailUrl && !imageError ? (
           <img
             src={thumbnailUrl}

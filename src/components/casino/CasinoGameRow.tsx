@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { Play, LayoutGrid, ArrowRight, ChevronRight } from "lucide-react";
 
@@ -44,6 +44,9 @@ export default function CasinoGameRow({
   showProviderName = true,
 }: CasinoGameRowProps) {
   const { openGamePreview } = useGame();
+  const categoryKey = sectionId || title.toLowerCase().replace(/\s+/g, "-");
+  const storageKey = `home_provider_limit_${categoryKey}`;
+
   // Progressive Tier Loading (+6 items = 2 rows per click):
   // 0 = Initial: 3 games (1 row)
   // 1 = 1st Click: 9 games (3 rows = 3 + 6)
@@ -51,6 +54,20 @@ export default function CasinoGameRow({
   // 3 = 3rd Click: Up to limit (17 games) + "All Games" End Card (6 rows total)
   const [stage, setStage] = useState<number>(0);
   const rowRef = useRef<HTMLElement>(null);
+
+  // Restore expanded stage from sessionStorage on mount (back navigation)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const savedStage = sessionStorage.getItem(storageKey);
+      if (savedStage !== null) {
+        const parsed = parseInt(savedStage, 10);
+        if (!isNaN(parsed) && parsed > 0 && parsed <= 3) {
+          setStage(parsed);
+        }
+      }
+    } catch {}
+  }, [storageKey]);
 
   let displayedCards: CasinoCardData[] = [];
   let showAllGamesCard = false;
@@ -91,20 +108,29 @@ export default function CasinoGameRow({
   const handleToggleLoadMore = () => {
     if (isFullyExpanded) {
       setStage(0);
+      try {
+        sessionStorage.removeItem(storageKey);
+      } catch {}
       if (rowRef.current) {
-        rowRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        rowRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     } else {
-      setStage((prev) => prev + 1);
+      setStage((prev) => {
+        const next = prev + 1;
+        try {
+          sessionStorage.setItem(storageKey, String(next));
+        } catch {}
+        return next;
+      });
     }
   };
 
   return (
-    <section ref={rowRef} className="space-y-3.5 my-7 transition-all duration-300 ease-in-out">
+    <section ref={rowRef} className="space-y-3.5 my-7 transition-all duration-300 ease-in-out scroll-mt-20">
       {/* Row Header */}
       <div className="flex items-center justify-between">
         <Link href={linkHref} className="flex items-center gap-2 group cursor-pointer">
-          <h2 className="text-[20px] sm:text-[22px] font-semibold text-white tracking-[-0.017em] flex items-center gap-2 hover:text-[#00e701] transition-colors cursor-pointer">
+          <h2 className="text-[20px] sm:text-[22px] font-semibold text-[#f1f5f9] tracking-[-0.017em] flex items-center gap-2 hover:text-[#00e701] transition-colors cursor-pointer">
             <span>{title}</span>
             {rowBadge && (
               <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-400/40">
@@ -170,12 +196,12 @@ export default function CasinoGameRow({
               className="group relative flex flex-col select-none cursor-pointer"
             >
               {/* 100% Full-Bleed Image Box */}
-              <div className="relative aspect-[3/4] w-full overflow-hidden rounded-xl bg-[#1a2c38] border border-[#213743] hover:border-[#2f4553] transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg">
+              <div className="relative aspect-[3/4] w-full overflow-hidden rounded-lg bg-[#1a2c38] border border-[#213743] hover:border-[#2f4553] transition-transform duration-200 hover:-translate-y-1 hover:shadow-lg">
                 {thumb ? (
                   <img
                     src={thumb}
                     alt={card.title}
-                    className="w-full h-full object-cover object-center rounded-xl"
+                    className="w-full h-full object-cover object-center rounded-lg"
                     loading="lazy"
                     onError={(e) => {
                       (e.currentTarget as HTMLElement).style.display = "none";
@@ -242,7 +268,7 @@ export default function CasinoGameRow({
             ) : (
               <Link
                 href={linkHref}
-                className="w-full aspect-[3/4] rounded-2xl bg-[#1a2c38] border-2 border-dashed border-[#2f4553] hover:border-[#00e701] flex flex-col items-center justify-center gap-2 p-3 sm:p-4 cursor-pointer text-[#b1bad3] hover:text-white transition-all group shadow-md hover:shadow-xl hover:-translate-y-1"
+                className="w-full aspect-[3/4] rounded-lg bg-[#1a2c38] border-2 border-dashed border-[#2f4553] hover:border-[#00e701] flex flex-col items-center justify-center gap-2 p-3 sm:p-4 cursor-pointer text-[#b1bad3] hover:text-white transition-all group shadow-md hover:shadow-xl hover:-translate-y-1"
               >
                 <div className="w-11 h-11 rounded-xl bg-[#0f212e] border border-[#213743] flex items-center justify-center group-hover:bg-[#00e701] group-hover:text-[#0f212e] text-[#b1bad3] transition-colors shadow-inner">
                   <LayoutGrid className="w-5 h-5 transition-transform group-hover:scale-110" />

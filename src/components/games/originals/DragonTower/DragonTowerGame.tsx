@@ -436,7 +436,7 @@ export default function DragonTowerGame() {
               type="button"
               onClick={handleStartRound}
               disabled={betAmount > balance || betAmount <= 0}
-              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
+              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-lg bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
             >
               <span>{mode === "auto" ? "START AUTOBET" : "BET"}</span>
             </button>
@@ -445,9 +445,9 @@ export default function DragonTowerGame() {
               type="button"
               onClick={handleCashout}
               disabled={isRevealing || currentFloor <= 1}
-              className={`w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl shadow-lg transition-all flex items-center justify-center uppercase tracking-wider cursor-pointer ${
+              className={`w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-lg shadow-lg transition-all flex items-center justify-center uppercase tracking-wider cursor-pointer ${
                 currentFloor > 1
-                  ? "bg-[#00e701] hover:bg-[#00c701] text-black shadow-[0_0_20px_rgba(0,231,1,0.4)] animate-pulse"
+                  ? "bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-[#1475e1]/30 hover:brightness-110"
                   : "bg-[#213743] text-[#b1bad3] cursor-not-allowed"
               }`}
             >

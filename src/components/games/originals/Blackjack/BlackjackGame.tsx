@@ -731,7 +731,7 @@ export default function BlackjackGame() {
               type="button"
               onClick={handleDeal}
               disabled={betAmount > balance || betAmount <= 0}
-              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
+              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-lg bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
             >
               <span>{mode === "auto" ? "START AUTOBET" : `DEAL (${activeSym}${betAmount.toFixed(2)})`}</span>
             </button>
@@ -741,7 +741,7 @@ export default function BlackjackGame() {
                 type="button"
                 onClick={handleHit}
                 disabled={gameState !== "player_turn"}
-                className="py-3 text-xs sm:text-sm font-extrabold rounded-xl bg-[#00e701] hover:bg-[#00c701] text-black shadow-md hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer uppercase tracking-wider"
+                className="py-3 text-xs sm:text-sm font-extrabold rounded-lg bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-md hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer uppercase tracking-wider"
               >
                 <Plus className="h-4 w-4" />
                 <span>Hit</span>
@@ -750,7 +750,7 @@ export default function BlackjackGame() {
                 type="button"
                 onClick={handleStand}
                 disabled={gameState !== "player_turn"}
-                className="py-3 text-xs sm:text-sm font-extrabold rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-md active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer uppercase tracking-wider"
+                className="py-3 text-xs sm:text-sm font-extrabold rounded-lg bg-red-600 hover:bg-red-700 text-white shadow-md active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 cursor-pointer uppercase tracking-wider"
               >
                 <Hand className="h-4 w-4" />
                 <span>Stand</span>

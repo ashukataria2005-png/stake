@@ -710,11 +710,7 @@ export default function RouletteGame() {
             type="button"
             onClick={handleSpin}
             disabled={isSpinning || placedBets.length === 0}
-            className={`w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider ${
-              placedBets.length > 0 && !isSpinning
-                ? "bg-[#00e701] hover:bg-[#00c701] text-black shadow-lg shadow-[#00e701]/25 hover:brightness-110 active:scale-[0.98]"
-                : "bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25"
-            }`}
+            className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-lg bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg shadow-[#1475e1]/25 hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer uppercase tracking-wider"
           >
             <span>
               {isSpinning
