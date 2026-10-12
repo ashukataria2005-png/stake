@@ -316,8 +316,22 @@ export default function CrashGame() {
           // ignore
         }
       }
+
+      // Persist bet round to Neon PostgreSQL BetHistory
+      fetch("/api/bets/record", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          gameName: "Crash",
+          betAmount: activeBetAmount,
+          payoutMultiplier: mult,
+          payoutAmount: winPayout,
+          outcome: "CASHOUT",
+          gameData: { crashPoint, cashedOutAt: mult },
+        }),
+      }).catch((err) => console.error("Failed to record Crash bet:", err));
     },
-    [activeBetAmount, currentMultiplier, hasCashedOut, phase, updateBalance]
+    [activeBetAmount, currentMultiplier, hasCashedOut, phase, updateBalance, crashPoint]
   );
 
   // Auto cashout listener during flight
@@ -411,6 +425,22 @@ export default function CrashGame() {
       return () => clearInterval(countdownInterval);
     } else if (phase === "crashed") {
       sounds.playCrash();
+
+      // Persist loss to Neon PostgreSQL BetHistory if player had an active bet and did not cash out
+      if (!hasCashedOut && activeBetAmount > 0) {
+        fetch("/api/bets/record", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            gameName: "Crash",
+            betAmount: activeBetAmount,
+            payoutMultiplier: 0.0,
+            payoutAmount: 0.0,
+            outcome: "LOSS",
+            gameData: { crashPoint },
+          }),
+        }).catch((err) => console.error("Failed to record Crash loss bet:", err));
+      }
 
       // Handle auto-betting progression
       if (isAutoRunning) {

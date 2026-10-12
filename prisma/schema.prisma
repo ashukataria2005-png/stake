@@ -7,31 +7,72 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum LuckMode {
+  HIGH_WIN
+  MEDIUM_WIN
+  LOW_WIN
+  NO_CONTROL
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+}
+
+enum TransactionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model User {
   id           String        @id @default(cuid())
   username     String        @unique
   email        String        @unique
-  passwordHash String
+  passwordHash String        @default("")
   role         String        @default("USER")
+  luckMode     LuckMode      @default(NO_CONTROL)
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   wallets      Wallet[]
   bets         Bet[]
+  betHistories BetHistory[]
   transactions Transaction[]
 }
 
 model Wallet {
-  id            String   @id @default(cuid())
-  userId        String
-  currency      String
-  balance       Decimal  @default(0.00000000)
-  lockedBalance Decimal  @default(0.00000000)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id             String   @id @default(cuid())
+  userId         String
+  currency       String   @default("INR")
+  balance        Decimal  @default(0.00000000)
+  lockedBalance  Decimal  @default(0.00000000)
+  totalDeposited  Decimal  @default(0.00000000)
+  totalWithdrawn  Decimal  @default(0.00000000)
+  totalWagered    Decimal  @default(0.00000000)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, currency])
+}
+
+model Transaction {
+  id            String            @id @default(cuid())
+  userId        String
+  type          TransactionType   @default(DEPOSIT)
+  amount        Decimal
+  currency      String            @default("INR")
+  utrNumber     String?
+  screenshotUrl String?
+  status        TransactionStatus @default(PENDING)
+  approvedBy    String?
+  method        String            @default("UPI")
+  txHash        String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Bet {
@@ -49,16 +90,36 @@ model Bet {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model Transaction {
-  id        String   @id @default(cuid())
-  userId    String
-  type      String
-  amount    Decimal
-  currency  String
-  status    String
-  method    String
-  txHash    String?
-  createdAt DateTime @default(now())
+model BetHistory {
+  id               String   @id @default(cuid())
+  userId           String
+  gameName         String
+  betAmount        Decimal
+  payoutMultiplier Float    @default(0.0)
+  payoutAmount     Decimal  @default(0.0)
+  outcome          String   // "WIN", "LOSS", "CASHOUT"
+  gameData         Json?
+  createdAt        DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model GameControl {
+  id               String   @id @default(cuid())
+  gameName         String   @unique
+  mode             String   @default("NORMAL")
+  forcedMultiplier Float?
+  houseEdgePercent Float    @default(2.5)
+  isActive         Boolean  @default(true)
+  updatedAt        DateTime @updatedAt
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  passwordHash String
+  role         String   @default("ADMIN")
+  permissions  String[] @default(["ALL"])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }

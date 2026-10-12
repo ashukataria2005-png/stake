@@ -250,6 +250,21 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
       const creditedUsd = num / 86.5;
       updateBalance(creditedUsd, true);
 
+      // Persist to Neon PostgreSQL Transaction and Wallet tables
+      fetch("/api/wallet/deposit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: num,
+          currency: "INR",
+          utrNumber: cleanUtr,
+          screenshotUrl: screenshotPreview || null,
+          orderId: currentOrderId,
+          method: "UPI",
+          autoCredit: true,
+        }),
+      }).catch((err) => console.error("Deposit DB sync error:", err));
+
       // Update order status in ledger
       const updated = depositOrders.map((o) =>
         o.orderId === currentOrderId ? { ...o, status: "Success" as const, utr: cleanUtr } : o
@@ -324,6 +339,23 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
       sounds.playCashout();
       setIsSubmittingWithdraw(false);
 
+      // Persist to Neon PostgreSQL Transaction and Wallet tables
+      fetch("/api/wallet/withdraw", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: num,
+          currency: "INR",
+          method: withdrawMethod,
+          details: {
+            upiId: withdrawMethod === "upi" ? upiId : undefined,
+            bankAccount: withdrawMethod === "bank" ? bankAccount : undefined,
+            ifscCode: withdrawMethod === "bank" ? ifscCode : undefined,
+            accountHolder: withdrawMethod === "bank" ? accountHolder : undefined,
+          },
+        }),
+      }).catch((err) => console.error("Withdraw DB sync error:", err));
+
       const destination =
         withdrawMethod === "upi"
           ? `UPI (${upiId})`
@@ -388,6 +420,20 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
       // Credit balance
       const creditedUsd = order.amountINR / 86.5;
       updateBalance(creditedUsd, true);
+
+      // Persist to Neon PostgreSQL Transaction and Wallet tables
+      fetch("/api/wallet/deposit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: order.amountINR,
+          currency: "INR",
+          utrNumber: cleanUtr,
+          orderId: order.orderId,
+          method: "UPI",
+          autoCredit: true,
+        }),
+      }).catch((err) => console.error("Reverify deposit DB sync error:", err));
 
       // Update order status in ledger
       const updated = depositOrders.map((o) =>

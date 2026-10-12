@@ -136,6 +136,19 @@ function DepositPayContent() {
       const creditedUsd = amountNumber / 86.5;
       updateBalance(creditedUsd, true);
 
+      // Persist transaction & wallet balance to Neon PostgreSQL
+      fetch("/api/wallet/deposit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: creditedUsd,
+          currency: "INR",
+          utrNumber: utrNumber,
+          screenshotUrl: screenshotPreview || null,
+          status: "APPROVED",
+        }),
+      }).catch((err) => console.error("Database deposit ledger sync failed:", err));
+
       // 2. Add notification to drawer & localStorage
       try {
         const savedNotifs = localStorage.getItem("stake_notifications");

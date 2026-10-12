@@ -160,7 +160,21 @@ export default function MinesGame() {
       { id: `h-${Date.now()}`, multiplier: currentMultiplier, isWin: true },
       ...prev.slice(0, 9),
     ]);
-  }, [animations, betAmount, currentMultiplier, gemsOpened, isPlaying, updateBalance]);
+
+    // Persist bet to Neon PostgreSQL BetHistory
+    fetch("/api/bets/record", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        gameName: "Mines",
+        betAmount,
+        payoutMultiplier: currentMultiplier,
+        payoutAmount: winAmount,
+        outcome: "WIN",
+        gameData: { minesCount, gemsOpened },
+      }),
+    }).catch((err) => console.error("Failed to record Mines win bet:", err));
+  }, [animations, betAmount, currentMultiplier, gemsOpened, isPlaying, updateBalance, minesCount]);
 
   // Reveal a tile on click
   const handleTileClick = useCallback(
@@ -211,6 +225,20 @@ export default function MinesGame() {
           { id: `h-${Date.now()}`, multiplier: 0.0, isWin: false },
           ...prev.slice(0, 9),
         ]);
+
+        // Persist loss to Neon PostgreSQL BetHistory
+        fetch("/api/bets/record", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            gameName: "Mines",
+            betAmount,
+            payoutMultiplier: 0.0,
+            payoutAmount: 0.0,
+            outcome: "LOSS",
+            gameData: { minesCount, revealedCount: nextRevealed.length },
+          }),
+        }).catch((err) => console.error("Failed to record Mines loss bet:", err));
       } else {
         // Safe Gem!
         const nextGemsCount = nextRevealed.filter((t) => !currentMines.includes(t)).length;
