@@ -21,12 +21,13 @@ import {
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
+import { compressImage } from "@/utils/image";
 import FiatCoinIcon from "@/components/FiatCoinIcon";
 
 function DepositPayContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { updateBalance } = useGame();
+  const { updateBalance, user } = useGame();
 
   const rawOrderId = searchParams.get("orderId") || `STK-DEP-${Date.now()}`;
   const rawAmount = searchParams.get("amount") || "500";
@@ -90,19 +91,20 @@ function DepositPayContent() {
     setTimeout(() => setCopiedOrderId(false), 2000);
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (!file.type.startsWith("image/")) {
         alert("Please upload an image file (PNG, JPG, or WEBP).");
         return;
       }
-      const reader = new FileReader();
-      reader.onload = () => {
-        setScreenshotPreview(reader.result as string);
+      try {
+        const compressedBase64 = await compressImage(file);
+        setScreenshotPreview(compressedBase64);
         sounds.playClick();
-      };
-      reader.readAsDataURL(file);
+      } catch (err) {
+        console.error("Screenshot preview error:", err);
+      }
     }
   };
 
@@ -114,7 +116,7 @@ function DepositPayContent() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (utrNumber.length !== 12) {
@@ -128,26 +130,47 @@ function DepositPayContent() {
     sounds.playClick();
 
     setTimeout(() => {
-      setVerificationStep("Verifying 12-digit UTR and payment settlement...");
-    }, 800);
+      setVerificationStep("Verifying 12-digit UTR and payment settlement in database...");
+    }, 600);
 
-    setTimeout(() => {
-      // 1. Credit wallet balance (amount in USD equivalent, rate 86.5 INR/USD)
-      const creditedUsd = amountNumber / 86.5;
-      updateBalance(creditedUsd, true);
+    try {
+      console.log("[DepositPay] Persisting deposit to /api/wallet/deposit:", {
+        userId: user?.email || user?.name || "guest_player",
+        amount: amountNumber,
+        currency: "INR",
+        utrNumber,
+        orderId: rawOrderId,
+        hasScreenshot: Boolean(screenshotPreview),
+      });
 
       // Persist transaction & wallet balance to Neon PostgreSQL
-      fetch("/api/wallet/deposit", {
+      const res = await fetch("/api/wallet/deposit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          amount: creditedUsd,
+          userId: user?.email || user?.name || "guest_player",
+          amount: amountNumber,
           currency: "INR",
-          utrNumber: utrNumber,
+          utrNumber,
           screenshotUrl: screenshotPreview || null,
-          status: "APPROVED",
+          orderId: rawOrderId,
+          method: "UPI",
+          status: "PENDING",
+          autoCredit: true,
         }),
-      }).catch((err) => console.error("Database deposit ledger sync failed:", err));
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || `Server responded with HTTP ${res.status}`);
+      }
+
+      console.log("[DepositPay] Deposit record saved to Neon DB:", data.transaction);
+
+      // 1. Credit wallet balance (amount in USD equivalent, rate 86.5 INR/USD)
+      const creditedUsd = amountNumber / 86.5;
+      updateBalance(creditedUsd, true);
 
       // 2. Add notification to drawer & localStorage
       try {
@@ -209,7 +232,12 @@ function DepositPayContent() {
 
       setIsVerifying(false);
       setIsSuccessModalOpen(true);
-    }, 1600);
+    } catch (err: any) {
+      console.error("[DepositPay] Database deposit submission failed:", err);
+      setIsVerifying(false);
+      setUtrError(`Submission error: ${err?.message || "Failed to persist deposit. Please retry."}`);
+      alert(`Deposit Error: ${err?.message || "Failed to persist transaction to database. Please retry."}`);
+    }
   };
 
   const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(

@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
+import { compressImage } from "@/utils/image";
 import FiatCoinIcon from "@/components/FiatCoinIcon";
 import CryptoIcon from "@/components/CryptoIcon";
 
@@ -56,7 +57,7 @@ const QUICK_AMOUNTS = [300, 500, 1000, 5000, 10000, 25000];
 
 export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
   const router = useRouter();
-  const { balance, realBalance, updateBalance, currency, formatDisplayBalance } = useGame();
+  const { balance, realBalance, updateBalance, currency, formatDisplayBalance, user } = useGame();
 
   const [activeTab, setActiveTab] = useState<"deposit" | "withdraw">("deposit");
 
@@ -83,20 +84,21 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
   const [screenshotFeedback, setScreenshotFeedback] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (!file.type.startsWith("image/")) {
         alert("Please upload an image file (PNG, JPG, or WEBP).");
         return;
       }
-      const reader = new FileReader();
-      reader.onload = () => {
-        setScreenshotPreview(reader.result as string);
-        setScreenshotFeedback("Screenshot uploaded successfully");
+      try {
+        const compressedBase64 = await compressImage(file);
+        setScreenshotPreview(compressedBase64);
+        setScreenshotFeedback("Screenshot uploaded & verified");
         sounds.playClick();
-      };
-      reader.readAsDataURL(file);
+      } catch (err) {
+        console.error("Screenshot upload failed:", err);
+      }
     }
   };
 
@@ -232,7 +234,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
   };
 
   // UTR submission and balance crediting right inside the modal
-  const handleUtrSubmit = (e: React.FormEvent) => {
+  const handleUtrSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const cleanUtr = utrInput.replace(/\D/g, "").slice(0, 12);
     if (cleanUtr.length !== 12) {
@@ -244,28 +246,47 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
     setIsSubmittingUtr(true);
     sounds.playClick();
 
-    setTimeout(() => {
-      const num = parseFloat(depositAmount || "500");
-      // Credit wallet balance (rate 86.5 INR/USD)
-      const creditedUsd = num / 86.5;
-      updateBalance(creditedUsd, true);
+    const num = parseFloat(depositAmount || "500");
 
-      // Persist to Neon PostgreSQL Transaction and Wallet tables
-      fetch("/api/wallet/deposit", {
+    try {
+      console.log("[WalletModal] Submitting deposit to /api/wallet/deposit:", {
+        userId: user?.email || user?.name || "guest_player",
+        amount: num,
+        currency: "INR",
+        utrNumber: cleanUtr,
+        hasScreenshot: Boolean(screenshotPreview),
+      });
+
+      // 1. Persist to Neon PostgreSQL Transaction and Wallet tables
+      const res = await fetch("/api/wallet/deposit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          userId: user?.email || user?.name || "guest_player",
           amount: num,
           currency: "INR",
           utrNumber: cleanUtr,
           screenshotUrl: screenshotPreview || null,
           orderId: currentOrderId,
           method: "UPI",
+          status: "PENDING",
           autoCredit: true,
         }),
-      }).catch((err) => console.error("Deposit DB sync error:", err));
+      });
 
-      // Update order status in ledger
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || `Server responded with HTTP ${res.status}`);
+      }
+
+      console.log("[WalletModal] Deposit persisted successfully in Neon DB:", data.transaction);
+
+      // 2. Credit frontend wallet balance (rate 86.5 INR/USD)
+      const creditedUsd = num / 86.5;
+      updateBalance(creditedUsd, true);
+
+      // 3. Update order status in ledger
       const updated = depositOrders.map((o) =>
         o.orderId === currentOrderId ? { ...o, status: "Success" as const, utr: cleanUtr } : o
       );
@@ -275,7 +296,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
         window.dispatchEvent(new Event("stake_deposit_orders_updated"));
       } catch {}
 
-      // Add Notification
+      // 4. Add Notification
       try {
         const savedNotifs = localStorage.getItem("stake_notifications");
         const existing = savedNotifs ? JSON.parse(savedNotifs) : [];
@@ -301,7 +322,12 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
         setUtrInput("");
         onClose();
       }, 1500);
-    }, 1200);
+    } catch (err: any) {
+      console.error("[WalletModal] Deposit submission error:", err);
+      setIsSubmittingUtr(false);
+      setUtrError(`Payment processing error: ${err?.message || "Failed to save transaction to database. Please retry."}`);
+      alert(`Deposit verification error: ${err?.message || "Could not connect to database. Please retry."}`);
+    }
   };
 
   const handleWithdrawSubmit = (e: React.FormEvent) => {
