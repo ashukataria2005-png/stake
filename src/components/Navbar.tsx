@@ -360,7 +360,7 @@ export default function Navbar() {
                 className="flex items-center gap-1.5 p-2 text-[#b1bad3] hover:text-white transition-colors bg-transparent border-none outline-none cursor-pointer shrink-0"
                 aria-label="User Profile Menu"
               >
-                <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current" fill="currentColor">
+                <svg viewBox="0 0 24 24" className="w-7 h-7 fill-current" fill="currentColor">
                   <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                 </svg>
                 <ChevronDown
@@ -383,7 +383,7 @@ export default function Navbar() {
               aria-label="Notifications"
               className="relative p-2 text-[#b1bad3] hover:text-white transition-colors bg-transparent border-none outline-none cursor-pointer flex items-center justify-center shrink-0"
             >
-              <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current" fill="currentColor">
+              <svg viewBox="0 0 24 24" className="w-7 h-7 fill-current" fill="currentColor">
                 <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
               </svg>
               {unreadNotifsCount > 0 && (

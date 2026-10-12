@@ -56,14 +56,14 @@ export default function Sidebar() {
   const isSearching = searchQuery.trim().length > 0;
   const searchResults: GameItem[] = isSearching
     ? ALL_GAMES.filter((g) => {
-        const q = searchQuery.trim().toLowerCase();
-        return (
-          g.title.toLowerCase().includes(q) ||
-          (g.name && g.name.toLowerCase().includes(q)) ||
-          g.provider.toLowerCase().includes(q) ||
-          (g.category && g.category.toLowerCase().includes(q))
-        );
-      })
+      const q = searchQuery.trim().toLowerCase();
+      return (
+        g.title.toLowerCase().includes(q) ||
+        (g.name && g.name.toLowerCase().includes(q)) ||
+        g.provider.toLowerCase().includes(q) ||
+        (g.category && g.category.toLowerCase().includes(q))
+      );
+    })
     : [];
 
   // Collapsible sections
@@ -191,7 +191,7 @@ export default function Sidebar() {
 
             {/* Top Controls: Search games, providers... input with clean ✕ button */}
             <div className="p-3 border-b border-[#213743]">
-              <div className="relative flex items-center bg-[#0f212e] border border-[#213743] focus-within:border-[#2f4553] rounded-lg shadow-sm transition-colors px-3.5 py-2">
+              <div className="relative flex items-center bg-[#557086]/70 border border-[#3e5668] focus-within:border-[#2f4553] rounded-lg shadow-sm transition-colors px-3.5 py-2">
                 <Search className="stroke-[2.2] text-[#b1bad3] w-4 h-4 shrink-0 mr-2.5" />
                 <input
                   type="text"
@@ -315,21 +315,19 @@ export default function Sidebar() {
                   <div className="grid grid-cols-2 bg-[#1a2c38] p-1 rounded-xl border border-[#213743]">
                     <button
                       onClick={() => setActiveDrawerTab("casino")}
-                      className={`py-2 px-3 rounded-lg text-xs sm:text-sm font-extrabold flex items-center justify-center transition-all cursor-pointer ${
-                        activeDrawerTab === "casino"
+                      className={`py-2 px-3 rounded-lg text-xs sm:text-sm font-extrabold flex items-center justify-center transition-all cursor-pointer ${activeDrawerTab === "casino"
                           ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-md"
                           : "text-[#b1bad3] hover:text-white"
-                      }`}
+                        }`}
                     >
                       <span>Casino</span>
                     </button>
                     <button
                       onClick={() => setActiveDrawerTab("sports")}
-                      className={`py-2 px-3 rounded-lg text-xs sm:text-sm font-extrabold flex items-center justify-center transition-all cursor-pointer ${
-                        activeDrawerTab === "sports"
+                      className={`py-2 px-3 rounded-lg text-xs sm:text-sm font-extrabold flex items-center justify-center transition-all cursor-pointer ${activeDrawerTab === "sports"
                           ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-md"
                           : "text-[#b1bad3] hover:text-white"
-                      }`}
+                        }`}
                     >
                       <span>Sports</span>
                     </button>
@@ -370,11 +368,10 @@ export default function Sidebar() {
                             key={item.name}
                             href={item.href}
                             onClick={handleMobileNavClick}
-                            className={`group flex items-center justify-between px-3 py-2 rounded-xl transition-colors cursor-pointer font-medium text-[15px] tracking-wide ${
-                              isActive
+                            className={`group flex items-center justify-between px-3 py-2 rounded-xl transition-colors cursor-pointer font-medium text-[15px] tracking-wide ${isActive
                                 ? "bg-[#213743] text-white shadow-sm"
                                 : "text-[#b1bad3] hover:bg-[#213743]/70 hover:text-white"
-                            }`}
+                              }`}
                           >
                             <span className="truncate">{item.name}</span>
                             {item.badge && (
@@ -402,9 +399,8 @@ export default function Sidebar() {
                         >
                           <span>Promotions</span>
                           <ChevronDown
-                            className={`w-4 h-4 transition-transform text-[#b1bad3] group-hover:text-white ${
-                              isPromosOpen ? "rotate-180 text-white" : ""
-                            }`}
+                            className={`w-4 h-4 transition-transform text-[#b1bad3] group-hover:text-white ${isPromosOpen ? "rotate-180 text-white" : ""
+                              }`}
                           />
                         </button>
                         {isPromosOpen && (
@@ -461,9 +457,8 @@ export default function Sidebar() {
                         >
                           <span>Sponsorships</span>
                           <ChevronDown
-                            className={`w-4 h-4 transition-transform text-[#b1bad3] group-hover:text-white ${
-                              isSponsorshipsOpen ? "rotate-180 text-white" : ""
-                            }`}
+                            className={`w-4 h-4 transition-transform text-[#b1bad3] group-hover:text-white ${isSponsorshipsOpen ? "rotate-180 text-white" : ""
+                              }`}
                           />
                         </button>
                         {isSponsorshipsOpen && (
@@ -517,9 +512,8 @@ export default function Sidebar() {
                             <span>Language: {selectedLanguage}</span>
                           </div>
                           <ChevronDown
-                            className={`w-4 h-4 transition-transform text-[#b1bad3] group-hover:text-white ${
-                              isLanguageOpen ? "rotate-180 text-white" : ""
-                            }`}
+                            className={`w-4 h-4 transition-transform text-[#b1bad3] group-hover:text-white ${isLanguageOpen ? "rotate-180 text-white" : ""
+                              }`}
                           />
                         </button>
                         {isLanguageOpen && (
@@ -532,11 +526,10 @@ export default function Sidebar() {
                                     setSelectedLanguage(lang);
                                     setIsLanguageOpen(false);
                                   }}
-                                  className={`block w-full text-left py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
-                                    selectedLanguage === lang
+                                  className={`block w-full text-left py-1.5 text-xs font-semibold transition-colors cursor-pointer ${selectedLanguage === lang
                                       ? "text-[#00e701] font-bold"
                                       : "text-[#b1bad3] hover:text-white"
-                                  }`}
+                                    }`}
                                 >
                                   {lang}
                                 </button>
@@ -548,8 +541,8 @@ export default function Sidebar() {
                     </div>
                   </div>
                 </div>
-          </>
-        )}
+              </>
+            )}
           </div>
         </div>
       )}
@@ -558,9 +551,8 @@ export default function Sidebar() {
       {/* DESKTOP SIDEBAR (Collapsible w-64 / w-16, hidden lg:flex)     */}
       {/* ============================================================ */}
       <aside
-        className={`hidden lg:flex fixed top-16 bottom-0 left-0 z-30 flex-col border-r border-[#213743] bg-[#1a2c38] transition-all duration-300 ease-in-out ${
-          isSidebarOpen ? "w-64" : "w-16"
-        }`}
+        className={`hidden lg:flex fixed top-16 bottom-0 left-0 z-30 flex-col border-r border-[#213743] bg-[#1a2c38] transition-all duration-300 ease-in-out ${isSidebarOpen ? "w-64" : "w-16"
+          }`}
       >
         {/* Scrollable Navigation Area */}
         <div className="flex-1 overflow-y-auto px-2 py-3 space-y-5">
@@ -579,11 +571,10 @@ export default function Sidebar() {
                     key={item.name}
                     href={item.href}
                     title={!isSidebarOpen ? item.name : undefined}
-                    className={`group flex items-center gap-3 rounded-lg px-3 py-2 font-medium text-sm transition-all ${
-                      isActive
+                    className={`group flex items-center gap-3 rounded-lg px-3 py-2 font-medium text-sm transition-all ${isActive
                         ? "bg-[#213743] text-white shadow-sm"
                         : "text-[#b1bad3] hover:bg-[#213743]/70 hover:text-white"
-                    } ${!isSidebarOpen ? "justify-center px-0" : ""}`}
+                      } ${!isSidebarOpen ? "justify-center px-0" : ""}`}
                   >
                     <span className="text-sm shrink-0">{item.emoji}</span>
                     {isSidebarOpen && (
@@ -638,11 +629,10 @@ export default function Sidebar() {
                     key={game.name}
                     href={game.href}
                     title={!isSidebarOpen ? game.name : undefined}
-                    className={`group flex items-center gap-3 rounded-lg px-3 py-1.5 font-medium text-sm transition-all ${
-                      isActive
+                    className={`group flex items-center gap-3 rounded-lg px-3 py-1.5 font-medium text-sm transition-all ${isActive
                         ? "bg-[#213743] text-white"
                         : "text-[#b1bad3] hover:bg-[#213743]/80 hover:text-white"
-                    } ${!isSidebarOpen ? "justify-center px-0" : ""}`}
+                      } ${!isSidebarOpen ? "justify-center px-0" : ""}`}
                   >
                     <span className="text-sm shrink-0">{game.emoji}</span>
                     {isSidebarOpen && (
