@@ -19,6 +19,12 @@ export default function MainLayoutShell({
 }) {
   const { isSidebarOpen, isChatOpen, setChatOpen } = useGame();
   const pathname = usePathname();
+  const isAdminPage = pathname?.startsWith("/admin");
+
+  if (isAdminPage) {
+    return <>{children}</>;
+  }
+
   const isGamePage = pathname?.startsWith("/games") || pathname?.startsWith("/casino/games");
 
   // Track previous pathname so chat is ONLY closed on actual route changes,
