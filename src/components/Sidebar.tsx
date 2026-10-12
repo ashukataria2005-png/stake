@@ -316,8 +316,8 @@ export default function Sidebar() {
                     <button
                       onClick={() => setActiveDrawerTab("casino")}
                       className={`py-2 px-3 rounded-lg text-xs sm:text-sm font-extrabold flex items-center justify-center transition-all cursor-pointer ${activeDrawerTab === "casino"
-                          ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-md"
-                          : "text-[#b1bad3] hover:text-white"
+                        ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-md"
+                        : "text-[#b1bad3] hover:text-white"
                         }`}
                     >
                       <span>Casino</span>
@@ -325,8 +325,8 @@ export default function Sidebar() {
                     <button
                       onClick={() => setActiveDrawerTab("sports")}
                       className={`py-2 px-3 rounded-lg text-xs sm:text-sm font-extrabold flex items-center justify-center transition-all cursor-pointer ${activeDrawerTab === "sports"
-                          ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-md"
-                          : "text-[#b1bad3] hover:text-white"
+                        ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-md"
+                        : "text-[#b1bad3] hover:text-white"
                         }`}
                     >
                       <span>Sports</span>
@@ -369,8 +369,8 @@ export default function Sidebar() {
                             href={item.href}
                             onClick={handleMobileNavClick}
                             className={`group flex items-center justify-between px-3 py-2 rounded-xl transition-colors cursor-pointer font-medium text-[15px] tracking-wide ${isActive
-                                ? "bg-[#213743] text-white shadow-sm"
-                                : "text-[#b1bad3] hover:bg-[#213743]/70 hover:text-white"
+                              ? "bg-[#213743] text-white shadow-sm"
+                              : "text-[#b1bad3] hover:bg-[#213743]/70 hover:text-white"
                               }`}
                           >
                             <span className="truncate">{item.name}</span>
@@ -527,8 +527,8 @@ export default function Sidebar() {
                                     setIsLanguageOpen(false);
                                   }}
                                   className={`block w-full text-left py-1.5 text-xs font-semibold transition-colors cursor-pointer ${selectedLanguage === lang
-                                      ? "text-[#00e701] font-bold"
-                                      : "text-[#b1bad3] hover:text-white"
+                                    ? "text-[#00e701] font-bold"
+                                    : "text-[#b1bad3] hover:text-white"
                                     }`}
                                 >
                                   {lang}
@@ -572,8 +572,8 @@ export default function Sidebar() {
                     href={item.href}
                     title={!isSidebarOpen ? item.name : undefined}
                     className={`group flex items-center gap-3 rounded-lg px-3 py-2 font-medium text-sm transition-all ${isActive
-                        ? "bg-[#213743] text-white shadow-sm"
-                        : "text-[#b1bad3] hover:bg-[#213743]/70 hover:text-white"
+                      ? "bg-[#213743] text-white shadow-sm"
+                      : "text-[#b1bad3] hover:bg-[#213743]/70 hover:text-white"
                       } ${!isSidebarOpen ? "justify-center px-0" : ""}`}
                   >
                     <span className="text-sm shrink-0">{item.emoji}</span>
@@ -630,8 +630,8 @@ export default function Sidebar() {
                     href={game.href}
                     title={!isSidebarOpen ? game.name : undefined}
                     className={`group flex items-center gap-3 rounded-lg px-3 py-1.5 font-medium text-sm transition-all ${isActive
-                        ? "bg-[#213743] text-white"
-                        : "text-[#b1bad3] hover:bg-[#213743]/80 hover:text-white"
+                      ? "bg-[#213743] text-white"
+                      : "text-[#b1bad3] hover:bg-[#213743]/80 hover:text-white"
                       } ${!isSidebarOpen ? "justify-center px-0" : ""}`}
                   >
                     <span className="text-sm shrink-0">{game.emoji}</span>
