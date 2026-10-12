@@ -18,7 +18,6 @@ import confetti from "canvas-confetti";
 import CasinoSportsHeroBanner from "@/components/CasinoSportsHeroBanner";
 import LiveStatusAndSearch from "@/components/LiveStatusAndSearch";
 import VIPProgressCard from "@/components/VIPProgressCard";
-import ContinuePlayingSlider from "@/components/ContinuePlayingSlider";
 import GamesForYou from "@/components/GamesForYou";
 import TrendingSports from "@/components/TrendingSports";
 import RacesAndRafflesWidget from "@/components/RacesAndRafflesWidget";
@@ -264,9 +263,6 @@ export default function HomePage() {
 
       {/* 3. VIP PROGRESS CARD ("VIP Progress >", username, progress bar, Unranked -> Bronze) */}
       <VIPProgressCard />
-
-      {/* 4. CONTINUE PLAYING SLIDER (Strictly rendered ONLY if recentlyPlayedGames has at least 1 game) */}
-      <ContinuePlayingSlider />
 
       {/* 5. DYNAMIC CATEGORY ROWS FROM layoutConfig */}
       {HOME_PAGE_CATEGORIES.filter((cat) => cat.enabled).map((cat) => {

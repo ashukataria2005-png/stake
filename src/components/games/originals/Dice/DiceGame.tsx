@@ -15,6 +15,7 @@ import {
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
 import confetti from "canvas-confetti";
+import StakeGameFooterCard from "@/components/games/originals/common/StakeGameFooterCard";
 
 interface RollHistoryItem {
   id: string;
@@ -745,6 +746,9 @@ export default function DiceGame() {
           </button>
         </div>
       </div>
+
+      {/* Stake Originals Game Footer Card */}
+      <StakeGameFooterCard gameTitle="Dice" />
 
       {/* PROVABLY FAIR VERIFIER MODAL */}
       {isFairnessOpen && (

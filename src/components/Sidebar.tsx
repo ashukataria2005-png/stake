@@ -106,7 +106,6 @@ export default function Sidebar() {
   const personalLinks: NavEntry[] = [
     { name: "Saved Games", href: "/casino/home", icon: Bookmark, emoji: "🔖" },
     { name: "Following", href: "/casino/home", icon: Heart, emoji: "💙" },
-    { name: "Continue Playing", href: "/casino/home", icon: PlaySquare, emoji: "▶️" },
     { name: "Games For You", href: "/casino/home", icon: Gamepad2, emoji: "🎮" },
     { name: "My Bets", href: "/casino/home", icon: FileText, emoji: "🧾" },
   ];

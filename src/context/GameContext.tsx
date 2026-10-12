@@ -81,6 +81,9 @@ interface GameContextType {
   closeWalletModal: () => void;
   openWalletSettings: () => void;
   closeWalletSettings: () => void;
+  previewGame: any | null;
+  openGamePreview: (game: any) => void;
+  closeGamePreview: () => void;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -132,6 +135,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [isWalletModalOpen, setIsWalletModalOpen] = useState<boolean>(false);
   const [isWalletSettingsOpen, setIsWalletSettingsOpen] = useState<boolean>(false);
   const [recentlyPlayedGames, setRecentlyPlayedGames] = useState<RecentlyPlayedGame[]>([]);
+  const [previewGame, setPreviewGame] = useState<any | null>(null);
+
+  const openGamePreview = useCallback((game: any) => {
+    setPreviewGame(game);
+  }, []);
+
+  const closeGamePreview = useCallback(() => {
+    setPreviewGame(null);
+  }, []);
 
   // Helper to check verified deposit history in stake_deposit_orders
   const checkDepositHistory = (): boolean => {
@@ -526,6 +538,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         closeWalletModal,
         openWalletSettings,
         closeWalletSettings,
+        previewGame,
+        openGamePreview,
+        closeGamePreview,
       }}
     >
       {children}

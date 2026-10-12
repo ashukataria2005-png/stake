@@ -20,6 +20,7 @@ import MinesGrid from "./MinesGrid";
 import MinesControls from "./MinesControls";
 import MinesSettingsPopover from "./MinesSettingsPopover";
 import { getMinesMultiplier } from "./minesMultipliers";
+import StakeGameFooterCard from "@/components/games/originals/common/StakeGameFooterCard";
 
 interface MultiplierHistoryItem {
   id: string;
@@ -551,6 +552,9 @@ export default function MinesGame() {
           </button>
         </div>
       </div>
+
+      {/* Stake Originals Game Footer Card */}
+      <StakeGameFooterCard gameTitle="Mines" />
 
       {/* Fairness Modal */}
       {isFairnessOpen && (

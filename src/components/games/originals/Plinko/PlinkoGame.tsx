@@ -17,6 +17,7 @@ import {
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
 import confetti from "canvas-confetti";
+import StakeGameFooterCard from "@/components/games/originals/common/StakeGameFooterCard";
 
 // ============================================================================
 // CONFIGURABLE MULTIPLIER MATRIX
@@ -985,6 +986,9 @@ export default function PlinkoGame() {
           </button>
         </div>
       </div>
+
+      {/* Stake Originals Game Footer Card */}
+      <StakeGameFooterCard gameTitle="Plinko" />
 
       {/* PROVABLY FAIR MODAL */}
       {isFairnessOpen && (

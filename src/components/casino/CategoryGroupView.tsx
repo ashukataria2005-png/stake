@@ -368,93 +368,121 @@ export default function CategoryGroupView({ slug }: CategoryGroupViewProps) {
 
   return (
     <div className="min-h-screen px-3 sm:px-6 py-4 max-w-7xl mx-auto space-y-6">
-      {/* Category Header Banner matching Stake */}
-      <div
-        className={`relative rounded-2xl overflow-hidden border border-[#213743] bg-gradient-to-r ${groupMeta.bannerBg} p-5 sm:p-7 shadow-xl`}
-      >
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2.5">
-              <span className="p-2 rounded-xl bg-[#213743] border border-[#2f4553]">
-                {groupMeta.icon}
-              </span>
-              <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+      {/* TASK 1: 1:1 Publisher / Provider Top Banner Card */}
+      <div className="bg-[#1a2c38] rounded-xl p-4 border border-[#213743]">
+        <div className="flex items-center justify-between gap-3">
+          {/* Left: Dark rounded square container with provider logo */}
+          <div className="flex items-center gap-3.5 min-w-0">
+            <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-xl bg-[#0f212e] border border-[#213743] flex items-center justify-center shrink-0 shadow-inner p-2.5">
+              {slug === "stake-originals" ? (
+                <span className="text-[#1475e1] font-black text-xl italic tracking-tighter select-none">
+                  Stake
+                </span>
+              ) : (
+                groupMeta.icon
+              )}
+            </div>
+            {/* Right details */}
+            <div className="min-w-0">
+              <h1 className="text-lg sm:text-xl font-bold text-white tracking-tight truncate">
                 {groupMeta.title}
               </h1>
-              <span className="rounded-md bg-[#00e701]/15 text-[#00e701] border border-[#00e701]/30 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider">
-                {groupMeta.badge}
-              </span>
-            </div>
-
-            <p className="text-xs sm:text-sm text-[#b1bad3] max-w-2xl leading-relaxed">
-              {groupMeta.description}
-            </p>
-
-            {/* Stats Strip */}
-            <div className="flex flex-wrap items-center gap-3 pt-1 text-[11px] sm:text-xs text-[#b1bad3] font-medium">
-              <span className="flex items-center gap-1.5 text-white font-semibold">
-                <span className="text-[#00e701] animate-pulse">🟢</span>
-                {groupMeta.playersCount} Playing
-              </span>
-              <span className="text-[#2f4553]">•</span>
-              <span>{groupMeta.stats}</span>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="inline-flex items-center gap-1.5 text-xs text-[#00e701] font-semibold">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00e701] opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00e701]"></span>
+                  </span>
+                  {groupMeta.playersCount || "9.15K"} Playing
+                </span>
+              </div>
             </div>
           </div>
 
           {/* Follow Button */}
-          <div className="flex items-center gap-3 shrink-0">
-            <button
-              onClick={() => setIsFollowing(!isFollowing)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-xs transition-all cursor-pointer border ${
-                isFollowing
-                  ? "bg-[#e9113c]/20 text-[#e9113c] border-[#e9113c]/40 hover:bg-[#e9113c]/30"
-                  : "bg-[#213743] hover:bg-[#2a4555] text-white border-[#2f4553]"
+          <button
+            onClick={() => setIsFollowing(!isFollowing)}
+            className={`flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded-lg transition-all cursor-pointer shrink-0 ${
+              isFollowing
+                ? "bg-[#e9113c]/20 text-[#e9113c] border border-[#e9113c]/40"
+                : "bg-[#2f4553]/70 hover:bg-[#2f4553] text-[#b1bad3] border border-transparent"
+            }`}
+          >
+            <Heart
+              className={`w-3.5 h-3.5 ${
+                isFollowing ? "fill-[#e9113c] text-[#e9113c]" : "text-[#b1bad3]"
               }`}
-            >
-              <Heart
-                className={`w-4 h-4 ${
-                  isFollowing ? "fill-[#e9113c] text-[#e9113c]" : "text-[#b1bad3]"
-                }`}
-              />
-              <span>{isFollowing ? "Following" : "Follow"}</span>
-            </button>
+            />
+            <span>{isFollowing ? "Following" : "Follow"}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* TASK 1: 4-Column Metrics Bar (Dedicated separate card directly beneath the banner) */}
+      <div className="bg-[#1a2c38] rounded-xl p-3 border border-[#213743]">
+        <div className="grid grid-cols-4 gap-2 text-center divide-x divide-[#213743]">
+          {/* Item 1: Games */}
+          <div className="flex flex-col items-center justify-center px-1">
+            <span className="text-xs sm:text-sm font-bold text-white">
+              {groupMeta.initialGames?.length || 31}
+            </span>
+            <span className="text-[#b1bad3] text-xs">Games</span>
+          </div>
+
+          {/* Item 2: Followers */}
+          <div className="flex flex-col items-center justify-center px-1">
+            <span className="text-xs sm:text-sm font-bold text-white">
+              {slug === "stake-originals" ? "194.66K" : "42.1K"}
+            </span>
+            <span className="text-[#b1bad3] text-xs">Followers</span>
+          </div>
+
+          {/* Item 3: Wagered */}
+          <div className="flex flex-col items-center justify-center px-1">
+            <span className="text-xs sm:text-sm font-bold text-white">
+              {slug === "stake-originals" ? "$375.5B" : "$48.2B"}
+            </span>
+            <span className="text-[#b1bad3] text-xs">Wagered</span>
+          </div>
+
+          {/* Item 4: Bets */}
+          <div className="flex flex-col items-center justify-center px-1">
+            <span className="text-xs sm:text-sm font-bold text-white">
+              {slug === "stake-originals" ? "378.23B" : "52.8B"}
+            </span>
+            <span className="text-[#b1bad3] text-xs">Bets</span>
           </div>
         </div>
       </div>
 
-      {/* Dual Filter & Search Toolbar */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-[#1a2c38] p-3 rounded-xl border border-[#213743]">
-        {/* Search Input */}
-        <div className="relative flex-1">
+      {/* TASK 1: Search & Filters Row */}
+      <div className="space-y-2.5">
+        {/* Full-width Search Bar */}
+        <div className="relative w-full">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7a889b]" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={`Search ${groupMeta.title}...`}
-            className="w-full bg-[#0f212e] border border-[#213743] hover:border-[#2f4553] focus:border-[#1475e1] text-white text-xs rounded-lg pl-9.5 pr-14 py-2.5 outline-none transition-colors placeholder-[#7a889b]"
+            placeholder="Search Stake.com"
+            className="w-full bg-[#0f212e] border border-[#213743] hover:border-[#2f4553] focus:border-[#1475e1] text-white text-xs rounded-lg pl-9.5 pr-4 py-2.5 outline-none transition-colors placeholder-[#7a889b]"
           />
-          <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none">
-            <kbd className="hidden sm:inline-block bg-[#1a2c38] text-[#7a889b] border border-[#213743] text-[9px] px-1.5 py-0.5 rounded font-mono">
-              Ctrl+K
-            </kbd>
-          </div>
         </div>
 
-        {/* Dropdown Filters */}
-        <div className="flex items-center gap-2.5">
-          {/* Publishers Filter */}
-          <div className="relative flex-1 md:flex-initial">
-            <div className="flex items-center gap-1.5 bg-[#0f212e] border border-[#213743] rounded-lg px-3 py-2 text-xs font-semibold text-white">
+        {/* Filters Row below: "All Publishers" pill button on left, "Popular ⌵" dropdown on right */}
+        <div className="flex items-center justify-between gap-2">
+          {/* Left: All Publishers selector */}
+          <div className="relative">
+            <div className="flex items-center gap-1.5 bg-[#2f4553]/70 hover:bg-[#2f4553] text-[#b1bad3] hover:text-white rounded-lg px-3 py-1.5 text-xs font-semibold cursor-pointer border border-[#213743]">
               <SlidersHorizontal className="w-3.5 h-3.5 text-[#7a889b]" />
               <select
                 value={selectedPublisher}
                 onChange={(e) => setSelectedPublisher(e.target.value)}
-                className="bg-transparent text-xs text-white outline-none cursor-pointer pr-4 appearance-none"
+                className="bg-transparent text-xs text-white outline-none cursor-pointer pr-4 appearance-none font-semibold"
               >
                 <option value="all" className="bg-[#1a2c38]">All Publishers</option>
                 <option value="mac88" className="bg-[#1a2c38]">Mac88</option>
-                <option value="evolution" className="bg-[#1a2c38]">Evolution Live</option>
+                <option value="evolution" className="bg-[#1a2c38]">Evolution</option>
                 <option value="ezugi" className="bg-[#1a2c38]">Ezugi</option>
                 <option value="stake originals" className="bg-[#1a2c38]">Stake Originals</option>
                 <option value="pragmatic" className="bg-[#1a2c38]">Pragmatic Play</option>
@@ -470,16 +498,16 @@ export default function CategoryGroupView({ slug }: CategoryGroupViewProps) {
             </div>
           </div>
 
-          {/* Sort Filter */}
-          <div className="relative flex-1 md:flex-initial">
-            <div className="flex items-center gap-1.5 bg-[#0f212e] border border-[#213743] rounded-lg px-3 py-2 text-xs font-semibold text-white">
+          {/* Right: Sort Dropdown */}
+          <div className="relative">
+            <div className="flex items-center gap-1.5 bg-[#2f4553]/70 hover:bg-[#2f4553] text-[#b1bad3] hover:text-white rounded-lg px-3 py-1.5 text-xs font-semibold cursor-pointer border border-[#213743]">
               <ArrowUpDown className="w-3.5 h-3.5 text-[#7a889b]" />
               <select
                 value={sortOption}
                 onChange={(e) => setSortOption(e.target.value as any)}
-                className="bg-transparent text-xs text-white outline-none cursor-pointer pr-4 appearance-none"
+                className="bg-transparent text-xs text-white outline-none cursor-pointer pr-4 appearance-none font-semibold"
               >
-                <option value="popular" className="bg-[#1a2c38]">Popular</option>
+                <option value="popular" className="bg-[#1a2c38]">Popular ⌵</option>
                 <option value="featured" className="bg-[#1a2c38]">Featured</option>
                 <option value="az" className="bg-[#1a2c38]">A - Z</option>
                 <option value="za" className="bg-[#1a2c38]">Z - A</option>

@@ -6,6 +6,7 @@ import { Play } from "lucide-react";
 import StakeGameArtwork from "@/components/casino/StakeGameArtwork";
 import { GameItem } from "@/data/stakeGames";
 import { getGameThumbnail } from "@/data/gameThumbnails";
+import { useGame } from "@/context/GameContext";
 
 interface StakeGameCardProps {
   game: GameItem;
@@ -20,12 +21,21 @@ export default function StakeGameCard({
   showGameTitle = true,
   showProviderName = true,
 }: StakeGameCardProps) {
+  const { openGamePreview } = useGame();
   const [imageError, setImageError] = useState(false);
   const thumbnailUrl = getGameThumbnail(game.slug || game.id, game.image);
 
-  const cardContent = (
+  const handleClick = () => {
+    if (onClick) {
+      onClick(game);
+    } else {
+      openGamePreview(game);
+    }
+  };
+
+  return (
     <div
-      onClick={() => onClick && onClick(game)}
+      onClick={handleClick}
       className="group relative flex flex-col select-none cursor-pointer"
     >
       {/* 100% Full-Bleed Image Box */}
@@ -73,20 +83,4 @@ export default function StakeGameCard({
       )}
     </div>
   );
-
-  const targetHref =
-    game.href ||
-    (game.isPlayable || game.category === "originals" || game.provider === "Stake Originals"
-      ? `/games/${game.slug || game.id}`
-      : undefined);
-
-  if (targetHref && !onClick) {
-    return (
-      <Link href={targetHref} className="block">
-        {cardContent}
-      </Link>
-    );
-  }
-
-  return cardContent;
 }

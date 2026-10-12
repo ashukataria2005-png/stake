@@ -6,6 +6,7 @@ import { Play, LayoutGrid, ArrowRight, ChevronRight } from "lucide-react";
 
 import StakeGameArtwork from "@/components/casino/StakeGameArtwork";
 import { getGameThumbnail } from "@/data/gameThumbnails";
+import { useGame } from "@/context/GameContext";
 
 export interface CasinoCardData {
   id: string;
@@ -42,6 +43,7 @@ export default function CasinoGameRow({
   showGameTitle = true,
   showProviderName = true,
 }: CasinoGameRowProps) {
+  const { openGamePreview } = useGame();
   // Progressive Tier Loading (+6 items = 2 rows per click):
   // 0 = Initial: 3 games (1 row)
   // 1 = 1st Click: 9 games (3 rows = 3 + 6)
@@ -153,10 +155,18 @@ export default function CasinoGameRow({
             );
           }
 
+          const handleCardClick = () => {
+            if (onCardClick) {
+              onCardClick(card);
+            } else {
+              openGamePreview(card);
+            }
+          };
+
           // Full-Bleed Game Card with crisp uppercase title, subtitle/provider, and pulsing counter
           const content = (
             <div
-              onClick={() => onCardClick && onCardClick(card)}
+              onClick={handleCardClick}
               className="group relative flex flex-col select-none cursor-pointer"
             >
               {/* 100% Full-Bleed Image Box */}
@@ -205,13 +215,7 @@ export default function CasinoGameRow({
 
           return (
             <div key={card.id} className="w-full">
-              {card.href ? (
-                <Link href={card.href} className="block">
-                  {content}
-                </Link>
-              ) : (
-                content
-              )}
+              {content}
             </div>
           );
         })}

@@ -18,6 +18,7 @@ import {
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
 import confetti from "canvas-confetti";
+import StakeGameFooterCard from "@/components/games/originals/common/StakeGameFooterCard";
 
 export type WheelRisk = "low" | "medium" | "high";
 export type SegmentCount = 10 | 20 | 30 | 40 | 50;
@@ -534,6 +535,9 @@ export default function WheelGame() {
           </button>
         </div>
       </div>
+
+      {/* Stake Originals Game Footer Card */}
+      <StakeGameFooterCard gameTitle="Wheel" />
 
       {/* =========================================================================
           MODALS: PROVABLY FAIR & LIVE STATS

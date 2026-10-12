@@ -9,6 +9,7 @@ import CommunityChat from "@/components/CommunityChat";
 import AuthModal from "@/components/auth/AuthModal";
 import ScrollToTop from "@/components/ScrollToTop";
 import StakeFooter from "@/components/StakeFooter";
+import GamePreviewModal from "@/components/casino/GamePreviewModal";
 import { useGame } from "@/context/GameContext";
 
 export default function MainLayoutShell({
@@ -74,6 +75,9 @@ export default function MainLayoutShell({
 
       {/* Authentic Stake Sign In & Register Modal */}
       <AuthModal />
+
+      {/* Pre-Launch Game Preview Screen */}
+      <GamePreviewModal />
 
       {/* Floating Scroll-To-Top Button */}
       <ScrollToTop />

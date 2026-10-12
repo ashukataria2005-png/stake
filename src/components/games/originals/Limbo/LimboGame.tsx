@@ -22,6 +22,7 @@ import {
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
 import confetti from "canvas-confetti";
+import StakeGameFooterCard from "@/components/games/originals/common/StakeGameFooterCard";
 
 interface LimboHistoryItem {
   id: string;
@@ -840,6 +841,9 @@ export default function LimboGame() {
           </button>
         </div>
       </div>
+
+      {/* Stake Originals Game Footer Card */}
+      <StakeGameFooterCard gameTitle="Limbo" />
 
       {/* ========================================================= */}
       {/* PROVABLY FAIR VERIFIER MODAL                              */}
