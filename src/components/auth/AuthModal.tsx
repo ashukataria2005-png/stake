@@ -55,16 +55,42 @@ export default function AuthModal() {
   // General States
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<{
+    identifier?: string;
+    username?: string;
+    password?: string;
+    confirmPassword?: string;
+    terms?: string;
+  }>({});
   const [showMoreOptions, setShowMoreOptions] = useState(false);
+
+  // Background scroll lock when modal is open
+  useEffect(() => {
+    if (isAuthModalOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = originalOverflow || "unset";
+      };
+    } else {
+      document.body.style.overflow = "unset";
+    }
+  }, [isAuthModalOpen]);
 
   // Reset errors and fields on mode switch or open
   useEffect(() => {
     setErrorMessage("");
+    setFieldErrors({});
     setIsLoading(false);
     setShowLoginPassword(false);
     setShowRegPassword(false);
     setShowRegConfirmPassword(false);
   }, [authModalMode, isAuthModalOpen]);
+
+  const clearFieldError = (field: "identifier" | "username" | "password" | "confirmPassword" | "terms") => {
+    setFieldErrors((prev) => ({ ...prev, [field]: undefined }));
+    if (errorMessage) setErrorMessage("");
+  };
 
   // Close on Escape key
   useEffect(() => {
@@ -154,58 +180,60 @@ export default function AuthModal() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage("");
+    setFieldErrors({});
 
     const cleanId = regIdentifier.trim();
     const cleanUsername = regUsername.trim();
+    const errors: {
+      identifier?: string;
+      username?: string;
+      password?: string;
+      confirmPassword?: string;
+      terms?: string;
+    } = {};
 
     // 1. Strict Identifier Validation
     if (registerMethod === "email") {
       if (!cleanId) {
-        setErrorMessage("Please enter your email address.");
-        return;
-      }
-      if (!EMAIL_REGEX.test(cleanId)) {
-        setErrorMessage("Please enter a valid email address (e.g. user@example.com). Single character or invalid emails are not allowed.");
-        return;
+        errors.identifier = "Please enter your email address.";
+      } else if (!EMAIL_REGEX.test(cleanId)) {
+        errors.identifier = "Please enter a valid email address (e.g. user@example.com). Single character or invalid emails are not allowed.";
       }
     } else {
       // Mobile Number validation
       const sanitizedPhone = cleanId.replace(/\D/g, "");
       if (!sanitizedPhone) {
-        setErrorMessage("Please enter your 10-digit mobile number.");
-        return;
-      }
-      if (!MOBILE_REGEX.test(sanitizedPhone)) {
-        setErrorMessage("Please enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9 (e.g. 9876543210).");
-        return;
+        errors.identifier = "Please enter your 10-digit mobile number.";
+      } else if (!MOBILE_REGEX.test(sanitizedPhone)) {
+        errors.identifier = "Please enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9 (e.g. 9876543210).";
       }
     }
 
     // 2. Strict Username Validation (3-20 characters, alphanumeric + underscore only)
     if (!cleanUsername) {
-      setErrorMessage("Please choose a username.");
-      return;
-    }
-    if (!USERNAME_REGEX.test(cleanUsername)) {
-      setErrorMessage("Username must be 3-20 characters long and contain only letters, numbers, and underscores.");
-      return;
+      errors.username = "Please choose a username.";
+    } else if (!USERNAME_REGEX.test(cleanUsername)) {
+      errors.username = "Username must be 3-20 characters long and contain only letters, numbers, and underscores.";
     }
 
     // 3. Strict Password Validation
     if (!regPassword || regPassword.length < 6) {
-      setErrorMessage("Password must be at least 6 characters long.");
-      return;
+      errors.password = "Password must be at least 6 characters long.";
     }
 
     // 4. Confirm Password Match
     if (regPassword !== regConfirmPassword) {
-      setErrorMessage("Passwords do not match. Please verify your confirmation password.");
-      return;
+      errors.confirmPassword = "Passwords do not match. Please verify your confirmation password.";
     }
 
     // 5. Terms Agreement Check
     if (!agreedTerms) {
-      setErrorMessage("You must agree to the Terms and Conditions to register.");
+      errors.terms = "You must agree to the Terms and Conditions to register.";
+    }
+
+    // Halt submission if any field fails client validation
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
       return;
     }
 
@@ -229,7 +257,26 @@ export default function AuthModal() {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok || !data?.success) {
-        setErrorMessage(data?.error || "Registration failed. Please check your details.");
+        const errorText = data?.error || "Registration failed. Please check your details.";
+
+        // Strict mapping of duplicate conflict errors (HTTP 409) to field-level notices
+        if (res.status === 409 || data?.field) {
+          if (data?.field === "username" || errorText.toLowerCase().includes("username")) {
+            setFieldErrors({ username: errorText });
+          } else if (
+            data?.field === "identifier" ||
+            errorText.toLowerCase().includes("email") ||
+            errorText.toLowerCase().includes("mobile") ||
+            errorText.toLowerCase().includes("phone")
+          ) {
+            setFieldErrors({ identifier: errorText });
+          } else {
+            setErrorMessage(errorText);
+          }
+        } else {
+          setErrorMessage(errorText);
+        }
+
         setIsLoading(false);
         return;
       }
@@ -285,10 +332,12 @@ export default function AuthModal() {
       onClick={(e) => {
         if (e.target === e.currentTarget) closeAuthModal();
       }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto overscroll-contain animate-in fade-in duration-200"
+      style={{ overscrollBehavior: "contain" }}
     >
       <div
-        className="relative w-full max-w-[440px] my-auto bg-[#1a2c38] border border-[#213743] rounded-2xl shadow-2xl overflow-hidden max-h-[92vh] flex flex-col animate-in zoom-in-95 duration-200"
+        className="relative w-full max-w-[440px] my-auto bg-[#1a2c38] border border-[#213743] rounded-2xl shadow-2xl overflow-hidden max-h-[92vh] flex flex-col overscroll-contain animate-in zoom-in-95 duration-200"
+        style={{ overscrollBehavior: "contain" }}
         role="dialog"
         aria-modal="true"
       >
@@ -317,7 +366,10 @@ export default function AuthModal() {
         {/* ========================================== */}
         {/* MODAL BODY (Scrollable if height exceeds)   */}
         {/* ========================================== */}
-        <div className="p-5 sm:p-6 overflow-y-auto flex-1 space-y-4">
+        <div
+          className="p-5 sm:p-6 overflow-y-auto flex-1 space-y-4 overscroll-contain"
+          style={{ overscrollBehavior: "contain" }}
+        >
           <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
             {isSignIn ? "Welcome Back to Stake!" : "Welcome to Stake!"}
           </h2>
@@ -429,6 +481,7 @@ export default function AuthModal() {
                     setRegisterMethod("email");
                     setRegIdentifier("");
                     setErrorMessage("");
+                    clearFieldError("identifier");
                   }}
                   className={`py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                     registerMethod === "email"
@@ -445,6 +498,7 @@ export default function AuthModal() {
                     setRegisterMethod("mobile");
                     setRegIdentifier("");
                     setErrorMessage("");
+                    clearFieldError("identifier");
                   }}
                   className={`py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                     registerMethod === "mobile"
@@ -470,10 +524,14 @@ export default function AuthModal() {
                       value={regIdentifier}
                       onChange={(e) => {
                         setRegIdentifier(e.target.value);
-                        if (errorMessage) setErrorMessage("");
+                        clearFieldError("identifier");
                       }}
                       placeholder="e.g. user@example.com"
-                      className="w-full bg-[#0f212e] border border-[#213743] focus:border-[#1475e1] rounded-xl px-3.5 py-2.5 text-white text-sm outline-none transition-colors placeholder:text-[#557086]"
+                      className={`w-full bg-[#0f212e] border rounded-xl px-3.5 py-2.5 text-white text-sm outline-none transition-colors placeholder:text-[#557086] ${
+                        fieldErrors.identifier
+                          ? "border-red-500/80 focus:border-red-500"
+                          : "border-[#213743] focus:border-[#1475e1]"
+                      }`}
                       autoComplete="email"
                       required
                     />
@@ -482,7 +540,13 @@ export default function AuthModal() {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex rounded-xl overflow-hidden border border-[#213743] focus-within:border-[#1475e1] bg-[#0f212e] transition-colors">
+                  <div
+                    className={`flex rounded-xl overflow-hidden border bg-[#0f212e] transition-colors ${
+                      fieldErrors.identifier
+                        ? "border-red-500/80 focus-within:border-red-500"
+                        : "border-[#213743] focus-within:border-[#1475e1]"
+                    }`}
+                  >
                     <div className="px-3 py-2.5 bg-[#14232e] text-[#b1bad3] text-xs font-bold flex items-center border-r border-[#213743]">
                       +91
                     </div>
@@ -494,13 +558,19 @@ export default function AuthModal() {
                       onChange={(e) => {
                         const numeric = e.target.value.replace(/\D/g, "").slice(0, 10);
                         setRegIdentifier(numeric);
-                        if (errorMessage) setErrorMessage("");
+                        clearFieldError("identifier");
                       }}
                       placeholder="10-digit number (e.g. 9876543210)"
                       className="w-full bg-transparent px-3 py-2.5 text-white text-sm outline-none placeholder:text-[#557086]"
                       required
                     />
                   </div>
+                )}
+                {fieldErrors.identifier && (
+                  <p className="flex items-center gap-1.5 text-xs text-red-400 font-semibold mt-1.5 animate-in fade-in">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0 text-red-400" />
+                    <span>{fieldErrors.identifier}</span>
+                  </p>
                 )}
               </div>
 
@@ -516,10 +586,14 @@ export default function AuthModal() {
                     value={regUsername}
                     onChange={(e) => {
                       setRegUsername(e.target.value.trim());
-                      if (errorMessage) setErrorMessage("");
+                      clearFieldError("username");
                     }}
                     placeholder="3-20 characters (letters, numbers, _)"
-                    className="w-full bg-[#0f212e] border border-[#213743] focus:border-[#1475e1] rounded-xl px-3.5 py-2.5 text-white text-sm outline-none transition-colors placeholder:text-[#557086]"
+                    className={`w-full bg-[#0f212e] border rounded-xl px-3.5 py-2.5 text-white text-sm outline-none transition-colors placeholder:text-[#557086] ${
+                      fieldErrors.username
+                        ? "border-red-500/80 focus:border-red-500"
+                        : "border-[#213743] focus:border-[#1475e1]"
+                    }`}
                     autoComplete="username"
                     required
                   />
@@ -527,6 +601,12 @@ export default function AuthModal() {
                     <User className="w-4 h-4" />
                   </div>
                 </div>
+                {fieldErrors.username && (
+                  <p className="flex items-center gap-1.5 text-xs text-red-400 font-semibold mt-1.5 animate-in fade-in">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0 text-red-400" />
+                    <span>{fieldErrors.username}</span>
+                  </p>
+                )}
               </div>
 
               {/* Password Field */}
@@ -540,10 +620,14 @@ export default function AuthModal() {
                     value={regPassword}
                     onChange={(e) => {
                       setRegPassword(e.target.value);
-                      if (errorMessage) setErrorMessage("");
+                      clearFieldError("password");
                     }}
                     placeholder="Minimum 6 characters"
-                    className="w-full bg-[#0f212e] border border-[#213743] focus:border-[#1475e1] rounded-xl px-3.5 py-2.5 pr-10 text-white text-sm outline-none transition-colors placeholder:text-[#557086]"
+                    className={`w-full bg-[#0f212e] border rounded-xl px-3.5 py-2.5 pr-10 text-white text-sm outline-none transition-colors placeholder:text-[#557086] ${
+                      fieldErrors.password
+                        ? "border-red-500/80 focus:border-red-500"
+                        : "border-[#213743] focus:border-[#1475e1]"
+                    }`}
                     autoComplete="new-password"
                     required
                   />
@@ -560,6 +644,12 @@ export default function AuthModal() {
                     )}
                   </button>
                 </div>
+                {fieldErrors.password && (
+                  <p className="flex items-center gap-1.5 text-xs text-red-400 font-semibold mt-1.5 animate-in fade-in">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0 text-red-400" />
+                    <span>{fieldErrors.password}</span>
+                  </p>
+                )}
               </div>
 
               {/* Confirm Password Field */}
@@ -573,10 +663,14 @@ export default function AuthModal() {
                     value={regConfirmPassword}
                     onChange={(e) => {
                       setRegConfirmPassword(e.target.value);
-                      if (errorMessage) setErrorMessage("");
+                      clearFieldError("confirmPassword");
                     }}
                     placeholder="Re-enter your password"
-                    className="w-full bg-[#0f212e] border border-[#213743] focus:border-[#1475e1] rounded-xl px-3.5 py-2.5 pr-10 text-white text-sm outline-none transition-colors placeholder:text-[#557086]"
+                    className={`w-full bg-[#0f212e] border rounded-xl px-3.5 py-2.5 pr-10 text-white text-sm outline-none transition-colors placeholder:text-[#557086] ${
+                      fieldErrors.confirmPassword
+                        ? "border-red-500/80 focus:border-red-500"
+                        : "border-[#213743] focus:border-[#1475e1]"
+                    }`}
                     autoComplete="new-password"
                     required
                   />
@@ -593,6 +687,12 @@ export default function AuthModal() {
                     )}
                   </button>
                 </div>
+                {fieldErrors.confirmPassword && (
+                  <p className="flex items-center gap-1.5 text-xs text-red-400 font-semibold mt-1.5 animate-in fade-in">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0 text-red-400" />
+                    <span>{fieldErrors.confirmPassword}</span>
+                  </p>
+                )}
               </div>
 
               {/* Referral Code (Optional) */}
@@ -621,20 +721,31 @@ export default function AuthModal() {
               </div>
 
               {/* Terms Checkbox */}
-              <label className="flex items-start gap-2.5 cursor-pointer select-none pt-0.5">
-                <input
-                  type="checkbox"
-                  checked={agreedTerms}
-                  onChange={(e) => setAgreedTerms(e.target.checked)}
-                  className="mt-0.5 h-4 w-4 rounded bg-[#0f212e] border border-[#2f4553] text-[#1475e1] focus:ring-0 focus:ring-offset-0 cursor-pointer accent-[#1475e1]"
-                  required
-                />
-                <span className="text-xs text-[#b1bad3] leading-relaxed">
-                  I am 18 or older and agree to the{" "}
-                  <span className="text-white hover:underline">Terms and Conditions</span>{" "}
-                  <span className="text-red-400">*</span>
-                </span>
-              </label>
+              <div>
+                <label className="flex items-start gap-2.5 cursor-pointer select-none pt-0.5">
+                  <input
+                    type="checkbox"
+                    checked={agreedTerms}
+                    onChange={(e) => {
+                      setAgreedTerms(e.target.checked);
+                      clearFieldError("terms");
+                    }}
+                    className="mt-0.5 h-4 w-4 rounded bg-[#0f212e] border border-[#2f4553] text-[#1475e1] focus:ring-0 focus:ring-offset-0 cursor-pointer accent-[#1475e1]"
+                    required
+                  />
+                  <span className="text-xs text-[#b1bad3] leading-relaxed">
+                    I am 18 or older and agree to the{" "}
+                    <span className="text-white hover:underline">Terms and Conditions</span>{" "}
+                    <span className="text-red-400">*</span>
+                  </span>
+                </label>
+                {fieldErrors.terms && (
+                  <p className="flex items-center gap-1.5 text-xs text-red-400 font-semibold mt-1.5 animate-in fade-in">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0 text-red-400" />
+                    <span>{fieldErrors.terms}</span>
+                  </p>
+                )}
+              </div>
 
               <button
                 type="submit"

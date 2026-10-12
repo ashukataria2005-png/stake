@@ -64,10 +64,6 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
   // Client mount state for React Portal
   const [mounted, setMounted] = useState<boolean>(false);
 
-  // Sub-view toggles for ledger history
-  const [depositSubView, setDepositSubView] = useState<"form" | "history">("form");
-  const [withdrawSubView, setWithdrawSubView] = useState<"form" | "history">("form");
-
   // Deposit Tab State (Step: Amount Selection -> QR Code & UTR Submission)
   const [depositStep, setDepositStep] = useState<"amount" | "qr">("amount");
   const [depositAmount, setDepositAmount] = useState<string>("500");
@@ -599,47 +595,8 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
           {/* ============================================================== */}
           {activeTab === "deposit" && (
             <div className="space-y-4 animate-in fade-in duration-150">
-              {/* Sub-navigation: Recharge Form vs Deposit History */}
-              <div className="flex items-center justify-between pb-2 border-b border-[#213743]">
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      sounds.playClick();
-                      setDepositSubView("form");
-                    }}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
-                      depositSubView === "form"
-                        ? "bg-[#213743] text-white"
-                        : "text-[#b1bad3] hover:text-white"
-                    }`}
-                  >
-                    Deposit Now
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      sounds.playClick();
-                      setDepositSubView("history");
-                    }}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
-                      depositSubView === "history"
-                        ? "bg-[#213743] text-[#00e701]"
-                        : "text-[#b1bad3] hover:text-white"
-                    }`}
-                  >
-                    <History className="w-3.5 h-3.5" />
-                    <span>Deposit History</span>
-                    {depositOrders.filter((o) => o.status === "Pending UTR").length > 0 && (
-                      <span className="w-2 h-2 rounded-full bg-amber-400" />
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {depositSubView === "form" ? (
-                depositStep === "amount" ? (
-                  <form onSubmit={handleDepositSubmit} className="space-y-4">
+              {depositStep === "amount" ? (
+                <form onSubmit={handleDepositSubmit} className="space-y-4">
                     {/* Header Note Banner */}
                     <div className="flex items-center gap-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs text-emerald-400">
                       <Zap className="h-4 w-4 shrink-0 fill-current" />
@@ -962,147 +919,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                       </button>
                     </div>
                   </div>
-                )
-              ) : (
-                /* DEPOSIT HISTORY LIST */
-                <div className="space-y-3">
-                  {reverifySuccessMsg && (
-                    <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center gap-2">
-                      <Check className="w-4 h-4" />
-                      <span>{reverifySuccessMsg}</span>
-                    </div>
-                  )}
-
-                  {/* Re-verify pending UTR modal / drawer inside history */}
-                  {selectedPendingOrder && (
-                    <div className="p-4 rounded-xl bg-[#0f212e] border border-amber-500/40 space-y-3 shadow-lg">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <AlertCircle className="w-4 h-4 text-amber-400" />
-                          <span className="text-xs font-bold text-white">
-                            Verify Order: {selectedPendingOrder.orderId}
-                          </span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setSelectedPendingOrder(null)}
-                          className="text-[#b1bad3] hover:text-white"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-
-                      <div className="text-xs text-[#b1bad3]">
-                        Amount: <span className="font-bold text-[#00e701]">₹{selectedPendingOrder.amountINR}</span> • Date: {selectedPendingOrder.date}
-                      </div>
-
-                      <div className="flex flex-col gap-2">
-                        <label className="text-[11px] text-[#b1bad3] font-semibold">
-                          Enter 12-Digit UTR to Credit Balance Instantly:
-                        </label>
-                        <input
-                          type="text"
-                          maxLength={12}
-                          value={reverifyUtrInput}
-                          onChange={(e) => setReverifyUtrInput(e.target.value.replace(/\D/g, "").slice(0, 12))}
-                          placeholder="4278XXXXXXXX"
-                          className="w-full bg-[#1a2c38] border border-[#213743] rounded-lg px-3 py-2 text-xs font-mono text-white outline-none focus:border-[#1475e1]"
-                        />
-                        {reverifyError && <p className="text-[11px] text-red-400 font-semibold">{reverifyError}</p>}
-
-                        <div className="flex gap-2 mt-1">
-                          <button
-                            type="button"
-                            disabled={isReverifying}
-                            onClick={() => handleReverifyUtr(selectedPendingOrder)}
-                            className="flex-1 bg-[#00e701] text-black font-extrabold text-xs py-2.5 rounded-lg hover:brightness-110 active:scale-95 transition-all cursor-pointer flex items-center justify-center gap-1.5"
-                          >
-                            {isReverifying ? (
-                              <span>Verifying...</span>
-                            ) : (
-                              <>
-                                <Check className="w-3.5 h-3.5" />
-                                <span>Verify & Credit Now</span>
-                              </>
-                            )}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              onClose();
-                              router.push(
-                                `/deposit/pay?orderId=${selectedPendingOrder.orderId}&amount=${selectedPendingOrder.amountINR}`
-                              );
-                            }}
-                            className="px-3 bg-[#213743] hover:bg-[#2f4553] text-white text-xs font-bold rounded-lg border border-[#2f4553] flex items-center gap-1"
-                          >
-                            <ExternalLink className="w-3 h-3" />
-                            <span>Open QR Page</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {depositOrders.length === 0 ? (
-                    <div className="text-center py-8 text-[#7a889b] text-xs">
-                      No deposit records found yet.
-                    </div>
-                  ) : (
-                    <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
-                      {depositOrders.map((ord) => (
-                        <div
-                          key={ord.orderId}
-                          className="p-3 rounded-xl bg-[#0f212e] border border-[#213743] hover:border-[#2f4553] flex items-center justify-between gap-3 text-xs transition-colors"
-                        >
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="font-mono font-bold text-white text-sm">
-                                ₹{ord.amountINR.toLocaleString("en-IN")}
-                              </span>
-                              <span className="text-[10px] text-[#7a889b]">
-                                (${ord.amountUSD} USD)
-                              </span>
-                            </div>
-                            <div className="text-[11px] font-mono text-[#b1bad3] mt-0.5">
-                              {ord.orderId}
-                            </div>
-                            <div className="text-[10px] text-[#7a889b] mt-0.5">{ord.date}</div>
-                            {ord.utr && (
-                              <div className="text-[10px] text-[#00e701] font-mono mt-0.5">
-                                UTR: {ord.utr}
-                              </div>
-                            )}
-                          </div>
-
-                          <div className="flex flex-col items-end gap-1.5 shrink-0">
-                            {ord.status === "Success" ? (
-                              <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-[#00e701] border border-[#00e701]/30 text-[11px] font-bold flex items-center gap-1">
-                                <Check className="w-3 h-3" /> Success
-                              </span>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setSelectedPendingOrder(ord);
-                                  setReverifyUtrInput("");
-                                  setReverifyError("");
-                                  sounds.playClick();
-                                }}
-                                className="px-2.5 py-1 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 text-[11px] font-bold flex items-center gap-1 transition-all cursor-pointer"
-                              >
-                                <Clock className="w-3 h-3 animate-pulse" />
-                                <span>Pending UTR</span>
-                                <ChevronRight className="w-3 h-3 ml-0.5" />
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
+                )}
             </div>
           )}
 
@@ -1111,48 +928,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
           {/* ============================================================== */}
           {activeTab === "withdraw" && (
             <div className="space-y-4 animate-in fade-in duration-150">
-              {/* Sub-navigation: Request Form vs Withdrawal History */}
-              <div className="flex items-center justify-between pb-2 border-b border-[#213743]">
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      sounds.playClick();
-                      setWithdrawSubView("form");
-                    }}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
-                      withdrawSubView === "form"
-                        ? "bg-[#213743] text-white"
-                        : "text-[#b1bad3] hover:text-white"
-                    }`}
-                  >
-                    Request Withdrawal
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      sounds.playClick();
-                      setWithdrawSubView("history");
-                    }}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
-                      withdrawSubView === "history"
-                        ? "bg-[#213743] text-[#00e701]"
-                        : "text-[#b1bad3] hover:text-white"
-                    }`}
-                  >
-                    <History className="w-3.5 h-3.5" />
-                    <span>Withdrawal History</span>
-                    {withdrawalOrders.length > 0 && (
-                      <span className="text-[10px] bg-[#2f4553] px-1.5 py-0.5 rounded-full text-white">
-                        {withdrawalOrders.length}
-                      </span>
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              {withdrawSubView === "form" ? (
-                <form onSubmit={handleWithdrawSubmit} className="space-y-4">
+              <form onSubmit={handleWithdrawSubmit} className="space-y-4">
                   {/* Success Notification Banner */}
                   {withdrawSuccessMsg && (
                     <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/15 p-3 text-xs font-bold text-emerald-400 flex items-center gap-2">
@@ -1314,40 +1090,6 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                     )}
                   </button>
                 </form>
-              ) : (
-                /* WITHDRAWAL HISTORY LIST */
-                <div className="space-y-3">
-                  {withdrawalOrders.length === 0 ? (
-                    <div className="text-center py-8 text-[#7a889b] text-xs">
-                      No withdrawal records found yet.
-                    </div>
-                  ) : (
-                    <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
-                      {withdrawalOrders.map((wd) => (
-                        <div
-                          key={wd.id}
-                          className="p-3 rounded-xl bg-[#0f212e] border border-[#213743] hover:border-[#2f4553] flex items-center justify-between gap-3 text-xs transition-colors"
-                        >
-                          <div>
-                            <div className="font-mono font-bold text-white text-sm">
-                              ₹{wd.amountINR.toLocaleString("en-IN")}
-                            </div>
-                            <div className="text-[11px] text-[#b1bad3] mt-0.5">{wd.destination}</div>
-                            <div className="text-[10px] text-[#7a889b] mt-0.5">{wd.date}</div>
-                          </div>
-
-                          <div className="flex flex-col items-end gap-1 shrink-0">
-                            <span className="px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[11px] font-bold flex items-center gap-1">
-                              <Clock className="w-3 h-3 animate-pulse" />
-                              <span>{wd.status}</span>
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
           )}
         </div>

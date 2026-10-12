@@ -54,6 +54,7 @@ interface GameContextType {
   authModalMode: "signin" | "register";
   isWalletModalOpen: boolean;
   isWalletSettingsOpen: boolean;
+  isTransactionsModalOpen: boolean;
   recentlyPlayedGames: RecentlyPlayedGame[];
   addRecentlyPlayedGame: (game: RecentlyPlayedGame) => void;
   toggleSidebar: () => void;
@@ -85,6 +86,8 @@ interface GameContextType {
   closeWalletModal: () => void;
   openWalletSettings: () => void;
   closeWalletSettings: () => void;
+  openTransactionsModal: () => void;
+  closeTransactionsModal: () => void;
   previewGame: any | null;
   openGamePreview: (game: any) => void;
   closeGamePreview: () => void;
@@ -138,6 +141,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [authModalMode, setAuthModalMode] = useState<"signin" | "register">("signin");
   const [isWalletModalOpen, setIsWalletModalOpen] = useState<boolean>(false);
   const [isWalletSettingsOpen, setIsWalletSettingsOpen] = useState<boolean>(false);
+  const [isTransactionsModalOpen, setIsTransactionsModalOpen] = useState<boolean>(false);
   const [recentlyPlayedGames, setRecentlyPlayedGames] = useState<RecentlyPlayedGame[]>([]);
   const [previewGame, setPreviewGame] = useState<any | null>(null);
 
@@ -307,6 +311,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
   const openWalletSettings = () => setIsWalletSettingsOpen(true);
   const closeWalletSettings = () => setIsWalletSettingsOpen(false);
+
+  const openTransactionsModal = () => setIsTransactionsModalOpen(true);
+  const closeTransactionsModal = () => setIsTransactionsModalOpen(false);
 
   const setCurrency = (curr: string) => {
     setCurrencyState(curr);
@@ -522,6 +529,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         authModalMode,
         isWalletModalOpen,
         isWalletSettingsOpen,
+        isTransactionsModalOpen,
         recentlyPlayedGames,
         addRecentlyPlayedGame,
         toggleSidebar,
@@ -548,6 +556,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         closeWalletModal,
         openWalletSettings,
         closeWalletSettings,
+        openTransactionsModal,
+        closeTransactionsModal,
         previewGame,
         openGamePreview,
         closeGamePreview,

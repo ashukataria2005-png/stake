@@ -80,39 +80,49 @@ export async function POST(req: NextRequest) {
       cleanEmail = sanitizedEmail;
     }
 
-    // 4. Check for duplicate Username in Neon PostgreSQL
-    const existingUser = await prisma.user.findUnique({
-      where: { username: cleanUsername },
+    // 4. Check for duplicate Username in Neon PostgreSQL (case-insensitive)
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        username: {
+          equals: cleanUsername,
+          mode: "insensitive",
+        },
+      },
     });
     if (existingUser) {
       return NextResponse.json(
-        { success: false, error: "Username is already taken. Please choose another username." },
-        { status: 400 }
+        { success: false, error: "Username is already taken", field: "username" },
+        { status: 409 }
       );
     }
 
-    // 5. Check for duplicate Email in Neon PostgreSQL
-    if (cleanEmail) {
+    // 5. Check for duplicate Email in Neon PostgreSQL (case-insensitive)
+    if (cleanEmail && registerMethod === "email") {
       const existingEmail = await prisma.user.findFirst({
-        where: { email: cleanEmail },
+        where: {
+          email: {
+            equals: cleanEmail,
+            mode: "insensitive",
+          },
+        },
       });
       if (existingEmail) {
         return NextResponse.json(
-          { success: false, error: "Email address is already registered. Please sign in or use a different email." },
-          { status: 400 }
+          { success: false, error: "Email is already registered with another account", field: "identifier" },
+          { status: 409 }
         );
       }
     }
 
     // 6. Check for duplicate Phone in Neon PostgreSQL
-    if (cleanPhone) {
+    if (cleanPhone && registerMethod === "mobile") {
       const existingPhone = await prisma.user.findFirst({
         where: { phone: cleanPhone },
       });
       if (existingPhone) {
         return NextResponse.json(
-          { success: false, error: "Mobile number is already registered. Please sign in or use a different number." },
-          { status: 400 }
+          { success: false, error: "Mobile number is already registered with another account", field: "identifier" },
+          { status: 409 }
         );
       }
     }
