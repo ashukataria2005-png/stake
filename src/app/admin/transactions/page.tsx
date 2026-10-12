@@ -2,6 +2,20 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
+import {
+  ArrowDownCircle,
+  RefreshCw,
+  Search,
+  CheckCircle,
+  XCircle,
+  Clock,
+  Eye,
+  Copy,
+  Check,
+  AlertTriangle,
+  ZoomIn,
+  ZoomOut,
+} from "lucide-react";
 
 interface TransactionRow {
   id: string;
@@ -38,7 +52,7 @@ export default function AdminTransactionsPage() {
 
   // Filters
   const [activeTab, setActiveTab] = useState<"PENDING" | "APPROVED" | "REJECTED" | "ALL">("PENDING");
-  const [typeFilter, setTypeFilter] = useState<"ALL" | "DEPOSIT" | "WITHDRAWAL">("ALL");
+  const [typeFilter, setTypeFilter] = useState<"ALL" | "DEPOSIT" | "WITHDRAWAL">("DEPOSIT");
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   // Modals & Actions
@@ -159,16 +173,16 @@ export default function AdminTransactionsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <h1 className="text-2xl font-black text-white tracking-wide">
-              Transactions & UTR Approval Desk
+              Deposit Requests Desk (deposite.php)
             </h1>
-            <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#213743] text-slate-300 border border-[#2f4553]">
+            <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-[#131b24] text-[#00e701] border border-[#00e701]/30">
               Live Ledger
             </span>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Audit deposits, verify payment receipts & UTR numbers, and atomically release wallet credits.
+            Replicated from legacy deposite.php and admin_deposit_req.php. Audit payment receipts, UTR entries & credit wallets instantly.
           </p>
         </div>
 
@@ -176,25 +190,19 @@ export default function AdminTransactionsPage() {
           <button
             onClick={() => fetchTransactions()}
             disabled={isLoading}
-            className="flex items-center gap-2 px-3.5 py-2 bg-[#213743] hover:bg-[#2a4554] text-white text-xs font-semibold rounded-lg border border-[#2f4553] transition-colors"
+            className="flex items-center gap-2 px-3.5 py-2 bg-[#1f2c3a] hover:bg-[#28384a] text-white text-xs font-semibold rounded-xl border border-[#2d4054] transition-all self-start sm:self-auto shadow"
           >
-            <span className={isLoading ? "animate-spin" : ""}>🔄</span>
+            <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-[#00e701]" : ""}`} />
             <span>Refresh</span>
           </button>
-          <Link
-            href="/admin"
-            className="px-3.5 py-2 bg-[#1a2c38] hover:bg-[#213743] text-slate-300 hover:text-white text-xs font-semibold rounded-lg border border-[#2f4553] transition-colors"
-          >
-            Dashboard
-          </Link>
         </div>
       </div>
 
       {/* Success Notification Banner */}
       {actionSuccessMessage && (
-        <div className="flex items-center justify-between p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm font-semibold animate-in fade-in slide-in-from-top-2">
+        <div className="flex items-center justify-between p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm font-semibold animate-in fade-in">
           <div className="flex items-center gap-2.5">
-            <span>✅</span>
+            <CheckCircle className="w-4 h-4" />
             <span>{actionSuccessMessage}</span>
           </div>
           <button
@@ -207,10 +215,10 @@ export default function AdminTransactionsPage() {
       )}
 
       {/* Filter and Control Bar */}
-      <div className="bg-[#1a2c38] border border-[#2f4553] rounded-2xl p-4 space-y-4">
+      <div className="bg-[#131b24] border border-[#212f3d] rounded-2xl p-4 space-y-4">
         {/* Status Tabs */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#2f4553] pb-3">
-          <div className="flex flex-wrap gap-1.5 bg-[#0f212e] p-1 rounded-xl border border-[#2f4553]/60">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#212f3d] pb-3">
+          <div className="flex flex-wrap gap-1.5 bg-[#0a0f14] p-1 rounded-xl border border-[#212f3d]">
             {[
               { id: "PENDING", label: "Pending Approval", badge: counts.pending },
               { id: "APPROVED", label: "Approved" },
@@ -224,8 +232,8 @@ export default function AdminTransactionsPage() {
                   onClick={() => setActiveTab(tab.id as any)}
                   className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
                     isActive
-                      ? "bg-[#213743] text-white shadow-sm border border-[#2f4553]"
-                      : "text-slate-400 hover:text-slate-200 hover:bg-[#1a2c38]/50"
+                      ? "bg-[#253545] text-white shadow border border-[#374c60]"
+                      : "text-slate-400 hover:text-slate-200"
                   }`}
                 >
                   <span>{tab.label}</span>
@@ -248,18 +256,18 @@ export default function AdminTransactionsPage() {
           {/* Type Filter */}
           <div className="flex items-center gap-2">
             <span className="text-xs text-slate-400 font-medium">Type:</span>
-            <div className="flex gap-1 bg-[#0f212e] p-1 rounded-xl border border-[#2f4553]/60">
+            <div className="flex gap-1 bg-[#0a0f14] p-1 rounded-xl border border-[#212f3d]">
               {[
-                { id: "ALL", label: "All" },
-                { id: "DEPOSIT", label: "Deposits" },
-                { id: "WITHDRAWAL", label: "Withdrawals" },
+                { id: "DEPOSIT", label: "Deposits Only" },
+                { id: "WITHDRAWAL", label: "Withdrawals Only" },
+                { id: "ALL", label: "All Types" },
               ].map((t) => (
                 <button
                   key={t.id}
                   onClick={() => setTypeFilter(t.id as any)}
                   className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
                     typeFilter === t.id
-                      ? "bg-[#213743] text-[#00e701] border border-[#2f4553]"
+                      ? "bg-[#253545] text-[#00e701] border border-[#374c60]"
                       : "text-slate-400 hover:text-slate-200"
                   }`}
                 >
@@ -271,50 +279,48 @@ export default function AdminTransactionsPage() {
         </div>
 
         {/* Search Bar */}
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by Username, UTR Number, or Transaction ID..."
-              className="w-full bg-[#0f212e] border border-[#2f4553] rounded-xl px-4 py-2.5 pl-10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#00e701] transition-colors"
-            />
-            <span className="absolute left-3.5 top-2.5 text-slate-500 text-sm">🔍</span>
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-2.5 text-slate-400 hover:text-white text-xs"
-              >
-                Clear
-              </button>
-            )}
-          </div>
+        <div className="relative">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by Username, Mobile, UTR Number, or Order ID..."
+            className="w-full bg-[#0a0f14] border border-[#263747] rounded-xl px-4 py-2.5 pl-10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#00e701] transition-colors"
+          />
+          <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-2.5 text-slate-400 hover:text-white text-xs"
+            >
+              Clear
+            </button>
+          )}
         </div>
       </div>
 
       {/* Transactions Data Table */}
-      <div className="bg-[#1a2c38] border border-[#2f4553] rounded-2xl overflow-hidden shadow-xl">
+      <div className="bg-[#131b24] border border-[#212f3d] rounded-2xl overflow-hidden shadow-xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-[#0f212e]/70 border-b border-[#2f4553] text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+              <tr className="bg-[#17222d] border-b border-[#212f3d] text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
                 <th className="py-3.5 px-4">Date & Time</th>
-                <th className="py-3.5 px-4">Player Details</th>
+                <th className="py-3.5 px-4">User / Mobile</th>
                 <th className="py-3.5 px-4">Type</th>
                 <th className="py-3.5 px-4">Amount</th>
-                <th className="py-3.5 px-4">UTR / Reference</th>
+                <th className="py-3.5 px-4">UTR / Reference Number</th>
                 <th className="py-3.5 px-4">Receipt Screenshot</th>
                 <th className="py-3.5 px-4">Status</th>
                 <th className="py-3.5 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#2f4553]/60 text-xs">
+            <tbody className="divide-y divide-[#212f3d]/60 text-xs">
               {isLoading ? (
                 <tr>
                   <td colSpan={8} className="py-12 text-center text-slate-400">
-                    <div className="inline-block animate-spin text-2xl mb-2">⚡</div>
-                    <div>Loading transactions ledger from Neon DB...</div>
+                    <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-[#00e701]" />
+                    <div>Loading deposit ledger from Neon DB...</div>
                   </td>
                 </tr>
               ) : error ? (
@@ -324,7 +330,7 @@ export default function AdminTransactionsPage() {
                     <p className="text-xs text-slate-400 mt-1">{error}</p>
                     <button
                       onClick={() => fetchTransactions()}
-                      className="mt-3 px-3 py-1.5 bg-[#213743] text-white text-xs rounded-lg hover:bg-[#2a4554]"
+                      className="mt-3 px-3 py-1.5 bg-[#1f2c3a] text-white text-xs rounded-lg hover:bg-[#28384a]"
                     >
                       Try Again
                     </button>
@@ -332,14 +338,8 @@ export default function AdminTransactionsPage() {
                 </tr>
               ) : transactions.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-12 text-center text-slate-400">
-                    <div className="text-3xl mb-2">📂</div>
-                    <div className="text-white font-bold text-sm">No transactions found</div>
-                    <p className="text-xs text-slate-500 mt-1">
-                      {searchQuery
-                        ? "No transactions match your current search query."
-                        : `No ${activeTab.toLowerCase()} records in the ledger.`}
-                    </p>
+                  <td colSpan={8} className="py-12 text-center text-slate-500">
+                    No transactions matching your current selection.
                   </td>
                 </tr>
               ) : (
@@ -359,7 +359,7 @@ export default function AdminTransactionsPage() {
                   return (
                     <tr
                       key={tx.id}
-                      className="hover:bg-[#213743]/40 transition-colors group"
+                      className="hover:bg-[#1a2530]/50 transition-colors group"
                     >
                       {/* Date & Time */}
                       <td className="py-3.5 px-4 text-slate-300 whitespace-nowrap">
@@ -386,10 +386,10 @@ export default function AdminTransactionsPage() {
                       {/* Type */}
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         <span
-                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold ${
+                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-bold ${
                             isDeposit
                               ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
-                              : "bg-amber-500/15 text-amber-400 border border-amber-500/30"
+                              : "bg-purple-500/15 text-purple-400 border border-purple-500/30"
                           }`}
                         >
                           {isDeposit ? "📥 Deposit" : "📤 Withdrawal"}
@@ -413,13 +413,13 @@ export default function AdminTransactionsPage() {
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         {tx.utrNumber ? (
                           <div className="flex items-center gap-2">
-                            <span className="font-mono text-emerald-400 font-bold bg-[#0f212e] px-2 py-1 rounded border border-[#2f4553]">
+                            <span className="font-mono text-[#00e701] font-bold bg-[#0a0f14] px-2 py-1 rounded border border-[#212f3d]">
                               {tx.utrNumber}
                             </span>
                             <button
                               onClick={() => handleCopy(tx.utrNumber || "", `utr_${tx.id}`)}
                               title="Copy UTR Number"
-                              className="p-1 rounded hover:bg-[#213743] text-slate-400 hover:text-white transition-colors text-xs"
+                              className="p-1 rounded hover:bg-[#202d3b] text-slate-400 hover:text-white transition-colors text-xs"
                             >
                               {copiedId === `utr_${tx.id}` ? "✅" : "📋"}
                             </button>
@@ -449,14 +449,14 @@ export default function AdminTransactionsPage() {
                                 setPreviewImage(tx.screenshotUrl);
                                 setZoomLevel(1);
                               }}
-                              className="relative overflow-hidden rounded-lg border border-[#2f4553] hover:border-[#00e701] transition-all block focus:outline-none focus:ring-2 focus:ring-[#00e701]"
+                              className="relative overflow-hidden rounded-lg border border-[#212f3d] hover:border-[#00e701] transition-all block focus:outline-none"
                             >
                               <img
                                 src={tx.screenshotUrl}
                                 alt="Payment proof receipt"
                                 className="w-14 h-14 object-cover hover:scale-105 transition-transform"
                               />
-                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/thumb:opacity-100 flex items-center justify-center text-white text-xs font-bold transition-opacity">
+                              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/thumb:opacity-100 flex items-center justify-center text-white text-[10px] font-bold transition-opacity">
                                 🔍 Zoom
                               </div>
                             </button>
@@ -469,7 +469,7 @@ export default function AdminTransactionsPage() {
                       {/* Status */}
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         <span
-                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-black ${
+                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-black uppercase ${
                             tx.status === "APPROVED"
                               ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
                               : tx.status === "REJECTED"
@@ -500,7 +500,7 @@ export default function AdminTransactionsPage() {
                             {/* Approve Button */}
                             <button
                               onClick={() => setConfirmApproveTx(tx)}
-                              className="px-3 py-1.5 bg-[#00e701] hover:bg-[#00c701] text-[#0f212e] text-xs font-extrabold rounded-lg uppercase tracking-wider transition-all shadow-md hover:scale-105 active:scale-95"
+                              className="px-3 py-1.5 bg-[#00e701] hover:bg-[#00c701] text-black text-xs font-black rounded-lg uppercase tracking-wider transition-all shadow hover:scale-105 active:scale-95"
                             >
                               Approve
                             </button>
@@ -538,14 +538,14 @@ export default function AdminTransactionsPage() {
           onClick={() => setPreviewImage(null)}
         >
           <div
-            className="relative max-w-4xl max-h-[90vh] bg-[#1a2c38] border border-[#2f4553] rounded-2xl overflow-hidden flex flex-col shadow-2xl"
+            className="relative max-w-4xl max-h-[90vh] bg-[#131b24] border border-[#212f3d] rounded-2xl overflow-hidden flex flex-col shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-4 border-b border-[#2f4553] bg-[#0f212e]">
+            <div className="flex items-center justify-between p-4 border-b border-[#212f3d] bg-[#0a0f14]">
               <div className="flex items-center gap-3">
                 <span className="text-white font-bold text-sm">Receipt Image Preview</span>
-                <div className="flex items-center gap-1 bg-[#213743] px-2 py-0.5 rounded text-xs text-slate-300">
+                <div className="flex items-center gap-1 bg-[#1f2b38] px-2 py-0.5 rounded text-xs text-slate-300">
                   <button
                     onClick={() => setZoomLevel((z) => Math.max(0.5, z - 0.25))}
                     className="px-1.5 hover:text-white font-bold"
@@ -573,13 +573,13 @@ export default function AdminTransactionsPage() {
                   href={previewImage}
                   target="_blank"
                   rel="noreferrer"
-                  className="px-3 py-1 bg-[#213743] hover:bg-[#2a4554] text-xs font-semibold text-white rounded-lg transition-colors"
+                  className="px-3 py-1 bg-[#1f2b38] hover:bg-[#28384a] text-xs font-semibold text-white rounded-lg transition-colors"
                 >
                   Open Original
                 </a>
                 <button
                   onClick={() => setPreviewImage(null)}
-                  className="w-8 h-8 rounded-lg bg-[#213743] hover:bg-rose-500/20 hover:text-rose-400 text-slate-300 flex items-center justify-center transition-colors text-base"
+                  className="w-8 h-8 rounded-lg bg-[#1f2b38] hover:bg-rose-500/20 hover:text-rose-400 text-slate-300 flex items-center justify-center transition-colors text-base"
                 >
                   ✕
                 </button>
@@ -587,7 +587,7 @@ export default function AdminTransactionsPage() {
             </div>
 
             {/* Image Container */}
-            <div className="p-6 overflow-auto flex items-center justify-center bg-[#0f212e]/50 min-h-[300px]">
+            <div className="p-6 overflow-auto flex items-center justify-center bg-[#0a0f14]/50 min-h-[300px]">
               <img
                 src={previewImage}
                 alt="Payment receipt full zoom"
@@ -606,7 +606,7 @@ export default function AdminTransactionsPage() {
           onClick={() => !isProcessing && setConfirmApproveTx(null)}
         >
           <div
-            className="w-full max-w-md bg-[#1a2c38] border border-[#2f4553] rounded-2xl p-6 shadow-2xl"
+            className="w-full max-w-md bg-[#131b24] border border-[#212f3d] rounded-2xl p-6 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="w-12 h-12 rounded-xl bg-emerald-500/20 text-[#00e701] border border-emerald-500/40 flex items-center justify-center text-2xl font-black mb-4 mx-auto">
@@ -614,13 +614,13 @@ export default function AdminTransactionsPage() {
             </div>
 
             <h3 className="text-lg font-bold text-white text-center mb-1">
-              Confirm Transaction Approval
+              Confirm Deposit Approval
             </h3>
             <p className="text-xs text-slate-400 text-center mb-5">
-              This action will atomically update the Neon PostgreSQL ledger.
+              Atomic credit will update Neon PostgreSQL Wallet balance immediately.
             </p>
 
-            <div className="bg-[#0f212e] rounded-xl p-4 border border-[#2f4553] space-y-2.5 text-xs mb-6">
+            <div className="bg-[#0a0f14] rounded-xl p-4 border border-[#212f3d] space-y-2.5 text-xs mb-6">
               <div className="flex justify-between">
                 <span className="text-slate-400">Player:</span>
                 <span className="text-white font-bold">@{confirmApproveTx.user.username}</span>
@@ -638,10 +638,10 @@ export default function AdminTransactionsPage() {
               {confirmApproveTx.utrNumber && (
                 <div className="flex justify-between">
                   <span className="text-slate-400">UTR Number:</span>
-                  <span className="font-mono text-emerald-400 font-bold">{confirmApproveTx.utrNumber}</span>
+                  <span className="font-mono text-[#00e701] font-bold">{confirmApproveTx.utrNumber}</span>
                 </div>
               )}
-              <div className="border-t border-[#2f4553] pt-2 flex justify-between">
+              <div className="border-t border-[#212f3d] pt-2 flex justify-between">
                 <span className="text-slate-400">Current Balance:</span>
                 <span className="text-slate-300 font-medium">
                   ₹{confirmApproveTx.user.currentBalance.toLocaleString()}
@@ -649,7 +649,7 @@ export default function AdminTransactionsPage() {
               </div>
               <div className="flex justify-between font-bold">
                 <span className="text-slate-400">New Balance After:</span>
-                <span className="text-emerald-400 font-bold">
+                <span className="text-[#00e701] font-bold">
                   ₹
                   {(
                     confirmApproveTx.user.currentBalance +
@@ -664,7 +664,7 @@ export default function AdminTransactionsPage() {
                 type="button"
                 onClick={() => setConfirmApproveTx(null)}
                 disabled={isProcessing}
-                className="flex-1 py-2.5 bg-[#213743] hover:bg-[#2a4554] text-white text-xs font-semibold rounded-xl border border-[#2f4553] transition-colors"
+                className="flex-1 py-2.5 bg-[#1f2c3a] hover:bg-[#28384a] text-white text-xs font-semibold rounded-xl border border-[#2d4054] transition-colors"
               >
                 Cancel
               </button>
@@ -672,11 +672,11 @@ export default function AdminTransactionsPage() {
                 type="button"
                 onClick={handleApproveConfirm}
                 disabled={isProcessing}
-                className="flex-1 py-2.5 bg-[#00e701] hover:bg-[#00c701] text-[#0f212e] text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-lg flex items-center justify-center gap-2"
+                className="flex-1 py-2.5 bg-[#00e701] hover:bg-[#00c701] text-black text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-lg flex items-center justify-center gap-2"
               >
                 {isProcessing ? (
                   <>
-                    <span className="animate-spin text-sm">⚡</span>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                     <span>Approving...</span>
                   </>
                 ) : (
@@ -695,7 +695,7 @@ export default function AdminTransactionsPage() {
           onClick={() => !isProcessing && setRejectTx(null)}
         >
           <div
-            className="w-full max-w-md bg-[#1a2c38] border border-[#2f4553] rounded-2xl p-6 shadow-2xl"
+            className="w-full max-w-md bg-[#131b24] border border-[#212f3d] rounded-2xl p-6 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="w-12 h-12 rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/40 flex items-center justify-center text-2xl font-black mb-4 mx-auto">
@@ -721,7 +721,7 @@ export default function AdminTransactionsPage() {
                   onChange={(e) => setRejectReason(e.target.value)}
                   placeholder="e.g. Invalid UTR, Duplicate payment receipt, Mismatched amount..."
                   rows={3}
-                  className="w-full bg-[#0f212e] border border-[#2f4553] rounded-xl p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-rose-500 transition-colors"
+                  className="w-full bg-[#0a0f14] border border-[#263747] rounded-xl p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-rose-500 transition-colors"
                 />
               </div>
             </div>
@@ -731,7 +731,7 @@ export default function AdminTransactionsPage() {
                 type="button"
                 onClick={() => setRejectTx(null)}
                 disabled={isProcessing}
-                className="flex-1 py-2.5 bg-[#213743] hover:bg-[#2a4554] text-white text-xs font-semibold rounded-xl border border-[#2f4553] transition-colors"
+                className="flex-1 py-2.5 bg-[#1f2c3a] hover:bg-[#28384a] text-white text-xs font-semibold rounded-xl border border-[#2d4054] transition-colors"
               >
                 Cancel
               </button>
@@ -743,7 +743,7 @@ export default function AdminTransactionsPage() {
               >
                 {isProcessing ? (
                   <>
-                    <span className="animate-spin text-sm">⚡</span>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                     <span>Rejecting...</span>
                   </>
                 ) : (

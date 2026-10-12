@@ -5,18 +5,21 @@ import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   LayoutDashboard,
-  ArrowLeftRight,
+  ArrowDownCircle,
+  ArrowUpCircle,
   Users,
-  Gamepad2,
-  Tag,
+  Sliders,
   Settings,
   LogOut,
   ShieldCheck,
   Menu,
   X,
   ExternalLink,
-  Activity,
+  ChevronRight,
+  Database,
   RefreshCw,
+  Bell,
+  Clock,
 } from "lucide-react";
 import { sounds } from "@/utils/audio";
 
@@ -29,36 +32,42 @@ interface AdminUser {
 const NAV_ITEMS = [
   {
     name: "Dashboard",
+    description: "System overview & stats",
     href: "/admin",
     icon: LayoutDashboard,
-    badge: null,
+    badge: "Home",
   },
   {
-    name: "Deposits & Withdrawals",
+    name: "Deposit Requests",
+    description: "UTR & slip verification",
     href: "/admin/transactions",
-    icon: ArrowLeftRight,
-    badge: "Live",
+    icon: ArrowDownCircle,
+    badge: "Deposits",
   },
   {
-    name: "Users & Luck Controller",
+    name: "Withdrawal Requests",
+    description: "Payout approval desk",
+    href: "/admin/withdrawals",
+    icon: ArrowUpCircle,
+    badge: "Payouts",
+  },
+  {
+    name: "User Management",
+    description: "Balances & user directory",
     href: "/admin/users",
     icon: Users,
+    badge: "Users",
+  },
+  {
+    name: "Luck & Outcome Control",
+    description: "Per-user RTP & Win Rate",
+    href: "/admin/luck-control",
+    icon: Sliders,
     badge: "RTP",
   },
   {
-    name: "Games & Providers",
-    href: "/admin/games-management",
-    icon: Gamepad2,
-    badge: null,
-  },
-  {
-    name: "Promotions & Codes",
-    href: "/admin/promotions",
-    icon: Tag,
-    badge: null,
-  },
-  {
-    name: "Settings & Export",
+    name: "System Settings",
+    description: "Security & configurations",
     href: "/admin/settings",
     icon: Settings,
     badge: null,
@@ -73,8 +82,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
   const [isLoadingAuth, setIsLoadingAuth] = useState(!isLoginPage);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [pendingBadge, setPendingBadge] = useState<number>(0);
 
   // Authenticate admin on mount & route change
   useEffect(() => {
@@ -96,6 +106,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         if (isMounted) {
           setAdminUser(data.admin);
           setIsLoadingAuth(false);
+        }
+
+        // Fetch quick pending count
+        const mRes = await fetch("/api/admin/metrics");
+        const mData = await mRes.json();
+        if (mData?.success && mData?.metrics?.pendingTotalCount !== undefined) {
+          setPendingBadge(mData.metrics.pendingTotalCount);
         }
       } catch (err) {
         if (isMounted) router.replace("/admin/login");
@@ -130,89 +147,85 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   // Loading authorization state
   if (isLoadingAuth) {
     return (
-      <div className="min-h-screen bg-[#0f212e] text-white flex items-center justify-center">
+      <div className="min-h-screen bg-[#0d131a] text-white flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <RefreshCw className="w-6 h-6 animate-spin text-[#00e701]" />
-          <p className="text-xs font-mono text-[#b1bad3]">Verifying administrator credentials...</p>
+          <RefreshCw className="w-8 h-8 animate-spin text-[#00e701]" />
+          <p className="text-xs font-mono text-slate-400">Verifying administrator credentials...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0f212e] text-white flex flex-col font-sans selection:bg-[#00e701] selection:text-black">
-      {/* Top Admin Header */}
-      <header className="h-16 bg-[#1a2c38] border-b border-[#213743] px-4 sm:px-6 flex items-center justify-between sticky top-0 z-40 shrink-0">
+    <div className="min-h-screen bg-[#0d131a] text-slate-100 flex flex-col font-sans selection:bg-[#00e701] selection:text-black">
+      {/* TOP HEADER NAVBAR (Replicating reference navbar) */}
+      <header className="h-16 bg-[#131b24] border-b border-[#212f3d] flex items-center justify-between px-4 sm:px-6 sticky top-0 z-40 shadow-lg">
+        {/* Left: Brand & Collapse Toggle */}
         <div className="flex items-center gap-3">
-          {/* Mobile Menu Toggle */}
           <button
-            type="button"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="lg:hidden p-2 rounded-xl text-[#b1bad3] hover:text-white hover:bg-[#213743] transition-colors cursor-pointer"
-            aria-label="Toggle menu"
+            className="md:hidden p-2 rounded-lg bg-[#1a2530] text-slate-300 hover:text-white"
+            title="Toggle Menu"
           >
             {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
 
-          {/* Desktop Sidebar Toggle */}
           <button
-            type="button"
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="hidden lg:flex p-2 rounded-xl text-[#b1bad3] hover:text-white hover:bg-[#213743] transition-colors cursor-pointer"
-            aria-label="Toggle sidebar collapse"
+            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+            className="hidden md:flex p-2 rounded-lg bg-[#1a2530] hover:bg-[#233140] text-slate-300 hover:text-white transition-colors border border-[#263747]"
+            title="Toggle Sidebar"
           >
-            <Menu className="w-5 h-5" />
+            <Menu className="w-4 h-4" />
           </button>
 
-          {/* Brand & Badge */}
-          <div className="flex items-center gap-2.5">
-            <Link href="/admin" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-[#00e701]/10 border border-[#00e701]/30 text-[#00e701] flex items-center justify-center font-black">
-                <ShieldCheck className="w-4 h-4" />
-              </div>
-              <span className="font-black text-base text-white tracking-tight">Stake</span>
-            </Link>
-            <span className="hidden sm:inline-flex px-2 py-0.5 rounded-full bg-[#00e701]/10 text-[#00e701] border border-[#00e701]/30 text-[10px] font-black uppercase tracking-wider">
-              Super Admin
-            </span>
-          </div>
+          <Link href="/admin" className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-[#00e701] flex items-center justify-center font-black text-black text-base shadow-[0_0_15px_rgba(0,231,1,0.35)]">
+              S
+            </div>
+            <div className="flex flex-col">
+              <span className="font-extrabold text-white text-sm tracking-wide flex items-center gap-1.5">
+                STAKE ADMIN <span className="text-[10px] bg-[#00e701]/20 text-[#00e701] px-1.5 py-0.2 rounded font-mono">PORTAL</span>
+              </span>
+              <span className="text-[10px] text-slate-400 hidden sm:inline">Management Console & Ledger</span>
+            </div>
+          </Link>
         </div>
 
-        {/* Right Header Section: System Status & User & Logout */}
-        <div className="flex items-center gap-3 sm:gap-4">
-          {/* Live System Indicator */}
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#0f212e] border border-[#213743] text-xs">
-            <div className="w-2 h-2 rounded-full bg-[#00e701] animate-pulse" />
-            <span className="text-[#b1bad3] font-mono text-[11px]">Neon DB: Online</span>
+        {/* Right: DB Status, Clock, Live View & Logout */}
+        <div className="flex items-center gap-3">
+          {/* Neon DB Status */}
+          <div className="hidden lg:flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#17222d] border border-[#253646] text-xs">
+            <Database className="w-3.5 h-3.5 text-[#00e701]" />
+            <span className="text-slate-300 font-medium text-[11px]">Neon DB:</span>
+            <span className="inline-block w-2 h-2 rounded-full bg-[#00e701] animate-pulse" />
+            <span className="text-[11px] font-bold text-[#00e701]">Connected</span>
           </div>
 
-          {/* View Public Casino Lobby Link */}
+          {/* Pending Alerts Badge */}
+          {pendingBadge > 0 && (
+            <Link
+              href="/admin/transactions"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-bold hover:bg-amber-500/25 transition-colors"
+            >
+              <Bell className="w-3.5 h-3.5 animate-bounce" />
+              <span>{pendingBadge} Pending</span>
+            </Link>
+          )}
+
+          {/* Public Platform Link */}
           <Link
-            href="/"
+            href="/casino/home"
             target="_blank"
-            className="hidden md:flex items-center gap-1.5 text-xs text-[#b1bad3] hover:text-white transition-colors"
-            title="Open Casino Home"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1a2530] hover:bg-[#233140] text-slate-300 hover:text-white text-xs font-semibold border border-[#263747] transition-colors"
           >
             <span>Live Casino</span>
-            <ExternalLink className="w-3 h-3 text-[#557086]" />
+            <ExternalLink className="w-3 h-3" />
           </Link>
 
-          {/* Admin User Info */}
-          <div className="flex items-center gap-2 px-2.5 py-1 rounded-xl bg-[#213743]/60 border border-[#213743]">
-            <div className="w-6 h-6 rounded-full bg-[#1475e1] text-white flex items-center justify-center font-bold text-xs uppercase">
-              {adminUser?.username?.[0] || "A"}
-            </div>
-            <span className="text-xs font-bold text-white max-w-[100px] truncate">
-              {adminUser?.username || "Admin"}
-            </span>
-          </div>
-
-          {/* Logout Action Button */}
+          {/* Logout button */}
           <button
-            type="button"
             onClick={handleLogout}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-bold transition-all cursor-pointer"
-            title="Sign out of Admin Terminal"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 text-rose-400 hover:text-rose-300 border border-rose-500/30 text-xs font-bold transition-colors"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Logout</span>
@@ -220,41 +233,62 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
       </header>
 
-      <div className="flex flex-1 min-h-0">
-        {/* Desktop Sidebar */}
+      {/* PORTAL BODY CONTAINER */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* DESKTOP SIDEBAR */}
         <aside
-          className={`hidden lg:flex flex-col bg-[#14232e] border-r border-[#213743] transition-all duration-300 shrink-0 select-none ${
-            isSidebarOpen ? "w-64" : "w-20"
+          className={`hidden md:flex flex-col bg-[#131b24] border-r border-[#212f3d] transition-all duration-200 z-30 ${
+            isSidebarCollapsed ? "w-18" : "w-64"
           }`}
         >
-          <div className="p-3 space-y-1.5 flex-1">
-            <div className="px-3 py-2 text-[10px] font-black uppercase tracking-wider text-[#557086]">
-              {isSidebarOpen ? "Management Terminal" : "•••"}
+          {/* User Profile Card (Replicating MRCoder / DEVELOPER 0 card) */}
+          <div className="p-4 border-b border-[#212f3d] bg-[#0f171f]">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-white font-black text-sm shadow-md shrink-0">
+                {adminUser?.username?.[0]?.toUpperCase() || "A"}
+              </div>
+              {!isSidebarCollapsed && (
+                <div className="flex flex-col min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-bold text-white text-sm truncate">
+                      {adminUser?.username || "DEVELOPER 0"}
+                    </span>
+                    <ShieldCheck className="w-3.5 h-3.5 text-[#00e701] shrink-0" />
+                  </div>
+                  <span className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider">
+                    {adminUser?.role || "Super Admin"}
+                  </span>
+                </div>
+              )}
             </div>
+          </div>
+
+          {/* Navigation Links */}
+          <nav className="flex-1 p-3 space-y-1.5 overflow-y-auto">
             {NAV_ITEMS.map((item) => {
-              const Icon = item.icon;
               const isActive = pathname === item.href;
+              const Icon = item.icon;
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all group ${
                     isActive
-                      ? "bg-[#00e701] text-[#0f212e] shadow-md font-black"
-                      : "text-[#b1bad3] hover:text-white hover:bg-[#1a2c38]"
+                      ? "bg-[#00e701] text-black font-extrabold shadow-[0_2px_12px_rgba(0,231,1,0.25)]"
+                      : "text-slate-300 hover:bg-[#1a2530] hover:text-white"
                   }`}
-                  title={item.name}
+                  title={isSidebarCollapsed ? item.name : undefined}
                 >
-                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? "text-[#0f212e]" : "text-[#557086]"}`} />
-                  {isSidebarOpen && (
-                    <div className="flex items-center justify-between flex-1">
+                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? "text-black" : "text-slate-400 group-hover:text-white"}`} />
+                  {!isSidebarCollapsed && (
+                    <div className="flex-1 flex items-center justify-between min-w-0">
                       <span className="truncate">{item.name}</span>
                       {item.badge && (
                         <span
-                          className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded ${
+                          className={`text-[9px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded ${
                             isActive
-                              ? "bg-[#0f212e] text-[#00e701]"
-                              : "bg-[#213743] text-[#00e701] border border-[#00e701]/20"
+                              ? "bg-black/20 text-black"
+                              : "bg-[#1f2b38] text-slate-400"
                           }`}
                         >
                           {item.badge}
@@ -265,85 +299,76 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </Link>
               );
             })}
-          </div>
+          </nav>
 
-          {/* Sidebar Footer info */}
-          {isSidebarOpen && (
-            <div className="p-4 border-t border-[#213743] text-[11px] text-[#557086] space-y-0.5 font-mono">
-              <p className="text-white font-bold">Admin Console</p>
-              <p>Stake Engine v2.5.0</p>
+          {/* Footer Info */}
+          {!isSidebarCollapsed && (
+            <div className="p-3 border-t border-[#212f3d] bg-[#0f171f] text-[10px] text-slate-500 text-center">
+              Powered by Next.js & Neon PostgreSQL
             </div>
           )}
         </aside>
 
-        {/* Mobile Slide-over Drawer */}
+        {/* MOBILE DRAWER OVERLAY */}
         {isMobileMenuOpen && (
-          <div className="fixed inset-0 z-50 lg:hidden flex">
-            {/* Backdrop */}
+          <div
+            className="md:hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
             <div
-              className="fixed inset-0 bg-black/75 backdrop-blur-sm"
-              onClick={() => setIsMobileMenuOpen(false)}
-            />
-
-            {/* Drawer Content */}
-            <div className="relative w-72 max-w-[80vw] bg-[#14232e] border-r border-[#213743] p-4 flex flex-col h-full z-10 space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-[#213743]">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-[#00e701]/10 text-[#00e701] flex items-center justify-center font-bold">
-                    <ShieldCheck className="w-4 h-4" />
+              className="w-72 bg-[#131b24] h-full p-4 flex flex-col border-r border-[#212f3d]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between pb-4 border-b border-[#212f3d]">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-[#00e701] flex items-center justify-center font-bold text-black text-sm">
+                    S
                   </div>
-                  <span className="font-black text-sm text-white">Admin Terminal</span>
+                  <span className="font-bold text-white text-sm">STAKE ADMIN</span>
                 </div>
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-1 rounded-lg text-[#b1bad3] hover:text-white"
+                  className="p-1 rounded-lg text-slate-400 hover:text-white"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="space-y-1.5 flex-1 overflow-y-auto">
+              <nav className="flex-1 py-4 space-y-1.5 overflow-y-auto">
                 {NAV_ITEMS.map((item) => {
-                  const Icon = item.icon;
                   const isActive = pathname === item.href;
+                  const Icon = item.icon;
                   return (
                     <Link
                       key={item.href}
                       href={item.href}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold ${
                         isActive
-                          ? "bg-[#00e701] text-[#0f212e] font-black"
-                          : "text-[#b1bad3] hover:text-white hover:bg-[#1a2c38]"
+                          ? "bg-[#00e701] text-black font-extrabold"
+                          : "text-slate-300 hover:bg-[#1a2530] hover:text-white"
                       }`}
                     >
                       <Icon className="w-4 h-4 shrink-0" />
-                      <span className="flex-1">{item.name}</span>
-                      {item.badge && (
-                        <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-[#213743] text-[#00e701]">
-                          {item.badge}
-                        </span>
-                      )}
+                      <span>{item.name}</span>
                     </Link>
                   );
                 })}
-              </div>
+              </nav>
 
               <button
-                type="button"
                 onClick={handleLogout}
-                className="w-full flex items-center justify-center gap-2 p-2.5 rounded-xl bg-red-500/10 text-red-400 border border-red-500/30 font-bold text-xs"
+                className="w-full py-2.5 bg-rose-500/20 text-rose-400 font-bold text-xs rounded-xl flex items-center justify-center gap-2 border border-rose-500/30"
               >
                 <LogOut className="w-4 h-4" />
-                <span>Log Out</span>
+                <span>Logout</span>
               </button>
             </div>
           </div>
         )}
 
-        {/* Main Admin Content Container */}
-        <main className="flex-1 min-w-0 bg-[#0f212e] overflow-y-auto p-4 sm:p-6 lg:p-8">
-          <div className="max-w-7xl mx-auto space-y-6">{children}</div>
+        {/* MAIN CONTENT WORKSPACE */}
+        <main className="flex-1 overflow-y-auto bg-[#0a0f14] p-4 sm:p-6 lg:p-8">
+          <div className="max-w-7xl mx-auto">{children}</div>
         </main>
       </div>
     </div>
