@@ -132,7 +132,7 @@ export default function Navbar() {
               <div className="relative flex-1 min-w-0 h-8 sm:h-9">
                 <div
                   onClick={() => setIsCurrencyDropdownOpen(!isCurrencyDropdownOpen)}
-                  className="flex items-center justify-between gap-1.5 sm:gap-2 rounded-l-xl border border-r-0 border-[#213743] bg-[#0f212e] h-8 sm:h-9 px-2 sm:px-2.5 shadow-inner cursor-pointer hover:border-[#2f4553] transition-colors w-full"
+                  className="flex items-center justify-between gap-1.5 sm:gap-2 rounded-l-lg border border-r-0 border-[#213743] bg-[#0f212e] h-8 sm:h-9 px-2 sm:px-2.5 shadow-inner cursor-pointer hover:border-[#2f4553] transition-colors w-full"
                 >
                   {/* Left part: Coin Badge + Centered Bold Balance Typography */}
                   <div className="flex items-center justify-center gap-1.5 sm:gap-2 min-w-0 flex-1">
@@ -190,10 +190,10 @@ export default function Navbar() {
               {/* Vibrant Blue Wallet Button Attached Cleanly to the Right of Balance Pill */}
               <button
                 onClick={openWalletModal}
-                className="flex items-center justify-center gap-1 sm:gap-1.5 h-8 sm:h-9 w-8 sm:w-auto rounded-r-xl bg-[#1475e1] hover:bg-[#1268c7] px-2 sm:px-3.5 text-xs sm:text-sm font-bold text-white shadow-md transition-all active:scale-95 cursor-pointer border border-[#1475e1] shrink-0"
+                className="flex items-center justify-center gap-1 sm:gap-1.5 h-8 sm:h-9 w-8 sm:w-auto rounded-r-lg bg-[#1475e1] hover:bg-[#1268c7] px-2 sm:px-3.5 text-xs sm:text-sm font-bold text-white shadow-md transition-all active:scale-95 cursor-pointer border border-[#1475e1] shrink-0"
                 title="Wallet"
               >
-                <Wallet className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <Wallet className="h-5 w-5 sm:h-[22px] sm:w-[22px]" />
                 <span className="hidden sm:inline">Wallet</span>
               </button>
             </div>
