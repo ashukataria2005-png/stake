@@ -133,9 +133,27 @@ function DepositPayContent() {
       setVerificationStep("Verifying 12-digit UTR and payment settlement in database...");
     }, 600);
 
+    // Dynamically resolve actual logged-in user from GameContext or localStorage
+    const activeUser = user || (typeof window !== "undefined" ? (() => {
+      try {
+        const authRaw = localStorage.getItem("stake_clone_auth");
+        if (authRaw) {
+          const parsed = JSON.parse(authRaw);
+          if (parsed?.user) return parsed.user;
+        }
+      } catch {}
+      return null;
+    })() : null);
+
+    const currentUserId = (activeUser as any)?.id || activeUser?.name || activeUser?.email || "guest_player";
+    const currentUsername = activeUser?.name || "guest_player";
+    const currentUserEmail = activeUser?.email || (currentUsername.includes("@") ? currentUsername : `${currentUsername}@stake.internal`);
+
     try {
       console.log("[DepositPay] Persisting deposit to /api/wallet/deposit:", {
-        userId: user?.email || user?.name || "guest_player",
+        userId: currentUserId,
+        username: currentUsername,
+        email: currentUserEmail,
         amount: amountNumber,
         currency: "INR",
         utrNumber,
@@ -148,7 +166,9 @@ function DepositPayContent() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: user?.email || user?.name || "guest_player",
+          userId: currentUserId,
+          username: currentUsername,
+          email: currentUserEmail,
           amount: amountNumber,
           currency: "INR",
           utrNumber,
@@ -162,8 +182,9 @@ function DepositPayContent() {
 
       const data = await res.json().catch(() => ({}));
 
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || `Server responded with HTTP ${res.status}`);
+      if (!res.ok || !data?.success) {
+        const errorMsg = data?.error || `Server responded with HTTP ${res.status}`;
+        throw new Error(errorMsg);
       }
 
       console.log("[DepositPay] Deposit record saved to Neon DB:", data.transaction);
@@ -235,8 +256,10 @@ function DepositPayContent() {
     } catch (err: any) {
       console.error("[DepositPay] Database deposit submission failed:", err);
       setIsVerifying(false);
-      setUtrError(`Submission error: ${err?.message || "Failed to persist deposit. Please retry."}`);
-      alert(`Deposit Error: ${err?.message || "Failed to persist transaction to database. Please retry."}`);
+      const errMsg = err?.message || "Failed to persist deposit.";
+      setUtrError(`Deposit failed to record in database: ${errMsg}`);
+      alert(`Deposit failed to record in database: ${errMsg}`);
+      return;
     }
   };
 

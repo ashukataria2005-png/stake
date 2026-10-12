@@ -248,9 +248,27 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
 
     const num = parseFloat(depositAmount || "500");
 
+    // Dynamically resolve actual logged-in user from GameContext or localStorage
+    const activeUser = user || (typeof window !== "undefined" ? (() => {
+      try {
+        const authRaw = localStorage.getItem("stake_clone_auth");
+        if (authRaw) {
+          const parsed = JSON.parse(authRaw);
+          if (parsed?.user) return parsed.user;
+        }
+      } catch {}
+      return null;
+    })() : null);
+
+    const currentUserId = (activeUser as any)?.id || activeUser?.name || activeUser?.email || "guest_player";
+    const currentUsername = activeUser?.name || "guest_player";
+    const currentUserEmail = activeUser?.email || (currentUsername.includes("@") ? currentUsername : `${currentUsername}@stake.internal`);
+
     try {
       console.log("[WalletModal] Submitting deposit to /api/wallet/deposit:", {
-        userId: user?.email || user?.name || "guest_player",
+        userId: currentUserId,
+        username: currentUsername,
+        email: currentUserEmail,
         amount: num,
         currency: "INR",
         utrNumber: cleanUtr,
@@ -262,7 +280,9 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId: user?.email || user?.name || "guest_player",
+          userId: currentUserId,
+          username: currentUsername,
+          email: currentUserEmail,
           amount: num,
           currency: "INR",
           utrNumber: cleanUtr,
@@ -276,8 +296,9 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
 
       const data = await res.json().catch(() => ({}));
 
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || `Server responded with HTTP ${res.status}`);
+      if (!res.ok || !data?.success) {
+        const errorMsg = data?.error || `Server responded with HTTP ${res.status}`;
+        throw new Error(errorMsg);
       }
 
       console.log("[WalletModal] Deposit persisted successfully in Neon DB:", data.transaction);
@@ -325,8 +346,10 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
     } catch (err: any) {
       console.error("[WalletModal] Deposit submission error:", err);
       setIsSubmittingUtr(false);
-      setUtrError(`Payment processing error: ${err?.message || "Failed to save transaction to database. Please retry."}`);
-      alert(`Deposit verification error: ${err?.message || "Could not connect to database. Please retry."}`);
+      const errMsg = err?.message || "Failed to save transaction to database.";
+      setUtrError(`Deposit failed to record in database: ${errMsg}`);
+      alert(`Deposit failed to record in database: ${errMsg}`);
+      return;
     }
   };
 
