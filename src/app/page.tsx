@@ -25,6 +25,30 @@ import LiveBetsFeed from "@/components/LiveBetsFeed";
 import StakeGameArtwork from "@/components/casino/StakeGameArtwork";
 import LiveCasinoGateModal from "@/components/casino/LiveCasinoGateModal";
 import CasinoGameRow, { CasinoCardData } from "@/components/casino/CasinoGameRow";
+import {
+  StakeProviderLogo,
+  PragmaticPlayLogo,
+  StakeEngineLogo,
+  EvolutionLogo,
+  HacksawGamingLogo,
+  ValkyrieLogo,
+  PaperclipGamingLogo,
+  NolimitCityLogo,
+  DonutGamingLogo,
+  ColorfulPlayLogo,
+  PGSoftLogo,
+  SpribeLogo,
+  TwistGamingLogo,
+  UppercutGamingLogo,
+  PlayngoLogo,
+  PocketPlayLogo,
+  GamesGlobalLogo,
+  BGamingLogo,
+  DegenLabLogo,
+  HyperPlayLogo,
+  SmartSoftLogo,
+  ProviderLogo,
+} from "@/components/casino/ProviderLogos";
 import { HOME_PAGE_CATEGORIES } from "@/config/homeLayoutConfig";
 import { getGameThumbnail } from "@/data/gameThumbnails";
 import {
@@ -77,6 +101,302 @@ export default function HomePage() {
   ]);
   const [isSpinningSlot, setIsSpinningSlot] = useState<boolean>(false);
   const [slotLastWin, setSlotLastWin] = useState<number | null>(null);
+
+  // Exact 1:1 Stake Providers with Real Vector SVGs & Active Player Counts
+  const publishers: CasinoCardData[] = [
+    {
+      id: "pub-stake",
+      title: "Stake",
+      provider: "Stake Originals",
+      graphic: <StakeProviderLogo />,
+      isPublisherCard: true,
+      playersCount: 48920,
+      href: "/casino/group/stake-originals",
+    },
+    {
+      id: "pub-pragmatic",
+      title: "Pragmatic Play",
+      provider: "Pragmatic Play",
+      graphic: <PragmaticPlayLogo />,
+      isPublisherCard: true,
+      playersCount: 38400,
+      href: "/casino/group/pragmatic-play",
+    },
+    {
+      id: "pub-stake-engine",
+      title: "Stake Engine",
+      provider: "Stake Engine",
+      graphic: <StakeEngineLogo />,
+      isPublisherCard: true,
+      playersCount: 19450,
+      href: "/casino/group/stake-originals",
+    },
+    {
+      id: "pub-evolution",
+      title: "Evolution",
+      provider: "Evolution",
+      graphic: <EvolutionLogo />,
+      isPublisherCard: true,
+      playersCount: 31200,
+      href: "/casino/group/live-casino",
+    },
+    {
+      id: "pub-hacksaw",
+      title: "Hacksaw Gaming",
+      provider: "Hacksaw Gaming",
+      graphic: <HacksawGamingLogo />,
+      isPublisherCard: true,
+      playersCount: 22840,
+      href: "/casino/group/hacksaw-gaming",
+    },
+    {
+      id: "pub-valkyrie",
+      title: "Valkyrie",
+      provider: "Valkyrie",
+      graphic: <ValkyrieLogo />,
+      isPublisherCard: true,
+      playersCount: 16210,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "pub-paperclip",
+      title: "Paperclip Gaming",
+      provider: "Paperclip Gaming",
+      graphic: <PaperclipGamingLogo />,
+      isPublisherCard: true,
+      playersCount: 12480,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "pub-nolimit",
+      title: "Nolimit City",
+      provider: "Nolimit City",
+      graphic: <NolimitCityLogo />,
+      isPublisherCard: true,
+      playersCount: 14800,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "pub-donut",
+      title: "Donut Gaming",
+      provider: "Donut Gaming",
+      graphic: <DonutGamingLogo />,
+      isPublisherCard: true,
+      playersCount: 9830,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "pub-colorful",
+      title: "Colorful Play",
+      provider: "Colorful Play",
+      graphic: <ColorfulPlayLogo />,
+      isPublisherCard: true,
+      playersCount: 8410,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "pub-pgsoft",
+      title: "PG Soft",
+      provider: "Pocket Games Soft",
+      graphic: <PGSoftLogo />,
+      isPublisherCard: true,
+      playersCount: 18720,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "pub-spribe",
+      title: "Spribe",
+      provider: "Spribe",
+      graphic: <SpribeLogo />,
+      isPublisherCard: true,
+      playersCount: 38400,
+      href: "/casino/group/spribe",
+    },
+    {
+      id: "pub-twist",
+      title: "Twist Gaming",
+      provider: "Twist Gaming",
+      graphic: <TwistGamingLogo />,
+      isPublisherCard: true,
+      playersCount: 11240,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "pub-uppercut",
+      title: "Uppercut Gaming",
+      provider: "Uppercut Gaming",
+      graphic: <UppercutGamingLogo />,
+      isPublisherCard: true,
+      playersCount: 7920,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "pub-playngo",
+      title: "Play'n GO",
+      provider: "Play'n GO",
+      graphic: <PlayngoLogo />,
+      isPublisherCard: true,
+      playersCount: 26400,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "pub-pocketplay",
+      title: "Pocket Play",
+      provider: "Pocket Play",
+      graphic: <PocketPlayLogo />,
+      isPublisherCard: true,
+      playersCount: 6850,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "pub-gamesglobal",
+      title: "Games Global",
+      provider: "Games Global",
+      graphic: <GamesGlobalLogo />,
+      isPublisherCard: true,
+      playersCount: 15300,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "pub-bgaming",
+      title: "BGaming",
+      provider: "BGaming",
+      graphic: <BGamingLogo />,
+      isPublisherCard: true,
+      playersCount: 11600,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "pub-degenlab",
+      title: "Degen Lab",
+      provider: "Degen Lab",
+      graphic: <DegenLabLogo />,
+      isPublisherCard: true,
+      playersCount: 9410,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "pub-hyperplay",
+      title: "Hyper Play",
+      provider: "Hyper Play",
+      graphic: <HyperPlayLogo />,
+      isPublisherCard: true,
+      playersCount: 13750,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "pub-smartsoft",
+      title: "SmartSoft",
+      provider: "SmartSoft",
+      graphic: <SmartSoftLogo />,
+      isPublisherCard: true,
+      playersCount: 29800,
+      href: "/casino/group/turbogames",
+    },
+  ];
+
+  // Authentic Vector Studios
+  const featuredPublishers: CasinoCardData[] = [
+    {
+      id: "fpub-stake-engine",
+      title: "Stake Engine",
+      provider: "Stake Engine",
+      playersCount: 19450,
+      graphic: <StakeEngineLogo />,
+      isPublisherCard: true,
+      href: "/casino/group/stake-originals",
+    },
+    {
+      id: "fpub-valkyrie",
+      title: "Valkyrie",
+      provider: "Valkyrie",
+      playersCount: 16210,
+      graphic: <ValkyrieLogo />,
+      isPublisherCard: true,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "fpub-paperclip",
+      title: "Paperclip Gaming",
+      provider: "Paperclip Gaming",
+      playersCount: 12480,
+      graphic: <PaperclipGamingLogo />,
+      isPublisherCard: true,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "fpub-donut",
+      title: "Donut Gaming",
+      provider: "Donut Gaming",
+      playersCount: 9830,
+      graphic: <DonutGamingLogo />,
+      isPublisherCard: true,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "fpub-colorful",
+      title: "Colorful Play",
+      provider: "Colorful Play",
+      playersCount: 8410,
+      graphic: <ColorfulPlayLogo />,
+      isPublisherCard: true,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "fpub-twist",
+      title: "Twist Gaming",
+      provider: "Twist Gaming",
+      playersCount: 11240,
+      graphic: <TwistGamingLogo />,
+      isPublisherCard: true,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "fpub-uppercut",
+      title: "Uppercut Gaming",
+      provider: "Uppercut Gaming",
+      playersCount: 7920,
+      graphic: <UppercutGamingLogo />,
+      isPublisherCard: true,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "fpub-pocketplay",
+      title: "Pocket Play",
+      provider: "Pocket Play",
+      playersCount: 6850,
+      graphic: <PocketPlayLogo />,
+      isPublisherCard: true,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "fpub-degenlab",
+      title: "Degen Lab",
+      provider: "Degen Lab",
+      playersCount: 9410,
+      graphic: <DegenLabLogo />,
+      isPublisherCard: true,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "fpub-hyperplay",
+      title: "Hyper Play",
+      provider: "Hyper Play",
+      playersCount: 13750,
+      graphic: <HyperPlayLogo />,
+      isPublisherCard: true,
+      href: "/casino/collection/providers",
+    },
+    {
+      id: "fpub-smartsoft",
+      title: "SmartSoft",
+      provider: "SmartSoft",
+      playersCount: 29800,
+      graphic: <SmartSoftLogo />,
+      isPublisherCard: true,
+      href: "/casino/group/turbogames",
+    },
+  ];
 
   const handleCardClick = (card: CasinoCardData) => {
     addRecentlyPlayedGame({
@@ -259,21 +579,28 @@ export default function HomePage() {
 
       {/* 5. DYNAMIC CATEGORY ROWS FROM layoutConfig */}
       {HOME_PAGE_CATEGORIES.filter((cat) => cat.enabled).map((cat) => {
-        const cards: CasinoCardData[] = [];
-        for (const slug of cat.orderedGameSlugs) {
-          const game = masterGameMap.get(slug) || getGameItem(slug);
-          if (game) {
-            cards.push({
-              id: game.slug || game.id,
-              title: game.title || (game as any).name || slug,
-              provider: game.provider,
-              playersCount: game.playersCount,
-              badge: game.badge,
-              badgeColor: game.badgeColor,
-              href: game.href || `/casino/games/${game.slug || game.id}`,
-              image: getGameThumbnail(game.slug || game.id, game.image),
-              bgGradient: game.bgGradient,
-            });
+        let cards: CasinoCardData[] = [];
+
+        if (cat.id === "publishers") {
+          cards = publishers;
+        } else if (cat.id === "featured-publishers") {
+          cards = featuredPublishers;
+        } else {
+          for (const slug of cat.orderedGameSlugs) {
+            const game = masterGameMap.get(slug) || getGameItem(slug);
+            if (game) {
+              cards.push({
+                id: game.slug || game.id,
+                title: game.title || (game as any).name || slug,
+                provider: game.provider,
+                playersCount: game.playersCount,
+                badge: game.badge,
+                badgeColor: game.badgeColor,
+                href: game.href || `/casino/games/${game.slug || game.id}`,
+                image: getGameThumbnail(game.slug || game.id, game.image),
+                bgGradient: game.bgGradient,
+              });
+            }
           }
         }
 

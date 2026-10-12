@@ -7,6 +7,7 @@ import { Play, LayoutGrid, ArrowRight, ChevronRight } from "lucide-react";
 import StakeGameArtwork from "@/components/casino/StakeGameArtwork";
 import { getGameThumbnail } from "@/data/gameThumbnails";
 import { useGame } from "@/context/GameContext";
+import { ProviderLogo } from "@/components/casino/ProviderLogos";
 
 export interface CasinoCardData {
   id: string;
@@ -160,9 +161,9 @@ export default function CasinoGameRow({
                       {card.graphic}
                     </div>
                   ) : (
-                    <span className="font-semibold text-sm sm:text-base text-white tracking-wide truncate">
-                      {card.title}
-                    </span>
+                    <div className="flex items-center justify-center max-w-full overflow-hidden text-white font-semibold">
+                      <ProviderLogo id={card.id} name={card.title} />
+                    </div>
                   )}
                 </div>
                 {/* Live active player count indicator underneath each box */}

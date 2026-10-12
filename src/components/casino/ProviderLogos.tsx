@@ -278,3 +278,92 @@ export function SmartSoftLogo({ className = "h-4 sm:h-5" }: ProviderLogoProps) {
     </div>
   );
 }
+
+/**
+ * Universal ProviderLogo component:
+ * Dynamically resolves and renders authentic vector SVGs for any Stake publisher by ID or Name.
+ */
+export function ProviderLogo({
+  id,
+  name,
+  className,
+}: {
+  id?: string;
+  name?: string;
+  className?: string;
+}) {
+  const raw = `${id || ""} ${name || ""}`.toLowerCase();
+  const key = raw.replace(/[^a-z0-9]/g, "");
+
+  if (key.includes("stakeengine") || key.includes("stake-engine")) {
+    return <StakeEngineLogo className={className} />;
+  }
+  if (key.includes("stake") || key.includes("original")) {
+    return <StakeProviderLogo className={className} />;
+  }
+  if (key.includes("pragmatic")) {
+    return <PragmaticPlayLogo className={className} />;
+  }
+  if (key.includes("evolution")) {
+    return <EvolutionLogo className={className} />;
+  }
+  if (key.includes("hacksaw")) {
+    return <HacksawGamingLogo className={className} />;
+  }
+  if (key.includes("valkyrie")) {
+    return <ValkyrieLogo className={className} />;
+  }
+  if (key.includes("paperclip")) {
+    return <PaperclipGamingLogo className={className} />;
+  }
+  if (key.includes("nolimit")) {
+    return <NolimitCityLogo />;
+  }
+  if (key.includes("donut")) {
+    return <DonutGamingLogo />;
+  }
+  if (key.includes("colorful")) {
+    return <ColorfulPlayLogo className={className} />;
+  }
+  if (key.includes("pgsoft") || key.includes("pocketgames")) {
+    return <PGSoftLogo />;
+  }
+  if (key.includes("spribe")) {
+    return <SpribeLogo className={className} />;
+  }
+  if (key.includes("twist")) {
+    return <TwistGamingLogo className={className} />;
+  }
+  if (key.includes("uppercut")) {
+    return <UppercutGamingLogo className={className} />;
+  }
+  if (key.includes("playngo") || key.includes("play-n-go")) {
+    return <PlayngoLogo className={className} />;
+  }
+  if (key.includes("pocketplay") || key.includes("pocket-play")) {
+    return <PocketPlayLogo className={className} />;
+  }
+  if (key.includes("gamesglobal") || key.includes("games-global")) {
+    return <GamesGlobalLogo className={className} />;
+  }
+  if (key.includes("bgaming")) {
+    return <BGamingLogo />;
+  }
+  if (key.includes("degenlab") || key.includes("degen-lab")) {
+    return <DegenLabLogo className={className} />;
+  }
+  if (key.includes("hyperplay") || key.includes("hyper-play") || key.includes("hyperx")) {
+    return <HyperPlayLogo className={className} />;
+  }
+  if (key.includes("smartsoft")) {
+    return <SmartSoftLogo className={className} />;
+  }
+
+  const displayName = name || id || "STUDIO";
+  return (
+    <span className="font-extrabold text-xs sm:text-[13px] tracking-wide text-white uppercase truncate">
+      {displayName}
+    </span>
+  );
+}
+
