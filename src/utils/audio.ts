@@ -219,6 +219,31 @@ class SoundManager {
     }
   }
 
+  // Soft disappointment chime for loss
+  playLoss() {
+    if (!this.enabled) return;
+    try {
+      const ctx = this.initCtx();
+      if (!ctx) return;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(260, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(140, ctx.currentTime + 0.2);
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.2);
+    } catch {}
+  }
+
+  // Upbeat win arpeggio alias
+  playWin() {
+    this.playCashout();
+  }
+
   // Quick dice shake / roll rattle
   playDiceRoll() {
     if (!this.enabled) return;

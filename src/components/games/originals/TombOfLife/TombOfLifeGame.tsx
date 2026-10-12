@@ -161,7 +161,7 @@ function generateTombGrid(): TombSymbol[][] {
   );
 }
 
-export default function TombOfLifeGame() {
+export function TomeOfLifeGame() {
   const {
     balance,
     updateBalance,
@@ -174,10 +174,10 @@ export default function TombOfLifeGame() {
   useEffect(() => {
     if (addRecentlyPlayedGame) {
       addRecentlyPlayedGame({
-        id: "tomb-of-life",
-        title: "Tomb of Life",
-        image: "/games/stake-originals/tomb-of-life.webp",
-        href: "/games/tomb-of-life",
+        id: "tome-of-life",
+        title: "Tome of Life",
+        image: "/games/stake-originals/tome-of-life.webp",
+        href: "/games/tome-of-life",
       });
     }
   }, [addRecentlyPlayedGame]);
@@ -196,7 +196,7 @@ export default function TombOfLifeGame() {
   const [isSpinning, setIsSpinning] = useState<boolean>(false);
   const [expandedCols, setExpandedCols] = useState<number[]>([]);
   const [roundWin, setRoundWin] = useState<number>(0);
-  const [statusMessage, setStatusMessage] = useState<string>("Awaken the Tomb of Life!");
+  const [statusMessage, setStatusMessage] = useState<string>("Awaken the Tome of Life!");
 
   // Settings & Modals
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
@@ -458,7 +458,7 @@ export default function TombOfLifeGame() {
         <div className="w-full flex items-center justify-between mb-4 z-10 text-xs text-[#b1bad3]">
           <div className="flex items-center gap-2">
             <span className="font-bold uppercase tracking-wider text-[11px] text-[#8596a5]">
-              Tomb of Life
+              Tome of Life
             </span>
             {freeSpinsLeft > 0 && (
               <span className="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-400 text-amber-300 font-mono font-bold text-[10px] animate-pulse">
@@ -862,3 +862,6 @@ export default function TombOfLifeGame() {
     </div>
   );
 }
+
+export default TomeOfLifeGame;
+export const TombOfLifeGame = TomeOfLifeGame;

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import {
   Search,
@@ -52,6 +52,64 @@ export default function CategoryGroupView({ slug }: CategoryGroupViewProps) {
   const [visibleCount, setVisibleCount] = useState(18);
   const [gateModalOpen, setGateModalOpen] = useState(false);
   const [gateTableName, setGateTableName] = useState("Live Casino Table");
+
+  // Restore visibleCount and scroll position from sessionStorage on mount (back navigation)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const savedCount = sessionStorage.getItem(`provider_games_limit_${slug}`);
+      if (savedCount) {
+        const parsed = parseInt(savedCount, 10);
+        if (!isNaN(parsed) && parsed > 18) {
+          setVisibleCount(parsed);
+        }
+      }
+      const savedScroll = sessionStorage.getItem(`provider_scroll_${slug}`);
+      if (savedScroll) {
+        const targetY = parseInt(savedScroll, 10);
+        if (!isNaN(targetY) && targetY > 0) {
+          const timer = setTimeout(() => {
+            window.scrollTo({ top: targetY, behavior: "instant" });
+          }, 80);
+          return () => clearTimeout(timer);
+        }
+      }
+    } catch {
+      // Ignore sessionStorage errors
+    }
+  }, [slug]);
+
+  // Track window scroll position for back navigation restoration
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handleScroll = () => {
+      try {
+        sessionStorage.setItem(`provider_scroll_${slug}`, String(window.scrollY));
+      } catch {}
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [slug]);
+
+  // Handle explicit Show Less action
+  const handleShowLess = () => {
+    setVisibleCount(18);
+    try {
+      sessionStorage.removeItem(`provider_games_limit_${slug}`);
+      sessionStorage.removeItem(`provider_scroll_${slug}`);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch {}
+  };
+
+  const handleLoadMore = () => {
+    setVisibleCount((prev) => {
+      const next = prev + 12;
+      try {
+        sessionStorage.setItem(`provider_games_limit_${slug}`, String(next));
+      } catch {}
+      return next;
+    });
+  };
 
   const isLiveRestricted = slug === "live-casino" && realBalance <= 0 && !hasVerifiedDeposit;
 
@@ -514,15 +572,25 @@ export default function CategoryGroupView({ slug }: CategoryGroupViewProps) {
           </div>
         )}
 
-        {/* Center-Aligned "Load More" Pagination Trigger */}
-        {visibleCount < filteredGames.length && (
-          <div className="flex justify-center pt-6">
-            <button
-              onClick={() => setVisibleCount((prev) => prev + 12)}
-              className="bg-[#213743] hover:bg-[#2a4555] text-white font-bold text-xs sm:text-sm px-8 py-3 rounded-xl border border-[#2f4553] transition-all cursor-pointer active:scale-95 shadow-lg shadow-black/30 hover:border-[#3d5565]"
-            >
-              Load More Games ({filteredGames.length - visibleCount} remaining)
-            </button>
+        {/* Center-Aligned "Load More" & "Show Less" Pagination Triggers */}
+        {(visibleCount < filteredGames.length || visibleCount > 18) && (
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-6">
+            {visibleCount < filteredGames.length && (
+              <button
+                onClick={handleLoadMore}
+                className="bg-[#213743] hover:bg-[#2a4555] text-white font-bold text-xs sm:text-sm px-8 py-3 rounded-xl border border-[#2f4553] transition-all cursor-pointer active:scale-95 shadow-lg shadow-black/30 hover:border-[#3d5565]"
+              >
+                Load More Games ({filteredGames.length - visibleCount} remaining)
+              </button>
+            )}
+            {visibleCount > 18 && (
+              <button
+                onClick={handleShowLess}
+                className="bg-[#1a2c38] hover:bg-[#213743] text-[#b1bad3] hover:text-white font-bold text-xs sm:text-sm px-6 py-3 rounded-xl border border-[#2f4553] transition-all cursor-pointer active:scale-95 shadow-md hover:border-[#3d5565]"
+              >
+                Show Less
+              </button>
+            )}
           </div>
         )}
       </div>

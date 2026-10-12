@@ -48,6 +48,7 @@ export default function ChickenGame() {
   }, []);
 
   // Mode & Betting State
+  const [mode, setMode] = useState<"manual" | "auto">("manual");
   const [betAmount, setBetAmount] = useState<number>(10);
   const [betInput, setBetInput] = useState<string>("10");
   const [bonesCount, setBonesCount] = useState<number>(3); // 1 to 24
@@ -249,10 +250,12 @@ export default function ChickenGame() {
         isFullscreen ? "p-6 bg-[#0f212e] min-h-screen" : ""
       }`}
     >
-      {/* ========================================================= */}
-      {/* 1. DISH ARENA (TOP) - 5x5 CLOCHE GRID                      */}
-      {/* ========================================================= */}
-      <div className="rounded-2xl border border-[#213743] bg-[#0f212e] shadow-2xl p-4 sm:p-6 flex flex-col items-center justify-center space-y-4 relative">
+      {/* Main Game Container: Arena (Top) + Controls (Directly Beneath) */}
+      <div className="rounded-2xl border border-[#213743] bg-[#0f212e] shadow-2xl overflow-hidden flex flex-col">
+        {/* ========================================================= */}
+        {/* 1. DISH ARENA (TOP) - 5x5 CLOCHE GRID                      */}
+        {/* ========================================================= */}
+        <div className="p-4 sm:p-6 flex flex-col items-center justify-center space-y-4 relative">
         {/* Arena Header Stats Bar */}
         <div className="w-full flex items-center justify-between text-xs font-bold text-[#b1bad3] px-2">
           <div className="flex items-center gap-2">
@@ -358,97 +361,140 @@ export default function ChickenGame() {
       </div>
 
       {/* ========================================================= */}
-      {/* 2. BETTING CONTROLS (DIRECTLY BENEATH ARENA)              */}
-      {/* ========================================================= */}
-      <div className="rounded-2xl border border-[#213743] bg-[#1a2c38] shadow-2xl p-4 sm:p-5 space-y-4">
-        {/* Bet Amount & Bones Count Inputs */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {/* Bet Amount Input */}
-          <div className="space-y-1.5">
-            <div className="flex justify-between text-xs font-bold text-[#b1bad3]">
-              <span>Bet Amount</span>
-              <span className="text-[#00e701] font-mono">
-                {activeSym}
-                {formatBalance(balance)}
+        {/* 2. BETTING CONTROLS (EXACT 1:1 MINES TOKEN LAYOUT)         */}
+        {/* ========================================================= */}
+        <div className="w-full border-t border-[#213743] bg-[#1a2c38] p-3 sm:p-4 flex flex-col justify-start space-y-2 sm:space-y-2.5 rounded-b-2xl select-none">
+          {/* Top Primary CTA Button: BET (Blue) transitioning to CASHOUT (Green) */}
+          {!isPlaying ? (
+            <button
+              type="button"
+              onClick={startRound}
+              disabled={betAmount > balance || betAmount <= 0}
+              className="w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white shadow-lg active:scale-[0.98] uppercase tracking-wider transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
+            >
+              <span>Bet</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={handleCashout}
+              disabled={safeChickensFound === 0 || isRevealing}
+              className={`w-full py-3 sm:py-3.5 text-sm sm:text-base font-extrabold rounded-xl uppercase tracking-wider transition-all flex items-center justify-center cursor-pointer shadow-lg active:scale-[0.98] ${
+                safeChickensFound === 0
+                  ? "bg-[#213743] text-[#b1bad3] cursor-not-allowed opacity-60"
+                  : "bg-[#00e701] hover:bg-[#00c201] text-black shadow-[0_0_15px_rgba(0,231,1,0.35)]"
+              }`}
+            >
+              <span>
+                Cashout {activeSym}
+                {currentPayout.toFixed(2)}
+              </span>
+            </button>
+          )}
+
+          {/* Quick Helper Actions during active round */}
+          {isPlaying && (
+            <div className="flex items-center justify-between">
+              <button
+                type="button"
+                onClick={handleRandomPick}
+                disabled={isRevealing}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0f212e] border border-[#213743] text-xs font-bold text-white hover:bg-[#213743] transition-colors cursor-pointer"
+              >
+                <Dices className="h-3.5 w-3.5 text-[#00e701]" />
+                <span>Random Pick</span>
+              </button>
+              <div className="text-xs font-bold text-[#b1bad3] font-mono">
+                Uncovered: <span className="text-white font-extrabold">{safeChickensFound} chickens</span>
+              </div>
+            </div>
+          )}
+
+          {/* Bet Amount Box with Quick Chips */}
+          <div className="space-y-1">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-bold text-[#b1bad3]">Bet Amount</span>
+              <span className="font-mono text-[11px] text-[#b1bad3]">
+                Bal: {activeSym}
+                {balance.toFixed(2)}
               </span>
             </div>
-            <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] p-1 focus-within:border-[#00e701] transition-colors">
-              <span className="px-2.5 text-sm font-bold text-[#00e701]">{activeSym}</span>
-              <input
-                type="text"
-                inputMode="decimal"
-                disabled={isPlaying}
-                value={betInput}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  if (val === "" || /^\d*\.?\d*$/.test(val)) {
-                    setBetInput(val);
-                    if (val !== "" && !isNaN(parseFloat(val))) {
-                      setBetAmount(parseFloat(val));
+
+            <div className="flex rounded-lg bg-[#0f212e] border border-[#213743] focus-within:border-[#2f4553] p-1">
+              <div className="flex flex-1 items-center px-2.5">
+                <span className="text-xs font-bold text-[#b1bad3] mr-1.5">{activeSym}</span>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  disabled={isPlaying}
+                  value={betInput}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || /^\d*\.?\d*$/.test(val)) {
+                      setBetInput(val);
+                      if (val !== "" && !isNaN(parseFloat(val))) {
+                        setBetAmount(parseFloat(val));
+                      }
                     }
-                  }
-                }}
-                onBlur={() => {
-                  if (betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0) {
-                    setBetInput("1");
-                    setBetAmount(1);
-                  } else {
-                    const num = parseFloat(betInput);
-                    setBetInput(num.toString());
-                    setBetAmount(num);
-                  }
-                }}
-                className="w-full bg-transparent text-sm font-bold text-white focus:outline-none font-mono"
-              />
-              <button
-                type="button"
-                disabled={isPlaying}
-                onClick={handleHalfBet}
-                className="rounded-lg px-2.5 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer"
-              >
-                ½
-              </button>
-              <button
-                type="button"
-                disabled={isPlaying}
-                onClick={handleDoubleBet}
-                className="rounded-lg px-2.5 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer"
-              >
-                2×
-              </button>
-              <button
-                type="button"
-                disabled={isPlaying}
-                onClick={handleMaxBet}
-                className="rounded-lg px-2.5 py-1 text-xs font-bold text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer"
-              >
-                Max
-              </button>
+                  }}
+                  onBlur={() => {
+                    if (betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0) {
+                      setBetInput("1");
+                      setBetAmount(1);
+                    } else {
+                      const num = parseFloat(betInput);
+                      setBetInput(num.toString());
+                      setBetAmount(num);
+                    }
+                  }}
+                  className="w-full bg-transparent text-sm font-bold text-white outline-none font-mono"
+                />
+              </div>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  disabled={isPlaying}
+                  onClick={handleHalfBet}
+                  className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  ½
+                </button>
+                <button
+                  type="button"
+                  disabled={isPlaying}
+                  onClick={handleDoubleBet}
+                  className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  2×
+                </button>
+              </div>
             </div>
           </div>
 
           {/* Bones Selector Input */}
-          <div className="space-y-1.5">
-            <div className="flex justify-between text-xs font-bold text-[#b1bad3]">
-              <span>Bones (Traps)</span>
-              <span className="text-[#e9113c] font-mono">{bonesCount} Bones</span>
+          <div className="space-y-1">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-bold text-[#b1bad3]">Bones</span>
+              <span className="font-mono text-[11px] text-[#e9113c] font-bold">{bonesCount} Bones</span>
             </div>
-            <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] p-1">
-              <input
-                type="number"
-                min={1}
-                max={24}
-                disabled={isPlaying}
-                value={bonesCount}
-                onChange={(e) => {
-                  const val = parseInt(e.target.value);
-                  if (!isNaN(val)) {
-                    setBonesCount(Math.max(1, Math.min(24, val)));
-                  }
-                }}
-                className="w-full bg-transparent px-2 text-sm font-bold text-white focus:outline-none font-mono"
-              />
-              <div className="flex items-center gap-1 pr-1">
+            <div className="flex rounded-lg bg-[#0f212e] border border-[#213743] focus-within:border-[#2f4553] p-1">
+              <div className="flex flex-1 items-center px-2.5">
+                <input
+                  type="number"
+                  min={1}
+                  max={24}
+                  disabled={isPlaying}
+                  value={bonesCount}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value);
+                    if (!isNaN(val)) {
+                      setBonesCount(Math.max(1, Math.min(24, val)));
+                    }
+                  }}
+                  className="w-full bg-transparent text-sm font-bold text-white outline-none font-mono"
+                />
+              </div>
+              <div className="flex items-center gap-1">
                 {[1, 3, 5, 10].map((b) => (
                   <button
                     key={b}
@@ -458,10 +504,10 @@ export default function ChickenGame() {
                       sounds.playClick();
                       setBonesCount(b);
                     }}
-                    className={`px-2 py-1 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
+                    className={`rounded-lg px-2.5 py-1.5 text-xs font-bold transition-colors cursor-pointer ${
                       bonesCount === b
                         ? "bg-[#213743] text-white border border-[#2f4553]"
-                        : "text-[#b1bad3] hover:text-white"
+                        : "text-[#b1bad3] hover:bg-[#213743]/50 hover:text-white"
                     }`}
                   >
                     {b}
@@ -470,100 +516,83 @@ export default function ChickenGame() {
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Quick Helper Actions during active round */}
-        {isPlaying && (
-          <div className="flex items-center justify-between pt-1">
+          {/* Mode Switch Tabs [ Manual | Auto ] Anchored at Bottom */}
+          <div className="flex rounded-lg bg-[#0f212e] p-1 border border-[#213743] mt-auto">
             <button
               type="button"
-              onClick={handleRandomPick}
-              disabled={isRevealing}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0f212e] border border-[#213743] text-xs font-bold text-white hover:bg-[#213743] transition-colors cursor-pointer"
-            >
-              <Dices className="h-4 w-4 text-[#00e701]" />
-              <span>Random Pick</span>
-            </button>
-            <div className="text-xs font-bold text-[#b1bad3] font-mono">
-              Uncovered:{" "}
-              <span className="text-white font-extrabold">{safeChickensFound} chickens</span>
-            </div>
-          </div>
-        )}
-
-        {/* PRIMARY CTA BUTTON: BET or CASHOUT */}
-        <div className="w-full pt-1">
-          {!isPlaying ? (
-            <button
-              type="button"
-              onClick={startRound}
-              disabled={betAmount > balance || betAmount <= 0}
-              className="w-full py-4 text-base font-extrabold rounded-xl bg-[#00e701] hover:bg-[#00c201] text-black shadow-lg hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider"
-            >
-              <Zap className="h-5 w-5 fill-current" />
-              <span>Bet</span>
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={handleCashout}
-              disabled={safeChickensFound === 0 || isRevealing}
-              className="w-full py-4 text-base font-extrabold rounded-xl bg-[#00e701] hover:bg-[#00c201] text-black shadow-lg hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider"
-            >
-              <Coins className="h-5 w-5" />
-              <span>
-                Cashout {activeSym}
-                {currentPayout.toFixed(2)}
-              </span>
-            </button>
-          )}
-        </div>
-
-        {/* Utility Bar */}
-        <div className="flex items-center justify-between pt-3 border-t border-[#213743] text-[#b1bad3]">
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
+              disabled={isPlaying}
               onClick={() => {
-                const next = !soundEnabled;
-                setSoundEnabled(next);
-                sounds.enabled = next;
-                if (next) sounds.playClick();
+                sounds.playClick();
+                setMode("manual");
               }}
-              className="p-2 rounded-lg bg-[#0f212e] border border-[#213743] hover:text-white transition-colors cursor-pointer"
-              title={soundEnabled ? "Mute Sound" : "Enable Sound"}
+              className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+                mode === "manual" ? "bg-[#213743] text-white shadow-sm" : "text-[#b1bad3] hover:text-white"
+              }`}
             >
-              {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4 text-red-400" />}
+              Manual
             </button>
-
             <button
               type="button"
-              onClick={() => setShowFairnessModal(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#0f212e] border border-[#213743] hover:text-white transition-colors cursor-pointer"
+              disabled={isPlaying}
+              onClick={() => {
+                sounds.playClick();
+                setMode("auto");
+              }}
+              className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+                mode === "auto" ? "bg-[#213743] text-white shadow-sm" : "text-[#b1bad3] hover:text-white"
+              }`}
             >
-              <ShieldCheck className="h-4 w-4 text-[#00e701]" />
-              <span>Provably Fair</span>
+              Auto
             </button>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setShowLiveStats(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-[#0f212e] border border-[#213743] hover:text-white transition-colors cursor-pointer"
-            >
-              <TrendingUp className="h-3.5 w-3.5 text-[#00e701]" />
-              <span>Live Stats</span>
-            </button>
+          {/* Utility Bar */}
+          <div className="flex items-center justify-between pt-2 border-t border-[#213743] text-[#b1bad3]">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const next = !soundEnabled;
+                  setSoundEnabled(next);
+                  sounds.enabled = next;
+                  if (next) sounds.playClick();
+                }}
+                className="p-1.5 rounded-lg bg-[#0f212e] border border-[#213743] hover:text-white transition-colors cursor-pointer"
+                title={soundEnabled ? "Mute Sound" : "Enable Sound"}
+              >
+                {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4 text-red-400" />}
+              </button>
 
-            <button
-              type="button"
-              onClick={toggleFullscreen}
-              className="p-2 rounded-lg bg-[#0f212e] border border-[#213743] hover:text-white transition-colors cursor-pointer"
-              title="Toggle Fullscreen"
-            >
-              {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-            </button>
+              <button
+                type="button"
+                onClick={() => setShowFairnessModal(true)}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-[#0f212e] border border-[#213743] hover:text-white transition-colors cursor-pointer"
+              >
+                <ShieldCheck className="h-4 w-4 text-[#00e701]" />
+                <span>Provably Fair</span>
+              </button>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowLiveStats(true)}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-[#0f212e] border border-[#213743] hover:text-white transition-colors cursor-pointer"
+              >
+                <TrendingUp className="h-3.5 w-3.5 text-[#00e701]" />
+                <span>Live Stats</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={toggleFullscreen}
+                className="p-1.5 rounded-lg bg-[#0f212e] border border-[#213743] hover:text-white transition-colors cursor-pointer"
+                title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+              >
+                {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+              </button>
+            </div>
           </div>
         </div>
       </div>
