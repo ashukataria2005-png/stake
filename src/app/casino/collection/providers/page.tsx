@@ -2,8 +2,9 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Search, Sparkles, Flame, Users, Layers, ExternalLink } from "lucide-react";
+import { Search, Layers } from "lucide-react";
 import { PROVIDERS_LIST } from "@/data/stakeGames";
+import { ProviderLogo } from "@/components/casino/ProviderLogos";
 import CasinoLiveBets from "@/components/casino/CasinoLiveBets";
 
 export default function ProvidersPage() {
@@ -12,6 +13,7 @@ export default function ProvidersPage() {
   const filteredProviders = PROVIDERS_LIST.filter(
     (p) =>
       p.name.toLowerCase().includes(searchQuery.toLowerCase().trim()) ||
+      p.id.toLowerCase().includes(searchQuery.toLowerCase().trim()) ||
       (p.badge && p.badge.toLowerCase().includes(searchQuery.toLowerCase().trim()))
   );
 
@@ -29,7 +31,7 @@ export default function ProvidersPage() {
                 Game Providers & Studios
               </h1>
               <span className="rounded-md bg-blue-500/15 text-blue-400 border border-blue-400/30 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider">
-                19 PARTNERS
+                {PROVIDERS_LIST.length} PARTNERS
               </span>
             </div>
 
@@ -43,7 +45,7 @@ export default function ProvidersPage() {
                 150K+ Active Players
               </span>
               <span className="text-[#2f4553]">•</span>
-              <span>19 Certified Studios • 2,500+ Games • Provably Fair Certified</span>
+              <span>{PROVIDERS_LIST.length} Certified Studios • 2,500+ Games • Provably Fair Certified</span>
             </div>
           </div>
         </div>
@@ -66,57 +68,43 @@ export default function ProvidersPage() {
         </div>
       </div>
 
-      {/* Providers Grid */}
-      <div className="grid grid-cols-3 gap-2 sm:gap-3 md:grid-cols-4 lg:grid-cols-6">
+      {/* 1:1 Authentic Stake Publishers / Providers Grid */}
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2.5 sm:gap-3.5">
         {filteredProviders.map((provider) => {
           const targetHref =
-            provider.id === "stake-originals"
+            provider.id === "stake-originals" || provider.id === "pub-stake"
               ? "/casino/group/stake-originals"
-              : provider.id === "evolution"
+              : provider.id === "evolution" || provider.id === "pub-evolution"
               ? "/casino/group/live-casino"
+              : provider.id === "spribe" || provider.id === "pub-spribe"
+              ? "/casino/group/spribe"
+              : provider.id === "pragmatic-play" || provider.id === "pub-pragmatic"
+              ? "/casino/group/pragmatic-play"
+              : provider.id === "hacksaw-gaming" || provider.id === "pub-hacksaw"
+              ? "/casino/group/hacksaw-gaming"
+              : provider.id === "smartsoft" || provider.id === "turbogames"
+              ? "/casino/group/turbogames"
               : `/casino/group/slots`;
 
           return (
             <Link
               key={provider.id}
               href={targetHref}
-              className="group relative flex flex-col justify-between rounded-xl overflow-hidden border border-[#213743] bg-[#1a2c38] p-4 transition-all duration-300 hover:-translate-y-1.5 hover:border-[#2f4553] hover:shadow-xl hover:shadow-blue-500/10 cursor-pointer select-none"
+              className="flex flex-col select-none cursor-pointer group w-full"
             >
-              {/* Badge */}
-              <div className="flex items-center justify-between min-h-[18px]">
-                {provider.badge ? (
-                  <span className="rounded bg-[#213743] border border-[#2f4553] px-1.5 py-0.5 text-[8px] font-black uppercase tracking-wider text-[#00e701]">
-                    {provider.badge}
-                  </span>
-                ) : (
-                  <span />
-                )}
-                <ExternalLink className="w-3.5 h-3.5 text-[#7a889b] group-hover:text-white transition-colors opacity-0 group-hover:opacity-100" />
-              </div>
-
-              {/* Provider Logo Box */}
-              <div className="my-5 flex flex-col items-center justify-center text-center">
-                <div
-                  className={`w-14 h-14 rounded-2xl flex items-center justify-center border font-black text-lg transition-transform duration-300 group-hover:scale-110 shadow-md ${provider.logoBg}`}
-                  style={{ color: provider.accentColor }}
-                >
-                  {provider.name.charAt(0)}
+              {/* Exact compact rounded pill-box styling */}
+              <div className="h-[54px] sm:h-[62px] w-full rounded-xl bg-[#213743] hover:bg-[#2a4454] border border-[#2f4553]/60 flex items-center justify-center p-2.5 transition-transform active:scale-95 cursor-pointer shadow-sm">
+                <div className="flex items-center justify-center max-w-full overflow-hidden text-white font-semibold">
+                  <ProviderLogo id={provider.id} name={provider.name} />
                 </div>
-                <h3 className="mt-3 text-xs sm:text-sm font-bold text-white group-hover:text-[#00e701] transition-colors truncate w-full">
-                  {provider.name}
-                </h3>
-                <span className="text-[10px] text-[#7a889b] font-medium">
-                  {provider.gamesCount} Games
-                </span>
               </div>
 
-              {/* Active Players Pill */}
-              <div className="flex items-center justify-center gap-1.5 rounded-md bg-[#0f212e]/80 border border-[#213743] py-1 px-2 text-[10px] font-mono text-[#b1bad3] w-full">
-                <span className="text-[#00e701] animate-pulse">🟢</span>
-                <span className="font-semibold text-white">
-                  {provider.playersCount.toLocaleString("en-US")}
+              {/* Live active player count indicator underneath each box */}
+              <div className="flex items-center justify-center gap-1.5 mt-1.5 text-[10px] sm:text-xs font-semibold text-[#b1bad3]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] shrink-0" />
+                <span>
+                  {(provider.playersCount || 1200).toLocaleString("en-US")} playing
                 </span>
-                <span className="text-[#7a889b]">playing</span>
               </div>
             </Link>
           );
