@@ -144,32 +144,27 @@ export default function AdminUsersPage() {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black text-white tracking-wide">
-              Manage Users & Wallet Balances
-            </h1>
-            <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-[#131b24] text-slate-300 border border-[#212f3d]">
-              Directory
-            </span>
-          </div>
-          <p className="text-xs text-slate-400 mt-1">
-            Realtime player ledger from Neon PostgreSQL. Direct manual balance credits, debits & luck controls.
+          <h2 className="text-2xl font-bold text-white tracking-tight">
+            Manage User (manage_user.php)
+          </h2>
+          <p className="text-xs text-slate-400 mt-1 font-medium">
+            Player ledger from Neon PostgreSQL. Direct manual balance adjustments and per-user luck controls.
           </p>
         </div>
 
         <button
           onClick={() => fetchUsers()}
           disabled={isLoading}
-          className="flex items-center gap-2 px-3.5 py-2 bg-[#1f2c3a] hover:bg-[#28384a] text-white text-xs font-semibold rounded-xl border border-[#2d4054] transition-all self-start sm:self-auto shadow"
+          className="flex items-center gap-2 px-3.5 py-2 bg-[#1f2124] hover:bg-[#282b30] text-slate-200 text-xs font-semibold rounded border border-[#333] transition-colors self-start sm:self-auto shadow-sm"
         >
-          <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-[#00e701]" : ""}`} />
+          <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-[#007bff]" : ""}`} />
           <span>Refresh Users</span>
         </button>
       </div>
 
       {/* Toast Banner */}
       {toastMessage && (
-        <div className="p-3.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center justify-between animate-in fade-in">
+        <div className="p-3.5 rounded bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center justify-between animate-in fade-in">
           <div className="flex items-center gap-2">
             <Check className="w-4 h-4" />
             <span>{toastMessage}</span>
@@ -181,20 +176,20 @@ export default function AdminUsersPage() {
       )}
 
       {/* Search & Filter Bar */}
-      <div className="bg-[#131b24] border border-[#212f3d] rounded-2xl p-4">
+      <div className="bg-[#131414] border border-[#23272b] rounded-lg p-4">
         <div className="relative">
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search users by Username, Mobile, Email, or User ID..."
-            className="w-full bg-[#0a0f14] border border-[#263747] rounded-xl px-4 py-2.5 pl-10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#00e701] transition-colors"
+            placeholder="Search users by Mobile, Username, Cust ID, or Email..."
+            className="w-full bg-[#0c0d0e] border border-[#2e3338] rounded px-4 py-2 pl-10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#007bff] transition-colors"
           />
-          <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+          <Search className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery("")}
-              className="absolute right-3 top-2.5 text-xs text-slate-400 hover:text-white"
+              className="absolute right-3 top-2 text-xs text-slate-400 hover:text-white"
             >
               Clear
             </button>
@@ -203,37 +198,38 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Users Table (Replicating manage_user.php) */}
-      <div className="bg-[#131b24] border border-[#212f3d] rounded-2xl overflow-hidden shadow-xl">
+      <div className="bg-[#131414] border border-[#23272b] rounded-lg p-4 shadow">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs">
+          <table className="w-full text-left border-collapse border border-[#23272b] text-xs">
             <thead>
-              <tr className="bg-[#17222d] text-slate-400 uppercase text-[10px] font-extrabold tracking-wider border-b border-[#212f3d]">
-                <th className="py-3 px-4">User Details</th>
-                <th className="py-3 px-4">Contact (Mobile / Email)</th>
-                <th className="py-3 px-4">Wallet Balance</th>
-                <th className="py-3 px-4">Deposits & Bets</th>
-                <th className="py-3 px-4">Luck Controller (RTP)</th>
-                <th className="py-3 px-4">Reg. Date</th>
-                <th className="py-3 px-4 text-right">Actions</th>
+              <tr className="bg-[#1a1d20] text-slate-300 font-bold border-b border-[#23272b]">
+                <th className="py-3 px-3.5 border-r border-[#23272b]">Cust ID</th>
+                <th className="py-3 px-3.5 border-r border-[#23272b]">Username</th>
+                <th className="py-3 px-3.5 border-r border-[#23272b]">Mobile</th>
+                <th className="py-3 px-3.5 border-r border-[#23272b]">Wallet Balance</th>
+                <th className="py-3 px-3.5 border-r border-[#23272b]">Recharge (Deposit)</th>
+                <th className="py-3 px-3.5 border-r border-[#23272b]">Luck Mode (RTP)</th>
+                <th className="py-3 px-3.5 border-r border-[#23272b]">Reg. Date</th>
+                <th className="py-3 px-3.5 text-center">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#212f3d]/60">
+            <tbody className="divide-y divide-[#23272b] text-slate-300">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-400">
-                    <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-[#00e701]" />
+                  <td colSpan={8} className="py-12 text-center text-slate-400">
+                    <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-[#007bff]" />
                     <span>Loading player accounts from Neon DB...</span>
                   </td>
                 </tr>
               ) : error ? (
                 <tr>
-                  <td colSpan={7} className="py-8 text-center text-rose-400">
+                  <td colSpan={8} className="py-8 text-center text-rose-400">
                     {error}
                   </td>
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-500">
+                  <td colSpan={8} className="py-12 text-center text-slate-500">
                     No users matching criteria.
                   </td>
                 </tr>
@@ -246,75 +242,53 @@ export default function AdminUsersPage() {
                   });
 
                   return (
-                    <tr key={u.id} className="hover:bg-[#1a2530]/50 transition-colors">
-                      {/* User Details */}
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 rounded-lg bg-[#202d3b] text-white font-bold flex items-center justify-center text-xs">
-                            {u.username[0]?.toUpperCase() || "U"}
-                          </div>
-                          <div>
-                            <div className="font-bold text-white">@{u.username}</div>
-                            <div className="text-[10px] text-slate-400 font-mono">ID: {u.id.slice(-8)}</div>
-                          </div>
-                        </div>
+                    <tr key={u.id} className="hover:bg-[#1a1c1e] transition-colors">
+                      {/* Cust ID */}
+                      <td className="py-3 px-3.5 border-r border-[#23272b] font-mono text-[11px] text-slate-400">
+                        {u.id.slice(-6)}
                       </td>
 
-                      {/* Contact */}
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        <div className="text-white font-medium">{u.phone || "No Mobile"}</div>
-                        <div className="text-[11px] text-slate-400">{u.email || "No Email"}</div>
+                      {/* Username */}
+                      <td className="py-3 px-3.5 border-r border-[#23272b] font-bold text-white">
+                        @{u.username}
+                      </td>
+
+                      {/* Mobile */}
+                      <td className="py-3 px-3.5 border-r border-[#23272b]">
+                        <span className="text-white font-medium">{u.phone || "—"}</span>
                       </td>
 
                       {/* Wallet Balance */}
-                      <td className="py-3.5 px-4 whitespace-nowrap">
-                        <div className="text-base font-black text-amber-300">
-                          ₹{u.walletBalance.toLocaleString()}
-                        </div>
-                        <div className="text-[10px] text-slate-400 uppercase font-semibold">
-                          {u.currency}
-                        </div>
+                      <td className="py-3 px-3.5 border-r border-[#23272b] font-bold text-amber-300">
+                        ₹{u.walletBalance.toLocaleString()}
                       </td>
 
-                      {/* Deposits & Bets */}
-                      <td className="py-3.5 px-4 whitespace-nowrap text-slate-300">
-                        <div>
-                          Deposited: <span className="font-bold text-emerald-400">₹{u.totalDeposited.toLocaleString()}</span>
-                        </div>
-                        <div className="text-[10px] text-slate-400 mt-0.5">
-                          {u.betsCount} bets • {u.transactionsCount} txns
-                        </div>
+                      {/* Recharge */}
+                      <td className="py-3 px-3.5 border-r border-[#23272b] text-emerald-400 font-bold">
+                        ₹{u.totalDeposited.toLocaleString()}
                       </td>
 
                       {/* Luck Controller Selector */}
-                      <td className="py-3.5 px-4 whitespace-nowrap">
+                      <td className="py-3 px-3.5 border-r border-[#23272b]">
                         <select
                           value={u.luckMode}
                           onChange={(e) => handleLuckModeChange(u.id, e.target.value)}
-                          className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition-colors ${
-                            u.luckMode === "HIGH_WIN"
-                              ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
-                              : u.luckMode === "LOW_WIN"
-                              ? "bg-rose-500/20 text-rose-300 border-rose-500/40"
-                              : u.luckMode === "MEDIUM_WIN"
-                              ? "bg-blue-500/20 text-blue-300 border-blue-500/40"
-                              : "bg-[#1f2b38] text-slate-300 border-[#2f4050]"
-                          }`}
+                          className="px-2 py-1 rounded text-xs font-bold bg-[#0c0d0e] border border-[#2e3338] text-white"
                         >
-                          <option value="NO_CONTROL" className="bg-[#131b24] text-white">Default (No Control)</option>
-                          <option value="HIGH_WIN" className="bg-[#131b24] text-emerald-400">High Win (Lucky Boost)</option>
-                          <option value="MEDIUM_WIN" className="bg-[#131b24] text-blue-400">Medium Win (Balanced)</option>
-                          <option value="LOW_WIN" className="bg-[#131b24] text-rose-400">Low Win (House Edge)</option>
+                          <option value="NO_CONTROL">Default (No Control)</option>
+                          <option value="HIGH_WIN">High Win (Lucky)</option>
+                          <option value="MEDIUM_WIN">Medium Win</option>
+                          <option value="LOW_WIN">Low Win (House)</option>
                         </select>
                       </td>
 
                       {/* Reg Date */}
-                      <td className="py-3.5 px-4 whitespace-nowrap text-slate-400 text-[11px]">
+                      <td className="py-3 px-3.5 border-r border-[#23272b] text-slate-400 text-[11px]">
                         {regDate}
                       </td>
 
-                      {/* Actions (Replicating Change Amount button from manage_user.php) */}
-                      <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                      {/* Action: Change Amount button matching manage_user.php */}
+                      <td className="py-3 px-3.5 text-center">
                         <button
                           onClick={() => {
                             setSelectedUserForBalance(u);
@@ -322,9 +296,9 @@ export default function AdminUsersPage() {
                             setBalanceMode("ADD");
                             setBalanceRemarks("");
                           }}
-                          className="px-3 py-1.5 rounded-lg bg-[#00e701] hover:bg-[#00c701] text-black font-extrabold text-[11px] uppercase tracking-wider transition-all shadow hover:scale-105"
+                          className="px-3 py-1 rounded bg-[#007bff] hover:bg-[#0056b3] text-white font-bold text-[11px] transition-colors shadow-sm"
                         >
-                          Edit Balance
+                          Change Amount
                         </button>
                       </td>
                     </tr>
