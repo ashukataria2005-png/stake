@@ -4,8 +4,12 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { CRYPTO_CURRENCIES, ALL_FIAT_CURRENCIES } from "@/data/currencies";
 
 export interface UserProfile {
+  id?: string;
   name: string;
+  username?: string;
   email: string;
+  phone?: string;
+  role?: string;
   avatarColor: string;
 }
 
@@ -251,9 +255,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
   const login = (userData?: Partial<UserProfile>) => {
     const profile: UserProfile = {
-      name: userData?.name || "Anuj",
-      email: userData?.email || "ashukataria2005@gmail.com",
-      avatarColor: userData?.avatarColor || "#9333ea",
+      id: userData?.id || `usr_${Date.now()}`,
+      name: userData?.name || userData?.username || "Player",
+      username: userData?.username || userData?.name || "Player",
+      email: userData?.email || "user@stake.com",
+      phone: userData?.phone,
+      role: userData?.role || "USER",
+      avatarColor: userData?.avatarColor || "#00e701",
     };
     setIsAuthenticated(true);
     setUser(profile);
@@ -264,6 +272,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
     try {
       localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({ isAuthenticated: true, user: profile }));
+      localStorage.setItem("stake_active_user", JSON.stringify(profile));
+      localStorage.setItem("stake_user_id", profile.id || profile.username || "");
       localStorage.setItem(BALANCE_STORAGE_KEY, DEFAULT_USD_BALANCE.toString());
       localStorage.setItem(CRYPTO_BALANCES_STORAGE_KEY, JSON.stringify(DEFAULT_CRYPTO_BALANCES));
     } catch {

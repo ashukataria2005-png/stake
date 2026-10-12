@@ -4,6 +4,7 @@ export interface UserLookupOptions {
   userId?: string | null;
   username?: string | null;
   email?: string | null;
+  phone?: string | null;
 }
 
 /**
@@ -19,11 +20,13 @@ export async function getOrCreateUser(
   let searchId: string | null = null;
   let searchUsername: string | null = null;
   let searchEmail: string | null = null;
+  let searchPhone: string | null = null;
 
   if (identifier && typeof identifier === "object") {
     searchId = identifier.userId?.trim() || null;
     searchUsername = identifier.username?.trim() || null;
     searchEmail = identifier.email?.trim() || null;
+    searchPhone = identifier.phone?.trim() || null;
   } else if (typeof identifier === "string") {
     searchId = identifier.trim() || null;
   }
@@ -42,15 +45,17 @@ export async function getOrCreateUser(
     searchId,
     searchUsername,
     searchEmail,
+    searchPhone,
     primarySearchKey,
   });
 
   try {
-    // 1. Try to find existing user by ID, username, or email
+    // 1. Try to find existing user by ID, username, email, or phone
     const orConditions: any[] = [];
     if (searchId) orConditions.push({ id: searchId });
     if (searchUsername) orConditions.push({ username: searchUsername });
     if (searchEmail) orConditions.push({ email: searchEmail });
+    if (searchPhone) orConditions.push({ phone: searchPhone });
     if (primarySearchKey) {
       orConditions.push({ username: primarySearchKey });
       orConditions.push({ email: primarySearchKey });
