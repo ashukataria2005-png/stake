@@ -188,14 +188,14 @@ export default function Navbar() {
               </div>
 
               {/* Vibrant Blue Wallet Button Attached Cleanly to the Right of Balance Pill */}
-              <button
-                onClick={openWalletModal}
-                className="flex items-center justify-center gap-1 sm:gap-1.5 h-8 sm:h-9 w-8 sm:w-auto rounded-r-lg bg-[#1475e1] hover:bg-[#1268c7] px-2 sm:px-3.5 text-xs sm:text-sm font-bold text-white shadow-md transition-all active:scale-95 cursor-pointer border border-[#1475e1] shrink-0"
-                title="Wallet"
-              >
-                <Wallet className="h-5 w-5 sm:h-[22px] sm:w-[22px]" />
-                <span className="hidden sm:inline">Wallet</span>
-              </button>
+<button
+  onClick={openWalletModal}
+  className="flex items-center justify-center gap-1.5 h-8 sm:h-9 w-9 sm:w-auto rounded-r-lg bg-[#1475e1] hover:bg-[#1268c7] px-2 sm:px-3.5 text-xs sm:text-sm font-bold text-white shadow-none transition-all active:scale-95 cursor-pointer shrink-0 box-border"
+  title="Wallet"
+>
+  <Wallet className="h-5 w-5 sm:h-[22px] sm:w-[22px]" />
+  <span className="hidden sm:inline">Wallet</span>
+</button>
             </div>
           </div>
         ) : (
