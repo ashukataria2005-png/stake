@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import {
@@ -21,6 +21,8 @@ import {
   ChevronRight,
   AlertCircle,
   RefreshCw,
+  Upload,
+  CheckCircle2,
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
@@ -54,7 +56,7 @@ const QUICK_AMOUNTS = [300, 500, 1000, 5000, 10000, 25000];
 
 export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
   const router = useRouter();
-  const { balance, updateBalance, currency, formatDisplayBalance } = useGame();
+  const { balance, realBalance, updateBalance, currency, formatDisplayBalance } = useGame();
 
   const [activeTab, setActiveTab] = useState<"deposit" | "withdraw">("deposit");
 
@@ -76,6 +78,28 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
   const [depositSuccessMsg, setDepositSuccessMsg] = useState<string>("");
   const [copiedUpi, setCopiedUpi] = useState<boolean>(false);
 
+  // Screenshot upload state
+  const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
+  const [screenshotFeedback, setScreenshotFeedback] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith("image/")) {
+        alert("Please upload an image file (PNG, JPG, or WEBP).");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        setScreenshotPreview(reader.result as string);
+        setScreenshotFeedback("Screenshot uploaded successfully");
+        sounds.playClick();
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   // Deposit Orders Ledger state
   const [depositOrders, setDepositOrders] = useState<DepositOrder[]>([]);
   const [selectedPendingOrder, setSelectedPendingOrder] = useState<DepositOrder | null>(null);
@@ -95,9 +119,9 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
   const [isSubmittingWithdraw, setIsSubmittingWithdraw] = useState<boolean>(false);
   const [withdrawalOrders, setWithdrawalOrders] = useState<WithdrawalOrder[]>([]);
 
-  // Approximate balance in INR (rate 86.5)
-  const inrBalance = Math.floor(balance * 86.5);
-  const displayInfo = formatDisplayBalance();
+  // Active currency balance resolution (reads exact active currency without double conversion)
+  const displayInfo = formatDisplayBalance(realBalance);
+  const inrBalance = Math.floor(realBalance * 86.5);
 
   // Load persistent orders from localStorage
   const loadLedgers = () => {
@@ -127,6 +151,9 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
       setUtrInput("");
       setUtrError("");
       setDepositSuccessMsg("");
+      setScreenshotPreview(null);
+      setScreenshotFeedback("");
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   }, [isOpen]);
 
@@ -420,11 +447,13 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
               <div className="flex items-center gap-1.5 text-xs text-[#b1bad3]">
                 <span>Active Balance:</span>
                 <span className="font-mono text-[#00e701] font-bold">
-                  ₹{inrBalance.toLocaleString("en-IN")}
+                  {displayInfo.symbol}{displayInfo.amount} {displayInfo.code}
                 </span>
-                <span className="text-[10px] text-[#7a889b]">
-                  (${parseFloat(balance.toString()).toFixed(2)} USD)
-                </span>
+                {displayInfo.code !== "USD" && (
+                  <span className="text-[10px] text-[#7a889b]">
+                    (${realBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD)
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -721,6 +750,78 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                           <div className="flex items-center gap-1.5 text-xs text-red-400 font-semibold mt-1">
                             <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                             <span>{utrError}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Payment Screenshot Upload with Live Preview & Remove option */}
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-bold text-[#b1bad3] flex items-center justify-between">
+                          <span>Payment Screenshot / Receipt</span>
+                          <span className="text-[10px] text-[#7a889b]">Optional for express audit</span>
+                        </label>
+
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileChange}
+                          className="hidden"
+                        />
+
+                        {screenshotPreview ? (
+                          <div className="border border-[#2f4553] bg-[#0f212e] rounded-xl p-2.5 flex items-center justify-between gap-3 animate-in fade-in">
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <img
+                                src={screenshotPreview}
+                                alt="Receipt preview"
+                                className="w-12 h-12 object-cover rounded-lg border border-[#213743] shrink-0"
+                              />
+                              <div className="min-w-0">
+                                <div className="text-xs font-bold text-white truncate">Receipt Attached</div>
+                                <div className="text-[11px] text-[#00e701] flex items-center gap-1 font-semibold">
+                                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                                  <span>{screenshotFeedback || "Screenshot uploaded successfully"}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                className="text-xs font-semibold text-[#b1bad3] hover:text-white px-2 py-1 bg-[#213743] hover:bg-[#2a4454] rounded-lg transition-colors cursor-pointer"
+                              >
+                                Change
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setScreenshotPreview(null);
+                                  setScreenshotFeedback("");
+                                  if (fileInputRef.current) fileInputRef.current.value = "";
+                                }}
+                                className="text-xs font-semibold text-red-400 hover:text-red-300 px-2 py-1 bg-[#213743] hover:bg-red-500/20 rounded-lg transition-colors cursor-pointer"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div
+                            onClick={() => fileInputRef.current?.click()}
+                            className="cursor-pointer border-2 border-dashed border-[#2f4553] hover:border-[#1475e1] bg-[#0f212e]/70 hover:bg-[#0f212e] rounded-xl p-3 flex items-center justify-center gap-2.5 transition-colors group text-center"
+                          >
+                            <div className="w-8 h-8 rounded-lg bg-[#213743] group-hover:bg-[#1475e1]/20 flex items-center justify-center text-[#b1bad3] group-hover:text-[#1475e1] transition-colors shrink-0">
+                              <Upload className="w-4 h-4" />
+                            </div>
+                            <div className="text-left">
+                              <div className="text-xs font-bold text-white group-hover:text-[#1475e1] transition-colors">
+                                Upload Payment Screenshot
+                              </div>
+                              <div className="text-[10px] text-[#7a889b]">
+                                PNG, JPG or receipt from GPay, PhonePe, Paytm
+                              </div>
+                            </div>
                           </div>
                         )}
                       </div>

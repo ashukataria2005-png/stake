@@ -143,11 +143,11 @@ export default function CasinoGameRow({
       </div>
 
       {/* Exact 3-Item Layout Grid */}
-      <div className="grid grid-cols-3 gap-1.5 sm:gap-2.5 w-full transition-all duration-300 ease-in-out">
+      <div className={`grid grid-cols-3 ${cards[0]?.isPublisherCard ? "gap-2.5 sm:gap-3.5" : "gap-1.5 sm:gap-2.5"} w-full transition-all duration-300 ease-in-out`}>
         {displayedCards.map((card) => {
           const thumb = getGameThumbnail(card.id, card.image);
 
-          // For Publisher / Studio tiles (Task 19: Compact Horizontal Pill-Boxes)
+          // For Publisher / Studio tiles (1:1 Compact Horizontal Rounded Pill-Boxes)
           if (card.isPublisherCard) {
             const pubContent = (
               <div
@@ -164,6 +164,13 @@ export default function CasinoGameRow({
                       {card.title}
                     </span>
                   )}
+                </div>
+                {/* Live active player count indicator underneath each box */}
+                <div className="flex items-center justify-center gap-1.5 mt-1.5 text-[10px] sm:text-xs font-semibold text-[#b1bad3]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] shrink-0" />
+                  <span>
+                    {(card.playersCount || 1200).toLocaleString("en-US")} playing
+                  </span>
                 </div>
               </div>
             );
