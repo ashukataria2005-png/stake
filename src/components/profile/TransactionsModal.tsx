@@ -209,6 +209,7 @@ export default function TransactionsModal({ isOpen, onClose }: TransactionsModal
           orderId: item.orderId || item.id,
           method: item.method || "UPI",
           autoCredit: true,
+          isLateSubmission: true,
         }),
       });
 

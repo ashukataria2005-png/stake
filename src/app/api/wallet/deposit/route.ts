@@ -27,6 +27,7 @@ export async function POST(req: NextRequest) {
       method = "UPI",
       status = "PENDING",
       autoCredit = true,
+      isLateSubmission = false,
     } = body;
 
     console.log("Deposit payload received:", {
@@ -41,6 +42,7 @@ export async function POST(req: NextRequest) {
       screenshotLength: screenshotUrl?.length || 0,
       status,
       autoCredit,
+      isLateSubmission,
     });
 
     if (!amount || isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) {
@@ -77,24 +79,55 @@ export async function POST(req: NextRequest) {
 
     const txStatus = status === "APPROVED" ? "APPROVED" : "PENDING";
     const approvedBy = txStatus === "APPROVED" ? (autoCredit ? "SYSTEM_AUTO" : "ADMIN") : null;
+    const approvedAt = txStatus === "APPROVED" ? new Date() : null;
 
-    // 2. Insert Transaction record in Neon PostgreSQL
+    // 2. Insert or Update Transaction record in Neon PostgreSQL
     let transaction;
     try {
-      transaction = await prisma.transaction.create({
-        data: {
-          userId: resolvedUser.id,
-          type: "DEPOSIT",
-          amount: numericAmount,
-          currency: currency.toUpperCase(),
-          utrNumber: utrNumber ? String(utrNumber).trim() : null,
-          screenshotUrl: screenshotUrl || null,
-          status: txStatus,
-          approvedBy,
-          method: method || "UPI",
-          txHash: orderId ? String(orderId) : null,
-        },
-      });
+      // If updating an existing transaction with orderId or id
+      if (orderId) {
+        const existingTx = await prisma.transaction.findFirst({
+          where: {
+            OR: [
+              { id: String(orderId) },
+              { txHash: String(orderId) },
+            ],
+          },
+        });
+
+        if (existingTx) {
+          transaction = await prisma.transaction.update({
+            where: { id: existingTx.id },
+            data: {
+              utrNumber: utrNumber ? String(utrNumber).trim() : existingTx.utrNumber,
+              screenshotUrl: screenshotUrl || existingTx.screenshotUrl,
+              status: txStatus,
+              approvedBy: approvedBy || existingTx.approvedBy,
+              approvedAt: approvedAt || existingTx.approvedAt,
+              isLateSubmission: true,
+            },
+          });
+        }
+      }
+
+      if (!transaction) {
+        transaction = await prisma.transaction.create({
+          data: {
+            userId: resolvedUser.id,
+            type: "DEPOSIT",
+            amount: numericAmount,
+            currency: currency.toUpperCase(),
+            utrNumber: utrNumber ? String(utrNumber).trim() : null,
+            screenshotUrl: screenshotUrl || null,
+            status: txStatus,
+            approvedBy,
+            approvedAt,
+            isLateSubmission: Boolean(isLateSubmission),
+            method: method || "UPI",
+            txHash: orderId ? String(orderId) : null,
+          },
+        });
+      }
 
       console.log("[Deposit API] Transaction created in Neon DB:", {
         id: transaction.id,
