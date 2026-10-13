@@ -380,7 +380,7 @@ export const TURBOGAMES_THUMBNAILS: Record<string, string> = {
   "turbo-plinko": "/games/turbogames/turbo-plinko.webp",
   "turbo-dice-twice": "/games/turbogames/turbo-dice-twice.webp",
   "turbo-hi-lo": "/games/turbogames/turbo-hi-lo.webp",
-  "turbo-go-roulette": "/games/turbogames/turbo-go-roulette.webp",
+  "turbo-double-roll": "/games/turbogames/turbo-double-roll.webp",
   "turbo-bubbles": "/games/turbogames/turbo-bubbles.webp",
   "turbo-baccarat": "/games/turbogames/turbo-baccarat.webp",
   "turbo-chicken-route": "/games/turbogames/turbo-chicken-route.webp",

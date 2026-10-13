@@ -3964,7 +3964,7 @@ const RAW_TURBOGAMES_GAMES: GameItem[] = [
   {
     id: "turbo-chicken-route",
     title: "Chicken Route",
-    slug: "chicken-route",
+    slug: "turbo-chicken-route",
     provider: "Turbo Games",
     playersCount: 3410,
     livePlayerCount: 3410,
@@ -4116,9 +4116,9 @@ const RAW_TURBOGAMES_GAMES: GameItem[] = [
     bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
   },
   {
-    id: "turbo-go-roulette",
-    title: "Go Roulette",
-    slug: "go-roulette",
+    id: "turbo-double-roll",
+    title: "Double Roll",
+    slug: "turbo-double-roll",
     provider: "Turbo Games",
     playersCount: 2980,
     livePlayerCount: 2980,

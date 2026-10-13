@@ -185,9 +185,12 @@ export const CASINO_LAYOUT_CATEGORIES: CategoryLayoutItem[] = [
     title: "Turbo Games",
     enabled: true,
     viewAllLink: "/casino/group/turbogames",
-    showGameTitle: true,
-    showProviderName: true,
+    showGameTitle: false,
+    showProviderName: false,
     orderedGameSlugs: [
+      "turbo-vortex-aero",
+      "turbo-chicken-route",
+      "turbo-double-roll",
       "turbo-plinko",
       "turbo-mines",
       "turbo-dice-twice",
@@ -200,7 +203,7 @@ export const CASINO_LAYOUT_CATEGORIES: CategoryLayoutItem[] = [
       "turbo-bubbles",
     ],
   },
-  
+
   {
     id: "mac88",
     title: "Mac88 Indian Suite",
@@ -237,9 +240,9 @@ export const CASINO_LAYOUT_CATEGORIES: CategoryLayoutItem[] = [
     showProviderName: false,
     orderedGameSlugs: EVOPLAY_SLUGS,
   },
-  
-  
-  
+
+
+
   {
     id: "featured-publishers",
     title: "Featured Publishers",

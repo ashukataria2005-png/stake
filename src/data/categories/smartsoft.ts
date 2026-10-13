@@ -1,6 +1,9 @@
 import { CategoryModule } from "./types";
 
 export const SMARTSOFT_SLUGS: string[] = [
+  "smartsoft-propel-x",
+  "smartsoft-car-x",
+  "smartsoft-football-x",
   "jetx",
   "towerx",
   "rollx",
@@ -15,7 +18,7 @@ export const SMARTSOFT_SLUGS: string[] = [
   "smartsoft-roulette",
   "smartsoft-blackjack",
   "smartsoft-baccarat",
-  "smartsoft-football-x",
+
 ];
 
 export const SMARTSOFT_CATEGORY: CategoryModule = {
