@@ -454,7 +454,7 @@ export const TURBOGAMES_THUMBNAILS: Record<string, string> = {
   "turbo-chicken-goal": "/games/turbogames/turbo-chicken-goal.webp",
   "turbo-pumpedx": "/games/turbogames/turbo-pumpedx.webp",
   "turbo-1tap-mines": "/games/turbogames/turbo-1tap-mines.webp",
-  
+
   "turbo-vortex": "/games/turbogames/vortex.webp",
   "turbo-vortex-2": "/games/turbogames/vortex-2.webp",
   "turbo-vortex-aero": "/games/turbogames/turbo-vortex-aero.webp",
@@ -524,17 +524,25 @@ export const HACKSAW_THUMBNAILS: Record<string, string> = {
   "stack-em": "/games/hacksaw/stack-em.webp",
   "le-bandit": "/games/hacksaw/le-bandit.webp",
   "beam-boys": "/games/hacksaw/beam-boys.webp",
-  "feel-the-beat": "/games/hacksaw/rip-city.webp",
+  "fear-the-dark": "/games/hacksaw/fear-the-dark.webp",
   "fist-of-destruction": "/games/hacksaw/gladiator-legends.webp",
   "2-wild-2-die": "/games/hacksaw/2-wild-2-die.webp",
   "drop-em": "/games/hacksaw/drop-em.webp",
   "stormforged": "/games/hacksaw/stormforged.webp",
   "undead-fortune": "/games/hacksaw/undead-fortune.webp",
-  "pug-thug": "/games/hacksaw/pug-thugs.webp",
-  "pug-thugs": "/games/hacksaw/pug-thugs.webp",
+  "pug-life": "/games/hacksaw/pug-life.webp",
+  "dawn-of-kings": "/games/hacksaw/dawn-of-kings.webp",
+  "mighty-masks": "/games/hacksaw/mighty-masks.webp",
+  "keep-em": "/games/hacksaw/keep-em.webp",
+  "cursed-seas": "/games/hacksaw/cursed-seas.webp",
+  "book-of-time": "/games/hacksaw/book-of-time.webp",
+  "beast-below": "/games/hacksaw/beast-below.webp",
+  "franks-farm": "/games/hacksaw/franks-farm.webp",
+  "densho": "/games/hacksaw/densho.webp",
   "eye-of-the-panda": "/games/hacksaw/eye-of-the-panda.webp",
   "time-spinners": "/games/hacksaw/time-spinners.webp",
   "warriors-ways": "/games/hacksaw/warriors-ways.webp",
+  "outlaws-inc": "/games/hacksaw/outlaws-inc.webp",
 };
 
 // ==========================================
