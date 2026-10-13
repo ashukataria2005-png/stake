@@ -477,6 +477,8 @@ export const TURBOGAMES_THUMBNAILS: Record<string, string> = {
 // PRAGMATIC PLAY REGISTRY
 // ==========================================
 export const PRAGMATIC_THUMBNAILS: Record<string, string> = {
+  "high-flyer": "/games/pragmatic/high-flyer.webp",
+  "spaceman": "/games/pragmatic/spaceman.webp",
   "gates-of-olympus": "/games/pragmatic/gates-of-olympus.webp",
   "gates-of-olympus-1000": "/games/pragmatic/gates-of-olympus-1000.webp",
   "sweet-bonanza": "/games/pragmatic/sweet-bonanza.webp",
