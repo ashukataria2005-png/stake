@@ -218,7 +218,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         return null;
       })() : null);
 
-      const searchKey = activeUser?.id || activeUser?.username || activeUser?.name || activeUser?.email || "guest_player";
+      const searchKey = activeUser?.id || activeUser?.username || activeUser?.email || "guest_player";
       const res = await fetch(`/api/wallet/balance?userId=${encodeURIComponent(searchKey)}`);
       const data = await res.json();
 
@@ -514,8 +514,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
+    let nextRealBalance = 0;
     setRealBalance((prev) => {
       const next = Math.max(0, parseFloat((prev + amountUsd).toFixed(4)));
+      nextRealBalance = next;
       try {
         localStorage.setItem(BALANCE_STORAGE_KEY, next.toString());
       } catch {
@@ -524,6 +526,36 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       success = true;
       return next;
     });
+
+    // Background sync to Neon PostgreSQL wallet immediately so fast refresh preserves exact balance
+    try {
+      const activeUser = user || (typeof window !== "undefined" ? (() => {
+        try {
+          const authRaw = localStorage.getItem(AUTH_STORAGE_KEY);
+          if (authRaw) {
+            const parsed = JSON.parse(authRaw);
+            if (parsed?.user) return parsed.user;
+          }
+        } catch {}
+        return null;
+      })() : null);
+
+      const targetUserId = activeUser?.id || activeUser?.username || activeUser?.email || "guest_player";
+      const newInrBalance = parseFloat((nextRealBalance * 86.5).toFixed(2));
+
+      fetch("/api/wallet/balance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: targetUserId,
+          balance: newInrBalance,
+        }),
+      }).catch((err) => {
+        console.warn("[GameContext] Failed to persist gameplay balance:", err);
+      });
+    } catch {
+      // ignore
+    }
 
     // Also update crypto balances in Real Play mode
     setCryptoBalances((prev) => {

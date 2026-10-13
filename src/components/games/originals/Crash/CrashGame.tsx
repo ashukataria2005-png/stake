@@ -319,20 +319,23 @@ export default function CrashGame() {
       }
 
       // Persist bet round to Neon PostgreSQL BetHistory
+      const targetUserId = user?.id || user?.username || "guest_player";
       fetch("/api/bets/record", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          userId: targetUserId,
           gameName: "Crash",
           betAmount: activeBetAmount,
           payoutMultiplier: mult,
           payoutAmount: winPayout,
           outcome: "CASHOUT",
+          updateWallet: false,
           gameData: { crashPoint, cashedOutAt: mult },
         }),
       }).catch((err) => console.error("Failed to record Crash bet:", err));
     },
-    [activeBetAmount, currentMultiplier, hasCashedOut, phase, updateBalance, crashPoint]
+    [activeBetAmount, currentMultiplier, hasCashedOut, phase, updateBalance, crashPoint, user]
   );
 
   // Auto cashout listener during flight
@@ -433,15 +436,18 @@ export default function CrashGame() {
 
       // Persist loss to Neon PostgreSQL BetHistory if player had an active bet and did not cash out
       if (!hasCashedOut && activeBetAmount > 0) {
+        const targetUserId = user?.id || user?.username || "guest_player";
         fetch("/api/bets/record", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            userId: targetUserId,
             gameName: "Crash",
             betAmount: activeBetAmount,
             payoutMultiplier: 0.0,
             payoutAmount: 0.0,
             outcome: "LOSS",
+            updateWallet: false,
             gameData: { crashPoint },
           }),
         }).catch((err) => console.error("Failed to record Crash loss bet:", err));

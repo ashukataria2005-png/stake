@@ -20,7 +20,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid bet details" }, { status: 400 });
     }
 
-    const { user, wallet } = await getOrCreateUser(userId || "demo_player");
+    const rawUserId = userId;
+    const validUserId = (rawUserId && rawUserId !== "undefined" && rawUserId !== "null" && String(rawUserId).trim().length > 0)
+      ? String(rawUserId).trim()
+      : "guest_player";
+
+    const { user, wallet } = await getOrCreateUser(validUserId);
 
     // 1. Create BetHistory entry in Neon
     const betHistory = await prisma.betHistory.create({
@@ -38,13 +43,36 @@ export async function POST(req: NextRequest) {
     // 2. Atomically update wallet balance & wagered in Neon PostgreSQL
     // betAmount is deducted, payoutAmount is credited (net delta = payoutAmount - numericBet)
     const netDelta = (parseFloat(payoutAmount) || 0.0) - numericBet;
-    const updatedWallet = await prisma.wallet.update({
-      where: { id: wallet.id },
-      data: {
-        balance: { increment: netDelta },
-        totalWagered: { increment: numericBet },
-      },
-    });
+    let updatedWallet = wallet;
+
+    if (body.updateWallet !== false) {
+      if (typeof body.balance === "number") {
+        updatedWallet = await prisma.wallet.update({
+          where: { id: wallet.id },
+          data: {
+            balance: Math.max(0, parseFloat(Number(body.balance).toFixed(2))),
+            totalWagered: { increment: numericBet },
+          },
+        });
+      } else {
+        const currentBal = Number(wallet.balance);
+        const newBal = Math.max(0, parseFloat((currentBal + netDelta).toFixed(2)));
+        updatedWallet = await prisma.wallet.update({
+          where: { id: wallet.id },
+          data: {
+            balance: newBal,
+            totalWagered: { increment: numericBet },
+          },
+        });
+      }
+    } else {
+      updatedWallet = await prisma.wallet.update({
+        where: { id: wallet.id },
+        data: {
+          totalWagered: { increment: numericBet },
+        },
+      });
+    }
 
     return NextResponse.json({
       success: true,

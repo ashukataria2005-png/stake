@@ -39,7 +39,7 @@ function calculateMaxMultiplier(mines: number): number {
 }
 
 export default function MinesGame() {
-  const { balance, realBalance, hasVerifiedDeposit, playMode, updateBalance, currency, addRecentlyPlayedGame, userLuckMode } = useGame();
+  const { balance, realBalance, hasVerifiedDeposit, playMode, updateBalance, currency, addRecentlyPlayedGame, userLuckMode, user } = useGame();
   const isDemo = playMode === "fun" || !hasVerifiedDeposit;
 
   // Mode: Manual or Auto
@@ -162,19 +162,22 @@ export default function MinesGame() {
     ]);
 
     // Persist bet to Neon PostgreSQL BetHistory
+    const targetUserId = user?.id || user?.username || "guest_player";
     fetch("/api/bets/record", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        userId: targetUserId,
         gameName: "Mines",
         betAmount,
         payoutMultiplier: currentMultiplier,
         payoutAmount: winAmount,
         outcome: "WIN",
+        updateWallet: false,
         gameData: { minesCount, gemsOpened },
       }),
     }).catch((err) => console.error("Failed to record Mines win bet:", err));
-  }, [animations, betAmount, currentMultiplier, gemsOpened, isPlaying, updateBalance, minesCount]);
+  }, [animations, betAmount, currentMultiplier, gemsOpened, isPlaying, updateBalance, minesCount, user]);
 
   // Reveal a tile on click
   const handleTileClick = useCallback(
@@ -235,15 +238,18 @@ export default function MinesGame() {
         ]);
 
         // Persist loss to Neon PostgreSQL BetHistory
+        const targetUserId = user?.id || user?.username || "guest_player";
         fetch("/api/bets/record", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            userId: targetUserId,
             gameName: "Mines",
             betAmount,
             payoutMultiplier: 0.0,
             payoutAmount: 0.0,
             outcome: "LOSS",
+            updateWallet: false,
             gameData: { minesCount, revealedCount: nextRevealed.length },
           }),
         }).catch((err) => console.error("Failed to record Mines loss bet:", err));

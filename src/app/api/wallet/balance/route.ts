@@ -5,7 +5,10 @@ import { getOrCreateUser } from "@/lib/dbUser";
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const userId = searchParams.get("userId") || "demo_player";
+    const rawUserId = searchParams.get("userId");
+    const userId = (rawUserId && rawUserId !== "undefined" && rawUserId !== "null" && rawUserId.trim().length > 0)
+      ? rawUserId.trim()
+      : "guest_player";
 
     const { user, wallet } = await getOrCreateUser(userId);
 
@@ -44,23 +47,30 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { userId, balance, delta } = body;
+    const { userId: rawUserId, balance, delta } = body;
 
-    const { wallet } = await getOrCreateUser(userId || "demo_player");
+    const userId = (rawUserId && rawUserId !== "undefined" && rawUserId !== "null" && String(rawUserId).trim().length > 0)
+      ? String(rawUserId).trim()
+      : "guest_player";
+
+    const { wallet } = await getOrCreateUser(userId);
 
     let updatedWallet;
-    if (typeof delta === "number") {
+    if (typeof balance === "number") {
+      const safeBalance = Math.max(0, parseFloat(Number(balance).toFixed(2)));
       updatedWallet = await prisma.wallet.update({
         where: { id: wallet.id },
         data: {
-          balance: { increment: delta },
+          balance: safeBalance,
         },
       });
-    } else if (typeof balance === "number") {
+    } else if (typeof delta === "number") {
+      const current = Number(wallet.balance);
+      const newBal = Math.max(0, parseFloat((current + delta).toFixed(2)));
       updatedWallet = await prisma.wallet.update({
         where: { id: wallet.id },
         data: {
-          balance,
+          balance: newBal,
         },
       });
     } else {

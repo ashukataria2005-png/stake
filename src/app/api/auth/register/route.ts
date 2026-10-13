@@ -143,13 +143,13 @@ export async function POST(req: NextRequest) {
           create: [
             {
               currency: "INR",
-              balance: 10000.0,
-              totalDeposited: 10000.0,
+              balance: 0.0,
+              totalDeposited: 0.0,
             },
             {
               currency: "USD",
-              balance: 115.6,
-              totalDeposited: 115.6,
+              balance: 0.0,
+              totalDeposited: 0.0,
             },
           ],
         },
