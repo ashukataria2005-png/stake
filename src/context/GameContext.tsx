@@ -56,6 +56,7 @@ interface GameContextType {
   isWalletModalOpen: boolean;
   isWalletSettingsOpen: boolean;
   isTransactionsModalOpen: boolean;
+  isSettingsModalOpen: boolean;
   recentlyPlayedGames: RecentlyPlayedGame[];
   addRecentlyPlayedGame: (game: RecentlyPlayedGame) => void;
   toggleSidebar: () => void;
@@ -89,6 +90,8 @@ interface GameContextType {
   closeWalletSettings: () => void;
   openTransactionsModal: () => void;
   closeTransactionsModal: () => void;
+  openSettingsModal: () => void;
+  closeSettingsModal: () => void;
   previewGame: any | null;
   openGamePreview: (game: any) => void;
   closeGamePreview: () => void;
@@ -146,6 +149,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [isWalletModalOpen, setIsWalletModalOpen] = useState<boolean>(false);
   const [isWalletSettingsOpen, setIsWalletSettingsOpen] = useState<boolean>(false);
   const [isTransactionsModalOpen, setIsTransactionsModalOpen] = useState<boolean>(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
   const [recentlyPlayedGames, setRecentlyPlayedGames] = useState<RecentlyPlayedGame[]>([]);
   const [previewGame, setPreviewGame] = useState<any | null>(null);
   const [userLuckMode, setUserLuckMode] = useState<"HIGH_WIN" | "MEDIUM_WIN" | "LOW_WIN" | "NO_CONTROL">("NO_CONTROL");
@@ -429,6 +433,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const openTransactionsModal = () => setIsTransactionsModalOpen(true);
   const closeTransactionsModal = () => setIsTransactionsModalOpen(false);
 
+  const openSettingsModal = () => setIsSettingsModalOpen(true);
+  const closeSettingsModal = () => setIsSettingsModalOpen(false);
+
   const setCurrency = (curr: string) => {
     setCurrencyState(curr);
     try {
@@ -673,6 +680,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         closeWalletSettings,
         openTransactionsModal,
         closeTransactionsModal,
+        isSettingsModalOpen,
+        openSettingsModal,
+        closeSettingsModal,
         previewGame,
         openGamePreview,
         closeGamePreview,

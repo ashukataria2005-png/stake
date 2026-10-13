@@ -15,6 +15,7 @@ import { useGame } from "@/context/GameContext";
 import WalletModal from "@/components/WalletModal";
 import WalletSettingsModal from "@/components/WalletSettingsModal";
 import TransactionsModal from "@/components/profile/TransactionsModal";
+import SettingsModal from "@/components/profile/SettingsModal";
 import CurrencyDropdown from "@/components/CurrencyDropdown";
 import ProfileDropdown from "@/components/ProfileDropdown";
 import CryptoIcon from "@/components/CryptoIcon";
@@ -49,6 +50,8 @@ export default function Navbar() {
     closeWalletSettings,
     isTransactionsModalOpen,
     closeTransactionsModal,
+    isSettingsModalOpen,
+    closeSettingsModal,
     formatDisplayBalance,
   } = useGame();
 
@@ -413,6 +416,12 @@ export default function Navbar() {
       <TransactionsModal
         isOpen={isTransactionsModalOpen}
         onClose={closeTransactionsModal}
+      />
+
+      {/* Settings Modal & Drawer */}
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={closeSettingsModal}
       />
 
       {/* Notifications Drawer */}

@@ -27,6 +27,7 @@ export default function ProfileDropdown({ isOpen, onClose }: ProfileDropdownProp
     openWalletModal,
     openWalletSettings,
     openTransactionsModal,
+    openSettingsModal,
     toggleChat,
   } = useGame();
 
@@ -98,7 +99,7 @@ export default function ProfileDropdown({ isOpen, onClose }: ProfileDropdownProp
       icon: Settings,
       action: () => {
         onClose();
-        openWalletSettings();
+        openSettingsModal();
       },
     },
     {

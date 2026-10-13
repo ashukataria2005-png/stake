@@ -1,24 +1,46 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { createPortal } from "react-dom";
 import {
   X,
   Receipt,
   ArrowDownLeft,
   ArrowUpRight,
+  Gift,
+  Ticket,
+  Trophy,
+  Lock,
+  FileText,
+  ChevronRight,
+  ChevronLeft,
+  ChevronDown,
+  Info,
   Clock,
-  Check,
+  CheckCircle2,
   AlertCircle,
-  RefreshCw,
   Copy,
+  Download,
+  Upload,
+  RefreshCw,
   ExternalLink,
-  Search,
+  ClipboardList,
+  Check,
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
 
-interface TransactionItem {
+export type TransactionCategory =
+  | "CATEGORIES"
+  | "DEPOSITS"
+  | "WITHDRAWALS"
+  | "BONUSES"
+  | "RAFFLES"
+  | "RACES"
+  | "VAULT"
+  | "OTHER";
+
+export interface TransactionItem {
   id: string;
   type: "DEPOSIT" | "WITHDRAWAL";
   amount: number;
@@ -34,26 +56,48 @@ interface TransactionItem {
 interface TransactionsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  initialCategory?: TransactionCategory;
 }
 
-export default function TransactionsModal({ isOpen, onClose }: TransactionsModalProps) {
-  const { user, updateBalance } = useGame();
+export default function TransactionsModal({
+  isOpen,
+  onClose,
+  initialCategory = "CATEGORIES",
+}: TransactionsModalProps) {
+  const { user, openWalletModal } = useGame();
   const [mounted, setMounted] = useState(false);
-  const [activeTab, setActiveTab] = useState<"ALL" | "DEPOSIT" | "WITHDRAWAL">("ALL");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [currentView, setCurrentView] = useState<TransactionCategory>(initialCategory);
+  const [currencyMode, setCurrencyMode] = useState<"LOCAL" | "CRYPTO">("LOCAL");
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const [transactions, setTransactions] = useState<TransactionItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [transactions, setTransactions] = useState<TransactionItem[]>([]);
 
-  // Re-verify pending state inside Transactions modal
-  const [reverifyOrderId, setReverifyOrderId] = useState<string | null>(null);
-  const [reverifyUtr, setReverifyUtr] = useState("");
-  const [reverifyError, setReverifyError] = useState("");
-  const [isReverifying, setIsReverifying] = useState(false);
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
+
+  // Tap-on-status / Enquiry modal
+  const [selectedTx, setSelectedTx] = useState<TransactionItem | null>(null);
+  const [enquiryUtr, setEnquiryUtr] = useState("");
+  const [enquiryProofFile, setEnquiryProofFile] = useState<string | null>(null);
+  const [enquiryError, setEnquiryError] = useState("");
+  const [enquirySuccess, setEnquirySuccess] = useState("");
+  const [isSubmittingEnquiry, setIsSubmittingEnquiry] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Sync initialCategory when opened
+  useEffect(() => {
+    if (isOpen) {
+      setCurrentView(initialCategory);
+      setIsCategoryDropdownOpen(false);
+      setSelectedTx(null);
+      setCurrentPage(1);
+    }
+  }, [isOpen, initialCategory]);
 
   // Background scroll lock
   useEffect(() => {
@@ -68,18 +112,22 @@ export default function TransactionsModal({ isOpen, onClose }: TransactionsModal
     }
   }, [isOpen]);
 
-  // Close on Escape key
+  // Close on Escape
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isOpen) {
-        onClose();
+        if (selectedTx) {
+          setSelectedTx(null);
+        } else {
+          onClose();
+        }
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onClose]);
+  }, [isOpen, selectedTx, onClose]);
 
-  // Load and merge transactions from Neon PostgreSQL API and Local Storage
+  // Fetch transactions from Neon DB API and localStorage
   const fetchTransactions = useCallback(async () => {
     setIsLoading(true);
     const merged: TransactionItem[] = [];
@@ -87,7 +135,9 @@ export default function TransactionsModal({ isOpen, onClose }: TransactionsModal
     // 1. Fetch from Neon DB API
     try {
       const activeUserId = user?.id || user?.username || "";
-      const res = await fetch(`/api/wallet/transactions?userId=${encodeURIComponent(activeUserId)}`);
+      const res = await fetch(
+        `/api/wallet/transactions?userId=${encodeURIComponent(activeUserId)}`
+      );
       const data = await res.json();
       if (data?.success && Array.isArray(data.transactions)) {
         data.transactions.forEach((tx: any) => {
@@ -98,14 +148,19 @@ export default function TransactionsModal({ isOpen, onClose }: TransactionsModal
             currency: tx.currency || "INR",
             utrNumber: tx.utrNumber,
             method: tx.method || "UPI",
-            status: tx.status === "APPROVED" ? "APPROVED" : tx.status === "REJECTED" ? "REJECTED" : "PENDING",
+            status:
+              tx.status === "APPROVED"
+                ? "APPROVED"
+                : tx.status === "REJECTED"
+                ? "REJECTED"
+                : "PENDING",
             createdAt: tx.createdAt,
             orderId: tx.id,
           });
         });
       }
     } catch (err) {
-      console.error("[TransactionsModal] Failed to fetch server transactions:", err);
+      console.error("[TransactionsModal] API fetch failed:", err);
     }
 
     // 2. Merge local storage deposit orders
@@ -182,30 +237,32 @@ export default function TransactionsModal({ isOpen, onClose }: TransactionsModal
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const handleReverifySubmit = async (item: TransactionItem) => {
-    const cleanUtr = reverifyUtr.replace(/\D/g, "").slice(0, 12);
+  // Submit enquiry / late UTR
+  const handleEnquirySubmit = async () => {
+    if (!selectedTx) return;
+    const cleanUtr = enquiryUtr.replace(/\D/g, "").slice(0, 12);
     if (cleanUtr.length !== 12) {
-      setReverifyError("Please enter a valid 12-digit numeric UTR.");
+      setEnquiryError("Please enter a valid 12-digit numeric UTR reference number.");
       return;
     }
 
-    setReverifyError("");
-    setIsReverifying(true);
+    setEnquiryError("");
+    setIsSubmittingEnquiry(true);
     sounds.playClick();
 
     try {
-      // Post to deposit API (marks as PENDING approval for admin)
       await fetch("/api/wallet/deposit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          amount: item.amount,
-          currency: item.currency,
+          amount: selectedTx.amount,
+          currency: selectedTx.currency,
           utrNumber: cleanUtr,
-          orderId: item.orderId || item.id,
-          method: item.method || "UPI",
+          orderId: selectedTx.orderId || selectedTx.id,
+          method: selectedTx.method || "UPI",
           autoCredit: true,
           isLateSubmission: true,
+          screenshotProof: enquiryProofFile,
         }),
       });
 
@@ -214,7 +271,7 @@ export default function TransactionsModal({ isOpen, onClose }: TransactionsModal
       if (localDeposits) {
         const parsed = JSON.parse(localDeposits);
         const updated = parsed.map((o: any) =>
-          o.orderId === item.orderId || o.orderId === item.id
+          o.orderId === selectedTx.orderId || o.orderId === selectedTx.id
             ? { ...o, status: "Success", utr: cleanUtr }
             : o
         );
@@ -222,344 +279,827 @@ export default function TransactionsModal({ isOpen, onClose }: TransactionsModal
       }
 
       sounds.playSuccessChime();
-      setIsReverifying(false);
-      setReverifyOrderId(null);
-      setReverifyUtr("");
-      fetchTransactions();
+      setEnquirySuccess("Enquiry submitted successfully! Verification in progress.");
+      setIsSubmittingEnquiry(false);
+      setTimeout(() => {
+        setSelectedTx(null);
+        setEnquirySuccess("");
+        setEnquiryUtr("");
+        setEnquiryProofFile(null);
+        fetchTransactions();
+      }, 1500);
     } catch (err) {
-      console.error("Reverify error:", err);
-      setReverifyError("Verification failed. Please try again.");
-      setIsReverifying(false);
+      console.error("[TransactionsModal] Enquiry error:", err);
+      setEnquiryError("Failed to submit enquiry. Please try again.");
+      setIsSubmittingEnquiry(false);
     }
   };
 
+  // Download Statement as CSV
+  const handleDownloadStatement = () => {
+    sounds.playClick();
+    const rows = [
+      ["Date", "Type", "Amount", "Currency", "Status", "Method", "UTR / Ref", "Order ID"],
+    ];
+
+    const currentList =
+      currentView === "DEPOSITS"
+        ? transactions.filter((t) => t.type === "DEPOSIT")
+        : currentView === "WITHDRAWALS"
+        ? transactions.filter((t) => t.type === "WITHDRAWAL")
+        : transactions;
+
+    currentList.forEach((tx) => {
+      rows.push([
+        new Date(tx.createdAt).toLocaleDateString(),
+        tx.type,
+        tx.amount.toFixed(2),
+        tx.currency,
+        tx.status,
+        tx.method,
+        tx.utrNumber || "N/A",
+        tx.orderId || tx.id,
+      ]);
+    });
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," + rows.map((e) => e.join(",")).join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute(
+      "download",
+      `stake_${currentView.toLowerCase()}_statement_${new Date().toISOString().slice(0, 10)}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Filtered deposits & withdrawals
+  const depositsList = useMemo(() => {
+    return transactions.filter((t) => t.type === "DEPOSIT");
+  }, [transactions]);
+
+  const withdrawalsList = useMemo(() => {
+    return transactions.filter((t) => t.type === "WITHDRAWAL");
+  }, [transactions]);
+
+  // Paginated active list
+  const activeList = currentView === "DEPOSITS" ? depositsList : withdrawalsList;
+  const totalPages = Math.max(1, Math.ceil(activeList.length / itemsPerPage));
+  const paginatedList = useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return activeList.slice(start, start + itemsPerPage);
+  }, [activeList, currentPage]);
+
   if (!isOpen || !mounted) return null;
 
-  const filteredTransactions = transactions.filter((tx) => {
-    if (activeTab === "DEPOSIT" && tx.type !== "DEPOSIT") return false;
-    if (activeTab === "WITHDRAWAL" && tx.type !== "WITHDRAWAL") return false;
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      const matchUtr = tx.utrNumber?.toLowerCase().includes(q);
-      const matchId = tx.id.toLowerCase().includes(q) || tx.orderId?.toLowerCase().includes(q);
-      const matchDest = tx.destination?.toLowerCase().includes(q);
-      const matchMethod = tx.method.toLowerCase().includes(q);
-      if (!matchUtr && !matchId && !matchDest && !matchMethod) return false;
-    }
-    return true;
-  });
+  const categories = [
+    {
+      id: "DEPOSITS" as TransactionCategory,
+      title: "Deposits",
+      icon: ArrowDownLeft,
+      iconColor: "text-[#00e701] bg-[#00e701]/10",
+      count: depositsList.length,
+    },
+    {
+      id: "WITHDRAWALS" as TransactionCategory,
+      title: "Withdrawals",
+      icon: ArrowUpRight,
+      iconColor: "text-amber-400 bg-amber-500/10",
+      count: withdrawalsList.length,
+    },
+    {
+      id: "BONUSES" as TransactionCategory,
+      title: "Bonuses",
+      icon: Gift,
+      iconColor: "text-purple-400 bg-purple-500/10",
+      count: 0,
+    },
+    {
+      id: "RAFFLES" as TransactionCategory,
+      title: "Raffles",
+      icon: Ticket,
+      iconColor: "text-cyan-400 bg-cyan-500/10",
+      count: 0,
+    },
+    {
+      id: "RACES" as TransactionCategory,
+      title: "Races",
+      icon: Trophy,
+      iconColor: "text-yellow-400 bg-yellow-500/10",
+      count: 0,
+    },
+    {
+      id: "VAULT" as TransactionCategory,
+      title: "Vault",
+      icon: Lock,
+      iconColor: "text-blue-400 bg-blue-500/10",
+      count: 0,
+    },
+    {
+      id: "OTHER" as TransactionCategory,
+      title: "Other",
+      icon: FileText,
+      iconColor: "text-[#879097] bg-[#213743]",
+      count: 0,
+    },
+  ];
+
+  const categoryTitles: Record<TransactionCategory, string> = {
+    CATEGORIES: "Transactions",
+    DEPOSITS: "Deposits",
+    WITHDRAWALS: "Withdrawals",
+    BONUSES: "Bonuses",
+    RAFFLES: "Raffles",
+    RACES: "Races",
+    VAULT: "Vault",
+    OTHER: "Other",
+  };
 
   return createPortal(
-    <div
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-      className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 overscroll-contain animate-in fade-in duration-200"
-      style={{ overscrollBehavior: "contain" }}
-    >
+    <div className="fixed inset-0 z-[9990] flex items-center justify-center sm:p-4 select-none">
+      {/* Dimmed backdrop */}
       <div
-        onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-2xl bg-[#1a2c38] border border-[#213743] rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] overscroll-contain animate-in zoom-in-95 duration-200"
-        style={{ overscrollBehavior: "contain" }}
-        role="dialog"
-        aria-modal="true"
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#213743] bg-[#14232f] shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#1475e1]/15 text-[#1475e1] border border-[#1475e1]/30 flex items-center justify-center">
-              <Receipt className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-base font-black text-white">Transactions History</h3>
-              <p className="text-xs text-[#b1bad3]">
-                Past deposits and withdrawals with real-time status badges
-              </p>
-            </div>
-          </div>
+        className="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity"
+        onClick={() => {
+          sounds.playClick();
+          onClose();
+        }}
+      />
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                sounds.playClick();
-                fetchTransactions();
-              }}
-              disabled={isLoading}
-              className="p-2 rounded-lg text-[#b1bad3] hover:text-white hover:bg-[#213743] transition-colors cursor-pointer disabled:opacity-50"
-              title="Refresh Transactions"
-            >
-              <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin text-[#1475e1]" : ""}`} />
-            </button>
-            <button
-              onClick={onClose}
-              className="p-2 rounded-lg text-[#b1bad3] hover:text-white hover:bg-[#213743] transition-colors cursor-pointer"
-              title="Close"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-
-        {/* Filter Navigation & Search Bar */}
-        <div className="px-5 py-3 border-b border-[#213743] bg-[#1a2c38] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
-          {/* Tabs: All / Deposits / Withdrawals */}
-          <div className="flex items-center gap-1.5 p-1 bg-[#0f212e] rounded-xl border border-[#213743]">
-            <button
-              type="button"
-              onClick={() => {
-                sounds.playClick();
-                setActiveTab("ALL");
-              }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                activeTab === "ALL"
-                  ? "bg-[#213743] text-white shadow-sm"
-                  : "text-[#b1bad3] hover:text-white"
-              }`}
-            >
-              All ({transactions.length})
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                sounds.playClick();
-                setActiveTab("DEPOSIT");
-              }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                activeTab === "DEPOSIT"
-                  ? "bg-[#213743] text-[#00e701] shadow-sm"
-                  : "text-[#b1bad3] hover:text-white"
-              }`}
-            >
-              <ArrowDownLeft className="w-3.5 h-3.5" />
-              <span>Deposits</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                sounds.playClick();
-                setActiveTab("WITHDRAWAL");
-              }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                activeTab === "WITHDRAWAL"
-                  ? "bg-[#213743] text-[#1475e1] shadow-sm"
-                  : "text-[#b1bad3] hover:text-white"
-              }`}
-            >
-              <ArrowUpRight className="w-3.5 h-3.5" />
-              <span>Withdrawals</span>
-            </button>
-          </div>
-
-          {/* Quick Search */}
-          <div className="relative flex-1 sm:max-w-[220px]">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search UTR / ID..."
-              className="w-full bg-[#0f212e] border border-[#213743] focus:border-[#1475e1] rounded-xl pl-8 pr-3 py-1.5 text-xs text-white outline-none placeholder:text-[#557086] transition-colors"
-            />
-            <Search className="w-3.5 h-3.5 text-[#557086] absolute left-2.5 top-1/2 -translate-y-1/2" />
-          </div>
-        </div>
-
-        {/* Modal Scrollable Body */}
-        <div
-          className="p-5 overflow-y-auto flex-1 space-y-3 overscroll-contain"
-          style={{ overscrollBehavior: "contain" }}
-        >
-          {filteredTransactions.length === 0 ? (
-            <div className="py-12 flex flex-col items-center justify-center text-center space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-[#0f212e] border border-[#213743] flex items-center justify-center text-[#557086]">
-                <Receipt className="w-6 h-6" />
+      {/* Modal / Drawer Card */}
+      <div className="relative w-full sm:max-w-md md:max-w-lg h-full sm:h-auto sm:max-h-[92vh] flex flex-col bg-[#1a2c38] sm:border sm:border-[#213743] sm:rounded-2xl shadow-2xl overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-150">
+        {/* ========================================================= */}
+        {/* TOP HEADER */}
+        {/* ========================================================= */}
+        <div className="flex items-center justify-between px-4 py-3.5 border-b border-[#213743] bg-[#14232d] shrink-0">
+          {currentView === "CATEGORIES" ? (
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#213743] text-white">
+                <Receipt className="h-4.5 w-4.5 text-[#00e701]" />
               </div>
-              <div>
-                <p className="text-sm font-bold text-white">No transactions found</p>
-                <p className="text-xs text-[#b1bad3] mt-0.5">
-                  {searchQuery
-                    ? "Try adjusting your search criteria"
-                    : "Your deposit and withdrawal activity will appear here"}
-                </p>
-              </div>
+              <h2 className="text-base font-black text-white tracking-wide">Transactions</h2>
             </div>
           ) : (
-            filteredTransactions.map((tx) => {
-              const isDeposit = tx.type === "DEPOSIT";
-              const formattedDate = new Date(tx.createdAt).toLocaleString("en-IN", {
-                day: "numeric",
-                month: "short",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              });
+            <div className="flex items-center gap-2 relative">
+              {/* Back to Categories Arrow */}
+              <button
+                onClick={() => {
+                  sounds.playClick();
+                  setCurrentView("CATEGORIES");
+                  setIsCategoryDropdownOpen(false);
+                }}
+                className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#213743] text-[#b1bad3] hover:text-white hover:bg-[#2a4454] transition-colors cursor-pointer"
+                title="Back to Categories"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
 
-              return (
-                <div
-                  key={tx.id}
-                  className="p-4 rounded-xl bg-[#0f212e] border border-[#213743] hover:border-[#2f4553] transition-all space-y-3"
+              {/* Category Selector Pill with Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => setIsCategoryDropdownOpen((prev) => !prev)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#213743] hover:bg-[#2a4454] text-white text-sm font-black transition-colors cursor-pointer"
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    {/* Left: Icon & Type & Date */}
+                  <span>{categoryTitles[currentView]}</span>
+                  <ChevronDown
+                    className={`h-4 w-4 text-[#879097] transition-transform duration-200 ${
+                      isCategoryDropdownOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+
+                {/* Dropdown Menu */}
+                {isCategoryDropdownOpen && (
+                  <div className="absolute left-0 top-full mt-1.5 w-44 rounded-xl bg-[#1a2c38] border border-[#2f4553] shadow-2xl py-1 z-30 animate-in fade-in zoom-in-95 duration-100">
+                    {categories.map((cat) => (
+                      <button
+                        key={cat.id}
+                        onClick={() => {
+                          sounds.playClick();
+                          setCurrentView(cat.id);
+                          setCurrentPage(1);
+                          setIsCategoryDropdownOpen(false);
+                        }}
+                        className={`w-full px-3 py-2 text-left text-xs font-bold flex items-center justify-between hover:bg-[#213743] transition-colors cursor-pointer ${
+                          currentView === cat.id ? "text-[#00e701]" : "text-[#b1bad3] hover:text-white"
+                        }`}
+                      >
+                        <span>{cat.title}</span>
+                        {currentView === cat.id && <Check className="h-3.5 w-3.5" />}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Close Button */}
+          <button
+            onClick={() => {
+              sounds.playClick();
+              onClose();
+            }}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-[#879097] hover:text-white hover:bg-[#213743] transition-colors cursor-pointer"
+            title="Close"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* ========================================================= */}
+        {/* BODY CONTAINER */}
+        {/* ========================================================= */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          {/* ------------------------------------------------------- */}
+          {/* 1. MAIN CATEGORIES NAVIGATION LIST (Screenshot 178) */}
+          {/* ------------------------------------------------------- */}
+          {currentView === "CATEGORIES" && (
+            <div className="space-y-2 py-1">
+              {categories.map((cat) => {
+                const Icon = cat.icon;
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => {
+                      sounds.playClick();
+                      setCurrentView(cat.id);
+                      setCurrentPage(1);
+                    }}
+                    className="w-full flex items-center justify-between p-3.5 rounded-xl bg-[#213743]/60 hover:bg-[#213743] border border-[#284252]/60 hover:border-[#2f4553] transition-all cursor-pointer group text-left"
+                  >
                     <div className="flex items-center gap-3">
                       <div
-                        className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                          isDeposit
-                            ? "bg-[#00e701]/10 text-[#00e701] border border-[#00e701]/20"
-                            : "bg-[#1475e1]/10 text-[#1475e1] border border-[#1475e1]/20"
-                        }`}
+                        className={`flex h-9 w-9 items-center justify-center rounded-lg ${cat.iconColor}`}
                       >
-                        {isDeposit ? (
-                          <ArrowDownLeft className="w-5 h-5" />
-                        ) : (
-                          <ArrowUpRight className="w-5 h-5" />
-                        )}
+                        <Icon className="h-5 w-5" />
                       </div>
-
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-sm text-white">
-                            {isDeposit ? "Deposit" : "Withdrawal"}
-                          </span>
-                          <span className="text-[11px] px-2 py-0.5 rounded-md bg-[#1a2c38] text-[#b1bad3] border border-[#213743] font-semibold">
-                            {tx.method}
-                          </span>
-                        </div>
-                        <div className="text-[11px] text-[#7a889b] mt-0.5">
-                          {formattedDate}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Right: Amount & Status Badge */}
-                    <div className="flex flex-col items-end gap-1.5 shrink-0">
-                      <div
-                        className={`font-mono font-black text-sm sm:text-base ${
-                          isDeposit ? "text-[#00e701]" : "text-white"
-                        }`}
-                      >
-                        {isDeposit ? "+" : "-"} ₹{tx.amount.toLocaleString("en-IN")}
-                      </div>
-
-                      {/* Status Badge (Pending / Approved / Rejected) */}
-                      {tx.status === "APPROVED" ? (
-                        <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-[#00e701] border border-[#00e701]/30 text-[11px] font-bold flex items-center gap-1">
-                          <Check className="w-3 h-3" />
-                          <span>Approved</span>
-                        </span>
-                      ) : tx.status === "REJECTED" ? (
-                        <span className="px-2.5 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/30 text-[11px] font-bold flex items-center gap-1">
-                          <AlertCircle className="w-3 h-3" />
-                          <span>Rejected</span>
-                        </span>
-                      ) : (
-                        <span className="px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[11px] font-bold flex items-center gap-1">
-                          <Clock className="w-3 h-3 animate-pulse" />
-                          <span>Pending</span>
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Metadata Row: Reference ID / UTR Number / Destination */}
-                  <div className="pt-2 border-t border-[#1a2c38] flex flex-wrap items-center justify-between gap-2 text-xs text-[#b1bad3]">
-                    <div className="flex items-center gap-1.5 font-mono text-[11px]">
-                      <span className="text-[#557086]">Ref:</span>
-                      <span className="text-[#b1bad3] truncate max-w-[150px] sm:max-w-[200px]">
-                        {tx.orderId || tx.id}
+                      <span className="text-sm font-bold text-white group-hover:text-white">
+                        {cat.title}
                       </span>
-                      <button
-                        type="button"
-                        onClick={() => handleCopy(tx.orderId || tx.id, tx.id)}
-                        className="text-[#557086] hover:text-white p-0.5"
-                        title="Copy Reference"
-                      >
-                        {copiedId === tx.id ? (
-                          <Check className="w-3 h-3 text-[#00e701]" />
-                        ) : (
-                          <Copy className="w-3 h-3" />
-                        )}
-                      </button>
                     </div>
 
-                    {tx.utrNumber && (
-                      <div className="flex items-center gap-1.5 font-mono text-[11px]">
-                        <span className="text-[#557086]">UTR:</span>
-                        <span className="text-[#00e701] font-bold">{tx.utrNumber}</span>
-                        <button
-                          type="button"
-                          onClick={() => handleCopy(tx.utrNumber || "", `utr_${tx.id}`)}
-                          className="text-[#557086] hover:text-white p-0.5"
-                          title="Copy UTR"
+                    <div className="flex items-center gap-2">
+                      {cat.count > 0 && (
+                        <span className="px-2 py-0.5 rounded-md bg-[#14232d] text-[#b1bad3] text-[11px] font-bold">
+                          {cat.count}
+                        </span>
+                      )}
+                      <ChevronRight className="h-4 w-4 text-[#879097] group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* ------------------------------------------------------- */}
+          {/* 2. DEPOSITS SUB-VIEW (Screenshots 179, 180, 181) */}
+          {/* ------------------------------------------------------- */}
+          {currentView === "DEPOSITS" && (
+            <div className="space-y-3.5">
+              {/* Currency Segmented Toggle */}
+              <div className="grid grid-cols-2 p-1 rounded-xl bg-[#0f212e] border border-[#213743]">
+                <button
+                  onClick={() => {
+                    sounds.playClick();
+                    setCurrencyMode("CRYPTO");
+                  }}
+                  className={`py-2 text-xs font-black rounded-lg transition-all cursor-pointer ${
+                    currencyMode === "CRYPTO"
+                      ? "bg-[#213743] text-white shadow-sm"
+                      : "text-[#879097] hover:text-white"
+                  }`}
+                >
+                  Crypto
+                </button>
+                <button
+                  onClick={() => {
+                    sounds.playClick();
+                    setCurrencyMode("LOCAL");
+                  }}
+                  className={`py-2 text-xs font-black rounded-lg transition-all cursor-pointer ${
+                    currencyMode === "LOCAL"
+                      ? "bg-[#213743] text-white shadow-sm"
+                      : "text-[#879097] hover:text-white"
+                  }`}
+                >
+                  Local Currency
+                </button>
+              </div>
+
+              {/* Exact Info Banner (Screenshot 180) */}
+              <div className="rounded-xl bg-[#142634] border border-[#1d3d54] p-3.5 flex items-start gap-3 text-left">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-cyan-500/20 text-cyan-400 mt-0.5">
+                  <Info className="h-4 w-4" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs font-black text-white tracking-wide">
+                    New Update : Tap the Status
+                  </span>
+                  <p className="text-[11px] text-[#b1bad3] mt-0.5 leading-relaxed">
+                    You can now tap on a transaction status to view its details or raise an enquiry.
+                  </p>
+                </div>
+              </div>
+
+              {/* Deposits Table */}
+              <div className="rounded-xl bg-[#14232d] border border-[#213743] overflow-hidden">
+                {/* Table Header */}
+                <div className="grid grid-cols-4 px-3.5 py-2.5 bg-[#172733] border-b border-[#213743] text-[10px] font-black uppercase tracking-wider text-[#879097]">
+                  <div>Date</div>
+                  <div>Amount</div>
+                  <div>Status</div>
+                  <div className="text-right">ID</div>
+                </div>
+
+                {/* Table Body */}
+                {paginatedList.length === 0 ? (
+                  <div className="py-10 flex flex-col items-center justify-center text-center px-4">
+                    <ClipboardList className="h-10 w-10 text-[#2f4553] mb-2" />
+                    <p className="text-sm font-bold text-white">No Deposits Found</p>
+                    <p className="text-xs text-[#879097] mt-1 max-w-xs">
+                      You haven&apos;t made any deposit requests in this currency mode yet.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-[#213743]/50">
+                    {paginatedList.map((tx) => {
+                      const isPending = tx.status === "PENDING";
+                      const isApproved = tx.status === "APPROVED";
+                      const dateObj = new Date(tx.createdAt);
+                      const formattedDate = dateObj.toLocaleDateString("en-US", {
+                        month: "2-digit",
+                        day: "2-digit",
+                        year: "numeric",
+                      });
+                      const displayId = (tx.orderId || tx.id).slice(-8);
+
+                      return (
+                        <div
+                          key={tx.id}
+                          onClick={() => {
+                            sounds.playClick();
+                            setSelectedTx(tx);
+                            setEnquiryUtr(tx.utrNumber || "");
+                            setEnquiryError("");
+                            setEnquirySuccess("");
+                          }}
+                          className="grid grid-cols-4 px-3.5 py-3 items-center text-xs hover:bg-[#1a2c38] transition-colors cursor-pointer group"
                         >
-                          {copiedId === `utr_${tx.id}` ? (
-                            <Check className="w-3 h-3 text-[#00e701]" />
-                          ) : (
-                            <Copy className="w-3 h-3" />
-                          )}
-                        </button>
-                      </div>
-                    )}
+                          {/* Date */}
+                          <div className="text-[#b1bad3] font-medium truncate">
+                            {formattedDate}
+                          </div>
 
-                    {tx.destination && (
-                      <div className="text-[11px] text-[#b1bad3]">
-                        <span className="text-[#557086]">To:</span> {tx.destination}
-                      </div>
-                    )}
+                          {/* Amount with Indian Flag Badge */}
+                          <div className="flex items-center gap-1 font-black text-white">
+                            <span>₹{tx.amount.toFixed(2)}</span>
+                            <span className="text-xs" title="INR">
+                              🇮🇳
+                            </span>
+                          </div>
 
-                    {/* Pending Deposit Re-verify Action */}
-                    {isDeposit && tx.status === "PENDING" && !tx.utrNumber && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setReverifyOrderId(reverifyOrderId === tx.id ? null : tx.id);
-                          setReverifyUtr("");
-                          setReverifyError("");
-                        }}
-                        className="text-[11px] text-[#1475e1] hover:underline font-bold flex items-center gap-1 cursor-pointer"
-                      >
-                        <span>Verify UTR</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </button>
-                    )}
+                          {/* Interactive Status Badge */}
+                          <div>
+                            {isPending ? (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[10px] font-black group-hover:scale-105 transition-transform">
+                                <Clock className="h-2.5 w-2.5 animate-pulse" />
+                                Pending
+                              </span>
+                            ) : isApproved ? (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#00e701]/15 border border-[#00e701]/30 text-[#00e701] text-[10px] font-black group-hover:scale-105 transition-transform">
+                                <CheckCircle2 className="h-2.5 w-2.5" />
+                                Success
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-red-500/15 border border-red-500/30 text-red-400 text-[10px] font-black group-hover:scale-105 transition-transform">
+                                <AlertCircle className="h-2.5 w-2.5" />
+                                Failed
+                              </span>
+                            )}
+                          </div>
+
+                          {/* ID with Copy Icon */}
+                          <div className="flex items-center justify-end gap-1 text-[#879097] font-mono text-[11px] group-hover:text-white">
+                            <span className="truncate max-w-[70px]">{displayId}</span>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCopy(tx.orderId || tx.id, tx.id);
+                              }}
+                              className="p-1 hover:text-white text-[#879097] rounded cursor-pointer"
+                              title="Copy ID"
+                            >
+                              {copiedId === tx.id ? (
+                                <Check className="h-3 w-3 text-[#00e701]" />
+                              ) : (
+                                <Copy className="h-3 w-3" />
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Bottom Pagination & Download Actions */}
+              <div className="space-y-2 pt-1">
+                <div className="flex items-center justify-between px-1 text-xs">
+                  <span className="text-[#879097] font-bold">
+                    {activeList.length} results | Page {currentPage} of {totalPages}
+                  </span>
+
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      disabled={currentPage <= 1}
+                      onClick={() => {
+                        sounds.playClick();
+                        setCurrentPage((prev) => Math.max(1, prev - 1));
+                      }}
+                      className="px-3 py-1.5 rounded-lg bg-[#213743] hover:bg-[#2a4454] disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold transition-colors cursor-pointer"
+                    >
+                      Previous
+                    </button>
+                    <button
+                      disabled={currentPage >= totalPages}
+                      onClick={() => {
+                        sounds.playClick();
+                        setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+                      }}
+                      className="px-3 py-1.5 rounded-lg bg-[#213743] hover:bg-[#2a4454] disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold transition-colors cursor-pointer"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+
+                {/* Full-width Download Button */}
+                <button
+                  onClick={handleDownloadStatement}
+                  className="w-full py-3 rounded-xl bg-[#213743] hover:bg-[#2a4454] text-white font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm active:scale-[0.99]"
+                >
+                  <Download className="h-4 w-4" />
+                  <span>Download</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* ------------------------------------------------------- */}
+          {/* 3. WITHDRAWALS SUB-VIEW (Screenshot 182) */}
+          {/* ------------------------------------------------------- */}
+          {currentView === "WITHDRAWALS" && (
+            <div className="space-y-3.5">
+              {/* Currency Segmented Toggle */}
+              <div className="grid grid-cols-2 p-1 rounded-xl bg-[#0f212e] border border-[#213743]">
+                <button
+                  onClick={() => {
+                    sounds.playClick();
+                    setCurrencyMode("CRYPTO");
+                  }}
+                  className={`py-2 text-xs font-black rounded-lg transition-all cursor-pointer ${
+                    currencyMode === "CRYPTO"
+                      ? "bg-[#213743] text-white shadow-sm"
+                      : "text-[#879097] hover:text-white"
+                  }`}
+                >
+                  Crypto
+                </button>
+                <button
+                  onClick={() => {
+                    sounds.playClick();
+                    setCurrencyMode("LOCAL");
+                  }}
+                  className={`py-2 text-xs font-black rounded-lg transition-all cursor-pointer ${
+                    currencyMode === "LOCAL"
+                      ? "bg-[#213743] text-white shadow-sm"
+                      : "text-[#879097] hover:text-white"
+                  }`}
+                >
+                  Local Currency
+                </button>
+              </div>
+
+              {withdrawalsList.length === 0 ? (
+                /* Empty Clipboard Illustration (Screenshot 182) */
+                <div className="py-14 flex flex-col items-center justify-center text-center px-4 rounded-xl bg-[#14232d] border border-[#213743]">
+                  {/* Styled Clipboard Icon with soft cyan/blue accent */}
+                  <div className="relative mb-3 flex items-center justify-center">
+                    <div className="h-20 w-20 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shadow-lg shadow-cyan-500/5">
+                      <ClipboardList className="h-10 w-10 text-cyan-400 stroke-[1.5]" />
+                    </div>
                   </div>
 
-                  {/* Inline Re-verify drawer for pending item */}
-                  {reverifyOrderId === tx.id && (
-                    <div className="mt-2 p-3 rounded-lg bg-[#14232e] border border-amber-500/30 space-y-2 animate-in fade-in">
-                      <p className="text-[11px] text-amber-300 font-semibold">
-                        Enter 12-digit UTR to immediately credit ₹{tx.amount}:
-                      </p>
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          maxLength={12}
-                          value={reverifyUtr}
-                          onChange={(e) =>
-                            setReverifyUtr(e.target.value.replace(/\D/g, "").slice(0, 12))
-                          }
-                          placeholder="4278XXXXXXXX"
-                          className="flex-1 bg-[#1a2c38] border border-[#213743] rounded-lg px-3 py-1.5 text-xs font-mono text-white outline-none focus:border-[#1475e1]"
-                        />
-                        <button
-                          type="button"
-                          disabled={isReverifying}
-                          onClick={() => handleReverifySubmit(tx)}
-                          className="px-3.5 py-1.5 rounded-lg bg-[#00e701] text-black font-extrabold text-xs hover:brightness-110 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+                  <h3 className="text-base font-black text-white">No Withdrawals</h3>
+                  <p className="text-xs text-[#879097] mt-1.5 max-w-xs leading-relaxed">
+                    You have not made any withdrawal requests yet.
+                  </p>
+
+                  <button
+                    onClick={() => {
+                      sounds.playClick();
+                      onClose();
+                      openWalletModal();
+                    }}
+                    className="mt-5 px-5 py-2.5 rounded-xl bg-[#00e701] hover:bg-[#00c801] text-[#0f212e] font-black text-xs transition-transform active:scale-95 cursor-pointer shadow-lg shadow-[#00e701]/20"
+                  >
+                    Withdraw Funds
+                  </button>
+                </div>
+              ) : (
+                /* Table of Withdrawals */
+                <>
+                  <div className="rounded-xl bg-[#14232d] border border-[#213743] overflow-hidden">
+                    <div className="grid grid-cols-5 px-3 py-2.5 bg-[#172733] border-b border-[#213743] text-[10px] font-black uppercase tracking-wider text-[#879097]">
+                      <div>Date</div>
+                      <div>Amount</div>
+                      <div>Type</div>
+                      <div>Status</div>
+                      <div className="text-right">ID</div>
+                    </div>
+
+                    <div className="divide-y divide-[#213743]/50">
+                      {paginatedList.map((tx) => (
+                        <div
+                          key={tx.id}
+                          onClick={() => {
+                            sounds.playClick();
+                            setSelectedTx(tx);
+                          }}
+                          className="grid grid-cols-5 px-3 py-3 items-center text-xs hover:bg-[#1a2c38] transition-colors cursor-pointer"
                         >
-                          {isReverifying ? "Verifying..." : "Credit Now"}
+                          <div className="text-[#b1bad3]">
+                            {new Date(tx.createdAt).toLocaleDateString("en-US", {
+                              month: "2-digit",
+                              day: "2-digit",
+                            })}
+                          </div>
+                          <div className="font-black text-white">₹{tx.amount.toFixed(2)}</div>
+                          <div className="text-[#879097] text-[11px] truncate">{tx.method}</div>
+                          <div>
+                            {tx.status === "APPROVED" ? (
+                              <span className="px-1.5 py-0.5 rounded bg-[#00e701]/15 text-[#00e701] text-[10px] font-black">
+                                Success
+                              </span>
+                            ) : (
+                              <span className="px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 text-[10px] font-black">
+                                Pending
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-right text-[#879097] font-mono text-[11px]">
+                            {tx.id.slice(-6)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Actions & Pagination */}
+                  <div className="space-y-2 pt-1">
+                    <div className="flex items-center justify-between px-1 text-xs text-[#879097] font-bold">
+                      <span>
+                        {withdrawalsList.length} results | Page {currentPage} of {totalPages}
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          disabled={currentPage <= 1}
+                          onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                          className="px-3 py-1.5 rounded-lg bg-[#213743] hover:bg-[#2a4454] disabled:opacity-40 text-white text-xs font-bold"
+                        >
+                          Previous
+                        </button>
+                        <button
+                          disabled={currentPage >= totalPages}
+                          onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                          className="px-3 py-1.5 rounded-lg bg-[#213743] hover:bg-[#2a4454] disabled:opacity-40 text-white text-xs font-bold"
+                        >
+                          Next
                         </button>
                       </div>
-                      {reverifyError && (
-                        <p className="text-[10px] text-red-400 font-semibold">{reverifyError}</p>
-                      )}
                     </div>
-                  )}
-                </div>
-              );
-            })
+
+                    <button
+                      onClick={handleDownloadStatement}
+                      className="w-full py-3 rounded-xl bg-[#213743] hover:bg-[#2a4454] text-white font-bold text-xs flex items-center justify-center gap-2"
+                    >
+                      <Download className="h-4 w-4" />
+                      <span>Download</span>
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* ------------------------------------------------------- */}
+          {/* 4. OTHER VIEWS (Bonuses, Raffles, Races, Vault, Other) */}
+          {/* ------------------------------------------------------- */}
+          {!["CATEGORIES", "DEPOSITS", "WITHDRAWALS"].includes(currentView) && (
+            <div className="py-16 flex flex-col items-center justify-center text-center px-4 rounded-xl bg-[#14232d] border border-[#213743]">
+              <div className="h-16 w-16 rounded-2xl bg-[#213743] flex items-center justify-center mb-3 text-[#879097]">
+                <Receipt className="h-8 w-8" />
+              </div>
+              <h3 className="text-base font-black text-white">No {categoryTitles[currentView]}</h3>
+              <p className="text-xs text-[#879097] mt-1 max-w-xs leading-relaxed">
+                You do not have any recorded transactions under this category.
+              </p>
+              <button
+                onClick={() => {
+                  sounds.playClick();
+                  setCurrentView("CATEGORIES");
+                }}
+                className="mt-5 px-4 py-2 rounded-xl bg-[#213743] hover:bg-[#2a4454] text-white text-xs font-bold transition-colors cursor-pointer"
+              >
+                Back to Transactions
+              </button>
+            </div>
           )}
         </div>
       </div>
+
+      {/* ========================================================= */}
+      {/* DETAILS / LATE UTR ENQUIRY MODAL (Screenshot 181) */}
+      {/* ========================================================= */}
+      {selectedTx && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-150">
+          <div className="w-full max-w-md bg-[#1a2c38] border border-[#2f4553] rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-150">
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-3.5 border-b border-[#213743] bg-[#14232d]">
+              <div className="flex items-center gap-2">
+                <Receipt className="h-4.5 w-4.5 text-cyan-400" />
+                <h3 className="text-sm font-black text-white">
+                  {selectedTx.type === "DEPOSIT" ? "Deposit Details" : "Withdrawal Details"}
+                </h3>
+              </div>
+              <button
+                onClick={() => setSelectedTx(null)}
+                className="p-1 rounded-lg text-[#879097] hover:text-white hover:bg-[#213743] cursor-pointer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-4 space-y-4 text-xs">
+              {/* Summary Card */}
+              <div className="rounded-xl bg-[#14232d] border border-[#213743] p-3.5 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[#879097]">Amount</span>
+                  <span className="text-base font-black text-white flex items-center gap-1">
+                    ₹{selectedTx.amount.toFixed(2)} 🇮🇳
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-[#879097]">Status</span>
+                  {selectedTx.status === "PENDING" ? (
+                    <span className="px-2 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/30 text-amber-300 font-bold flex items-center gap-1">
+                      <Clock className="h-3 w-3" /> Pending Verification
+                    </span>
+                  ) : selectedTx.status === "APPROVED" ? (
+                    <span className="px-2 py-0.5 rounded-md bg-[#00e701]/15 border border-[#00e701]/30 text-[#00e701] font-bold flex items-center gap-1">
+                      <CheckCircle2 className="h-3 w-3" /> Approved & Credited
+                    </span>
+                  ) : (
+                    <span className="px-2 py-0.5 rounded-md bg-red-500/15 border border-red-500/30 text-red-400 font-bold flex items-center gap-1">
+                      <AlertCircle className="h-3 w-3" /> Verification Failed
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-[#879097]">Order Reference</span>
+                  <div className="flex items-center gap-1 font-mono text-white">
+                    <span>{selectedTx.orderId || selectedTx.id}</span>
+                    <button
+                      onClick={() => handleCopy(selectedTx.orderId || selectedTx.id, "ref_modal")}
+                      className="p-0.5 hover:text-cyan-400 text-[#879097] cursor-pointer"
+                    >
+                      <Copy className="h-3 w-3" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-[#879097]">Date & Time</span>
+                  <span className="text-[#b1bad3]">
+                    {new Date(selectedTx.createdAt).toLocaleString()}
+                  </span>
+                </div>
+
+                {selectedTx.utrNumber && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-[#879097]">UTR Reference</span>
+                    <span className="font-mono text-cyan-400 font-bold">
+                      {selectedTx.utrNumber}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Late UTR Submission / Raise Enquiry (Screenshot 181) */}
+              {selectedTx.status === "PENDING" && selectedTx.type === "DEPOSIT" && (
+                <div className="rounded-xl bg-[#142634] border border-[#1d3d54] p-3.5 space-y-3">
+                  <div className="flex items-center gap-2 text-cyan-400 font-black text-xs">
+                    <Info className="h-4 w-4" />
+                    <span>Raise Enquiry / Submit UTR Proof</span>
+                  </div>
+
+                  <p className="text-[11px] text-[#b1bad3] leading-relaxed">
+                    If you transferred the funds but haven&apos;t received credit, enter your bank
+                    12-digit UTR below to speed up instant reconciliation:
+                  </p>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-[#879097] uppercase">
+                      12-Digit UTR / Reference No.
+                    </label>
+                    <input
+                      type="text"
+                      maxLength={12}
+                      value={enquiryUtr}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, "").slice(0, 12);
+                        setEnquiryUtr(val);
+                        setEnquiryError("");
+                      }}
+                      placeholder="e.g. 428190382910"
+                      className="w-full px-3 py-2.5 rounded-lg bg-[#0f212e] border border-[#213743] focus:border-cyan-400 text-white font-mono text-sm tracking-wider outline-none"
+                    />
+                  </div>
+
+                  {/* Screenshot proof upload simulator */}
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-[#879097] uppercase">
+                      Payment Screenshot Proof (Optional)
+                    </label>
+                    <label className="flex items-center justify-center gap-2 p-2.5 rounded-lg border border-dashed border-[#2f4553] hover:border-cyan-400/50 bg-[#0f212e]/50 text-[#879097] hover:text-white cursor-pointer transition-colors text-xs">
+                      <Upload className="h-4 w-4" />
+                      <span>{enquiryProofFile ? "Screenshot Attached ✓" : "Upload receipt / screenshot"}</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setEnquiryProofFile(file.name);
+                            sounds.playClick();
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+
+                  {enquiryError && (
+                    <p className="text-[11px] font-bold text-red-400">{enquiryError}</p>
+                  )}
+                  {enquirySuccess && (
+                    <p className="text-[11px] font-bold text-[#00e701]">{enquirySuccess}</p>
+                  )}
+
+                  <button
+                    onClick={handleEnquirySubmit}
+                    disabled={isSubmittingEnquiry || enquiryUtr.length !== 12}
+                    className="w-full py-2.5 rounded-xl bg-[#00e701] hover:bg-[#00c801] disabled:opacity-40 disabled:cursor-not-allowed text-[#0f212e] font-black text-xs transition-all cursor-pointer shadow-lg shadow-[#00e701]/20 flex items-center justify-center gap-2"
+                  >
+                    {isSubmittingEnquiry ? (
+                      <>
+                        <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                        <span>Verifying...</span>
+                      </>
+                    ) : (
+                      <span>Submit Enquiry / Update UTR</span>
+                    )}
+                  </button>
+                </div>
+              )}
+
+              {/* Status Note for Approved/Rejected */}
+              {selectedTx.status === "APPROVED" && (
+                <div className="p-3 rounded-xl bg-[#00e701]/10 border border-[#00e701]/20 text-[#00e701] text-center text-xs font-bold">
+                  ✓ This payment was successfully verified and added to your balance.
+                </div>
+              )}
+              {selectedTx.status === "REJECTED" && (
+                <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-center text-xs font-medium space-y-1">
+                  <p className="font-bold">Verification was rejected by automated banking gateway.</p>
+                  <p className="text-[11px] text-[#b1bad3]">
+                    Please contact 24/7 Live Support with your payment slip.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>,
     document.body
   );
