@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { StakeLogo } from "@/components/common/StakeLogo";
 import {
   Lock,
   User,
@@ -102,23 +103,18 @@ export default function AdminLoginPage() {
       </div>
 
       <div className="w-full max-w-[420px] relative z-10 space-y-6">
-        {/* Brand / FlopShow Mission Control Header */}
+        {/* Brand / Stake Mission Control Header */}
         <div className="text-center space-y-3">
-          <div className="inline-flex items-center justify-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 flex items-center justify-center text-black font-black text-xl shadow-xl shadow-amber-500/20 border border-amber-300/30">
-              FS
-            </div>
-            <div className="text-left">
-              <div className="flex items-center gap-2">
-                <span className="text-xl font-black tracking-wider text-white">
-                  FLOP<span className="text-amber-400">SHOW</span>
-                </span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-black tracking-widest uppercase bg-amber-500/15 border border-amber-500/40 text-amber-400 shadow-sm">
-                  ADMIN
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-400 font-mono tracking-wider">Mission-Control Portal</p>
-            </div>
+          <div className="inline-flex items-center justify-center">
+            <StakeLogo collapsed={true} className="h-12 w-auto text-white drop-shadow-md" />
+          </div>
+          <div>
+            <h1 className="text-xl font-black tracking-wider text-white">
+              Stake <span className="text-amber-400">Admin</span>
+            </h1>
+            <p className="text-[11px] text-slate-400 font-mono tracking-wider mt-0.5">
+              Mission-Control Terminal
+            </p>
           </div>
           <p className="text-xs text-slate-400 max-w-xs mx-auto">
             Authorized personnel only. All access attempts and administrative actions are cryptographically logged.
@@ -236,7 +232,7 @@ export default function AdminLoginPage() {
             href="/"
             className="text-xs text-slate-500 hover:text-amber-400 transition-colors font-mono"
           >
-            ← Return to FlopShow Player Lobby
+            ← Return to Stake Casino Lobby
           </a>
         </div>
       </div>

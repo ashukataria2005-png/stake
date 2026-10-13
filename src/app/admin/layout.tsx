@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
+import { StakeLogo } from "@/components/common/StakeLogo";
 import {
   LayoutDashboard,
   CreditCard,
@@ -18,8 +19,7 @@ import {
   RefreshCw,
   ExternalLink,
   ChevronRight,
-  Shield,
-  Activity,
+  Bell,
   Crown,
 } from "lucide-react";
 
@@ -121,6 +121,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
   const [isLoadingAuth, setIsLoadingAuth] = useState(!isLoginPage);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [pendingDepositsCount, setPendingDepositsCount] = useState<number>(0);
 
   // Authenticate admin on mount & route change
   useEffect(() => {
@@ -155,6 +156,31 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     };
   }, [pathname, isLoginPage, router]);
 
+  // Poll pending deposits for Bell notification
+  useEffect(() => {
+    if (isLoginPage) return;
+
+    let isMounted = true;
+
+    async function fetchPendingCount() {
+      try {
+        const res = await fetch("/api/admin/metrics");
+        const data = await res.json();
+        if (isMounted && data?.success && data?.metrics) {
+          setPendingDepositsCount(data.metrics.pendingDepositsCount ?? 0);
+        }
+      } catch {}
+    }
+
+    fetchPendingCount();
+    const interval = setInterval(fetchPendingCount, 10000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [isLoginPage]);
+
   // Close drawer whenever route changes
   useEffect(() => {
     setIsDrawerOpen(false);
@@ -185,54 +211,84 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="min-h-screen bg-[#090a0f] text-slate-100 flex flex-col font-sans selection:bg-amber-500 selection:text-black">
+      {/* CSS Bell shake animation */}
+      <style jsx global>{`
+        @keyframes bellWiggle {
+          0%, 100% { transform: rotate(0deg); }
+          15% { transform: rotate(14deg); }
+          30% { transform: rotate(-14deg); }
+          45% { transform: rotate(10deg); }
+          60% { transform: rotate(-10deg); }
+          75% { transform: rotate(4deg); }
+          90% { transform: rotate(-4deg); }
+        }
+        .bell-vibrate {
+          animation: bellWiggle 0.8s ease-in-out infinite;
+          transform-origin: top center;
+        }
+      `}</style>
+
       {/* ========================================================
           1. TOP MISSION-CONTROL HEADER
           ======================================================== */}
       <header className="sticky top-0 z-40 bg-[#0e1017]/95 backdrop-blur-md border-b border-[#1e2433] px-4 py-3 sm:px-6">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="max-w-7xl mx-auto flex items-center justify-between relative">
           {/* Left: Pill-styled [☰ Menu] Toggle */}
-          <button
-            onClick={() => setIsDrawerOpen(true)}
-            aria-label="Open Navigation Menu"
-            className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#131722] hover:bg-[#1c2233] text-slate-200 border border-[#1e2433] text-xs font-semibold transition-all active:scale-95 shadow-sm"
-          >
-            <Menu className="w-4 h-4 text-amber-400" />
-            <span className="hidden sm:inline">Menu</span>
-          </button>
-
-          {/* Center: Brand Logo + Golden [ADMIN] Badge */}
-          <Link href="/admin" className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 flex items-center justify-center text-black font-black text-sm shadow-md shadow-amber-500/20 border border-amber-300/30">
-              FS
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="font-black text-sm sm:text-base tracking-wider text-white">
-                FLOP<span className="text-amber-400">SHOW</span>
-              </span>
-              <span className="px-2 py-0.5 rounded text-[10px] font-black tracking-widest uppercase bg-amber-500/15 border border-amber-500/40 text-amber-400 shadow-sm">
-                ADMIN
-              </span>
-            </div>
-          </Link>
-
-          {/* Right: Dark-Red Bordered [Sign Out] Button */}
-          <div className="flex items-center gap-2.5">
-            <a
-              href="/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#131722] hover:bg-[#1a2030] text-slate-400 hover:text-slate-200 border border-[#1e2433] text-xs font-mono transition-colors"
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsDrawerOpen(true)}
+              aria-label="Open Navigation Menu"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#131722] hover:bg-[#1c2233] text-slate-200 border border-[#1e2433] text-xs font-semibold transition-all active:scale-95 shadow-sm"
             >
-              <span>Lobby</span>
-              <ExternalLink className="w-3 h-3 text-slate-500" />
-            </a>
+              <Menu className="w-4 h-4 text-amber-400" />
+              <span className="hidden sm:inline">Menu</span>
+            </button>
+          </div>
 
+          {/* Center: EXACT Stake "S" Logo ONLY */}
+          <div className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center">
+            <Link
+              href="/admin"
+              aria-label="Stake Admin Dashboard"
+              className="hover:opacity-85 transition-opacity flex items-center justify-center"
+            >
+              <StakeLogo collapsed={true} className="h-7 sm:h-8 w-auto text-white" />
+            </Link>
+          </div>
+
+          {/* Right: Pending Bell with ₹ Symbol + Clean Sign Out Icon Only */}
+          <div className="flex items-center gap-2 sm:gap-2.5">
+            {/* PENDING REQUESTS BELL ICON WITH "₹" SYMBOL */}
+            <Link
+              href="/admin/transactions"
+              title="Pending Recharge Requests Desk"
+              className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl border transition-all active:scale-95 ${
+                pendingDepositsCount > 0
+                  ? "bg-amber-500/15 border-amber-500/40 text-amber-300 shadow-sm shadow-amber-500/10"
+                  : "bg-[#131722] hover:bg-[#1c2233] border-[#1e2433] text-slate-400"
+              }`}
+            >
+              <Bell
+                className={`w-4 h-4 text-amber-400 ${
+                  pendingDepositsCount > 0 ? "bell-vibrate" : ""
+                }`}
+              />
+              <span className="font-black text-xs font-mono text-amber-300">₹</span>
+              {pendingDepositsCount > 0 && (
+                <span className="ml-0.5 px-1.5 py-0.2 rounded-full text-[10px] font-black bg-rose-500 text-white font-mono animate-pulse">
+                  {pendingDepositsCount}
+                </span>
+              )}
+            </Link>
+
+            {/* Clean Logout / Signout Icon Button Only (No text) */}
             <button
               onClick={handleLogout}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/30 text-xs font-semibold transition-all active:scale-95 shadow-sm"
+              aria-label="Sign Out"
+              title="Sign Out"
+              className="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/30 transition-all active:scale-95 shadow-sm"
             >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>Sign Out</span>
+              <LogOut className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -256,16 +312,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Drawer Header */}
         <div className="p-4 sm:p-5 border-b border-[#1e2433] flex items-center justify-between bg-[#131722]/50">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 via-amber-500 to-amber-600 flex items-center justify-center text-black font-black text-sm shadow-md">
-              FS
-            </div>
+            <StakeLogo collapsed={true} className="h-7 w-auto text-white" />
             <div>
               <div className="flex items-center gap-1.5">
                 <span className="font-black text-sm tracking-wider text-white">
-                  FLOP<span className="text-amber-400">SHOW</span>
-                </span>
-                <span className="px-1.5 py-0.5 rounded text-[9px] font-black tracking-widest uppercase bg-amber-500/15 border border-amber-500/40 text-amber-400">
-                  ADMIN
+                  Stake <span className="text-amber-400">Admin</span>
                 </span>
               </div>
               <p className="text-[10px] text-slate-500 font-mono">Mission-Control Hub</p>
@@ -380,7 +431,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Mission Control Live Engine • FlopShow Enterprise</span>
+            <span>Stake Mission Control Live Engine</span>
           </div>
           <span>Neon PostgreSQL • TLS 1.3 Guarded</span>
         </div>

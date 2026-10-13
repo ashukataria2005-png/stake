@@ -15,8 +15,8 @@ import {
 } from "lucide-react";
 
 export default function AdminSettingsPage() {
-  const [upiId, setUpiId] = useState("merchant.flopshow@icici");
-  const [merchantName, setMerchantName] = useState("FLOP SHOW ENTERTAINMENT");
+  const [upiId, setUpiId] = useState("merchant.stake@icici");
+  const [merchantName, setMerchantName] = useState("STAKE ENTERTAINMENT");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const handleSavePaymentConfig = (e: React.FormEvent) => {

@@ -59,7 +59,7 @@ const INITIAL_PROMOS: PromoCampaign[] = [
   },
   {
     id: "promo-3",
-    code: "FLOPLUCK20",
+    code: "STAKELUCK20",
     type: "PERCENT",
     value: 20,
     isPublic: true,

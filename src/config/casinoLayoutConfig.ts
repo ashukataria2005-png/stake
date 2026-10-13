@@ -163,6 +163,8 @@ export const CASINO_LAYOUT_CATEGORIES: CategoryLayoutItem[] = [
     showGameTitle: true,
     showProviderName: true,
     orderedGameSlugs: [
+      "wild-wild-riches",
+      "gems-bonanza",
       "gates-of-olympus",
       "sweet-bonanza",
       "sugar-rush",
