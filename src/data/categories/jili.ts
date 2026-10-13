@@ -2,9 +2,10 @@ import { CategoryModule } from "./types";
 
 export const JILI_SLUGS: string[] = [
   "jili-mines",
+  "jili-andar-bahar",
+  "super-ace",
   "gorush",
   "jili-hilo",
-  "jili-andar-bahar",
   "jili-tower",
   "jili-limbo",
   "big-small",
@@ -13,7 +14,7 @@ export const JILI_SLUGS: string[] = [
   "jili-blackjack",
   "jili-roulette",
   "jili-dragon-tiger",
-  "super-ace",
+
   "golden-empire",
   "fortune-gems",
 ];

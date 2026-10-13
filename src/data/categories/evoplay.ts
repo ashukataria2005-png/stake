@@ -1,12 +1,12 @@
 import { CategoryModule } from "./types";
 
 export const EVOPLAY_SLUGS: string[] = [
+  "uncrossable-rush",
+  "hockey-shootout",
   "thimbles",
   "penalty-shoot-out-street",
   "penalty-shoot-out-super-spin",
   "penalty-shoot-out",
-  "hockey-shootout",
-  "uncrossable-rush",
   "uncrossable-rush-x-mas",
   "plinko-blast",
   "red-queen",
