@@ -309,19 +309,19 @@ export const SMARTSOFT_THUMBNAILS: Record<string, string> = {
 // 100HP GAMING 100% SUITE
 // ==========================================
 export const HP100_THUMBNAILS: Record<string, string> = {
-  "hp100-astronaut": "/games/100hp/hp100-astronaut.webp",
-  "hp100-airjet": "/games/100hp/hp100-airjet.webp",
-  "hp100-chicken-tour": "/games/100hp/hp100-chicken-tour.webp",
-  "hp100-starx": "/games/100hp/hp100-starx.webp",
-  "hp100-chicken-vs-train": "/games/100hp/hp100-chicken-vs-train.webp",
-  "hp100-tappy-bird": "/games/100hp/hp100-tappy-bird.webp",
-  "hp100-astronaut-rivals": "/games/100hp/hp100-astronaut-rivals.webp",
-  "hp100-turbo-roulette": "/games/100hp/hp100-turbo-roulette.webp",
-  "hp100-blackjack": "/games/100hp/hp100-blackjack.webp",
-  "hp100-dice": "/games/100hp/hp100-dice.webp",
-  "hp100-mines": "/games/100hp/hp100-mines.webp",
-  "hp100-penalty": "/games/100hp/hp100-penalty.webp",
-  //"hp100-cyber-rush": "/games/100hp/hp100-cyber-rush.webp",
+  "hp100-astronaut": "/games/100hp/100hp-astronaut.webp",
+  "hp100-airjet": "/games/100hp/100hp-airjet.webp",
+  "hp100-chicken-tour": "/games/100hp/100hp-chicken-tour.webp",
+  "hp100-starx": "/games/100hp/100hp-starx.webp",
+  "hp100-chicken-vs-train": "/games/100hp/100hp-chicken-vs-train.webp",
+  "hp100-tappy-bird": "/games/100hp/100hp-tappy-bird.webp",
+  "hp100-astronaut-rivals": "/games/100hp/100hp-astronaut-rivals.webp",
+  "hp100-turbo-roulette": "/games/100hp/100hp-turbo-roulette.webp",
+  "hp100-blackjack": "/games/100hp/100hp-blackjack.webp",
+  "hp100-dice": "/games/100hp/100hp-dice.webp",
+  "hp100-mines": "/games/100hp/100hp-mines.webp",
+  "hp100-penalty": "/games/100hp/100hp-penalty.webp",
+  //"hp100-cyber-rush": "/games/100hp/100hp-cyber-rush.webp",
 };
 
 // ==========================================
