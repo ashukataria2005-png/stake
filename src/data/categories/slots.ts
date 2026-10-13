@@ -1,6 +1,9 @@
 import { CategoryModule } from "./types";
 
 export const SLOTS_SLUGS: string[] = [
+  "san-quentin",
+  "wild-wild-riches",
+  "wild-west-gold",
   "sweet-bonanza-1000",
   "gates-of-olympus-1000",
   "sugar-rush-1000",
@@ -9,7 +12,6 @@ export const SLOTS_SLUGS: string[] = [
   "rip-city",
   "dork-unit",
   "starlight-princess-1000",
-  "san-quentin",
   "tombstone-rip",
   "mental",
   "zeus-vs-hades",

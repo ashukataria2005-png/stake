@@ -21,6 +21,9 @@ export function generateStaticParams() {
     { slug: "pragmatic-play" },
     { slug: "hacksaw" },
     { slug: "hacksaw-gaming" },
+    { slug: "only-on-stake" },
+    { slug: "new-releases" },
+    { slug: "burst-games" },
   ];
 }
 

@@ -22,6 +22,8 @@ import {
   Radio,
   UserPlus,
   Coins,
+  DollarSign,
+  Plus,
 } from "lucide-react";
 
 interface MetricsData {
@@ -46,7 +48,6 @@ export default function AdminDashboardPage() {
   const [metrics, setMetrics] = useState<MetricsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [timeFilter, setTimeFilter] = useState<"ALL" | "TODAY" | "THIS_WEEK" | "THIS_MONTH">("TODAY");
 
   // Realtime clock
   const [currentTime, setCurrentTime] = useState<string>("");
@@ -98,539 +99,475 @@ export default function AdminDashboardPage() {
   });
 
   return (
-    <div className="space-y-6 sm:space-y-7">
-      {/* ========================================================
-          PAGE TOP HEADER & FILTERS
-          ======================================================== */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-1 border-b border-[#1e2433]/70">
+    <div className="space-y-6 sm:space-y-7 max-w-6xl mx-auto">
+      {/* Top Header Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[#213743]">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-lg sm:text-xl font-black text-white tracking-wide">
-              Stake Administration — Mission Control Dashboard
-            </h1>
-            <span className="hidden sm:inline-flex px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-amber-500/15 border border-amber-500/40 text-amber-400 font-mono">
-              LIVE
-            </span>
-          </div>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Realtime performance metrics, payment queues, and platform infrastructure.
+          <h1 className="text-xl sm:text-2xl font-black text-white tracking-wide">
+            Stake Administration
+          </h1>
+          <p className="text-xs text-[#b1bad3] mt-0.5">
+            Mission Control performance metrics and operational hub.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 self-start md:self-auto">
-          {/* Time Filter Pills */}
-          <div className="flex items-center bg-[#131722] border border-[#1e2433] rounded-xl p-0.5">
-            {(["ALL", "TODAY", "THIS_WEEK", "THIS_MONTH"] as const).map((filter) => {
-              const label =
-                filter === "ALL"
-                  ? "All"
-                  : filter === "TODAY"
-                  ? "Today"
-                  : filter === "THIS_WEEK"
-                  ? "This Week"
-                  : "This Month";
-              const isSelected = timeFilter === filter;
-              return (
-                <button
-                  key={filter}
-                  onClick={() => setTimeFilter(filter)}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
-                    isSelected
-                      ? "bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm"
-                      : "text-slate-400 hover:text-slate-200"
-                  }`}
-                >
-                  {label}
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Refresh Button */}
+        <div className="flex items-center gap-2.5">
           <button
             onClick={fetchMetrics}
             disabled={isLoading}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#131722] hover:bg-[#1c2233] text-slate-200 text-xs font-semibold rounded-xl border border-[#1e2433] transition-all active:scale-95 shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#213743] hover:bg-[#2a4454] text-white text-xs font-semibold rounded-xl border border-[#2f4553] transition-all active:scale-95 shadow-sm"
           >
             <RefreshCw
               className={`w-3.5 h-3.5 text-amber-400 ${isLoading ? "animate-spin" : ""}`}
             />
-            <span className="hidden sm:inline">Refresh</span>
+            <span>Refresh Metrics</span>
           </button>
         </div>
       </div>
 
       {/* ========================================================
-          SEQUENCE ORDER 1: "TODAY'S PERFORMANCE" (Compact 3-Column Grid)
+          PART A: TOP CONTAINER (Today's Performance)
+          Unified outer container with 2-Column x 3-Row Grid (6 boxes)
           ======================================================== */}
-      <section className="space-y-3.5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+      <div className="bg-[#1a2c38] border border-[#213743] rounded-2xl p-4 sm:p-5 shadow-lg space-y-3.5">
+        <div className="flex items-center justify-between pb-2 border-b border-[#213743]">
           <div className="flex items-center gap-2">
-            <Radio className="w-4 h-4 text-emerald-400 animate-pulse" />
+            <Radio className="w-4 h-4 text-[#00e701] animate-pulse" />
             <h2 className="text-sm sm:text-base font-bold text-white tracking-wide">
               Today's Performance
             </h2>
-            <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono">
-              ● ACTIVE WINDOW
+            <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-[#00e701]/10 border border-[#00e701]/30 text-[#00e701] font-mono">
+              ● ACTIVE
             </span>
           </div>
 
-          <div className="flex items-center gap-2 text-xs font-mono text-slate-400">
-            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#131722] border border-[#1e2433] rounded-lg">
+          <div className="flex items-center gap-2 text-xs font-mono text-[#b1bad3]">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#0f212e] border border-[#213743] rounded-lg">
               <Calendar className="w-3 h-3 text-amber-400" />
               <span>{todayFormattedDate}</span>
             </div>
-            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#131722] border border-[#1e2433] rounded-lg text-amber-300 font-bold">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-[#0f212e] border border-[#213743] rounded-lg text-amber-300 font-bold">
               <Clock className="w-3 h-3 text-amber-400" />
               <span>{currentTime || "12:00:00 PM"}</span>
             </div>
           </div>
         </div>
 
-        {/* 6 Compact Performance Boxes in 3-Columns (1 Line me 3 Items) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-          {/* Box 1: Today's Net Revenue (Gold) */}
-          <div className="bg-[#131722] border border-amber-500/30 rounded-xl p-4 shadow relative overflow-hidden group hover:border-amber-500/50 transition-all">
-            <div className="flex items-center justify-between mb-2">
+        {/* Exactly 6 Compact Boxes in 2-Column x 3-Row Grid */}
+        <div className="grid grid-cols-2 grid-rows-3 gap-2.5">
+          {/* Box 1: Today's Revenue (₹) */}
+          <div className="bg-[#0f212e] border border-[#213743] hover:border-amber-500/40 rounded-xl p-3 sm:p-3.5 transition-colors shadow-sm">
+            <div className="flex items-center justify-between mb-1.5">
               <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400 font-mono">
-                Today's Net Revenue
+                Today's Revenue
               </span>
-              <div className="w-7 h-7 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center">
+              <div className="w-6 h-6 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center">
                 <TrendingUp className="w-3.5 h-3.5" />
               </div>
             </div>
-            <div className="text-xl sm:text-2xl font-black text-white tracking-tight font-mono">
-              ₹{(metrics?.todayRevenue ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-            </div>
-            <div className="mt-2 pt-2 border-t border-[#1e2433] flex items-center justify-between text-[11px] text-slate-400">
-              <span>Deposits - Payouts</span>
-              <span className="text-emerald-400 font-mono font-semibold">Net Profit</span>
-            </div>
-          </div>
-
-          {/* Box 2: Today's Recharge Volume (Violet) */}
-          <div className="bg-[#131722] border border-violet-500/30 rounded-xl p-4 shadow relative overflow-hidden group hover:border-violet-500/50 transition-all">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-violet-400 font-mono">
-                Today's Recharges
-              </span>
-              <div className="w-7 h-7 rounded-lg bg-violet-500/15 border border-violet-500/30 text-violet-400 flex items-center justify-center">
-                <ArrowDownCircle className="w-3.5 h-3.5" />
-              </div>
-            </div>
-            <div className="text-xl sm:text-2xl font-black text-white tracking-tight font-mono">
+            <div className="text-lg sm:text-xl font-black text-white font-mono tracking-tight">
               ₹{(metrics?.todayDepositsVolume ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
             </div>
-            <div className="mt-2 pt-2 border-t border-[#1e2433] flex items-center justify-between text-[11px] text-slate-400">
-              <span>Pending Review:</span>
-              <span className="text-amber-400 font-mono font-bold">
-                {metrics?.pendingDepositsCount ?? 0} Queued
-              </span>
-            </div>
+            <p className="text-[10px] text-[#b1bad3] font-mono mt-1">Recharge inflow volume</p>
           </div>
 
-          {/* Box 3: Today's Paid Withdrawals (Emerald) */}
-          <div className="bg-[#131722] border border-emerald-500/30 rounded-xl p-4 shadow relative overflow-hidden group hover:border-emerald-500/50 transition-all">
-            <div className="flex items-center justify-between mb-2">
+          {/* Box 2: Today's Profit (₹) */}
+          <div className="bg-[#0f212e] border border-[#213743] hover:border-emerald-500/40 rounded-xl p-3 sm:p-3.5 transition-colors shadow-sm">
+            <div className="flex items-center justify-between mb-1.5">
               <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 font-mono">
-                Today's Withdrawals
+                Today's Profit
               </span>
-              <div className="w-7 h-7 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center">
-                <ArrowUpRight className="w-3.5 h-3.5" />
+              <div className="w-6 h-6 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
+                <DollarSign className="w-3.5 h-3.5" />
               </div>
             </div>
-            <div className="text-xl sm:text-2xl font-black text-white tracking-tight font-mono">
-              ₹{(metrics?.todayWithdrawalsVolume ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+            <div className="text-lg sm:text-xl font-black text-emerald-400 font-mono tracking-tight">
+              ₹{(metrics?.todayRevenue ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
             </div>
-            <div className="mt-2 pt-2 border-t border-[#1e2433] flex items-center justify-between text-[11px] text-slate-400">
-              <span>Pending Payouts:</span>
-              <span className="text-amber-400 font-mono font-bold">
-                {metrics?.pendingWithdrawalsCount ?? 0} Awaiting
-              </span>
-            </div>
+            <p className="text-[10px] text-[#b1bad3] font-mono mt-1">Net: Deposits - Withdrawals</p>
           </div>
 
-          {/* Box 4: Platform Turnover (Cyan) */}
-          <div className="bg-[#131722] border border-cyan-500/30 rounded-xl p-4 shadow relative overflow-hidden group hover:border-cyan-500/50 transition-all">
-            <div className="flex items-center justify-between mb-2">
+          {/* Box 3: Today's New Members (Count) */}
+          <div className="bg-[#0f212e] border border-[#213743] hover:border-cyan-500/40 rounded-xl p-3 sm:p-3.5 transition-colors shadow-sm">
+            <div className="flex items-center justify-between mb-1.5">
               <span className="text-[11px] font-bold uppercase tracking-wider text-cyan-400 font-mono">
-                Platform Turnover
+                Today's New Members
               </span>
-              <div className="w-7 h-7 rounded-lg bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 flex items-center justify-center">
-                <Activity className="w-3.5 h-3.5" />
-              </div>
-            </div>
-            <div className="text-xl sm:text-2xl font-black text-white tracking-tight font-mono">
-              ₹{(metrics?.totalTurnover ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-            </div>
-            <div className="mt-2 pt-2 border-t border-[#1e2433] flex items-center justify-between text-[11px] text-slate-400">
-              <span>Bets Wagered:</span>
-              <span className="text-cyan-300 font-mono font-bold">
-                {metrics?.totalBetsCount ?? 0} Rounds
-              </span>
-            </div>
-          </div>
-
-          {/* Box 5: Today's Joined Users (Amber) */}
-          <div className="bg-[#131722] border border-[#1e2433] rounded-xl p-4 shadow relative overflow-hidden group hover:border-amber-500/40 transition-all">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-300 font-mono">
-                Joined Users Today
-              </span>
-              <div className="w-7 h-7 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center">
+              <div className="w-6 h-6 rounded-lg bg-cyan-500/15 text-cyan-400 flex items-center justify-center">
                 <UserPlus className="w-3.5 h-3.5" />
               </div>
             </div>
-            <div className="text-xl sm:text-2xl font-black text-amber-400 tracking-tight font-mono">
+            <div className="text-lg sm:text-xl font-black text-white font-mono tracking-tight">
               +{metrics?.todayUsers ?? 0}
             </div>
-            <div className="mt-2 pt-2 border-t border-[#1e2433] flex items-center justify-between text-[11px] text-slate-400">
-              <span>Total Roster:</span>
-              <span className="text-white font-mono font-bold">
-                {metrics?.totalUsers ?? 0} Users
-              </span>
-            </div>
+            <p className="text-[10px] text-[#b1bad3] font-mono mt-1">New player registrations</p>
           </div>
 
-          {/* Box 6: User Wallet Liability */}
-          <div className="bg-[#131722] border border-[#1e2433] rounded-xl p-4 shadow relative overflow-hidden group hover:border-blue-500/40 transition-all">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-300 font-mono">
-                Wallet Liabilities
+          {/* Box 4: Today's Deposit (₹) */}
+          <div className="bg-[#0f212e] border border-[#213743] hover:border-violet-500/40 rounded-xl p-3 sm:p-3.5 transition-colors shadow-sm">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-violet-400 font-mono">
+                Today's Deposit
               </span>
-              <div className="w-7 h-7 rounded-lg bg-blue-500/15 border border-blue-500/30 text-blue-400 flex items-center justify-center">
-                <Coins className="w-3.5 h-3.5" />
+              <div className="w-6 h-6 rounded-lg bg-violet-500/15 text-violet-400 flex items-center justify-center">
+                <ArrowDownCircle className="w-3.5 h-3.5" />
               </div>
             </div>
-            <div className="text-xl sm:text-2xl font-black text-white tracking-tight font-mono">
-              ₹{(metrics?.totalWalletsBalance ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+            <div className="text-lg sm:text-xl font-black text-white font-mono tracking-tight">
+              ₹{(metrics?.todayDepositsVolume ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
             </div>
-            <div className="mt-2 pt-2 border-t border-[#1e2433] flex items-center justify-between text-[11px] text-slate-400">
-              <span>Platform Backing:</span>
-              <span className="text-emerald-400 font-mono font-bold">100% Reserves</span>
+            <p className="text-[10px] text-amber-400 font-mono mt-1">
+              {metrics?.pendingDepositsCount ?? 0} Pending approvals
+            </p>
+          </div>
+
+          {/* Box 5: Today's Withdrawals (₹) */}
+          <div className="bg-[#0f212e] border border-[#213743] hover:border-rose-500/40 rounded-xl p-3 sm:p-3.5 transition-colors shadow-sm">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-rose-400 font-mono">
+                Today's Withdrawals
+              </span>
+              <div className="w-6 h-6 rounded-lg bg-rose-500/15 text-rose-400 flex items-center justify-center">
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </div>
             </div>
+            <div className="text-lg sm:text-xl font-black text-white font-mono tracking-tight">
+              ₹{(metrics?.todayWithdrawalsVolume ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+            </div>
+            <p className="text-[10px] text-amber-400 font-mono mt-1">
+              {metrics?.pendingWithdrawalsCount ?? 0} Awaiting dispatch
+            </p>
+          </div>
+
+          {/* Box 6: Empty Placeholder Box */}
+          <div className="border border-dashed border-[#2f4553] bg-[#0f212e]/50 rounded-xl flex flex-col items-center justify-center p-3 text-center transition-colors">
+            <Plus className="w-5 h-5 text-[#2f4553] mb-1" />
+            <span className="text-[11px] font-mono text-[#b1bad3]/60">
+              — Reserved Metric Slot —
+            </span>
           </div>
         </div>
-      </section>
+      </div>
 
       {/* ========================================================
-          SEQUENCE ORDER 2: "ADMINISTRATIVE NAVIGATION HUB" (Compact 3-Column Grid)
+          PART B: MIDDLE SECTION (Administration Hub)
+          Full-width single-column rows (ultra-compact minimal height)
           ======================================================== */}
-      <section className="space-y-3.5">
+      <div className="space-y-2.5">
         <div>
           <h2 className="text-sm sm:text-base font-bold text-white tracking-wide">
             Administrative Navigation Hub
           </h2>
-          <p className="text-xs text-slate-400">
-            One-click direct jump controls into all operational desks.
+          <p className="text-xs text-[#b1bad3]">
+            Full-width operational modules and administrative consoles.
           </p>
         </div>
 
-        {/* 9 Compact Bento Cards (3 Rows × 3 Columns on Desktop) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-          {/* 1. Payments & Verify */}
+        <div className="space-y-1.5">
+          {/* Row 1: Payments & Verify Desk */}
           <Link
             href="/admin/transactions"
-            className="bg-[#131722] border border-[#1e2433] hover:border-violet-500/50 rounded-xl p-4 flex flex-col justify-between group transition-all shadow hover:-translate-y-0.5"
+            className="w-full h-11 sm:h-12 px-3 sm:px-4 rounded-xl bg-[#1a2c38] hover:bg-[#213743] border border-[#213743] hover:border-[#2f4553] flex items-center justify-between transition-all group shadow-sm"
           >
-            <div>
-              <div className="flex items-center justify-between mb-2.5">
-                <div className="w-8 h-8 rounded-lg bg-violet-500/10 border border-violet-500/30 text-violet-400 flex items-center justify-center">
-                  <CreditCard className="w-4 h-4" />
-                </div>
-                {metrics?.pendingDepositsCount ? (
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                    {metrics.pendingDepositsCount} Pending
-                  </span>
-                ) : null}
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-lg bg-violet-500/15 text-violet-400 flex items-center justify-center shrink-0">
+                <CreditCard className="w-3.5 h-3.5" />
               </div>
-              <h3 className="text-xs font-bold text-white group-hover:text-violet-400 transition-colors">
-                Payments & Verify
-              </h3>
-              <p className="text-[11px] text-slate-400 mt-1 line-clamp-2">
-                Deposit receipts, UTR verification, screenshot zoom & 1-click credit.
-              </p>
+              <span className="text-xs sm:text-sm font-bold text-white group-hover:text-violet-300 transition-colors">
+                Payments & Verify Desk
+              </span>
+              {metrics?.pendingDepositsCount ? (
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                  {metrics.pendingDepositsCount} Pending
+                </span>
+              ) : null}
             </div>
-            <div className="mt-3 pt-2.5 border-t border-[#1e2433] flex items-center justify-between text-xs font-semibold text-violet-400">
-              <span>Open Desk</span>
-              <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+            <div className="flex items-center gap-2 text-xs font-mono text-[#b1bad3] group-hover:text-white">
+              <span className="hidden sm:inline text-[11px]">UTR verification & 1-click approvals</span>
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </div>
           </Link>
 
-          {/* 2. User Directory */}
+          {/* Row 2: User Directory & Balances */}
           <Link
             href="/admin/users"
-            className="bg-[#131722] border border-[#1e2433] hover:border-cyan-500/50 rounded-xl p-4 flex flex-col justify-between group transition-all shadow hover:-translate-y-0.5"
+            className="w-full h-11 sm:h-12 px-3 sm:px-4 rounded-xl bg-[#1a2c38] hover:bg-[#213743] border border-[#213743] hover:border-[#2f4553] flex items-center justify-between transition-all group shadow-sm"
           >
-            <div>
-              <div className="flex items-center justify-between mb-2.5">
-                <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 flex items-center justify-center">
-                  <Users className="w-4 h-4" />
-                </div>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-cyan-300 bg-cyan-500/10 border border-cyan-500/20">
-                  {metrics?.totalUsers ?? 0} Users
-                </span>
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-lg bg-cyan-500/15 text-cyan-400 flex items-center justify-center shrink-0">
+                <Users className="w-3.5 h-3.5" />
               </div>
-              <h3 className="text-xs font-bold text-white group-hover:text-cyan-400 transition-colors">
-                User Directory
-              </h3>
-              <p className="text-[11px] text-slate-400 mt-1 line-clamp-2">
-                All players, manual balance editor (+/- INR with remarks) & Luck Mode.
-              </p>
+              <span className="text-xs sm:text-sm font-bold text-white group-hover:text-cyan-300 transition-colors">
+                User Directory & Balances
+              </span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-cyan-300 bg-cyan-500/10 border border-cyan-500/20">
+                {metrics?.totalUsers ?? 0} Users
+              </span>
             </div>
-            <div className="mt-3 pt-2.5 border-t border-[#1e2433] flex items-center justify-between text-xs font-semibold text-cyan-400">
-              <span>Manage Users</span>
-              <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+            <div className="flex items-center gap-2 text-xs font-mono text-[#b1bad3] group-hover:text-white">
+              <span className="hidden sm:inline text-[11px]">Balance adjust (+/- INR) & Luck Mode</span>
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </div>
           </Link>
 
-          {/* 3. Games & RTP Luck Control */}
+          {/* Row 3: Games & RTP Luck Control */}
           <Link
             href="/admin/luck-control"
-            className="bg-[#131722] border border-[#1e2433] hover:border-emerald-500/50 rounded-xl p-4 flex flex-col justify-between group transition-all shadow hover:-translate-y-0.5"
+            className="w-full h-11 sm:h-12 px-3 sm:px-4 rounded-xl bg-[#1a2c38] hover:bg-[#213743] border border-[#213743] hover:border-[#2f4553] flex items-center justify-between transition-all group shadow-sm"
           >
-            <div>
-              <div className="flex items-center justify-between mb-2.5">
-                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center">
-                  <Sliders className="w-4 h-4" />
-                </div>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-emerald-300 bg-emerald-500/10 border border-emerald-500/20">
-                  RTP
-                </span>
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
+                <Sliders className="w-3.5 h-3.5" />
               </div>
-              <h3 className="text-xs font-bold text-white group-hover:text-emerald-400 transition-colors">
+              <span className="text-xs sm:text-sm font-bold text-white group-hover:text-emerald-300 transition-colors">
                 Games & RTP Luck Control
-              </h3>
-              <p className="text-[11px] text-slate-400 mt-1 line-clamp-2">
-                Configure house edge margins, forced win multipliers & algorithms.
-              </p>
+              </span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-emerald-300 bg-emerald-500/10 border border-emerald-500/20">
+                RTP Desk
+              </span>
             </div>
-            <div className="mt-3 pt-2.5 border-t border-[#1e2433] flex items-center justify-between text-xs font-semibold text-emerald-400">
-              <span>Adjust RTP</span>
-              <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+            <div className="flex items-center gap-2 text-xs font-mono text-[#b1bad3] group-hover:text-white">
+              <span className="hidden sm:inline text-[11px]">House edge margins & multipliers</span>
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </div>
           </Link>
 
-          {/* 4. Promos & Rewards */}
+          {/* Row 4: Promos & Rewards */}
           <Link
             href="/admin/promotions"
-            className="bg-[#131722] border border-[#1e2433] hover:border-rose-500/50 rounded-xl p-4 flex flex-col justify-between group transition-all shadow hover:-translate-y-0.5"
+            className="w-full h-11 sm:h-12 px-3 sm:px-4 rounded-xl bg-[#1a2c38] hover:bg-[#213743] border border-[#213743] hover:border-[#2f4553] flex items-center justify-between transition-all group shadow-sm"
           >
-            <div>
-              <div className="flex items-center justify-between mb-2.5">
-                <div className="w-8 h-8 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-400 flex items-center justify-center">
-                  <Gift className="w-4 h-4" />
-                </div>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-rose-300 bg-rose-500/10 border border-rose-500/20">
-                  Drops
-                </span>
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-lg bg-rose-500/15 text-rose-400 flex items-center justify-center shrink-0">
+                <Gift className="w-3.5 h-3.5" />
               </div>
-              <h3 className="text-xs font-bold text-white group-hover:text-rose-400 transition-colors">
+              <span className="text-xs sm:text-sm font-bold text-white group-hover:text-rose-300 transition-colors">
                 Promos & Rewards
-              </h3>
-              <p className="text-[11px] text-slate-400 mt-1 line-clamp-2">
-                Generate coupon codes, deposit reload matchers & gift drop limits.
-              </p>
+              </span>
             </div>
-            <div className="mt-3 pt-2.5 border-t border-[#1e2433] flex items-center justify-between text-xs font-semibold text-rose-400">
-              <span>Manage Promos</span>
-              <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+            <div className="flex items-center gap-2 text-xs font-mono text-[#b1bad3] group-hover:text-white">
+              <span className="hidden sm:inline text-[11px]">Voucher codes & campaign drops</span>
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </div>
           </Link>
 
-          {/* 5. Finance & Ledger */}
+          {/* Row 5: Finance & Ledger */}
           <Link
             href="/admin/finance"
-            className="bg-[#131722] border border-[#1e2433] hover:border-amber-500/50 rounded-xl p-4 flex flex-col justify-between group transition-all shadow hover:-translate-y-0.5"
+            className="w-full h-11 sm:h-12 px-3 sm:px-4 rounded-xl bg-[#1a2c38] hover:bg-[#213743] border border-[#213743] hover:border-[#2f4553] flex items-center justify-between transition-all group shadow-sm"
           >
-            <div>
-              <div className="flex items-center justify-between mb-2.5">
-                <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center">
-                  <Landmark className="w-4 h-4" />
-                </div>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-amber-300 bg-amber-500/10 border border-amber-500/20">
-                  Ledger
-                </span>
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center shrink-0">
+                <Landmark className="w-3.5 h-3.5" />
               </div>
-              <h3 className="text-xs font-bold text-white group-hover:text-amber-400 transition-colors">
+              <span className="text-xs sm:text-sm font-bold text-white group-hover:text-amber-300 transition-colors">
                 Finance & Ledger
-              </h3>
-              <p className="text-[11px] text-slate-400 mt-1 line-clamp-2">
-                Cashflow breakdown, total liabilities vs reserves & payout audit.
-              </p>
+              </span>
             </div>
-            <div className="mt-3 pt-2.5 border-t border-[#1e2433] flex items-center justify-between text-xs font-semibold text-amber-400">
-              <span>View Ledger</span>
-              <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+            <div className="flex items-center gap-2 text-xs font-mono text-[#b1bad3] group-hover:text-white">
+              <span className="hidden sm:inline text-[11px]">Cashflow balance & reserve coverage</span>
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </div>
           </Link>
 
-          {/* 6. Admin Team & Security */}
+          {/* Row 6: Admin Team & Security */}
           <Link
             href="/admin/security"
-            className="bg-[#131722] border border-[#1e2433] hover:border-cyan-500/50 rounded-xl p-4 flex flex-col justify-between group transition-all shadow hover:-translate-y-0.5"
+            className="w-full h-11 sm:h-12 px-3 sm:px-4 rounded-xl bg-[#1a2c38] hover:bg-[#213743] border border-[#213743] hover:border-[#2f4553] flex items-center justify-between transition-all group shadow-sm"
           >
-            <div>
-              <div className="flex items-center justify-between mb-2.5">
-                <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 flex items-center justify-center">
-                  <ShieldCheck className="w-4 h-4" />
-                </div>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-cyan-300 bg-cyan-500/10 border border-cyan-500/20">
-                  Roles
-                </span>
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-lg bg-cyan-500/15 text-cyan-400 flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-3.5 h-3.5" />
               </div>
-              <h3 className="text-xs font-bold text-white group-hover:text-cyan-400 transition-colors">
+              <span className="text-xs sm:text-sm font-bold text-white group-hover:text-cyan-300 transition-colors">
                 Admin Team & Security
-              </h3>
-              <p className="text-[11px] text-slate-400 mt-1 line-clamp-2">
-                Manage administrative accounts, update security passwords & scopes.
-              </p>
+              </span>
             </div>
-            <div className="mt-3 pt-2.5 border-t border-[#1e2433] flex items-center justify-between text-xs font-semibold text-cyan-400">
-              <span>Security Hub</span>
-              <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+            <div className="flex items-center gap-2 text-xs font-mono text-[#b1bad3] group-hover:text-white">
+              <span className="hidden sm:inline text-[11px]">Access permissions & security keys</span>
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </div>
           </Link>
 
-          {/* 7. Platform Settings */}
+          {/* Row 7: Platform Settings */}
           <Link
             href="/admin/settings"
-            className="bg-[#131722] border border-[#1e2433] hover:border-slate-400/50 rounded-xl p-4 flex flex-col justify-between group transition-all shadow hover:-translate-y-0.5"
+            className="w-full h-11 sm:h-12 px-3 sm:px-4 rounded-xl bg-[#1a2c38] hover:bg-[#213743] border border-[#213743] hover:border-[#2f4553] flex items-center justify-between transition-all group shadow-sm"
           >
-            <div>
-              <div className="flex items-center justify-between mb-2.5">
-                <div className="w-8 h-8 rounded-lg bg-slate-500/10 border border-slate-500/30 text-slate-300 flex items-center justify-center">
-                  <Settings className="w-4 h-4" />
-                </div>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-slate-300 bg-slate-500/10 border border-slate-500/20">
-                  Core
-                </span>
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-lg bg-slate-500/15 text-slate-300 flex items-center justify-center shrink-0">
+                <Settings className="w-3.5 h-3.5" />
               </div>
-              <h3 className="text-xs font-bold text-white group-hover:text-slate-200 transition-colors">
+              <span className="text-xs sm:text-sm font-bold text-white group-hover:text-slate-200 transition-colors">
                 Platform Settings
-              </h3>
-              <p className="text-[11px] text-slate-400 mt-1 line-clamp-2">
-                Neon database connection status, UPI QR receiver settings & env.
-              </p>
+              </span>
             </div>
-            <div className="mt-3 pt-2.5 border-t border-[#1e2433] flex items-center justify-between text-xs font-semibold text-slate-400">
-              <span>Settings</span>
-              <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+            <div className="flex items-center gap-2 text-xs font-mono text-[#b1bad3] group-hover:text-white">
+              <span className="hidden sm:inline text-[11px]">Database health & payment receiver config</span>
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </div>
           </Link>
 
-          {/* 8. Withdrawal Requests Desk */}
+          {/* Row 8: Withdrawal Requests Desk */}
           <Link
             href="/admin/withdrawals"
-            className="bg-[#131722] border border-[#1e2433] hover:border-emerald-500/50 rounded-xl p-4 flex flex-col justify-between group transition-all shadow hover:-translate-y-0.5"
+            className="w-full h-11 sm:h-12 px-3 sm:px-4 rounded-xl bg-[#1a2c38] hover:bg-[#213743] border border-[#213743] hover:border-[#2f4553] flex items-center justify-between transition-all group shadow-sm"
           >
-            <div>
-              <div className="flex items-center justify-between mb-2.5">
-                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center">
-                  <ArrowUpRight className="w-4 h-4" />
-                </div>
-                {metrics?.pendingWithdrawalsCount ? (
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                    {metrics.pendingWithdrawalsCount} Payouts
-                  </span>
-                ) : null}
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
+                <ArrowUpRight className="w-3.5 h-3.5" />
               </div>
-              <h3 className="text-xs font-bold text-white group-hover:text-emerald-400 transition-colors">
-                Withdrawal Requests
-              </h3>
-              <p className="text-[11px] text-slate-400 mt-1 line-clamp-2">
-                Audit player payout requests, dispatch bank transfers & refunds.
-              </p>
+              <span className="text-xs sm:text-sm font-bold text-white group-hover:text-emerald-300 transition-colors">
+                Withdrawal Requests Desk
+              </span>
+              {metrics?.pendingWithdrawalsCount ? (
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                  {metrics.pendingWithdrawalsCount} Payouts
+                </span>
+              ) : null}
             </div>
-            <div className="mt-3 pt-2.5 border-t border-[#1e2433] flex items-center justify-between text-xs font-semibold text-emerald-400">
-              <span>Withdrawal Desk</span>
-              <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+            <div className="flex items-center gap-2 text-xs font-mono text-[#b1bad3] group-hover:text-white">
+              <span className="hidden sm:inline text-[11px]">Bank transfer dispatch & refunds</span>
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </div>
           </Link>
 
-          {/* 9. Live Player Gaming Lobby */}
+          {/* Row 9: Live Player Gaming Lobby */}
           <a
             href="/"
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-[#131722] border border-[#1e2433] hover:border-amber-500/50 rounded-xl p-4 flex flex-col justify-between group transition-all shadow hover:-translate-y-0.5"
+            className="w-full h-11 sm:h-12 px-3 sm:px-4 rounded-xl bg-[#1a2c38] hover:bg-[#213743] border border-[#213743] hover:border-[#2f4553] flex items-center justify-between transition-all group shadow-sm"
           >
-            <div>
-              <div className="flex items-center justify-between mb-2.5">
-                <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center">
-                  <ExternalLink className="w-4 h-4" />
-                </div>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-amber-300 bg-amber-500/10 border border-amber-500/20">
-                  Lobby
-                </span>
+            <div className="flex items-center gap-3">
+              <div className="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center shrink-0">
+                <ExternalLink className="w-3.5 h-3.5" />
               </div>
-              <h3 className="text-xs font-bold text-white group-hover:text-amber-400 transition-colors">
+              <span className="text-xs sm:text-sm font-bold text-white group-hover:text-amber-300 transition-colors">
                 Player Gaming Lobby
-              </h3>
-              <p className="text-[11px] text-slate-400 mt-1 line-clamp-2">
-                Launch production casino lobby in a new tab to test games & payouts.
-              </p>
+              </span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono text-amber-300 bg-amber-500/10 border border-amber-500/20">
+                Live Frontend
+              </span>
             </div>
-            <div className="mt-3 pt-2.5 border-t border-[#1e2433] flex items-center justify-between text-xs font-semibold text-amber-400">
-              <span>Launch Lobby</span>
-              <ExternalLink className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+            <div className="flex items-center gap-2 text-xs font-mono text-[#b1bad3] group-hover:text-white">
+              <span className="hidden sm:inline text-[11px]">Launch client viewport</span>
+              <ExternalLink className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </div>
           </a>
         </div>
-      </section>
+      </div>
 
       {/* ========================================================
-          SEQUENCE ORDER 3: "OVERALL PLATFORM PERFORMANCE" (Compact 3-Column Grid)
+          PART C: BOTTOM CONTAINER (Total / Overall Overview)
+          Unified outer container with 2-Column x 3-Row Grid (6 boxes)
           ======================================================== */}
-      <section className="space-y-3.5">
-        <div>
-          <h2 className="text-sm sm:text-base font-bold text-white tracking-wide">
-            Overall Platform Performance
-          </h2>
-          <p className="text-xs text-slate-400">
-            Cumulative all-time platform volume and registered accounts in Neon DB.
-          </p>
+      <div className="bg-[#1a2c38] border border-[#213743] rounded-2xl p-4 sm:p-5 shadow-lg space-y-3.5">
+        <div className="flex items-center justify-between pb-2 border-b border-[#213743]">
+          <div>
+            <h2 className="text-sm sm:text-base font-bold text-white tracking-wide">
+              Overall Platform Overview
+            </h2>
+            <p className="text-xs text-[#b1bad3]">
+              All-time cumulative volumes and totals in database.
+            </p>
+          </div>
+          <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[#213743] text-slate-300 border border-[#2f4553]">
+            CUMULATIVE
+          </span>
         </div>
 
-        {/* 3 Compact All-Time Boxes (1 Line me 3 Items) */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-          <div className="bg-[#131722] border border-[#1e2433] rounded-xl p-4 shadow">
-            <span className="text-[11px] font-mono uppercase text-slate-400">
-              Total Registered Users
-            </span>
-            <p className="text-xl sm:text-2xl font-black text-white font-mono mt-1">
+        {/* Exactly 6 Compact Boxes in 2-Column x 3-Row Grid */}
+        <div className="grid grid-cols-2 grid-rows-3 gap-2.5">
+          {/* Box 1: Total Revenue (₹) */}
+          <div className="bg-[#0f212e] border border-[#213743] hover:border-amber-500/40 rounded-xl p-3 sm:p-3.5 transition-colors shadow-sm">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400 font-mono">
+                Total Revenue
+              </span>
+              <div className="w-6 h-6 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center">
+                <TrendingUp className="w-3.5 h-3.5" />
+              </div>
+            </div>
+            <div className="text-lg sm:text-xl font-black text-white font-mono tracking-tight">
+              ₹{(metrics?.totalDepositsVolume ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+            </div>
+            <p className="text-[10px] text-[#b1bad3] font-mono mt-1">Cumulative recharge volume</p>
+          </div>
+
+          {/* Box 2: Total Profit (₹) */}
+          <div className="bg-[#0f212e] border border-[#213743] hover:border-emerald-500/40 rounded-xl p-3 sm:p-3.5 transition-colors shadow-sm">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 font-mono">
+                Total Profit
+              </span>
+              <div className="w-6 h-6 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
+                <DollarSign className="w-3.5 h-3.5" />
+              </div>
+            </div>
+            <div className="text-lg sm:text-xl font-black text-emerald-400 font-mono tracking-tight">
+              ₹{(metrics?.totalRevenue ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+            </div>
+            <p className="text-[10px] text-[#b1bad3] font-mono mt-1">All-time gross margin</p>
+          </div>
+
+          {/* Box 3: Total Members (Count) */}
+          <div className="bg-[#0f212e] border border-[#213743] hover:border-cyan-500/40 rounded-xl p-3 sm:p-3.5 transition-colors shadow-sm">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-cyan-400 font-mono">
+                Total Members
+              </span>
+              <div className="w-6 h-6 rounded-lg bg-cyan-500/15 text-cyan-400 flex items-center justify-center">
+                <Users className="w-3.5 h-3.5" />
+              </div>
+            </div>
+            <div className="text-lg sm:text-xl font-black text-white font-mono tracking-tight">
               {metrics?.totalUsers ?? 0}
-            </p>
-            <p className="text-[10px] text-slate-500 mt-1 font-mono">
-              Accounts in database
-            </p>
+            </div>
+            <p className="text-[10px] text-[#b1bad3] font-mono mt-1">Total registered accounts</p>
           </div>
 
-          <div className="bg-[#131722] border border-[#1e2433] rounded-xl p-4 shadow">
-            <span className="text-[11px] font-mono uppercase text-slate-400">
-              Total Platform Turnover
-            </span>
-            <p className="text-xl sm:text-2xl font-black text-cyan-400 font-mono mt-1">
-              ₹{(metrics?.totalTurnover ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-            </p>
-            <p className="text-[10px] text-slate-500 mt-1 font-mono">
-              Wagers processed
-            </p>
+          {/* Box 4: Total Deposit (₹) */}
+          <div className="bg-[#0f212e] border border-[#213743] hover:border-violet-500/40 rounded-xl p-3 sm:p-3.5 transition-colors shadow-sm">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-violet-400 font-mono">
+                Total Deposit
+              </span>
+              <div className="w-6 h-6 rounded-lg bg-violet-500/15 text-violet-400 flex items-center justify-center">
+                <ArrowDownCircle className="w-3.5 h-3.5" />
+              </div>
+            </div>
+            <div className="text-lg sm:text-xl font-black text-white font-mono tracking-tight">
+              ₹{(metrics?.totalDepositsVolume ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+            </div>
+            <p className="text-[10px] text-[#b1bad3] font-mono mt-1">Approved player deposits</p>
           </div>
 
-          <div className="bg-[#131722] border border-[#1e2433] rounded-xl p-4 shadow">
-            <span className="text-[11px] font-mono uppercase text-slate-400">
-              Total Bets Logged
+          {/* Box 5: Total Withdrawals (₹) */}
+          <div className="bg-[#0f212e] border border-[#213743] hover:border-rose-500/40 rounded-xl p-3 sm:p-3.5 transition-colors shadow-sm">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-rose-400 font-mono">
+                Total Withdrawals
+              </span>
+              <div className="w-6 h-6 rounded-lg bg-rose-500/15 text-rose-400 flex items-center justify-center">
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </div>
+            </div>
+            <div className="text-lg sm:text-xl font-black text-white font-mono tracking-tight">
+              ₹{(metrics?.totalWithdrawalsVolume ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+            </div>
+            <p className="text-[10px] text-[#b1bad3] font-mono mt-1">Dispatched payouts</p>
+          </div>
+
+          {/* Box 6: Empty Placeholder Box */}
+          <div className="border border-dashed border-[#2f4553] bg-[#0f212e]/50 rounded-xl flex flex-col items-center justify-center p-3 text-center transition-colors">
+            <Plus className="w-5 h-5 text-[#2f4553] mb-1" />
+            <span className="text-[11px] font-mono text-[#b1bad3]/60">
+              — Reserved Metric Slot —
             </span>
-            <p className="text-xl sm:text-2xl font-black text-amber-400 font-mono mt-1">
-              {metrics?.totalBetsCount ?? 0}
-            </p>
-            <p className="text-[10px] text-slate-500 mt-1 font-mono">
-              Rounds recorded
-            </p>
           </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 }

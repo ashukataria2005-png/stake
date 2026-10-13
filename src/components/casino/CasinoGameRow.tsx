@@ -144,7 +144,7 @@ export default function CasinoGameRow({
       </div>
 
       {/* Exact 3-Item Layout Grid */}
-      <div className={`grid grid-cols-3 ${cards[0]?.isPublisherCard ? "gap-2.5 sm:gap-3.5" : "gap-1.5 sm:gap-2.5"} w-full transition-all duration-300 ease-in-out`}>
+      <div className={`grid grid-cols-3 ${cards[0]?.isPublisherCard ? "gap-2 sm:gap-3" : "gap-1.5 sm:gap-2.5"} w-full transition-all duration-300 ease-in-out`}>
         {displayedCards.map((card) => {
           const thumb = getGameThumbnail(card.id, card.image);
 
@@ -153,23 +153,23 @@ export default function CasinoGameRow({
             const pubContent = (
               <div
                 onClick={() => onCardClick && onCardClick(card)}
-                className="flex flex-col select-none cursor-pointer group w-full"
+                className="flex flex-col select-none cursor-pointer group w-full min-w-0"
               >
-                <div className="h-[54px] sm:h-[62px] w-full rounded-xl bg-[#213743] hover:bg-[#2a4454] border border-[#2f4553]/60 flex items-center justify-center p-2.5 transition-transform active:scale-95 cursor-pointer shadow-sm">
+                <div className="h-[52px] sm:h-[62px] w-full rounded-xl bg-[#213743] hover:bg-[#2a4454] border border-[#2f4553]/60 flex items-center justify-center px-1.5 py-1 sm:px-2.5 sm:py-2 transition-transform active:scale-95 cursor-pointer shadow-sm overflow-hidden min-w-0">
                   {card.graphic ? (
-                    <div className="flex items-center justify-center max-w-full overflow-hidden text-white font-semibold">
+                    <div className="flex items-center justify-center max-w-full min-w-0 overflow-hidden text-white font-semibold">
                       {card.graphic}
                     </div>
                   ) : (
-                    <div className="flex items-center justify-center max-w-full overflow-hidden text-white font-semibold">
+                    <div className="flex items-center justify-center max-w-full min-w-0 overflow-hidden text-white font-semibold">
                       <ProviderLogo id={card.id} name={card.title} />
                     </div>
                   )}
                 </div>
                 {/* Live active player count indicator underneath each box */}
-                <div className="flex items-center justify-center gap-1.5 mt-1.5 text-[10px] sm:text-xs font-semibold text-[#b1bad3]">
+                <div className="flex items-center justify-center gap-1.5 mt-1.5 text-[10px] sm:text-xs font-semibold text-[#b1bad3] truncate">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#00e701] shadow-[0_0_6px_#00e701] shrink-0" />
-                  <span>
+                  <span className="truncate">
                     {(card.playersCount || 1200).toLocaleString("en-US")} playing
                   </span>
                 </div>

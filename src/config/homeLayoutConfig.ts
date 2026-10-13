@@ -157,7 +157,7 @@ export const HOME_PAGE_CATEGORIES: CategoryLayoutItem[] = [
 
   {
     id: "mac88",
-    title: "Mac88 Indian Suite",
+    title: "Mac88",
     enabled: false,
     viewAllLink: "/casino/group/mac88",
     showGameTitle: false,

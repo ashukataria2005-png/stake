@@ -2,13 +2,13 @@ import { CategoryModule } from "./types";
 
 export const HP100_SLUGS: string[] = [
   "astronaut",
+  "hp100-turbo-roulette",
+  "tappy-bird",
   "airjet",
   "chicken-tour",
   "starx",
-  "chicken-vs-train",
-  "tappy-bird",
-  "astronaut-rivals",
-  "hp100-turbo-roulette",
+  "chicken-vs-train", 
+  "astronaut-rivals",  
   "hp100-arcade-blackjack",
   "hp100-turbo-dice",
   "hp100-multiplier-blast",

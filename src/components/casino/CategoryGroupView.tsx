@@ -308,6 +308,42 @@ export default function CategoryGroupView({ slug }: CategoryGroupViewProps) {
           bannerBg: "from-blue-950/70 via-[#1a2c38] to-[#0f212e]",
           icon: <Sparkles className="w-6 h-6 text-blue-400" />,
         };
+      case "only-on-stake":
+        return {
+          title: "Only on Stake",
+          badge: "STAKE EXCLUSIVES",
+          playersCount: "52,400",
+          stats: "Exclusive Originals • Enhanced RTP • 2x VIP Points",
+          description:
+            "Games exclusively available on Stake, featuring proprietary mechanics, provably fair algorithms, and custom high-multiplier modes.",
+          initialGames: STAKE_ORIGINALS,
+          bannerBg: "from-amber-950/70 via-[#1a2c38] to-[#0f212e]",
+          icon: <Flame className="w-6 h-6 text-amber-400" />,
+        };
+      case "burst-games":
+        return {
+          title: "Burst Games",
+          badge: "FAST CRASH SERIES",
+          playersCount: "44,150",
+          stats: "Crash & Instant Win • Multipliers up to 10,000x • High-Speed Action",
+          description:
+            "Adrenaline-pumping crash and burst games where the multiplier climbs exponentially before bursting. Cash out before the crash!",
+          initialGames: [...TURBOGAMES_GAMES, ...SPRIBE_GAMES],
+          bannerBg: "from-orange-950/70 via-[#1a2c38] to-[#0f212e]",
+          icon: <Activity className="w-6 h-6 text-orange-400" />,
+        };
+      case "new-releases":
+        return {
+          title: "New Releases",
+          badge: "FRESH DROPS",
+          playersCount: "38,200",
+          stats: "Latest Slot Additions • Fresh Mechanics • Provider Premieres",
+          description:
+            "The newest casino slots, table games, and live studios added to our ever-expanding game library.",
+          initialGames: [...PRAGMATIC_GAMES.slice(0, 12), ...HACKSAW_GAMES.slice(0, 10)],
+          bannerBg: "from-purple-950/70 via-[#1a2c38] to-[#0f212e]",
+          icon: <Sparkles className="w-6 h-6 text-purple-400" />,
+        };
       case "slots":
       default:
         return {

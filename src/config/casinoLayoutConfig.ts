@@ -209,7 +209,7 @@ export const CASINO_LAYOUT_CATEGORIES: CategoryLayoutItem[] = [
 
   {
     id: "mac88",
-    title: "Mac88 Indian Suite",
+    title: "Mac88",
     enabled: true,
     viewAllLink: "/casino/group/mac88",
     showGameTitle: false,
@@ -273,7 +273,7 @@ export const CASINO_LAYOUT_CATEGORIES: CategoryLayoutItem[] = [
     id: "only-on-stake",
     title: "Only on Stake",
     enabled: true,
-    viewAllLink: "/casino/group/stake-originals",
+    viewAllLink: "/casino/group/only-on-stake",
     rowBadge: "2x VIP",
     showGameTitle: true,
     showProviderName: true,
@@ -293,7 +293,7 @@ export const CASINO_LAYOUT_CATEGORIES: CategoryLayoutItem[] = [
     id: "burst-games",
     title: "Burst Games",
     enabled: true,
-    viewAllLink: "#burst-games",
+    viewAllLink: "/casino/group/burst-games",
     showGameTitle: false,
     showProviderName: true,
     orderedGameSlugs: [
@@ -311,7 +311,7 @@ export const CASINO_LAYOUT_CATEGORIES: CategoryLayoutItem[] = [
     id: "new-releases",
     title: "New Releases",
     enabled: true,
-    viewAllLink: "#new-releases",
+    viewAllLink: "/casino/group/new-releases",
     showGameTitle: false,
     showProviderName: true,
     orderedGameSlugs: [

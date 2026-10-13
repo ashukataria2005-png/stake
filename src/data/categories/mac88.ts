@@ -19,7 +19,7 @@ export const MAC88_SLUGS: string[] = [
 
 export const MAC88_CATEGORY: CategoryModule = {
   id: "mac88",
-  title: "Mac88 Indian Suite",
+  title: "Mac88",
   viewAllLink: "/casino/group/mac88",
   description: "Specialized traditional card and live casino suite crafted for Indian gaming enthusiasts.",
   provider: "Mac88",
