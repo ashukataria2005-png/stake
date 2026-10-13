@@ -10,6 +10,48 @@
 
 export type LuckMode = "HIGH_WIN" | "MEDIUM_WIN" | "LOW_WIN" | "NO_CONTROL";
 
+/**
+ * User POV Mode Definitions:
+ * 1. USER WIN (High Win) -> Player wins heavily / favor player (85%-90% win rate)
+ * 2. HOUSE WIN (Low Win) -> House wins / player loses / busts early
+ * 3. BALANCED (Fair Play / Default) -> Standard RTP / No manipulation
+ * 4. JACKPOT MODE (Super User Win) -> Mega multipliers / streak wins
+ */
+export const LUCK_MODE_DEFINITIONS = [
+  {
+    mode: "HIGH_WIN" as LuckMode,
+    label: "USER WIN (High Win)",
+    shortLabel: "User Win",
+    description: "Player wins heavily (85%-90% win rate / high multipliers)",
+    badgeColor: "bg-emerald-500/15 border-emerald-500/30 text-emerald-300",
+    icon: "🟢",
+  },
+  {
+    mode: "LOW_WIN" as LuckMode,
+    label: "HOUSE WIN (Low Win)",
+    shortLabel: "House Win",
+    description: "House wins / player loses / early bust & mine traps",
+    badgeColor: "bg-rose-500/15 border-rose-500/30 text-rose-300",
+    icon: "🔴",
+  },
+  {
+    mode: "NO_CONTROL" as LuckMode,
+    label: "BALANCED (Fair Play / Default)",
+    shortLabel: "Balanced (Fair)",
+    description: "Standard certified RTP / No manipulation / Natural RNG",
+    badgeColor: "bg-[#0e1017] border-[#1e2433] text-slate-400",
+    icon: "⚖️",
+  },
+  {
+    mode: "MEDIUM_WIN" as LuckMode,
+    label: "JACKPOT MODE (Super User Win)",
+    shortLabel: "Jackpot Mode",
+    description: "Mega streak multipliers & frequent bonus cashouts",
+    badgeColor: "bg-amber-500/15 border-amber-500/30 text-amber-300",
+    icon: "⭐",
+  },
+];
+
 export interface GameControlConfig {
   mode?: string;
   houseEdgePercent?: number;

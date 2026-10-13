@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
 import { CRYPTO_CURRENCIES, ALL_FIAT_CURRENCIES } from "@/data/currencies";
 
 export interface UserProfile {
@@ -166,8 +166,16 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     refreshLuckMode();
   }, [refreshLuckMode]);
 
-  const syncWalletBalance = useCallback(async () => {
+  // Timestamp to protect optimistic gameplay deductions/wins from being rolled back by background polling
+  const lastGameActionRef = useRef<number>(0);
+
+  const syncWalletBalance = useCallback(async (force: boolean = false) => {
     try {
+      // If user performed a game action within last 5 seconds and not forced, let optimistic balance stay active
+      if (!force && Date.now() - lastGameActionRef.current < 5000) {
+        return;
+      }
+
       const activeUser = user || (typeof window !== "undefined" ? (() => {
         try {
           const authRaw = localStorage.getItem(AUTH_STORAGE_KEY);
@@ -459,6 +467,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
             : parseFloat((realBalance / activeCurrencyRate).toFixed(6))));
 
   const updateBalance = (amount: number, inUsd: boolean = false): boolean => {
+    lastGameActionRef.current = Date.now();
     let success = false;
     let amountUsd = amount;
 

@@ -167,10 +167,11 @@ export default function AdminLuckControlPage() {
                     onChange={(e) => handleUpdate(item, { mode: e.target.value })}
                     className="w-full px-3 py-2 bg-[#0e1017] border border-[#1e2433] rounded-xl text-xs font-mono text-white focus:outline-none focus:border-emerald-500/60"
                   >
-                    <option value="NORMAL">Standard Fair RNG (Default)</option>
-                    <option value="HIGH_PROFIT">High Profit (Low Player RTP)</option>
-                    <option value="FORCED_WIN">Forced Win Multiplier</option>
-                    <option value="FORCED_LOSS">Forced House Win (Instant Bust)</option>
+                    <option value="NORMAL">⚖️ BALANCED (Fair Play / Default RTP)</option>
+                    <option value="HIGH_WIN">🟢 USER WIN (High Win / Favor Player)</option>
+                    <option value="LOW_WIN">🔴 HOUSE WIN (Low Win / Fast Bust)</option>
+                    <option value="JACKPOT">⭐ JACKPOT MODE (Super User Win / Streak)</option>
+                    <option value="FORCED_WIN">✨ Forced Exact Multiplier</option>
                   </select>
                 </div>
 

@@ -523,10 +523,6 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
     sounds.playClick();
 
     setTimeout(() => {
-      // Credit balance
-      const creditedUsd = order.amountINR / 86.5;
-      updateBalance(creditedUsd, true);
-
       // Persist to Neon PostgreSQL Transaction and Wallet tables
       fetch("/api/wallet/deposit", {
         method: "POST",

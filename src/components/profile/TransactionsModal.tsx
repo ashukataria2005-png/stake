@@ -194,11 +194,7 @@ export default function TransactionsModal({ isOpen, onClose }: TransactionsModal
     sounds.playClick();
 
     try {
-      // Credit balance
-      const creditedUsd = item.amount / 86.5;
-      updateBalance(creditedUsd, true);
-
-      // Post to deposit API
+      // Post to deposit API (marks as PENDING approval for admin)
       await fetch("/api/wallet/deposit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

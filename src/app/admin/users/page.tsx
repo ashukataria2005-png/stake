@@ -295,27 +295,27 @@ export default function AdminUsersPage() {
                       <select
                         value={u.luckMode}
                         onChange={(e) => handleLuckModeChange(u.id, e.target.value)}
-                        className={`text-xs font-bold rounded-lg px-2.5 py-1 border transition-all cursor-pointer font-mono ${
+                        className={`text-xs font-bold rounded-lg px-2.5 py-1.5 border transition-all cursor-pointer font-mono ${
                           u.luckMode === "HIGH_WIN"
                             ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-300"
                             : u.luckMode === "MEDIUM_WIN"
-                            ? "bg-cyan-500/15 border-cyan-500/30 text-cyan-300"
+                            ? "bg-amber-500/15 border-amber-500/30 text-amber-300"
                             : u.luckMode === "LOW_WIN"
                             ? "bg-rose-500/15 border-rose-500/30 text-rose-300"
                             : "bg-[#0e1017] border-[#1e2433] text-slate-400"
                         }`}
                       >
-                        <option value="NO_CONTROL" className="bg-[#131722] text-slate-300">
-                          ⚖️ Standard (Fair RNG)
-                        </option>
                         <option value="HIGH_WIN" className="bg-[#131722] text-emerald-400">
-                          🟢 High Win (Boost)
-                        </option>
-                        <option value="MEDIUM_WIN" className="bg-[#131722] text-cyan-400">
-                          🔵 Medium Win
+                          🟢 USER WIN (High Win)
                         </option>
                         <option value="LOW_WIN" className="bg-[#131722] text-rose-400">
-                          🔴 Low Win (Drain)
+                          🔴 HOUSE WIN (Low Win)
+                        </option>
+                        <option value="NO_CONTROL" className="bg-[#131722] text-slate-300">
+                          ⚖️ BALANCED (Fair Play / Default)
+                        </option>
+                        <option value="MEDIUM_WIN" className="bg-[#131722] text-amber-400">
+                          ⭐ JACKPOT MODE (Super User Win)
                         </option>
                       </select>
                     </td>

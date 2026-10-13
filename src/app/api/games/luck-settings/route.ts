@@ -35,8 +35,8 @@ export async function GET(req: NextRequest) {
     // Effective luck: User-level luck takes precedence; if NO_CONTROL, fallback to game control mode
     let effectiveMode = userLuckMode;
     if (userLuckMode === "NO_CONTROL" && gameControl && gameControl.isActive) {
-      if (gameControl.mode === "HIGH_WIN" || gameControl.mode === "LOW_WIN") {
-        effectiveMode = gameControl.mode;
+      if (gameControl.mode === "HIGH_WIN" || gameControl.mode === "LOW_WIN" || gameControl.mode === "JACKPOT") {
+        effectiveMode = gameControl.mode === "JACKPOT" ? "HIGH_WIN" : gameControl.mode;
       }
     }
 

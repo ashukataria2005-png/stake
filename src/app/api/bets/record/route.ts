@@ -35,16 +35,24 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // 2. Increment totalWagered in Neon Wallet table
-    await prisma.wallet.update({
+    // 2. Atomically update wallet balance & wagered in Neon PostgreSQL
+    // betAmount is deducted, payoutAmount is credited (net delta = payoutAmount - numericBet)
+    const netDelta = (parseFloat(payoutAmount) || 0.0) - numericBet;
+    const updatedWallet = await prisma.wallet.update({
       where: { id: wallet.id },
       data: {
+        balance: { increment: netDelta },
         totalWagered: { increment: numericBet },
       },
     });
 
     return NextResponse.json({
       success: true,
+      wallet: {
+        id: updatedWallet.id,
+        balance: Number(updatedWallet.balance),
+        currency: updatedWallet.currency,
+      },
       betHistory: {
         id: betHistory.id,
         gameName: betHistory.gameName,
