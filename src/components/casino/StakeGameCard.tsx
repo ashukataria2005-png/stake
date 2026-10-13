@@ -23,7 +23,7 @@ export default function StakeGameCard({
 }: StakeGameCardProps) {
   const { openGamePreview } = useGame();
   const [imageError, setImageError] = useState(false);
-  const thumbnailUrl = getGameThumbnail(game.slug || game.id, game.image);
+  const thumbnailUrl = game.image || getGameThumbnail(game.slug || game.id);
 
   const handleClick = () => {
     if (onClick) {

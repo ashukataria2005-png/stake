@@ -36,7 +36,11 @@ export interface ProviderItem {
 import { GAME_THUMBNAILS, getGameThumbnail } from "@/data/gameThumbnails";
 
 export function attachThumbnail<T extends GameItem>(game: T): T {
-  const img = GAME_THUMBNAILS[game.slug] || GAME_THUMBNAILS[game.id] || game.image;
+  const img =
+    game.image ||
+    GAME_THUMBNAILS[game.slug] ||
+    GAME_THUMBNAILS[game.id] ||
+    getGameThumbnail(game.slug || game.id);
   return {
     ...game,
     image: img,
@@ -2057,9 +2061,9 @@ export const GAME_SHOWS: GameItem[] = GAME_SHOWS_GAMES;
 // ==========================================
 const RAW_BURST_GAMES: GameItem[] = [
   {
-    id: "aviator",
+    id: "spribe-aviator",
     title: "Aviator",
-    slug: "aviator",
+    slug: "spribe-aviator",
     provider: "Stake Originals",
     playersCount: 3840,
     badge: "BURST",
@@ -2885,9 +2889,9 @@ const RAW_SPRIBE_GAMES: GameItem[] = [
     bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
   },
   {
-    id: "spribe-baccarat",
-    title: "Baccarat",
-    slug: "spribe-baccarat",
+    id: "spribe-pilot-chicken",
+    title: "Pilot Chicken",
+    slug: "spribe-pilot-chicken",
     provider: "Spribe",
     playersCount: 2150,
     livePlayerCount: 2150,
@@ -3180,7 +3184,7 @@ const RAW_HP100_GAMES: GameItem[] = [
     badge: "ARCADE TOP",
     badgeColor: "bg-red-500/20 text-red-300 border-red-500/30",
     category: "Arcade",
-    href: "/casino/group/100hp gaming",
+    href: "/casino/group/100hp",
     isPlayable: true,
     bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
   },
@@ -3194,7 +3198,7 @@ const RAW_HP100_GAMES: GameItem[] = [
     badge: "TURBO CRASH",
     badgeColor: "bg-orange-500/20 text-orange-300 border-orange-500/30",
     category: "Arcade",
-    href: "/casino/group/100hp gaming",
+    href: "/casino/group/100hp",
     isPlayable: true,
     bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
   },
@@ -3208,7 +3212,7 @@ const RAW_HP100_GAMES: GameItem[] = [
     badge: "FUN ACTION",
     badgeColor: "bg-yellow-500/20 text-yellow-300 border-yellow-500/30",
     category: "Arcade",
-    href: "/casino/group/100hp gaming",
+    href: "/casino/group/100hp",
     isPlayable: true,
     bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
   },
@@ -3220,7 +3224,7 @@ const RAW_HP100_GAMES: GameItem[] = [
     playersCount: 2410,
     livePlayerCount: 2410,
     category: "Arcade",
-    href: "/casino/group/100hp gaming",
+    href: "/casino/group/100hp",
     isPlayable: true,
     bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
   },
@@ -3234,7 +3238,7 @@ const RAW_HP100_GAMES: GameItem[] = [
     badge: "VS BATTLE",
     badgeColor: "bg-red-500/20 text-red-300 border-red-500/30",
     category: "Arcade",
-    href: "/casino/group/100hp gaming",
+    href: "/casino/group/100hp",
     isPlayable: true,
     bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
   },
@@ -3246,7 +3250,7 @@ const RAW_HP100_GAMES: GameItem[] = [
     playersCount: 2150,
     livePlayerCount: 2150,
     category: "Arcade",
-    href: "/casino/group/100hp gaming",
+    href: "/casino/group/100hp",
     isPlayable: true,
     bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
   },
@@ -3258,7 +3262,7 @@ const RAW_HP100_GAMES: GameItem[] = [
     playersCount: 2570,
     livePlayerCount: 2570,
     category: "Arcade",
-    href: "/casino/group/100hp gaming",
+    href: "/casino/group/100hp",
     isPlayable: true,
     bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
   },
@@ -3272,7 +3276,7 @@ const RAW_HP100_GAMES: GameItem[] = [
     badge: "TABLE",
     badgeColor: "bg-red-500/20 text-red-300 border-red-500/30",
     category: "Table Games",
-    href: "/casino/group/100hp gaming",
+    href: "/casino/group/100hp",
     isPlayable: true,
     bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
   },
@@ -3286,7 +3290,7 @@ const RAW_HP100_GAMES: GameItem[] = [
     badge: "TABLE",
     badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
     category: "Table Games",
-    href: "/casino/group/100hp gaming",
+    href: "/casino/group/100hp",
     isPlayable: true,
     bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
   },
@@ -3300,7 +3304,7 @@ const RAW_HP100_GAMES: GameItem[] = [
     badge: "DICE",
     badgeColor: "bg-purple-500/20 text-purple-300 border-purple-500/30",
     category: "Table Games",
-    href: "/casino/group/100hp gaming",
+    href: "/casino/group/100hp",
     isPlayable: true,
     bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
   },
@@ -3312,7 +3316,7 @@ const RAW_HP100_GAMES: GameItem[] = [
     playersCount: 2380,
     livePlayerCount: 2380,
     category: "Arcade",
-    href: "/casino/group/100hp gaming",
+    href: "/casino/group/100hp",
     isPlayable: true,
     bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
   },
@@ -3324,22 +3328,22 @@ const RAW_HP100_GAMES: GameItem[] = [
     playersCount: 2210,
     livePlayerCount: 2210,
     category: "Arcade",
-    href: "/casino/group/100hp gaming",
+    href: "/casino/group/100hp",
     isPlayable: true,
     bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
   },
-/*  {
-    id: "hp100-cyber-rush",
-    title: "Cyber Rush",
-    slug: "hp100-cyber-rush",
-    provider: "100hp Gaming",
-    playersCount: 2040,
-    livePlayerCount: 2040,
-    category: "Arcade",
-    href: "/casino/group/100hp gaming",
-    isPlayable: true,
-    bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
-  },  */
+  /*  {
+      id: "hp100-cyber-rush",
+      title: "Cyber Rush",
+      slug: "hp100-cyber-rush",
+      provider: "100hp Gaming",
+      playersCount: 2040,
+      livePlayerCount: 2040,
+      category: "Arcade",
+      href: "/casino/group/100hp gaming",
+      isPlayable: true,
+      bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
+    },  */
 ];
 
 export const HP100_GAMES: StakeGame[] = RAW_HP100_GAMES.map(attachThumbnail);
@@ -5300,11 +5304,35 @@ export const masterGameMap = new Map<string, GameItem>();
   if (game.slug && !masterGameMap.has(game.slug)) {
     masterGameMap.set(game.slug, game);
   }
+
+  // 100HP alias registration
+  const keys = [game.id, game.slug].filter(Boolean);
+  for (const k of keys) {
+    if (k.startsWith("hp100-")) {
+      const raw = k.replace(/^hp100-/, "");
+      if (!masterGameMap.has(raw)) masterGameMap.set(raw, game);
+      const alt = `100hp-${raw}`;
+      if (!masterGameMap.has(alt)) masterGameMap.set(alt, game);
+    } else if (k.startsWith("100hp-")) {
+      const raw = k.replace(/^100hp-/, "");
+      if (!masterGameMap.has(raw)) masterGameMap.set(raw, game);
+      const alt = `hp100-${raw}`;
+      if (!masterGameMap.has(alt)) masterGameMap.set(alt, game);
+    }
+  }
 });
 
 export function getGameItem(slug: string): GameItem {
   const existing = masterGameMap.get(slug);
   if (existing) return existing;
+
+  // 100HP Game aliases
+  if (masterGameMap.has(`hp100-${slug}`)) return masterGameMap.get(`hp100-${slug}`)!;
+  if (masterGameMap.has(`100hp-${slug}`)) return masterGameMap.get(`100hp-${slug}`)!;
+  const stripped100 = slug.replace(/^(hp100|100hp)-/, "");
+  if (masterGameMap.has(stripped100)) return masterGameMap.get(stripped100)!;
+  if (masterGameMap.has(`hp100-${stripped100}`)) return masterGameMap.get(`hp100-${stripped100}`)!;
+  if (masterGameMap.has(`100hp-${stripped100}`)) return masterGameMap.get(`100hp-${stripped100}`)!;
 
   if (masterGameMap.has(`smartsoft-${slug}`)) return masterGameMap.get(`smartsoft-${slug}`)!;
   const strippedSmartsoft = slug.replace(/^smartsoft-/, "");
@@ -5319,6 +5347,7 @@ export function getGameItem(slug: string): GameItem {
   const title = slug
     .replace(/^mac88-/, "")
     .replace(/^spribe-/, "")
+    .replace(/^(hp100|100hp)-/, "")
     .replace(/-/g, " ")
     .replace(/\b\w/g, (c) => c.toUpperCase());
 
@@ -5331,14 +5360,16 @@ export function getGameItem(slug: string): GameItem {
       ? "Mac88"
       : slug.startsWith("spribe")
         ? "Spribe"
-        : slug.includes("roulette") || slug.includes("blackjack")
-          ? "Evolution"
-          : "Stake",
-    category: "live",
+        : slug.includes("100hp") || slug.includes("hp100")
+          ? "100hp Gaming"
+          : slug.includes("roulette") || slug.includes("blackjack")
+            ? "Evolution"
+            : "Stake",
+    category: slug.includes("100hp") || slug.includes("hp100") ? "Arcade" : "live",
     playersCount: 2500,
-    isLive: true,
+    isLive: !slug.includes("100hp") && !slug.includes("hp100"),
     isPlayable: true,
-    href: `/casino/games/${slug}`,
+    href: slug.includes("100hp") || slug.includes("hp100") ? "/casino/group/100hp" : `/casino/games/${slug}`,
     image: getGameThumbnail(slug),
   };
 

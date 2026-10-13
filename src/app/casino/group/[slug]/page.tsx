@@ -13,6 +13,7 @@ export function generateStaticParams() {
     { slug: "spribe" },
     { slug: "smartsoft" },
     { slug: "100hp" },
+    { slug: "hp100" },
     { slug: "jili" },
     { slug: "evoplay" },
     { slug: "turbogames" },

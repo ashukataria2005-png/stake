@@ -1,11 +1,11 @@
 import { CategoryModule } from "./types";
 
 export const SPRIBE_SLUGS: string[] = [
-  "aviator",
+  "spribe-aviator",
   "spribe-plinko",
+  "spribe-goal",
   "spribe-mines",
   "spribe-dice",
-  "spribe-goal",
   "spribe-hilo",
   "spribe-hotline",
   "spribe-keno",

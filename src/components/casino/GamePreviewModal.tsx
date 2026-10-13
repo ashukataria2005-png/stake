@@ -48,7 +48,7 @@ export default function GamePreviewModal() {
   const gameTitle = previewGame.title || previewGame.name || "Game";
   const slug = previewGame.slug || previewGame.id || "game";
   const providerName = previewGame.provider || "Stake Originals";
-  const thumbnail = getGameThumbnail(slug, previewGame.image);
+  const thumbnail = previewGame.image || getGameThumbnail(slug);
 
   // Generate plausible, realistic player counts based on game data
   const playingCount = previewGame.playersCount

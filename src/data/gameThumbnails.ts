@@ -240,7 +240,7 @@ export const SPRIBE_THUMBNAILS: Record<string, string> = {
   "spribe-russian-poker": "/games/spribe/spribe-russian-poker.webp",
   "spribe-keno-80": "/games/spribe/spribe-keno-80.webp",
   "spribe-starline": "/games/spribe/spribe-starline.webp",
-  "spribe-baccarat": "/games/spribe/baccarat.webp",
+  "spribe-pilot-chicken": "/games/spribe/spribe-pilot-chicken.webp",
   "spribe-sic-bo": "/games/spribe/sic-bo.webp",
 };
 
@@ -309,19 +309,86 @@ export const SMARTSOFT_THUMBNAILS: Record<string, string> = {
 // 100HP GAMING 100% SUITE
 // ==========================================
 export const HP100_THUMBNAILS: Record<string, string> = {
+  // Astronaut
   "hp100-astronaut": "/games/100hp/100hp-astronaut.webp",
+  "100hp-astronaut": "/games/100hp/100hp-astronaut.webp",
+  "astronaut": "/games/100hp/100hp-astronaut.webp",
+
+  // Airjet
   "hp100-airjet": "/games/100hp/100hp-airjet.webp",
+  "100hp-airjet": "/games/100hp/100hp-airjet.webp",
+  "airjet": "/games/100hp/100hp-airjet.webp",
+
+  // Chicken Tour
   "hp100-chicken-tour": "/games/100hp/100hp-chicken-tour.webp",
+  "100hp-chicken-tour": "/games/100hp/100hp-chicken-tour.webp",
+  "chicken-tour": "/games/100hp/100hp-chicken-tour.webp",
+
+  // StarX
   "hp100-starx": "/games/100hp/100hp-starx.webp",
+  "100hp-starx": "/games/100hp/100hp-starx.webp",
+  "starx": "/games/100hp/100hp-starx.webp",
+
+  // Chicken vs Train
   "hp100-chicken-vs-train": "/games/100hp/100hp-chicken-vs-train.webp",
+  "100hp-chicken-vs-train": "/games/100hp/100hp-chicken-vs-train.webp",
+  "chicken-vs-train": "/games/100hp/100hp-chicken-vs-train.webp",
+
+  // Tappy Bird
   "hp100-tappy-bird": "/games/100hp/100hp-tappy-bird.webp",
+  "100hp-tappy-bird": "/games/100hp/100hp-tappy-bird.webp",
+  "tappy-bird": "/games/100hp/100hp-tappy-bird.webp",
+
+  // Astronaut Rivals
   "hp100-astronaut-rivals": "/games/100hp/100hp-astronaut-rivals.webp",
+  "100hp-astronaut-rivals": "/games/100hp/100hp-astronaut-rivals.webp",
+  "astronaut-rivals": "/games/100hp/100hp-astronaut-rivals.webp",
+
+  // Turbo Roulette
   "hp100-turbo-roulette": "/games/100hp/100hp-turbo-roulette.webp",
+  "100hp-turbo-roulette": "/games/100hp/100hp-turbo-roulette.webp",
+  "turbo-roulette": "/games/100hp/100hp-turbo-roulette.webp",
+
+  // Arcade Blackjack
   "hp100-blackjack": "/games/100hp/100hp-blackjack.webp",
+  "100hp-blackjack": "/games/100hp/100hp-blackjack.webp",
+  "hp100-arcade-blackjack": "/games/100hp/100hp-blackjack.webp",
+  "100hp-arcade-blackjack": "/games/100hp/100hp-blackjack.webp",
+  "arcade-blackjack": "/games/100hp/100hp-blackjack.webp",
+
+  // Dice
   "hp100-dice": "/games/100hp/100hp-dice.webp",
+  "100hp-dice": "/games/100hp/100hp-dice.webp",
+  "hp100-turbo-dice": "/games/100hp/100hp-dice.webp",
+  "100hp-turbo-dice": "/games/100hp/100hp-dice.webp",
+  "turbo-dice": "/games/100hp/100hp-dice.webp",
+
+  // Mines / Blast
+  "hp100-blast": "/games/100hp/100hp-mines.webp",
+  "100hp-blast": "/games/100hp/100hp-mines.webp",
   "hp100-mines": "/games/100hp/100hp-mines.webp",
+  "100hp-mines": "/games/100hp/100hp-mines.webp",
+  "hp100-multiplier-blast": "/games/100hp/100hp-mines.webp",
+  "100hp-multiplier-blast": "/games/100hp/100hp-mines.webp",
+  "multiplier-blast": "/games/100hp/100hp-mines.webp",
+
+  // Penalty
   "hp100-penalty": "/games/100hp/100hp-penalty.webp",
-  //"hp100-cyber-rush": "/games/100hp/100hp-cyber-rush.webp",
+  "100hp-penalty": "/games/100hp/100hp-penalty.webp",
+  "penalty": "/games/100hp/100hp-penalty.webp",
+
+  // Keno
+  "hp100-keno": "/games/100hp/100hp-keno.webp",
+  "100hp-keno": "/games/100hp/100hp-keno.webp",
+  "keno": "/games/100hp/100hp-keno.webp",
+
+  // Cyber Rush & Retro Turbo Reels
+  "hp100-cyber-rush": "/games/100hp/hp100-cyber-rush.webp",
+  "100hp-cyber-rush": "/games/100hp/hp100-cyber-rush.webp",
+  "cyber-rush": "/games/100hp/hp100-cyber-rush.webp",
+  "hp100-retro-turbo-reels": "/games/100hp/hp100-retro-turbo-reels.webp",
+  "100hp-retro-turbo-reels": "/games/100hp/hp100-retro-turbo-reels.webp",
+  "retro-turbo-reels": "/games/100hp/hp100-retro-turbo-reels.webp",
 };
 
 // ==========================================
@@ -579,6 +646,7 @@ export const GAME_THUMBNAILS: Record<string, string> = {
  * Universal safe accessor for any game thumbnail.
  */
 export function getGameThumbnail(slug: string, fallback?: string): string {
+  if (!slug) return fallback || "/games/stake-originals/dice.webp";
   if (GAME_THUMBNAILS[slug]) {
     return GAME_THUMBNAILS[slug];
   }
@@ -586,5 +654,26 @@ export function getGameThumbnail(slug: string, fallback?: string): string {
   if (GAME_THUMBNAILS[clean]) {
     return GAME_THUMBNAILS[clean];
   }
-  return fallback || `/games/stake-originals/${clean}.webp`;
+
+  // 100HP variations
+  if (clean.startsWith("hp100-")) {
+    const alt = clean.replace(/^hp100-/, "100hp-");
+    if (GAME_THUMBNAILS[alt]) return GAME_THUMBNAILS[alt];
+    const raw = clean.replace(/^hp100-/, "");
+    if (GAME_THUMBNAILS[raw]) return GAME_THUMBNAILS[raw];
+  } else if (clean.startsWith("100hp-")) {
+    const alt = clean.replace(/^100hp-/, "hp100-");
+    if (GAME_THUMBNAILS[alt]) return GAME_THUMBNAILS[alt];
+    const raw = clean.replace(/^100hp-/, "");
+    if (GAME_THUMBNAILS[raw]) return GAME_THUMBNAILS[raw];
+  } else {
+    if (GAME_THUMBNAILS[`hp100-${clean}`]) return GAME_THUMBNAILS[`hp100-${clean}`];
+    if (GAME_THUMBNAILS[`100hp-${clean}`]) return GAME_THUMBNAILS[`100hp-${clean}`];
+  }
+
+  if (fallback) return fallback;
+  if (clean.includes("100hp") || clean.includes("hp100")) {
+    return "/games/100hp/100hp-astronaut.webp";
+  }
+  return `/games/stake-originals/${clean}.webp`;
 }

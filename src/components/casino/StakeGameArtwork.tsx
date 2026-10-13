@@ -1856,7 +1856,7 @@ export default function StakeGameArtwork({
           </svg>
         );
       }
-      if (key.startsWith("hp100-")) {
+      if (key.startsWith("hp100-") || key.startsWith("100hp-") || key.includes("100hp") || key.includes("hp100")) {
         return (
           <svg viewBox="0 0 200 200" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
             <circle cx="100" cy="100" r="85" fill="#1e1b4b" />

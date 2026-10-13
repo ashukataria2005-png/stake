@@ -146,7 +146,7 @@ export default function CasinoGameRow({
       {/* Exact 3-Item Layout Grid */}
       <div className={`grid grid-cols-3 ${cards[0]?.isPublisherCard ? "gap-2 sm:gap-3" : "gap-1.5 sm:gap-2.5"} w-full transition-all duration-300 ease-in-out`}>
         {displayedCards.map((card) => {
-          const thumb = getGameThumbnail(card.id, card.image);
+          const thumb = card.image || getGameThumbnail(card.id);
 
           // For Publisher / Studio tiles (1:1 Compact Horizontal Rounded Pill-Boxes)
           if (card.isPublisherCard) {
