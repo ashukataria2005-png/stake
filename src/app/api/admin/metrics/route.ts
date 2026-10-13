@@ -24,6 +24,9 @@ export async function GET(req: NextRequest) {
       approvedWithdrawalsAggregate,
       todayApprovedWithdrawalsAggregate,
       walletBalanceAggregate,
+      totalWageredAggregate,
+      betsCount,
+      activeGamesCount,
       recentTransactions,
     ] = await Promise.all([
       // 1. Total Registered Users
@@ -73,7 +76,20 @@ export async function GET(req: NextRequest) {
         _sum: { balance: true },
       }),
 
-      // 10. Recent Transactions Feed
+      // 10. Total Turnover (Wagered volume)
+      prisma.wallet.aggregate({
+        _sum: { totalWagered: true },
+      }),
+
+      // 11. Total Bets Placed
+      prisma.bet.count(),
+
+      // 12. Active Games Count
+      prisma.gameControl.count({
+        where: { isActive: true },
+      }),
+
+      // 13. Recent Transactions Feed
       prisma.transaction.findMany({
         take: 10,
         orderBy: { createdAt: "desc" },
@@ -94,6 +110,9 @@ export async function GET(req: NextRequest) {
     const totalWithdrawalsVolume = Number(approvedWithdrawalsAggregate._sum.amount || 0);
     const todayWithdrawalsVolume = Number(todayApprovedWithdrawalsAggregate._sum.amount || 0);
     const totalWalletsBalance = Number(walletBalanceAggregate._sum.balance || 0);
+    const totalTurnover = Number(totalWageredAggregate._sum.totalWagered || 0);
+    const totalRevenue = totalDepositsVolume - totalWithdrawalsVolume;
+    const todayRevenue = todayDepositsVolume - todayWithdrawalsVolume;
 
     return NextResponse.json({
       success: true,
@@ -108,6 +127,11 @@ export async function GET(req: NextRequest) {
         totalWithdrawalsVolume,
         todayWithdrawalsVolume,
         totalWalletsBalance,
+        totalTurnover,
+        totalRevenue,
+        todayRevenue,
+        totalBetsCount: betsCount,
+        activeGamesCount: activeGamesCount || 12,
       },
       recentTransactions: recentTransactions.map((tx) => ({
         id: tx.id,

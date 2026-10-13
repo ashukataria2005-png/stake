@@ -10,6 +10,8 @@ import {
   CheckCircle,
   AlertTriangle,
   ArrowRight,
+  Sparkles,
+  Zap,
 } from "lucide-react";
 
 interface GameControlItem {
@@ -61,15 +63,17 @@ export default function AdminLuckControlPage() {
         body: JSON.stringify(payload),
       });
       const data = await res.json();
-      if (data.success) {
-        setControls((prev) =>
-          prev.map((c) => (c.gameName === item.gameName ? { ...c, ...updates } : c))
-        );
-        setToastMessage(`Updated ${item.gameName} configurations.`);
-        setTimeout(() => setToastMessage(null), 3000);
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to update game control");
       }
+
+      setControls((prev) =>
+        prev.map((c) => (c.gameName === item.gameName ? { ...c, ...updates } : c))
+      );
+      setToastMessage(`Updated configuration for ${item.gameName}`);
+      setTimeout(() => setToastMessage(null), 3000);
     } catch (err: any) {
-      alert("Error updating control: " + err.message);
+      alert("Error saving control: " + err.message);
     }
   };
 
@@ -79,144 +83,141 @@ export default function AdminLuckControlPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black text-white tracking-wide">
-              Luck & Outcome Control Desk
+            <h1 className="text-xl sm:text-2xl font-black text-white tracking-wide">
+              Games & RTP Luck Control Desk
             </h1>
-            <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-[#131b24] text-[#00e701] border border-[#00e701]/30">
-              RTP Engine
+            <span className="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-mono">
+              Algorithm Engine
             </span>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Global game payout modes, platform house edge percentage, and targeted multiplier caps.
+            Configure house edge margins, override crash / payout multipliers, and calibrate win/loss algorithms across all game titles.
           </p>
         </div>
 
-        <button
-          onClick={fetchControls}
-          disabled={isLoading}
-          className="flex items-center gap-2 px-3.5 py-2 bg-[#1f2c3a] hover:bg-[#28384a] text-white text-xs font-semibold rounded-xl border border-[#2d4054] transition-all self-start sm:self-auto shadow"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-[#00e701]" : ""}`} />
-          <span>Refresh Games</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={fetchControls}
+            disabled={isLoading}
+            className="flex items-center gap-2 px-3.5 py-2 bg-[#131722] hover:bg-[#1c2233] text-slate-200 text-xs font-semibold rounded-xl border border-[#1e2433] transition-all shadow-sm"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 text-emerald-400 ${isLoading ? "animate-spin" : ""}`} />
+            <span>Reload Titles</span>
+          </button>
+        </div>
       </div>
 
-      {/* Toast Notification */}
       {toastMessage && (
-        <div className="p-3.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center justify-between animate-in fade-in">
+        <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs sm:text-sm font-semibold flex items-center gap-2 animate-in fade-in">
+          <CheckCircle className="w-4 h-4 text-emerald-400" />
           <span>{toastMessage}</span>
-          <button onClick={() => setToastMessage(null)} className="text-emerald-400/80 hover:text-white">
-            ✕
-          </button>
         </div>
       )}
 
-      {/* Quick Info Box */}
-      <div className="bg-[#131b24] border border-[#212f3d] rounded-2xl p-5 flex items-start gap-4">
-        <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
-          <AlertTriangle className="w-5 h-5" />
-        </div>
-        <div className="space-y-1">
-          <h2 className="text-sm font-bold text-white">Individual User Luck vs Global Game RTP</h2>
-          <p className="text-xs text-slate-400 leading-relaxed">
-            Per-user settings can also be toggled directly in the{" "}
-            <Link href="/admin/users" className="text-[#00e701] font-bold hover:underline">
-              User Management
-            </Link>{" "}
-            desk. Below are platform-wide game rules governing algorithms like Mines, Plinko, Crash, and Dice.
-          </p>
-        </div>
-      </div>
+      {/* Grid of Game Controls */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {isLoading ? (
+          <div className="col-span-full py-16 text-center text-slate-400">
+            <RefreshCw className="w-6 h-6 animate-spin text-emerald-400 mx-auto mb-2" />
+            <p className="font-mono text-xs">Loading game RNG controllers...</p>
+          </div>
+        ) : controls.length === 0 ? (
+          <div className="col-span-full py-12 text-center text-slate-500 font-mono text-xs">
+            No game titles registered in database yet.
+          </div>
+        ) : (
+          controls.map((item) => (
+            <div
+              key={item.id || item.gameName}
+              className="bg-[#131722] border border-[#1e2433] rounded-2xl p-5 shadow-lg space-y-4 hover:border-emerald-500/30 transition-all flex flex-col justify-between"
+            >
+              <div>
+                <div className="flex items-center justify-between pb-3 border-b border-[#1e2433]">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+                      <Gamepad2 className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-white uppercase tracking-wider font-mono">
+                        {item.gameName}
+                      </h3>
+                      <span className="text-[10px] text-slate-400 font-mono">Provably Fair RNG</span>
+                    </div>
+                  </div>
 
-      {/* Games Control Table */}
-      <div className="bg-[#131b24] border border-[#212f3d] rounded-2xl overflow-hidden shadow-xl">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr className="bg-[#17222d] text-slate-400 uppercase text-[10px] font-extrabold tracking-wider border-b border-[#212f3d]">
-                <th className="py-3.5 px-4">Game</th>
-                <th className="py-3.5 px-4">Payout Mode</th>
-                <th className="py-3.5 px-4">House Edge (%)</th>
-                <th className="py-3.5 px-4">Status</th>
-                <th className="py-3.5 px-4 text-right">Quick Apply</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#212f3d]/60">
-              {isLoading ? (
-                <tr>
-                  <td colSpan={5} className="py-12 text-center text-slate-400">
-                    <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-[#00e701]" />
-                    <span>Loading RTP settings...</span>
-                  </td>
-                </tr>
-              ) : (
-                controls.map((g) => (
-                  <tr key={g.id} className="hover:bg-[#1a2530]/50 transition-colors">
-                    <td className="py-3.5 px-4 whitespace-nowrap font-bold text-white flex items-center gap-2">
-                      <Gamepad2 className="w-4 h-4 text-slate-400" />
-                      <span>{g.gameName}</span>
-                    </td>
+                  <button
+                    onClick={() => handleUpdate(item, { isActive: !item.isActive })}
+                    className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider border transition-all ${
+                      item.isActive
+                        ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-400"
+                        : "bg-rose-500/15 border-rose-500/30 text-rose-400"
+                    }`}
+                  >
+                    {item.isActive ? "ONLINE" : "DISABLED"}
+                  </button>
+                </div>
 
-                    <td className="py-3.5 px-4 whitespace-nowrap">
-                      <select
-                        value={g.mode}
-                        onChange={(e) => handleUpdate(g, { mode: e.target.value })}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-colors ${
-                          g.mode === "HIGH_WIN"
-                            ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
-                            : g.mode === "LOW_WIN"
-                            ? "bg-rose-500/20 text-rose-300 border-rose-500/40"
-                            : "bg-[#0a0f14] text-white border-[#263747]"
-                        }`}
-                      >
-                        <option value="NORMAL" className="bg-[#131b24] text-white">Normal (Provably Fair)</option>
-                        <option value="HIGH_WIN" className="bg-[#131b24] text-emerald-400">High Win (Promotion Mode)</option>
-                        <option value="LOW_WIN" className="bg-[#131b24] text-rose-400">Low Win (House Retain)</option>
-                      </select>
-                    </td>
+                {/* Mode Selector */}
+                <div className="space-y-1.5 mt-4">
+                  <label className="text-[11px] font-mono uppercase text-slate-400">
+                    Operational Mode
+                  </label>
+                  <select
+                    value={item.mode}
+                    onChange={(e) => handleUpdate(item, { mode: e.target.value })}
+                    className="w-full px-3 py-2 bg-[#0e1017] border border-[#1e2433] rounded-xl text-xs font-mono text-white focus:outline-none focus:border-emerald-500/60"
+                  >
+                    <option value="NORMAL">Standard Fair RNG (Default)</option>
+                    <option value="HIGH_PROFIT">High Profit (Low Player RTP)</option>
+                    <option value="FORCED_WIN">Forced Win Multiplier</option>
+                    <option value="FORCED_LOSS">Forced House Win (Instant Bust)</option>
+                  </select>
+                </div>
 
-                    <td className="py-3.5 px-4 whitespace-nowrap">
-                      <div className="flex items-center gap-1.5">
-                        <input
-                          type="number"
-                          step="0.1"
-                          min="0"
-                          max="25"
-                          value={g.houseEdgePercent}
-                          onChange={(e) => {
-                            const val = parseFloat(e.target.value);
-                            if (!isNaN(val)) handleUpdate(g, { houseEdgePercent: val });
-                          }}
-                          className="w-20 bg-[#0a0f14] border border-[#263747] rounded-lg px-2 py-1 text-xs text-white font-mono font-bold"
-                        />
-                        <span className="text-slate-400 font-bold">%</span>
-                      </div>
-                    </td>
+                {/* House Edge & Forced Multiplier */}
+                <div className="grid grid-cols-2 gap-3 mt-3">
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-mono uppercase text-slate-400">
+                      House Edge %
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={item.houseEdgePercent}
+                      onChange={(e) =>
+                        handleUpdate(item, { houseEdgePercent: parseFloat(e.target.value) || 2.5 })
+                      }
+                      className="w-full px-3 py-2 bg-[#0e1017] border border-[#1e2433] rounded-xl text-xs font-mono text-white focus:outline-none focus:border-emerald-500/60"
+                    />
+                  </div>
 
-                    <td className="py-3.5 px-4 whitespace-nowrap">
-                      <button
-                        onClick={() => handleUpdate(g, { isActive: !g.isActive })}
-                        className={`px-3 py-1 rounded-full text-[10px] font-black uppercase transition-colors ${
-                          g.isActive
-                            ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                            : "bg-rose-500/20 text-rose-400 border border-rose-500/30"
-                        }`}
-                      >
-                        {g.isActive ? "Active" : "Disabled"}
-                      </button>
-                    </td>
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-mono uppercase text-slate-400">
+                      Forced Multiplier
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={item.forcedMultiplier ?? ""}
+                      onChange={(e) =>
+                        handleUpdate(item, {
+                          forcedMultiplier: e.target.value ? parseFloat(e.target.value) : null,
+                        })
+                      }
+                      placeholder="Auto RNG"
+                      className="w-full px-3 py-2 bg-[#0e1017] border border-[#1e2433] rounded-xl text-xs font-mono text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500/60"
+                    />
+                  </div>
+                </div>
+              </div>
 
-                    <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                      <span className="text-[11px] text-[#00e701] font-semibold">
-                        Auto-Saved
-                      </span>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+              <div className="pt-3 border-t border-[#1e2433] flex items-center justify-between text-[11px] text-slate-500 font-mono">
+                <span>RTP: {(100 - item.houseEdgePercent).toFixed(1)}%</span>
+                <span className="text-emerald-400">● Synchronized</span>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
