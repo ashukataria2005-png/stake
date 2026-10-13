@@ -340,9 +340,9 @@ export const HP100_THUMBNAILS: Record<string, string> = {
   "tappy-bird": "/games/100hp/100hp-tappy-bird.webp",
 
   // Astronaut Rivals
-  "hp100-astronaut-rivals": "/games/100hp/100hp-astronaut-rivals.webp",
-  "100hp-astronaut-rivals": "/games/100hp/100hp-astronaut-rivals.webp",
-  "astronaut-rivals": "/games/100hp/100hp-astronaut-rivals.webp",
+  //"hp100-astronaut-rivals": "/games/100hp/100hp-astronaut-rivals.webp",
+  //"100hp-astronaut-rivals": "/games/100hp/100hp-astronaut-rivals.webp",
+  //"astronaut-rivals": "/games/100hp/100hp-astronaut-rivals.webp",
 
   // Turbo Roulette
   "hp100-turbo-roulette": "/games/100hp/100hp-turbo-roulette.webp",

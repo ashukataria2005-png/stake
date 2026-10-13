@@ -3254,18 +3254,7 @@ const RAW_HP100_GAMES: GameItem[] = [
     isPlayable: true,
     bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
   },
-  {
-    id: "hp100-astronaut-rivals",
-    title: "Astronaut Rivals",
-    slug: "hp100-astronaut-rivals",
-    provider: "100hp Gaming",
-    playersCount: 2570,
-    livePlayerCount: 2570,
-    category: "Arcade",
-    href: "/casino/group/100hp",
-    isPlayable: true,
-    bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
-  },
+
   {
     id: "hp100-turbo-roulette",
     title: "100HP Turbo Roulette",
@@ -4764,7 +4753,7 @@ const RAW_HACKSAW_GAMES: GameItem[] = [
     href: "/casino/games/stack-em",
     isPlayable: true,
   },
-  
+
   {
     id: "undead-fortune",
     title: "Undead Fortune",
@@ -4906,7 +4895,7 @@ const RAW_HACKSAW_GAMES: GameItem[] = [
     href: "/casino/games/fear-the-dark",
     isPlayable: true,
   },
-  
+
   {
     id: "stormforged",
     title: "Stormforged",
@@ -4977,7 +4966,7 @@ const RAW_HACKSAW_GAMES: GameItem[] = [
     href: "/casino/games/dawn-of-kings",
     isPlayable: true,
   },
-  
+
   {
     id: "dork-show",
     title: "Dork Show",
