@@ -12,7 +12,6 @@ export const EZUGI_SLUGS: string[] = [
   "ezugi-namaste-roulette",
   "ezugi-speed-baccarat",
   "ezugi-unlimited-blackjack",
-  "ezugi-roulette-360",
   "ezugi-ultimate-sic-bo",
 ];
 
