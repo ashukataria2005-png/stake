@@ -3173,7 +3173,7 @@ const RAW_HP100_GAMES: GameItem[] = [
   {
     id: "hp100-astronaut",
     title: "Astronaut",
-    slug: "astronaut",
+    slug: "hp100-astronaut",
     provider: "100hp Gaming",
     playersCount: 3450,
     livePlayerCount: 3450,
@@ -3187,7 +3187,7 @@ const RAW_HP100_GAMES: GameItem[] = [
   {
     id: "hp100-airjet",
     title: "Airjet",
-    slug: "airjet",
+    slug: "hp100-airjet",
     provider: "100hp Gaming",
     playersCount: 2890,
     livePlayerCount: 2890,
@@ -3201,7 +3201,7 @@ const RAW_HP100_GAMES: GameItem[] = [
   {
     id: "hp100-chicken-tour",
     title: "Chicken Tour",
-    slug: "chicken-tour",
+    slug: "hp100-chicken-tour",
     provider: "100hp Gaming",
     playersCount: 2640,
     livePlayerCount: 2640,
@@ -3215,7 +3215,7 @@ const RAW_HP100_GAMES: GameItem[] = [
   {
     id: "hp100-starx",
     title: "StarX",
-    slug: "starx",
+    slug: "hp100-starx",
     provider: "100hp Gaming",
     playersCount: 2410,
     livePlayerCount: 2410,
@@ -3227,7 +3227,7 @@ const RAW_HP100_GAMES: GameItem[] = [
   {
     id: "hp100-chicken-vs-train",
     title: "Chicken vs Train",
-    slug: "chicken-vs-train",
+    slug: "hp100-chicken-vs-train",
     provider: "100hp Gaming",
     playersCount: 2980,
     livePlayerCount: 2980,
@@ -3241,7 +3241,7 @@ const RAW_HP100_GAMES: GameItem[] = [
   {
     id: "hp100-tappy-bird",
     title: "Tappy Bird",
-    slug: "tappy-bird",
+    slug: "hp100-tappy-bird",
     provider: "100hp Gaming",
     playersCount: 2150,
     livePlayerCount: 2150,
@@ -3253,7 +3253,7 @@ const RAW_HP100_GAMES: GameItem[] = [
   {
     id: "hp100-astronaut-rivals",
     title: "Astronaut Rivals",
-    slug: "astronaut-rivals",
+    slug: "hp100-astronaut-rivals",
     provider: "100hp Gaming",
     playersCount: 2570,
     livePlayerCount: 2570,
@@ -3277,9 +3277,9 @@ const RAW_HP100_GAMES: GameItem[] = [
     bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
   },
   {
-    id: "hp100-arcade-blackjack",
+    id: "hp100-blackjack",
     title: "100HP Arcade Blackjack",
-    slug: "hp100-arcade-blackjack",
+    slug: "hp100-blackjack",
     provider: "100hp Gaming",
     playersCount: 2950,
     livePlayerCount: 2950,
@@ -3291,9 +3291,9 @@ const RAW_HP100_GAMES: GameItem[] = [
     bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
   },
   {
-    id: "hp100-turbo-dice",
-    title: "100HP Turbo Dice",
-    slug: "hp100-turbo-dice",
+    id: "hp100-dice",
+    title: "100HP Dice",
+    slug: "hp100-dice",
     provider: "100hp Gaming",
     playersCount: 2120,
     livePlayerCount: 2120,
@@ -3305,9 +3305,9 @@ const RAW_HP100_GAMES: GameItem[] = [
     bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
   },
   {
-    id: "hp100-multiplier-blast",
-    title: "Multiplier Blast",
-    slug: "hp100-multiplier-blast",
+    id: "hp100-blast",
+    title: "Mines",
+    slug: "hp100-blast",
     provider: "100hp Gaming",
     playersCount: 2380,
     livePlayerCount: 2380,
@@ -3317,9 +3317,9 @@ const RAW_HP100_GAMES: GameItem[] = [
     bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
   },
   {
-    id: "hp100-retro-turbo-reels",
-    title: "Retro Turbo Reels",
-    slug: "hp100-retro-turbo-reels",
+    id: "hp100-penalty",
+    title: "Penalty",
+    slug: "hp100-penalty",
     provider: "100hp Gaming",
     playersCount: 2210,
     livePlayerCount: 2210,
@@ -3328,7 +3328,7 @@ const RAW_HP100_GAMES: GameItem[] = [
     isPlayable: true,
     bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
   },
-  {
+/*  {
     id: "hp100-cyber-rush",
     title: "Cyber Rush",
     slug: "hp100-cyber-rush",
@@ -3339,7 +3339,7 @@ const RAW_HP100_GAMES: GameItem[] = [
     href: "/casino/group/100hp gaming",
     isPlayable: true,
     bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
-  },
+  },  */
 ];
 
 export const HP100_GAMES: StakeGame[] = RAW_HP100_GAMES.map(attachThumbnail);
