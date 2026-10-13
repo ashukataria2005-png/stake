@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
+import { resolveCrashPoint } from "@/lib/luckEngine";
 import confetti from "canvas-confetti";
 import StakeGameFooterCard from "@/components/games/originals/common/StakeGameFooterCard";
 
@@ -79,7 +80,7 @@ const BOT_COLORS = [
 ];
 
 export default function CrashGame() {
-  const { balance, updateBalance, currency, formatBalance, currencySymbol, user, addRecentlyPlayedGame } = useGame();
+  const { balance, updateBalance, currency, formatBalance, currencySymbol, user, addRecentlyPlayedGame, userLuckMode } = useGame();
   const activeSym = currencySymbol || "$";
 
   // Mode: Manual or Auto
@@ -366,13 +367,17 @@ export default function CrashGame() {
     );
   }, [currentMultiplier, phase]);
 
-  // Generate random crash point with authentic 1% house edge
+  // Generate random crash point with luckEngine RTP control
   const generateCrashPoint = (): number => {
     const rand = Math.random();
     let point = parseFloat((0.99 / (1 - rand)).toFixed(2));
     if (point < 1.01) point = 1.01;
     if (point > 250.0) point = 250.0;
-    return point;
+    return resolveCrashPoint(
+      userLuckMode,
+      point,
+      autoCashoutEnabled && autoCashout > 1 ? autoCashout : undefined
+    );
   };
 
   // -------------------------------------------------------------

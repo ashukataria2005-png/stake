@@ -91,6 +91,8 @@ interface GameContextType {
   previewGame: any | null;
   openGamePreview: (game: any) => void;
   closeGamePreview: () => void;
+  userLuckMode: "HIGH_WIN" | "MEDIUM_WIN" | "LOW_WIN" | "NO_CONTROL";
+  refreshLuckMode: () => Promise<void>;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -144,6 +146,24 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [isTransactionsModalOpen, setIsTransactionsModalOpen] = useState<boolean>(false);
   const [recentlyPlayedGames, setRecentlyPlayedGames] = useState<RecentlyPlayedGame[]>([]);
   const [previewGame, setPreviewGame] = useState<any | null>(null);
+  const [userLuckMode, setUserLuckMode] = useState<"HIGH_WIN" | "MEDIUM_WIN" | "LOW_WIN" | "NO_CONTROL">("NO_CONTROL");
+
+  const refreshLuckMode = useCallback(async () => {
+    try {
+      const activeId = user?.id || user?.username || user?.name || "demo_player";
+      const res = await fetch(`/api/games/luck-settings?userId=${encodeURIComponent(activeId)}`);
+      const data = await res.json();
+      if (data?.success && data?.effectiveMode) {
+        setUserLuckMode(data.effectiveMode);
+      }
+    } catch {
+      // ignore
+    }
+  }, [user]);
+
+  useEffect(() => {
+    refreshLuckMode();
+  }, [refreshLuckMode]);
 
   const openGamePreview = useCallback((game: any) => {
     setPreviewGame(game);
@@ -561,6 +581,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         previewGame,
         openGamePreview,
         closeGamePreview,
+        userLuckMode,
+        refreshLuckMode,
       }}
     >
       {children}

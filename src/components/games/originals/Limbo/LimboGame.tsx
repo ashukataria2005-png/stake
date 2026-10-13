@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
+import { resolveLimboMultiplier } from "@/lib/luckEngine";
 import confetti from "canvas-confetti";
 import StakeGameFooterCard from "@/components/games/originals/common/StakeGameFooterCard";
 
@@ -33,7 +34,7 @@ interface LimboHistoryItem {
 }
 
 export default function LimboGame() {
-  const { balance, updateBalance, currency, formatBalance, currencySymbol, addRecentlyPlayedGame } = useGame();
+  const { balance, updateBalance, currency, formatBalance, currencySymbol, addRecentlyPlayedGame, userLuckMode } = useGame();
   const activeSym = currencySymbol || "$";
 
   // Register in Recently Played once on mount
@@ -178,7 +179,8 @@ export default function LimboGame() {
     let raw = 0.99 / (1.0 - rand);
     if (raw < 1.0) raw = 1.0;
     if (raw > 1000000.0) raw = 1000000.0;
-    return parseFloat(raw.toFixed(2));
+    const defaultMult = parseFloat(raw.toFixed(2));
+    return resolveLimboMultiplier(userLuckMode, targetMultiplier, defaultMult);
   };
 
   // Execute a Single Limbo Roll

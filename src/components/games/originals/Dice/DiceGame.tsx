@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
+import { resolveDiceRoll } from "@/lib/luckEngine";
 import confetti from "canvas-confetti";
 import StakeGameFooterCard from "@/components/games/originals/common/StakeGameFooterCard";
 
@@ -24,7 +25,7 @@ interface RollHistoryItem {
 }
 
 export default function DiceGame() {
-  const { balance, updateBalance, currencySymbol, addRecentlyPlayedGame } = useGame();
+  const { balance, updateBalance, currencySymbol, addRecentlyPlayedGame, userLuckMode } = useGame();
   const activeSym = currencySymbol || "$";
 
   // Mode & Betting State
@@ -177,7 +178,8 @@ export default function DiceGame() {
 
     sounds.playDiceRoll();
 
-    const finalRoll = parseFloat((Math.random() * 100.0).toFixed(2));
+    const defaultRoll = parseFloat((Math.random() * 100.0).toFixed(2));
+    const finalRoll = resolveDiceRoll(userLuckMode, target, isRollOver, defaultRoll);
 
     let tickCount = 0;
     const maxTicks = 12;

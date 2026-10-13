@@ -18,6 +18,9 @@ import {
   Info,
   Lock,
   Sparkles,
+  Tag,
+  Percent,
+  X,
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
@@ -27,18 +30,35 @@ import FiatCoinIcon from "@/components/FiatCoinIcon";
 function DepositPayContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { updateBalance, user } = useGame();
+  const { user } = useGame();
 
   const rawOrderId = searchParams.get("orderId") || `STK-DEP-${Date.now()}`;
   const rawAmount = searchParams.get("amount") || "500";
-  const amountNumber = Math.max(300, parseFloat(rawAmount) || 500);
+  const baseAmount = Math.max(300, parseFloat(rawAmount) || 500);
 
-  // Merchant details
+  // Promo Code States
+  const [promoInput, setPromoInput] = useState<string>("");
+  const [appliedPromo, setAppliedPromo] = useState<{
+    code: string;
+    discountPercent: number;
+    discountAmount: number;
+    payableAmount: number;
+    creditedAmount: number;
+    maxDepositLimit: number;
+  } | null>(null);
+  const [promoError, setPromoError] = useState<string>("");
+  const [isApplyingPromo, setIsApplyingPromo] = useState<boolean>(false);
+
+  // Dynamically compute payable vs wallet credited amounts
+  const payableAmount = appliedPromo ? appliedPromo.payableAmount : baseAmount;
+  const walletCreditAmount = appliedPromo ? appliedPromo.creditedAmount : baseAmount;
+
+  // Merchant details (Amount payable via UPI)
   const merchantUpi = "stakeofficial@upi";
   const merchantName = "StakeGaming";
   const upiUrl = `upi://pay?pa=${merchantUpi}&pn=${encodeURIComponent(
     merchantName
-  )}&am=${amountNumber.toFixed(2)}&cu=INR&tn=${encodeURIComponent(rawOrderId)}`;
+  )}&am=${payableAmount.toFixed(2)}&cu=INR&tn=${encodeURIComponent(rawOrderId)}`;
 
   // 10:00 minutes countdown timer (600 seconds)
   const [timeLeft, setTimeLeft] = useState<number>(600);
@@ -55,6 +75,50 @@ function DepositPayContent() {
   const [isVerifying, setIsVerifying] = useState<boolean>(false);
   const [verificationStep, setVerificationStep] = useState<string>("");
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState<boolean>(false);
+
+  // Apply Promo Handler
+  const handleApplyPromo = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!promoInput.trim()) return;
+
+    setIsApplyingPromo(true);
+    setPromoError("");
+
+    try {
+      const res = await fetch(
+        `/api/promotions?code=${encodeURIComponent(
+          promoInput.trim().toUpperCase()
+        )}&amount=${baseAmount}`
+      );
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Invalid promo voucher code");
+      }
+
+      setAppliedPromo({
+        code: data.promo?.code || promoInput.trim().toUpperCase(),
+        discountPercent: data.discountPercent,
+        discountAmount: data.discountAmount,
+        payableAmount: data.payableAmount,
+        creditedAmount: data.creditedAmount,
+        maxDepositLimit: data.maxDepositLimit,
+      });
+      sounds.playCashout();
+    } catch (err: any) {
+      setPromoError(err?.message || "Invalid or expired promo code");
+      setAppliedPromo(null);
+    } finally {
+      setIsApplyingPromo(false);
+    }
+  };
+
+  const handleRemovePromo = () => {
+    setAppliedPromo(null);
+    setPromoInput("");
+    setPromoError("");
+    sounds.playClick();
+  };
 
   // Timer effect
   useEffect(() => {
@@ -126,11 +190,11 @@ function DepositPayContent() {
 
     setUtrError("");
     setIsVerifying(true);
-    setVerificationStep("Connecting to National Payments Corporation node...");
+    setVerificationStep("Connecting to Banking Node & Admin Desk...");
     sounds.playClick();
 
     setTimeout(() => {
-      setVerificationStep("Verifying 12-digit UTR and payment settlement in database...");
+      setVerificationStep("Recording UTR and generating transaction ticket in database...");
     }, 600);
 
     // Dynamically resolve actual logged-in user from GameContext or localStorage
@@ -150,18 +214,21 @@ function DepositPayContent() {
     const currentUserEmail = activeUser?.email || (currentUsername.includes("@") ? currentUsername : `${currentUsername}@stake.internal`);
 
     try {
-      console.log("[DepositPay] Persisting deposit to /api/wallet/deposit:", {
+      console.log("[DepositPay] Submitting deposit to /api/wallet/deposit (strictly PENDING, NO auto-credit):", {
         userId: currentUserId,
         username: currentUsername,
         email: currentUserEmail,
-        amount: amountNumber,
+        amount: walletCreditAmount,
+        paidAmount: payableAmount,
+        promoCode: appliedPromo?.code || null,
+        discountPercent: appliedPromo?.discountPercent || 0,
         currency: "INR",
         utrNumber,
         orderId: rawOrderId,
         hasScreenshot: Boolean(screenshotPreview),
       });
 
-      // Persist transaction & wallet balance to Neon PostgreSQL
+      // STRICT: Submit transaction with status: PENDING and autoCredit: false
       const res = await fetch("/api/wallet/deposit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -169,14 +236,17 @@ function DepositPayContent() {
           userId: currentUserId,
           username: currentUsername,
           email: currentUserEmail,
-          amount: amountNumber,
+          amount: walletCreditAmount, // Amount credited once approved by Admin
+          paidAmount: payableAmount, // Actual amount paid via UPI
+          promoCode: appliedPromo?.code || null,
+          discountPercent: appliedPromo?.discountPercent || 0,
           currency: "INR",
           utrNumber,
           screenshotUrl: screenshotPreview || null,
           orderId: rawOrderId,
           method: "UPI",
           status: "PENDING",
-          autoCredit: true,
+          autoCredit: false, // CRITICAL: NEVER auto-credit deposits
         }),
       });
 
@@ -187,31 +257,30 @@ function DepositPayContent() {
         throw new Error(errorMsg);
       }
 
-      console.log("[DepositPay] Deposit record saved to Neon DB:", data.transaction);
+      console.log("[DepositPay] Deposit record saved to Neon DB with PENDING status:", data.transaction);
 
-      // 1. Credit wallet balance (amount in USD equivalent, rate 86.5 INR/USD)
-      const creditedUsd = amountNumber / 86.5;
-      updateBalance(creditedUsd, true);
+      // CRITICAL FIX: DO NOT CALL updateBalance! Wallet balance will only update upon ADMIN approval.
 
-      // 2. Add notification to drawer & localStorage
+      // 1. Add notification to drawer & localStorage
       try {
         const savedNotifs = localStorage.getItem("stake_notifications");
         const existing = savedNotifs ? JSON.parse(savedNotifs) : [];
         const newNotif = {
           id: `notif-dep-${Date.now()}`,
           type: "Transactions",
-          title: "Deposit Successful! 💰",
-          description: `₹${amountNumber.toLocaleString(
-            "en-IN"
-          )} deposited via UPI (UTR: ${utrNumber}) has been credited instantly.`,
+          title: "Deposit Submitted ⏳",
+          description: `₹${payableAmount.toLocaleString("en-IN")} submitted via UPI (UTR: ${utrNumber}). Balance of ₹${walletCreditAmount.toLocaleString("en-IN")} will be credited once verified by Admin Desk.`,
           timestamp: "Just now",
           isUnread: true,
           link: "/casino/home",
           metadata: {
-            amount: amountNumber,
+            amount: walletCreditAmount,
+            paidAmount: payableAmount,
+            promoCode: appliedPromo?.code || null,
             currency: "INR",
             utr: utrNumber,
             orderId: rawOrderId,
+            status: "PENDING",
           },
         };
         localStorage.setItem("stake_notifications", JSON.stringify([newNotif, ...existing]));
@@ -220,7 +289,7 @@ function DepositPayContent() {
         console.error("Failed to save deposit notification", err);
       }
 
-      // Update persistent deposit order ledger in stake_deposit_orders
+      // 2. Update persistent deposit order ledger in stake_deposit_orders as Pending
       try {
         const savedOrders = localStorage.getItem("stake_deposit_orders");
         const existingOrders = savedOrders ? JSON.parse(savedOrders) : [];
@@ -228,17 +297,25 @@ function DepositPayContent() {
         const updatedOrders = existingOrders.map((ord: any) => {
           if (ord.orderId === rawOrderId) {
             orderFound = true;
-            return { ...ord, status: "Success", utr: utrNumber };
+            return {
+              ...ord,
+              status: "Pending",
+              utr: utrNumber,
+              paidAmount: payableAmount,
+              promoCode: appliedPromo?.code || null,
+            };
           }
           return ord;
         });
         if (!orderFound) {
           updatedOrders.unshift({
             orderId: rawOrderId,
-            amountINR: amountNumber,
-            amountUSD: parseFloat((amountNumber / 86.5).toFixed(2)),
+            amountINR: walletCreditAmount,
+            paidAmount: payableAmount,
+            promoCode: appliedPromo?.code || null,
+            amountUSD: parseFloat((walletCreditAmount / 86.5).toFixed(2)),
             date: new Date().toLocaleString(),
-            status: "Success",
+            status: "Pending",
             utr: utrNumber,
           });
         }
@@ -248,8 +325,8 @@ function DepositPayContent() {
         console.error("Failed to update deposit orders", err);
       }
 
-      // 3. Audio celebration chime
-      sounds.playCashout();
+      // Audio notification chime
+      sounds.playClick();
 
       setIsVerifying(false);
       setIsSuccessModalOpen(true);
@@ -316,10 +393,22 @@ function DepositPayContent() {
 
             <div className="text-right">
               <div className="text-[11px] text-[#b1bad3] font-medium uppercase tracking-wider">
-                Total Amount Due
+                {appliedPromo ? "Discounted Total to Pay" : "Total Amount Due"}
               </div>
-              <div className="text-xl sm:text-2xl font-black text-[#00e701] flex items-center justify-end gap-1 mt-0.5">
-                <span>₹{amountNumber.toLocaleString("en-IN")}.00</span>
+              <div className="flex flex-col items-end mt-0.5">
+                <div className="text-xl sm:text-2xl font-black text-[#00e701] flex items-center justify-end gap-1.5">
+                  <span>₹{payableAmount.toLocaleString("en-IN")}.00</span>
+                  {appliedPromo && (
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#00e701]/20 border border-[#00e701]/40 text-[#00e701]">
+                      {appliedPromo.discountPercent}% OFF
+                    </span>
+                  )}
+                </div>
+                {appliedPromo && (
+                  <div className="text-[10px] text-[#b1bad3] font-mono">
+                    Wallet gets full ₹{walletCreditAmount.toLocaleString("en-IN")}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -352,6 +441,93 @@ function DepositPayContent() {
 
         {/* Form Body */}
         <div className="p-4 sm:p-6 space-y-6">
+          {/* ========================================================
+              PROMO CODE VOUCHER INPUT BOX
+              ======================================================== */}
+          <div className="bg-[#14232f] border border-[#213743] rounded-xl p-3.5 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-white">
+                <Tag className="w-4 h-4 text-amber-400" />
+                <span>Apply Promo Voucher & Deposit Discount</span>
+              </div>
+              <span className="text-[10px] text-amber-400/90 font-mono font-bold">
+                e.g. WELCOME10, STAKE20
+              </span>
+            </div>
+
+            {appliedPromo ? (
+              <div className="bg-[#00e701]/10 border border-[#00e701]/30 rounded-lg p-3 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded bg-[#00e701] text-black font-black text-xs font-mono uppercase tracking-wider">
+                      {appliedPromo.code}
+                    </span>
+                    <span className="text-xs font-extrabold text-[#00e701]">
+                      🎉 {appliedPromo.discountPercent}% Instant Discount Applied!
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleRemovePromo}
+                    className="text-xs font-bold text-[#b1bad3] hover:text-white flex items-center gap-1 cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                    <span>Remove</span>
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1 text-[11px] font-mono border-t border-[#00e701]/20 text-[#b1bad3]">
+                  <div>
+                    <span className="text-slate-400">Selected Deposit:</span>{" "}
+                    <span className="text-white font-bold">₹{baseAmount}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-400">Discount ({appliedPromo.discountPercent}%):</span>{" "}
+                    <span className="text-[#00e701] font-bold">-₹{appliedPromo.discountAmount}</span>
+                  </div>
+                  <div className="col-span-2 sm:col-span-1">
+                    <span className="text-slate-400">You Pay:</span>{" "}
+                    <span className="text-amber-300 font-extrabold">₹{payableAmount}</span>
+                  </div>
+                </div>
+                <div className="text-[10px] text-[#00e701]/80">
+                  ✓ Full ₹{walletCreditAmount.toLocaleString("en-IN")} will be credited to your wallet balance once approved! (Promo cap: ₹{appliedPromo.maxDepositLimit.toLocaleString("en-IN")})
+                </div>
+              </div>
+            ) : (
+              <form onSubmit={handleApplyPromo} className="flex gap-2">
+                <div className="relative flex-1">
+                  <input
+                    type="text"
+                    value={promoInput}
+                    onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
+                    placeholder="Enter Promo Code (e.g. WELCOME10)"
+                    className="w-full px-3 py-2 bg-[#0a151d] border border-[#213743] rounded-lg text-xs font-mono text-white uppercase placeholder-[#557086] focus:outline-none focus:border-amber-400"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={isApplyingPromo || !promoInput.trim()}
+                  className="px-4 py-2 bg-amber-500 hover:bg-amber-400 active:scale-95 text-black font-extrabold text-xs rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1.5"
+                >
+                  {isApplyingPromo ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Sparkles className="w-3.5 h-3.5" />
+                  )}
+                  <span>APPLY</span>
+                </button>
+              </form>
+            )}
+
+            {promoError && (
+              <div className="text-[11px] font-semibold text-rose-400 flex items-center gap-1">
+                <AlertTriangle className="w-3.5 h-3.5" />
+                <span>{promoError}</span>
+              </div>
+            )}
+          </div>
+
           {/* STEP 1: SCAN & PAY SECTION */}
           <div>
             <div className="flex items-center gap-2 mb-3">
@@ -384,7 +560,7 @@ function DepositPayContent() {
               </div>
 
               <div className="mt-3 text-xs text-[#b1bad3]">
-                Scan to pay <span className="font-bold text-white">₹{amountNumber}</span> via Google Pay, PhonePe, Paytm, CRED or BHIM
+                Scan to pay <span className="font-bold text-white">₹{payableAmount}</span> via Google Pay, PhonePe, Paytm, CRED or BHIM
               </div>
 
               {/* Merchant UPI Box with Copy */}
@@ -425,7 +601,7 @@ function DepositPayContent() {
                   <a
                     href={`phonepe://pay?pa=${merchantUpi}&pn=${encodeURIComponent(
                       merchantName
-                    )}&am=${amountNumber}&cu=INR`}
+                    )}&am=${payableAmount}&cu=INR`}
                     className="flex flex-col items-center justify-center p-2 rounded-lg bg-[#213743] hover:bg-[#2f4553] border border-[#2f4553] text-[11px] font-bold text-white transition-all active:scale-95"
                   >
                     <span className="w-6 h-6 rounded-full bg-[#5f259f] flex items-center justify-center text-white text-[10px] font-black mb-1">
@@ -437,7 +613,7 @@ function DepositPayContent() {
                   <a
                     href={`gpay://upi/pay?pa=${merchantUpi}&pn=${encodeURIComponent(
                       merchantName
-                    )}&am=${amountNumber}&cu=INR`}
+                    )}&am=${payableAmount}&cu=INR`}
                     className="flex flex-col items-center justify-center p-2 rounded-lg bg-[#213743] hover:bg-[#2f4553] border border-[#2f4553] text-[11px] font-bold text-white transition-all active:scale-95"
                   >
                     <span className="w-6 h-6 rounded-full bg-white flex items-center justify-center text-[#4285F4] text-[10px] font-black mb-1">
@@ -449,7 +625,7 @@ function DepositPayContent() {
                   <a
                     href={`paytmmp://pay?pa=${merchantUpi}&pn=${encodeURIComponent(
                       merchantName
-                    )}&am=${amountNumber}&cu=INR`}
+                    )}&am=${payableAmount}&cu=INR`}
                     className="flex flex-col items-center justify-center p-2 rounded-lg bg-[#213743] hover:bg-[#2f4553] border border-[#2f4553] text-[11px] font-bold text-white transition-all active:scale-95"
                   >
                     <span className="w-6 h-6 rounded-full bg-[#00baf2] flex items-center justify-center text-white text-[10px] font-black mb-1">
@@ -630,45 +806,53 @@ function DepositPayContent() {
         </div>
       )}
 
-      {/* Payment Success Modal */}
+      {/* Deposit Submitted - Awaiting Admin Approval Modal */}
       {isSuccessModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-[#0f212e] border-2 border-[#00e701]/60 rounded-2xl max-w-md w-full p-6 text-center shadow-2xl animate-in fade-in zoom-in-95 duration-300">
-            <div className="w-16 h-16 rounded-full bg-[#00e701]/20 border-2 border-[#00e701] text-[#00e701] flex items-center justify-center mx-auto mb-4 shadow-[0_0_25px_rgba(0,231,1,0.4)]">
-              <CheckCircle2 className="w-10 h-10 text-[#00e701]" />
+          <div className="bg-[#0f212e] border-2 border-amber-500/60 rounded-2xl max-w-md w-full p-6 text-center shadow-2xl animate-in fade-in zoom-in-95 duration-300">
+            <div className="w-16 h-16 rounded-full bg-amber-500/20 border-2 border-amber-400 text-amber-400 flex items-center justify-center mx-auto mb-4 shadow-[0_0_25px_rgba(245,158,11,0.35)]">
+              <Clock className="w-9 h-9 text-amber-400" />
             </div>
 
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#00e701]/10 text-[#00e701] text-xs font-bold rounded-full mb-3 border border-[#00e701]/20">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Instant Verification Approved</span>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 text-amber-300 text-xs font-bold rounded-full mb-3 border border-amber-500/30">
+              <Clock className="w-3.5 h-3.5 animate-spin" />
+              <span>Awaiting Admin Verification</span>
             </div>
 
             <h2 className="text-2xl font-black text-white mb-1">
-              Payment Successful!
+              Deposit Submitted! ⏳
             </h2>
-            <p className="text-sm text-[#b1bad3] mb-5">
-              Funds have been added instantly to your wallet balance.
+            <p className="text-xs text-[#b1bad3] mb-5 leading-relaxed">
+              Your 12-digit UTR payment ticket has been submitted to the Admin Approval Desk. Balance will be credited automatically once verified.
             </p>
 
             <div className="bg-[#1a2c38] border border-[#213743] rounded-xl p-4 text-left space-y-2.5 mb-6 text-xs">
               <div className="flex justify-between items-center">
-                <span className="text-[#b1bad3]">Amount Credited</span>
+                <span className="text-[#b1bad3]">Wallet Credit Requested</span>
                 <span className="font-extrabold text-[#00e701] text-base">
-                  ₹{amountNumber.toLocaleString("en-IN")}.00
+                  ₹{walletCreditAmount.toLocaleString("en-IN")}.00
                 </span>
               </div>
+              {appliedPromo && (
+                <div className="flex justify-between items-center border-t border-[#213743] pt-2">
+                  <span className="text-[#b1bad3]">Amount Paid via UPI</span>
+                  <span className="font-extrabold text-amber-300">
+                    ₹{payableAmount.toLocaleString("en-IN")}.00 ({appliedPromo.code} - {appliedPromo.discountPercent}% OFF)
+                  </span>
+                </div>
+              )}
               <div className="flex justify-between items-center border-t border-[#213743] pt-2">
-                <span className="text-[#b1bad3]">Order ID</span>
+                <span className="text-[#b1bad3]">Order Reference</span>
                 <span className="font-mono text-white font-bold">{rawOrderId}</span>
               </div>
               <div className="flex justify-between items-center border-t border-[#213743] pt-2">
-                <span className="text-[#b1bad3]">UTR Reference</span>
-                <span className="font-mono text-white font-bold">{utrNumber}</span>
+                <span className="text-[#b1bad3]">UTR Number</span>
+                <span className="font-mono text-amber-300 font-bold">{utrNumber}</span>
               </div>
               <div className="flex justify-between items-center border-t border-[#213743] pt-2">
-                <span className="text-[#b1bad3]">Status</span>
-                <span className="text-[#00e701] font-bold flex items-center gap-1">
-                  <Check className="w-3 h-3" /> Confirmed & Settled
+                <span className="text-[#b1bad3]">Verification Status</span>
+                <span className="text-amber-400 font-bold flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5" /> Pending Admin Approval
                 </span>
               </div>
             </div>
@@ -676,9 +860,9 @@ function DepositPayContent() {
             <button
               type="button"
               onClick={() => router.push("/casino/home")}
-              className="w-full bg-[#00e701] hover:brightness-110 active:scale-[0.99] text-black font-black text-base py-3.5 rounded-xl shadow-lg transition-all cursor-pointer"
+              className="w-full bg-[#1475e1] hover:bg-[#1268c7] active:scale-[0.99] text-white font-black text-sm py-3.5 rounded-xl shadow-lg transition-all cursor-pointer"
             >
-              Go to Casino Lobby
+              Return to Casino Lobby
             </button>
           </div>
         </div>

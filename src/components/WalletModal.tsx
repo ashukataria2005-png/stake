@@ -40,7 +40,7 @@ export interface DepositOrder {
   amountINR: number;
   amountUSD: number;
   date: string;
-  status: "Pending UTR" | "Success";
+  status: "Pending UTR" | "Success" | "Pending";
   utr: string | null;
 }
 
@@ -79,6 +79,14 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
   const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
   const [screenshotFeedback, setScreenshotFeedback] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [appliedPromo, setAppliedPromo] = useState<{
+    code: string;
+    discountPercent: number;
+    discountAmount: number;
+    payableAmount: number;
+    creditedAmount: number;
+    maxDepositLimit: number;
+  } | null>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -271,7 +279,10 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
         hasScreenshot: Boolean(screenshotPreview),
       });
 
-      // 1. Persist to Neon PostgreSQL Transaction and Wallet tables
+      // 1. Persist to Neon PostgreSQL Transaction with STRICT PENDING status and NO auto-credit
+      const finalCreditAmount = appliedPromo ? appliedPromo.creditedAmount : num;
+      const finalPayableAmount = appliedPromo ? appliedPromo.payableAmount : num;
+
       const res = await fetch("/api/wallet/deposit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -279,14 +290,17 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
           userId: currentUserId,
           username: currentUsername,
           email: currentUserEmail,
-          amount: num,
+          amount: finalCreditAmount,
+          paidAmount: finalPayableAmount,
+          promoCode: appliedPromo?.code || null,
+          discountPercent: appliedPromo?.discountPercent || 0,
           currency: "INR",
           utrNumber: cleanUtr,
           screenshotUrl: screenshotPreview || null,
           orderId: currentOrderId,
           method: "UPI",
           status: "PENDING",
-          autoCredit: true,
+          autoCredit: false, // CRITICAL: NEVER auto-credit deposits
         }),
       });
 
@@ -297,15 +311,13 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
         throw new Error(errorMsg);
       }
 
-      console.log("[WalletModal] Deposit persisted successfully in Neon DB:", data.transaction);
+      console.log("[WalletModal] Deposit persisted successfully in Neon DB (PENDING approval):", data.transaction);
 
-      // 2. Credit frontend wallet balance (rate 86.5 INR/USD)
-      const creditedUsd = num / 86.5;
-      updateBalance(creditedUsd, true);
+      // CRITICAL: DO NOT CALL updateBalance! Wallet balance only updates upon ADMIN approval!
 
-      // 3. Update order status in ledger
+      // 3. Update order status in ledger as Pending
       const updated = depositOrders.map((o) =>
-        o.orderId === currentOrderId ? { ...o, status: "Success" as const, utr: cleanUtr } : o
+        o.orderId === currentOrderId ? { ...o, status: "Pending" as const, utr: cleanUtr } : o
       );
       setDepositOrders(updated);
       try {
@@ -320,8 +332,8 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
         const newNotif = {
           id: `notif-dep-${Date.now()}`,
           type: "Transactions",
-          title: "Deposit Verified! 💰",
-          description: `₹${num.toLocaleString("en-IN")} (UTR: ${cleanUtr}) has been credited.`,
+          title: "Deposit Submitted ⏳",
+          description: `₹${finalPayableAmount.toLocaleString("en-IN")} (UTR: ${cleanUtr}) submitted. Balance of ₹${finalCreditAmount.toLocaleString("en-IN")} will be credited once verified by Admin.`,
           timestamp: "Just now",
           isUnread: true,
           link: "/casino/home",
@@ -330,15 +342,15 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
         window.dispatchEvent(new Event("stake_notifications_updated"));
       } catch {}
 
-      sounds.playCashout();
+      sounds.playClick();
       setIsSubmittingUtr(false);
-      setDepositSuccessMsg(`₹${num.toLocaleString("en-IN")} credited successfully!`);
+      setDepositSuccessMsg(`Deposit submitted! Awaiting Admin verification for ₹${finalCreditAmount.toLocaleString("en-IN")}.`);
       setTimeout(() => {
         setDepositSuccessMsg("");
         setDepositStep("amount");
         setUtrInput("");
         onClose();
-      }, 1500);
+      }, 2500);
     } catch (err: any) {
       console.error("[WalletModal] Deposit submission error:", err);
       setIsSubmittingUtr(false);

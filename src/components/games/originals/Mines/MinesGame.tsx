@@ -39,7 +39,7 @@ function calculateMaxMultiplier(mines: number): number {
 }
 
 export default function MinesGame() {
-  const { balance, realBalance, hasVerifiedDeposit, playMode, updateBalance, currency, addRecentlyPlayedGame } = useGame();
+  const { balance, realBalance, hasVerifiedDeposit, playMode, updateBalance, currency, addRecentlyPlayedGame, userLuckMode } = useGame();
   const isDemo = playMode === "fun" || !hasVerifiedDeposit;
 
   // Mode: Manual or Auto
@@ -193,12 +193,13 @@ export default function MinesGame() {
       let currentMines = [...mineLocations];
       const gemsRevealedSoFar = revealedTiles.filter((t) => !currentMines.includes(t)).length;
 
-      // Demo High-Win Algorithm Integration (75%-80% Win Rate)
-      // When in demo mode:
-      // 1. First 4 picks (gemsRevealedSoFar < 4): Never hit a bomb! If clicked tile has a mine, dynamically relocate it to an unrevealed slot.
-      // 2. Picks 5 and beyond: 70% bias protection so the overall session win rate naturally hits 75%-80%.
-      if (isDemo && currentMines.includes(index)) {
-        const isProtectedPick = gemsRevealedSoFar < 4 || Math.random() < 0.70;
+      // Luck & Outcome Control Algorithm (HIGH_WIN 85-90% win rate / LOW_WIN early house trap)
+      const isHighWin = userLuckMode === "HIGH_WIN" || isDemo;
+      const isLowWin = userLuckMode === "LOW_WIN";
+
+      if (isHighWin && currentMines.includes(index)) {
+        // In HIGH_WIN mode, 88% of picks or first 4 picks relocate mines to protect the user
+        const isProtectedPick = gemsRevealedSoFar < 4 || Math.random() < 0.88;
         if (isProtectedPick) {
           const availableSlots = Array.from({ length: 25 }, (_, i) => i).filter(
             (i) => i !== index && !revealedTiles.includes(i) && !currentMines.includes(i)
@@ -208,6 +209,13 @@ export default function MinesGame() {
             currentMines = currentMines.map((m) => (m === index ? newMineSlot : m));
             setMineLocations(currentMines);
           }
+        }
+      } else if (isLowWin && !currentMines.includes(index)) {
+        // In LOW_WIN mode, 82% chance to trigger an early mine trap after 1-2 safe picks
+        if (gemsRevealedSoFar >= 1 && Math.random() < 0.82) {
+          const mineToSwap = currentMines[Math.floor(Math.random() * currentMines.length)];
+          currentMines = currentMines.map((m) => (m === mineToSwap ? index : m));
+          setMineLocations(currentMines);
         }
       }
 

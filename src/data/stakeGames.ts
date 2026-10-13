@@ -4094,20 +4094,7 @@ const RAW_TURBOGAMES_GAMES: GameItem[] = [
     isPlayable: true,
     bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
   },
-  {
-    id: "turbo-multiplayer-mines",
-    title: "Multiplayer Mines",
-    slug: "multiplayer-mines",
-    provider: "Turbo Games",
-    playersCount: 3670,
-    livePlayerCount: 3670,
-    badge: "PVP MINES",
-    badgeColor: "bg-red-500/20 text-red-300 border-red-500/30",
-    category: "Stake Originals",
-    href: "/casino/group/turbo games",
-    isPlayable: true,
-    bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
-  },
+
   {
     id: "turbo-hamsta",
     title: "Hamsta",

@@ -26,8 +26,11 @@ export async function POST(req: NextRequest) {
       orderId,
       method = "UPI",
       status = "PENDING",
-      autoCredit = true,
+      autoCredit = false, // CRITICAL FIX: NEVER auto-credit deposits
       isLateSubmission = false,
+      promoCode,
+      paidAmount,
+      discountPercent,
     } = body;
 
     console.log("Deposit payload received:", {
@@ -38,6 +41,9 @@ export async function POST(req: NextRequest) {
       currency,
       utrNumber,
       orderId,
+      promoCode,
+      paidAmount,
+      discountPercent,
       hasScreenshot: Boolean(screenshotUrl),
       screenshotLength: screenshotUrl?.length || 0,
       status,
@@ -54,6 +60,12 @@ export async function POST(req: NextRequest) {
     }
 
     const numericAmount = parseFloat(amount);
+
+    // Formatted method string containing promo details if used
+    let formattedMethod = method || "UPI";
+    if (promoCode) {
+      formattedMethod = `UPI • PROMO ${promoCode} (${discountPercent || 0}% OFF, Paid: ₹${paidAmount || numericAmount})`;
+    }
 
     // 1. Resolve or create user in Neon PostgreSQL
     let resolvedUser;
@@ -77,8 +89,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // STRICT: Only ADMIN can approve. Deposits submitted via client are always PENDING.
     const txStatus = status === "APPROVED" ? "APPROVED" : "PENDING";
-    const approvedBy = txStatus === "APPROVED" ? (autoCredit ? "SYSTEM_AUTO" : "ADMIN") : null;
+    const approvedBy = txStatus === "APPROVED" ? "ADMIN" : null;
     const approvedAt = txStatus === "APPROVED" ? new Date() : null;
 
     // 2. Insert or Update Transaction record in Neon PostgreSQL
@@ -104,6 +117,7 @@ export async function POST(req: NextRequest) {
               status: txStatus,
               approvedBy: approvedBy || existingTx.approvedBy,
               approvedAt: approvedAt || existingTx.approvedAt,
+              method: formattedMethod,
               isLateSubmission: true,
             },
           });
@@ -123,7 +137,7 @@ export async function POST(req: NextRequest) {
             approvedBy,
             approvedAt,
             isLateSubmission: Boolean(isLateSubmission),
-            method: method || "UPI",
+            method: formattedMethod,
             txHash: orderId ? String(orderId) : null,
           },
         });
@@ -148,9 +162,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 3. Update Wallet balance if approved or autoCredit
+    // 3. Update Wallet balance ONLY IF txStatus is strictly "APPROVED" by Admin
+    // CRITICAL: NEVER auto-credit pending deposits!
     let updatedWallet = resolvedWallet;
-    if (autoCredit || txStatus === "APPROVED") {
+    if (txStatus === "APPROVED") {
       try {
         updatedWallet = await prisma.wallet.update({
           where: { id: resolvedWallet.id },

@@ -443,10 +443,16 @@ export default function AdminTransactionsPage() {
                         <span className="text-slate-600">—</span>
                       )}
 
-                      <div className="flex items-center gap-1.5 mt-1">
-                        <span className="text-[10px] text-slate-400 uppercase">
-                          {tx.method || "UPI"}
-                        </span>
+                      <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                        {tx.method && tx.method.includes("PROMO") ? (
+                          <span className="text-[10px] text-amber-300 bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.5 rounded font-bold">
+                            {tx.method}
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-slate-400 uppercase">
+                            {tx.method || "UPI"}
+                          </span>
+                        )}
                         {tx.isLateSubmission && (
                           <span className="px-1.5 py-0.2 rounded text-[9px] font-black bg-rose-500/20 text-rose-300 border border-rose-500/30">
                             Late UTR

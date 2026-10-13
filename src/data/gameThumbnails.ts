@@ -454,7 +454,7 @@ export const TURBOGAMES_THUMBNAILS: Record<string, string> = {
   "turbo-chicken-goal": "/games/turbogames/turbo-chicken-goal.webp",
   "turbo-pumpedx": "/games/turbogames/turbo-pumpedx.webp",
   "turbo-1tap-mines": "/games/turbogames/turbo-1tap-mines.webp",
-  "turbo-multiplayer-mines": "/games/turbogames/turbo-multiplayer-mines.webp",
+  
   "turbo-vortex": "/games/turbogames/vortex.webp",
   "turbo-vortex-2": "/games/turbogames/vortex-2.webp",
   "turbo-vortex-aero": "/games/turbogames/turbo-vortex-aero.webp",
