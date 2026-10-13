@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
     }
 
     const txAmount = targetTx.amount;
-    const txCurrency = targetTx.currency || "INR";
+    const txCurrency = (targetTx.currency || "INR").toUpperCase();
     const now = new Date();
 
     // 2. Execute Atomic Prisma Transaction
@@ -71,13 +71,15 @@ export async function POST(req: NextRequest) {
       // Step B: Update user Wallet balance based on transaction type
       let updatedWallet;
       if (targetTx.type === "DEPOSIT") {
-        // Increment wallet balance for deposits
-        const existingWallet = await tx.wallet.findUnique({
+        // Increment wallet balance for deposits - robust match on currency
+        let existingWallet = await tx.wallet.findFirst({
           where: {
-            userId_currency: {
-              userId: targetTx.userId,
-              currency: txCurrency,
-            },
+            userId: targetTx.userId,
+            OR: [
+              { currency: txCurrency },
+              { currency: txCurrency.toLowerCase() },
+              { currency: "INR" },
+            ],
           },
         });
 
@@ -99,15 +101,19 @@ export async function POST(req: NextRequest) {
             },
           });
         }
+
+        console.log(`[Approve API] Deposit approved for user ${targetTx.userId}. Credited: ₹${Number(txAmount)}. New balance: ₹${Number(updatedWallet.balance)}`);
       } else {
         // For WITHDRAWALS: Balance was already decremented upon withdrawal request.
         // Retrieve latest wallet to return accurate balance.
-        updatedWallet = await tx.wallet.findUnique({
+        updatedWallet = await tx.wallet.findFirst({
           where: {
-            userId_currency: {
-              userId: targetTx.userId,
-              currency: txCurrency,
-            },
+            userId: targetTx.userId,
+            OR: [
+              { currency: txCurrency },
+              { currency: txCurrency.toLowerCase() },
+              { currency: "INR" },
+            ],
           },
         });
       }

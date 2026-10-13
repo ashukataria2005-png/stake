@@ -93,6 +93,7 @@ interface GameContextType {
   closeGamePreview: () => void;
   userLuckMode: "HIGH_WIN" | "MEDIUM_WIN" | "LOW_WIN" | "NO_CONTROL";
   refreshLuckMode: () => Promise<void>;
+  syncWalletBalance: () => Promise<void>;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -164,6 +165,61 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     refreshLuckMode();
   }, [refreshLuckMode]);
+
+  const syncWalletBalance = useCallback(async () => {
+    try {
+      const activeUser = user || (typeof window !== "undefined" ? (() => {
+        try {
+          const authRaw = localStorage.getItem(AUTH_STORAGE_KEY);
+          if (authRaw) {
+            const parsed = JSON.parse(authRaw);
+            if (parsed?.user) return parsed.user;
+          }
+        } catch {}
+        return null;
+      })() : null);
+
+      const searchKey = activeUser?.id || activeUser?.username || activeUser?.name || activeUser?.email || "guest_player";
+      const res = await fetch(`/api/wallet/balance?userId=${encodeURIComponent(searchKey)}`);
+      const data = await res.json();
+
+      if (data?.success && data?.wallet) {
+        const dbInrBalance = Number(data.wallet.balance || 0);
+        // Underlying rate 86.5 INR per USD
+        const inUsd = parseFloat((dbInrBalance / 86.5).toFixed(4));
+        setRealBalance(inUsd);
+        try {
+          localStorage.setItem(BALANCE_STORAGE_KEY, inUsd.toString());
+        } catch {}
+
+        if (Array.isArray(data.transactions) && data.transactions.some((t: any) => t.type === "DEPOSIT" && t.status === "APPROVED")) {
+          setHasVerifiedDeposit(true);
+        }
+      }
+    } catch (err) {
+      console.error("[GameContext] Failed to sync wallet balance:", err);
+    }
+  }, [user]);
+
+  // Periodic polling & event-driven live balance sync
+  useEffect(() => {
+    syncWalletBalance();
+    const interval = setInterval(() => {
+      syncWalletBalance();
+    }, 4000);
+
+    const handleRefresh = () => syncWalletBalance();
+    window.addEventListener("stake_wallet_refresh", handleRefresh);
+    window.addEventListener("stake_deposit_orders_updated", handleRefresh);
+    window.addEventListener("focus", handleRefresh);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("stake_wallet_refresh", handleRefresh);
+      window.removeEventListener("stake_deposit_orders_updated", handleRefresh);
+      window.removeEventListener("focus", handleRefresh);
+    };
+  }, [syncWalletBalance]);
 
   const openGamePreview = useCallback((game: any) => {
     setPreviewGame(game);
@@ -303,6 +359,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // ignore
     }
+
+    setTimeout(() => {
+      syncWalletBalance();
+    }, 100);
   };
 
   const logout = () => {
@@ -583,6 +643,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         closeGamePreview,
         userLuckMode,
         refreshLuckMode,
+        syncWalletBalance,
       }}
     >
       {children}

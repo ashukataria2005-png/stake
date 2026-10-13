@@ -15,12 +15,12 @@ import {
   AlertTriangle,
   ZoomIn,
   ZoomOut,
-  ArrowRight,
-  TrendingUp,
-  Percent,
-  AlertCircle,
-  X,
   FileCheck,
+  X,
+  History,
+  Layers,
+  Inbox,
+  Filter,
 } from "lucide-react";
 
 interface TransactionRow {
@@ -51,14 +51,17 @@ interface TransactionRow {
 }
 
 export default function AdminTransactionsPage() {
-  const [transactions, setTransactions] = useState<TransactionRow[]>([]);
-  const [counts, setCounts] = useState<{ pending: number; total: number }>({ pending: 0, total: 0 });
+  const [allTransactions, setAllTransactions] = useState<TransactionRow[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Filters
-  const [activeTab, setActiveTab] = useState<"PENDING" | "APPROVED" | "REJECTED" | "ALL">("PENDING");
-  const [typeFilter, setTypeFilter] = useState<"ALL" | "DEPOSIT" | "WITHDRAWAL">("DEPOSIT");
+  // Top Container Mode Tabs: "DEPOSITS" (Real-time) vs "DELAYED_DEPOSITS" (Late UTR submissions)
+  const [mainMode, setMainMode] = useState<"DEPOSITS" | "DELAYED_DEPOSITS">("DEPOSITS");
+
+  // Filter Pills under Deposits mode: "ALL" | "DEPOSITS" | "WITHDRAWALS"
+  const [depositFilter, setDepositFilter] = useState<"ALL" | "DEPOSITS" | "WITHDRAWALS">("ALL");
+
+  // Search query
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   // Modals & Actions
@@ -71,14 +74,14 @@ export default function AdminTransactionsPage() {
   const [actionSuccessMessage, setActionSuccessMessage] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  // Fetch transactions from API
+  // Fetch all transactions from API
   const fetchTransactions = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
       const params = new URLSearchParams();
-      if (activeTab !== "ALL") params.append("status", activeTab);
-      if (typeFilter !== "ALL") params.append("type", typeFilter);
+      params.append("status", "ALL");
+      params.append("type", "ALL");
       if (searchQuery.trim()) params.append("search", searchQuery.trim());
 
       const res = await fetch(`/api/admin/transactions?${params.toString()}`);
@@ -88,15 +91,14 @@ export default function AdminTransactionsPage() {
         throw new Error(data.error || "Failed to load transactions.");
       }
 
-      setTransactions(data.transactions || []);
-      setCounts(data.counts || { pending: 0, total: 0 });
+      setAllTransactions(data.transactions || []);
     } catch (err: any) {
       console.error("Fetch transactions error:", err);
       setError(err.message || "Failed to fetch transactions.");
     } finally {
       setIsLoading(false);
     }
-  }, [activeTab, typeFilter, searchQuery]);
+  }, [searchQuery]);
 
   useEffect(() => {
     fetchTransactions();
@@ -128,7 +130,7 @@ export default function AdminTransactionsPage() {
       }
 
       setActionSuccessMessage(
-        `Success: Transaction ₹${Number(confirmApproveTx.amount).toLocaleString("en-IN")} for @${confirmApproveTx.user.username} has been APPROVED and credited.`
+        `Success: Transaction ₹${Number(confirmApproveTx.amount).toLocaleString("en-IN")} for @${confirmApproveTx.user.username} has been APPROVED and credited to wallet.`
       );
       setTimeout(() => setActionSuccessMessage(null), 5000);
 
@@ -152,7 +154,7 @@ export default function AdminTransactionsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           transactionId: rejectTx.id,
-          reason: rejectReason.trim() || "Rejected by administrator review",
+          reason: rejectReason || "Rejected by admin",
         }),
       });
 
@@ -163,9 +165,9 @@ export default function AdminTransactionsPage() {
       }
 
       setActionSuccessMessage(
-        `Transaction ${rejectTx.id.slice(-6)} marked as REJECTED.`
+        `Transaction #${rejectTx.id.slice(-8)} was REJECTED.`
       );
-      setTimeout(() => setActionSuccessMessage(null), 4000);
+      setTimeout(() => setActionSuccessMessage(null), 5000);
 
       setRejectTx(null);
       setRejectReason("");
@@ -177,26 +179,53 @@ export default function AdminTransactionsPage() {
     }
   };
 
-  // Compute decision stats
-  const totalInList = transactions.length;
-  const approvedInList = transactions.filter((t) => t.status === "APPROVED").length;
-  const decisionRatio = totalInList > 0 ? Math.round((approvedInList / totalInList) * 100) : 100;
+  // Filter transactions based on active mode & pills
+  const pendingQueue = useMemo(() => {
+    return allTransactions.filter((tx) => {
+      if (tx.status !== "PENDING") return false;
+
+      if (mainMode === "DELAYED_DEPOSITS") {
+        return tx.isLateSubmission === true;
+      }
+
+      // In Normal Deposits mode:
+      // Exclude late submissions if desired or show standard real-time deposits
+      if (tx.isLateSubmission) return false;
+
+      if (depositFilter === "DEPOSITS") return tx.type === "DEPOSIT";
+      if (depositFilter === "WITHDRAWALS") return tx.type === "WITHDRAWAL";
+      return true; // "ALL"
+    });
+  }, [allTransactions, mainMode, depositFilter]);
+
+  const historyLogs = useMemo(() => {
+    return allTransactions.filter((tx) => tx.status === "APPROVED" || tx.status === "REJECTED");
+  }, [allTransactions]);
+
+  const delayedPendingCount = useMemo(() => {
+    return allTransactions.filter((tx) => tx.status === "PENDING" && tx.isLateSubmission).length;
+  }, [allTransactions]);
+
+  const normalPendingCount = useMemo(() => {
+    return allTransactions.filter((tx) => tx.status === "PENDING" && !tx.isLateSubmission).length;
+  }, [allTransactions]);
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-6 pb-12 max-w-7xl mx-auto">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#131722] border border-[#1e2433] rounded-2xl p-4 sm:p-5 shadow-lg">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-black text-white tracking-wide">
-              Financial Verification Desk
+            <CreditCard className="w-5 h-5 text-amber-400" />
+            <h1 className="text-lg sm:text-xl font-black text-white tracking-wide">
+              Deposit & Withdrawal Desk
             </h1>
-            <span className="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-amber-500/15 border border-amber-500/30 text-amber-400 font-mono">
+            <span className="px-2 py-0.5 text-[10px] font-black uppercase tracking-wider bg-amber-500/15 text-amber-300 border border-amber-500/30 rounded-md">
               Live Gateway
             </span>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Audit player payment receipts, inspect late UTR submissions, zoom payment screenshots & credit wallets.
+            Real-time deposit queues, late UTR proofs, instant wallet credits and settlement ledger.
           </p>
         </div>
 
@@ -204,7 +233,7 @@ export default function AdminTransactionsPage() {
           <button
             onClick={() => fetchTransactions()}
             disabled={isLoading}
-            className="flex items-center gap-2 px-3.5 py-2 bg-[#131722] hover:bg-[#1c2233] text-slate-200 text-xs font-semibold rounded-xl border border-[#1e2433] transition-all shadow-sm"
+            className="flex items-center gap-2 px-3.5 py-2 bg-[#0e1017] hover:bg-[#1c2233] text-slate-200 text-xs font-semibold rounded-xl border border-[#1e2433] transition-all shadow-sm"
           >
             <RefreshCw className={`w-3.5 h-3.5 text-amber-400 ${isLoading ? "animate-spin" : ""}`} />
             <span>Refresh Ledger</span>
@@ -228,286 +257,278 @@ export default function AdminTransactionsPage() {
         </div>
       )}
 
-      {/* Decision Ratio & Quick Stats Bar */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-[#131722] border border-[#1e2433] rounded-xl p-3.5">
-          <span className="text-[10px] font-mono uppercase text-slate-400">Pending Review</span>
-          <p className="text-lg font-bold text-amber-400 font-mono mt-0.5">
-            {counts.pending} Queued
-          </p>
-        </div>
-        <div className="bg-[#131722] border border-[#1e2433] rounded-xl p-3.5">
-          <span className="text-[10px] font-mono uppercase text-slate-400">Total In Filter</span>
-          <p className="text-lg font-bold text-white font-mono mt-0.5">
-            {transactions.length} Records
-          </p>
-        </div>
-        <div className="bg-[#131722] border border-[#1e2433] rounded-xl p-3.5">
-          <span className="text-[10px] font-mono uppercase text-slate-400">Decision Ratio</span>
-          <p className="text-lg font-bold text-cyan-400 font-mono mt-0.5">
-            {decisionRatio}% Approval
-          </p>
-        </div>
-        <div className="bg-[#131722] border border-[#1e2433] rounded-xl p-3.5">
-          <span className="text-[10px] font-mono uppercase text-slate-400">Gateway Status</span>
-          <p className="text-lg font-bold text-emerald-400 font-mono mt-0.5">
-            ● Atomic Sync
-          </p>
-        </div>
-      </div>
-
-      {/* Filter and Control Bar */}
-      <div className="bg-[#131722] border border-[#1e2433] rounded-2xl p-4 space-y-4 shadow-md">
-        {/* Status Tabs */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#1e2433] pb-3">
-          <div className="flex flex-wrap gap-1.5 bg-[#0e1017] p-1 rounded-xl border border-[#1e2433]">
-            {[
-              { id: "PENDING", label: "Pending Approval", badge: counts.pending },
-              { id: "APPROVED", label: "Approved" },
-              { id: "REJECTED", label: "Rejected" },
-              { id: "ALL", label: "All Records", badge: counts.total },
-            ].map((tab) => {
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                    isActive
-                      ? "bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm"
-                      : "text-slate-400 hover:text-slate-200"
+      {/* ========================================================
+          1. TOP CONTAINER: MODE TABS, SUB-PILLS & PENDING QUEUE
+          ======================================================== */}
+      <div className="bg-[#131722] border border-[#1e2433] rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
+        {/* Main Mode Tabs & Filter Controls */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-[#1e2433] pb-4">
+          {/* Main Mode Tabs: Deposits vs Delayed Deposits */}
+          <div className="flex items-center gap-2 bg-[#0e1017] p-1.5 rounded-xl border border-[#1e2433] self-start">
+            <button
+              onClick={() => setMainMode("DEPOSITS")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+                mainMode === "DEPOSITS"
+                  ? "bg-amber-500 text-black shadow-md shadow-amber-500/20"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <Inbox className="w-3.5 h-3.5" />
+              <span>Deposits</span>
+              {normalPendingCount > 0 && (
+                <span
+                  className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
+                    mainMode === "DEPOSITS" ? "bg-black text-amber-400" : "bg-amber-500 text-black"
                   }`}
                 >
-                  <span>{tab.label}</span>
-                  {tab.badge !== undefined && tab.badge > 0 && (
-                    <span
-                      className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
-                        tab.id === "PENDING"
-                          ? "bg-amber-500 text-black font-extrabold"
-                          : "bg-slate-700 text-slate-300"
+                  {normalPendingCount}
+                </span>
+              )}
+            </button>
+
+            <button
+              onClick={() => setMainMode("DELAYED_DEPOSITS")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+                mainMode === "DELAYED_DEPOSITS"
+                  ? "bg-rose-500 text-white shadow-md shadow-rose-500/20"
+                  : "text-slate-400 hover:text-white"
+              }`}
+            >
+              <Clock className="w-3.5 h-3.5" />
+              <span>Delayed Deposits</span>
+              {delayedPendingCount > 0 && (
+                <span
+                  className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
+                    mainMode === "DELAYED_DEPOSITS" ? "bg-white text-rose-600" : "bg-rose-500 text-white"
+                  }`}
+                >
+                  {delayedPendingCount}
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* Under Deposits: 3 Filter Pills + Search */}
+          <div className="flex flex-wrap items-center gap-2.5">
+            {mainMode === "DEPOSITS" && (
+              <div className="flex items-center gap-1 bg-[#0e1017] p-1 rounded-xl border border-[#1e2433]">
+                {[
+                  { id: "ALL", label: "ALL" },
+                  { id: "DEPOSITS", label: "DEPOSITS" },
+                  { id: "WITHDRAWALS", label: "WITHDRAWALS" },
+                ].map((pill) => {
+                  const isSelected = depositFilter === pill.id;
+                  return (
+                    <button
+                      key={pill.id}
+                      onClick={() => setDepositFilter(pill.id as any)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold tracking-wider transition-all ${
+                        isSelected
+                          ? "bg-[#1e2433] text-amber-300 border border-amber-500/40 shadow-sm"
+                          : "text-slate-400 hover:text-slate-200"
                       }`}
                     >
-                      {tab.badge}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
+                      {pill.label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
 
-          {/* Type Toggle (Deposit / Withdrawal) */}
-          <div className="flex items-center gap-1 bg-[#0e1017] p-1 rounded-xl border border-[#1e2433]">
-            {[
-              { id: "DEPOSIT", label: "Recharges (Deposits)" },
-              { id: "WITHDRAWAL", label: "Withdrawals" },
-              { id: "ALL", label: "Both" },
-            ].map((t) => {
-              const isSelected = typeFilter === t.id;
-              return (
-                <button
-                  key={t.id}
-                  onClick={() => setTypeFilter(t.id as any)}
-                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
-                    isSelected
-                      ? "bg-[#1e2433] text-white shadow-sm"
-                      : "text-slate-400 hover:text-slate-200"
-                  }`}
-                >
-                  {t.label}
-                </button>
-              );
-            })}
+            {/* Quick Search */}
+            <div className="relative min-w-[240px] flex-1 sm:flex-initial">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                <Search className="w-3.5 h-3.5" />
+              </div>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search UTR, User, ID..."
+                className="w-full pl-9 pr-3 py-1.5 bg-[#0e1017] border border-[#1e2433] rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/60 font-mono"
+              />
+            </div>
           </div>
         </div>
 
-        {/* Search Bar */}
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
-            <Search className="w-4 h-4" />
+        {/* Section Header */}
+        <div className="flex items-center justify-between pt-1">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+            <h2 className="text-sm font-bold text-white uppercase tracking-wider font-mono">
+              {mainMode === "DEPOSITS" ? "Pending Real-Time Requests" : "Pending Delayed / Late UTR Submissions"}
+            </h2>
+            <span className="text-xs text-slate-400 font-mono">
+              ({pendingQueue.length} pending)
+            </span>
           </div>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by UTR Number, Username, Phone, or Transaction ID..."
-            className="w-full pl-10 pr-4 py-2 bg-[#0e1017] border border-[#1e2433] rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/60 font-mono"
-          />
+          <span className="text-[11px] text-amber-400 font-mono">
+            1-Click Approval credits user wallet immediately
+          </span>
         </div>
-      </div>
 
-      {/* Main Table */}
-      <div className="bg-[#131722] border border-[#1e2433] rounded-2xl overflow-hidden shadow-xl">
-        <div className="overflow-x-auto custom-scrollbar">
-          <table className="w-full text-left text-xs">
-            <thead>
-              <tr className="bg-[#0e1017] border-b border-[#1e2433] text-slate-400 font-mono uppercase text-[11px]">
-                <th className="py-3 px-4">TX ID & Date</th>
-                <th className="py-3 px-4">Player Details</th>
-                <th className="py-3 px-4">Amount & Type</th>
-                <th className="py-3 px-4">UTR / Method</th>
-                <th className="py-3 px-4">Receipt Proof</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#1e2433]">
-              {isLoading ? (
-                <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-400">
-                    <RefreshCw className="w-6 h-6 animate-spin text-amber-400 mx-auto mb-2" />
-                    <p className="font-mono text-xs">Loading transaction records...</p>
-                  </td>
+        {/* Pending Requests Table */}
+        <div className="border border-[#1e2433] rounded-xl overflow-hidden bg-[#0e1017]">
+          <div className="overflow-x-auto custom-scrollbar">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="bg-[#131722] border-b border-[#1e2433] text-slate-400 font-mono uppercase text-[10px]">
+                  <th className="py-3 px-4">TX ID & Time</th>
+                  <th className="py-3 px-4">Player</th>
+                  <th className="py-3 px-4">Amount & Type</th>
+                  <th className="py-3 px-4">UTR / Method</th>
+                  <th className="py-3 px-4">Receipt Proof</th>
+                  <th className="py-3 px-4">Status</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
-              ) : transactions.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-400 font-mono">
-                    No transactions matching your current criteria.
-                  </td>
-                </tr>
-              ) : (
-                transactions.map((tx) => (
-                  <tr key={tx.id} className="hover:bg-[#181d2b]/60 transition-colors">
-                    {/* 1. TX ID & Date */}
-                    <td className="py-3.5 px-4 font-mono">
-                      <div className="flex items-center gap-1.5 font-bold text-slate-200">
-                        <span>#{tx.id.slice(-8)}</span>
-                        <button
-                          onClick={() => handleCopy(tx.id, `tx-${tx.id}`)}
-                          className="text-slate-500 hover:text-slate-300"
-                        >
-                          {copiedId === `tx-${tx.id}` ? (
-                            <Check className="w-3 h-3 text-emerald-400" />
-                          ) : (
-                            <Copy className="w-3 h-3" />
-                          )}
-                        </button>
-                      </div>
-                      <div className="text-[10px] text-slate-500 mt-0.5">
-                        {new Date(tx.createdAt).toLocaleDateString("en-IN", {
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </div>
+              </thead>
+              <tbody className="divide-y divide-[#1e2433]">
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={7} className="py-10 text-center text-slate-400">
+                      <RefreshCw className="w-5 h-5 animate-spin text-amber-400 mx-auto mb-2" />
+                      <p className="font-mono text-xs">Checking live queues...</p>
                     </td>
-
-                    {/* 2. Player Details */}
-                    <td className="py-3.5 px-4">
-                      <div className="font-bold text-white flex items-center gap-1.5">
-                        <span>{tx.user?.username || "Player"}</span>
-                      </div>
-                      <div className="text-[10px] text-slate-400 font-mono">
-                        {tx.user?.phone || tx.user?.email || "No contact"}
-                      </div>
-                      <div className="text-[10px] text-emerald-400 font-mono mt-0.5">
-                        Bal: ₹{Number(tx.user?.currentBalance || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                      </div>
+                  </tr>
+                ) : pendingQueue.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="py-12 text-center text-slate-400 font-mono">
+                      <CheckCircle className="w-8 h-8 text-emerald-400/50 mx-auto mb-2" />
+                      <p className="text-slate-300 font-bold">No Pending Requests in this Queue</p>
+                      <p className="text-[11px] text-slate-500 mt-0.5">All deposits have been reviewed or settled.</p>
                     </td>
-
-                    {/* 3. Amount & Type */}
-                    <td className="py-3.5 px-4 font-mono">
-                      <div className="text-sm font-black text-white">
-                        ₹{Number(tx.amount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                      </div>
-                      <span
-                        className={`inline-block px-1.5 py-0.2 rounded text-[9px] font-bold mt-0.5 ${
-                          tx.type === "DEPOSIT"
-                            ? "bg-violet-500/20 text-violet-300 border border-violet-500/30"
-                            : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                        }`}
-                      >
-                        {tx.type}
-                      </span>
-                    </td>
-
-                    {/* 4. UTR / Method */}
-                    <td className="py-3.5 px-4 font-mono">
-                      {tx.utrNumber ? (
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-bold text-amber-300 bg-[#0e1017] px-2 py-0.5 rounded border border-[#1e2433]">
-                            {tx.utrNumber}
-                          </span>
+                  </tr>
+                ) : (
+                  pendingQueue.map((tx) => (
+                    <tr key={tx.id} className="hover:bg-[#161a27] transition-colors">
+                      {/* TX ID & Time */}
+                      <td className="py-3 px-4 font-mono">
+                        <div className="flex items-center gap-1.5 font-bold text-slate-200">
+                          <span>#{tx.id.slice(-8)}</span>
                           <button
-                            onClick={() => handleCopy(tx.utrNumber || "", `utr-${tx.id}`)}
+                            onClick={() => handleCopy(tx.id, `tx-${tx.id}`)}
                             className="text-slate-500 hover:text-slate-300"
+                            title="Copy Transaction ID"
                           >
-                            {copiedId === `utr-${tx.id}` ? (
+                            {copiedId === `tx-${tx.id}` ? (
                               <Check className="w-3 h-3 text-emerald-400" />
                             ) : (
                               <Copy className="w-3 h-3" />
                             )}
                           </button>
                         </div>
-                      ) : (
-                        <span className="text-slate-600">—</span>
-                      )}
+                        <div className="text-[10px] text-slate-500 mt-0.5">
+                          {new Date(tx.createdAt).toLocaleDateString("en-IN", {
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </div>
+                      </td>
 
-                      <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                        {tx.method && tx.method.includes("PROMO") ? (
-                          <span className="text-[10px] text-amber-300 bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.5 rounded font-bold">
-                            {tx.method}
-                          </span>
-                        ) : (
-                          <span className="text-[10px] text-slate-400 uppercase">
-                            {tx.method || "UPI"}
-                          </span>
-                        )}
-                        {tx.isLateSubmission && (
-                          <span className="px-1.5 py-0.2 rounded text-[9px] font-black bg-rose-500/20 text-rose-300 border border-rose-500/30">
-                            Late UTR
-                          </span>
-                        )}
-                      </div>
-                    </td>
+                      {/* Player */}
+                      <td className="py-3 px-4">
+                        <div className="font-bold text-white flex items-center gap-1.5">
+                          <span>@{tx.user?.username || "Player"}</span>
+                        </div>
+                        <div className="text-[10px] text-slate-400 font-mono">
+                          {tx.user?.phone || tx.user?.email || "No contact"}
+                        </div>
+                        <div className="text-[10px] text-emerald-400 font-mono mt-0.5">
+                          Bal: ₹{Number(tx.user?.currentBalance || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                        </div>
+                      </td>
 
-                    {/* 5. Screenshot Proof */}
-                    <td className="py-3.5 px-4">
-                      {tx.screenshotUrl ? (
-                        <button
-                          onClick={() => {
-                            setPreviewImage(tx.screenshotUrl);
-                            setZoomLevel(1);
-                          }}
-                          className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#0e1017] hover:bg-[#1c2233] text-cyan-300 border border-cyan-500/30 text-[11px] font-semibold transition-colors"
+                      {/* Amount & Type */}
+                      <td className="py-3 px-4 font-mono">
+                        <div className="text-sm font-black text-white">
+                          ₹{Number(tx.amount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                        </div>
+                        <span
+                          className={`inline-block px-1.5 py-0.2 rounded text-[9px] font-bold mt-0.5 ${
+                            tx.type === "DEPOSIT"
+                              ? "bg-violet-500/20 text-violet-300 border border-violet-500/30"
+                              : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                          }`}
                         >
-                          <Eye className="w-3 h-3" />
-                          <span>View Proof</span>
-                        </button>
-                      ) : (
-                        <span className="text-slate-600 font-mono text-[11px]">No Upload</span>
-                      )}
-                    </td>
+                          {tx.type}
+                        </span>
+                      </td>
 
-                    {/* 6. Status Badge */}
-                    <td className="py-3.5 px-4">
-                      {tx.status === "PENDING" && (
+                      {/* UTR / Method */}
+                      <td className="py-3 px-4 font-mono">
+                        {tx.utrNumber ? (
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-bold text-amber-300 bg-[#131722] px-2 py-0.5 rounded border border-[#1e2433]">
+                              {tx.utrNumber}
+                            </span>
+                            <button
+                              onClick={() => handleCopy(tx.utrNumber || "", `utr-${tx.id}`)}
+                              className="text-slate-500 hover:text-slate-300"
+                              title="Copy UTR"
+                            >
+                              {copiedId === `utr-${tx.id}` ? (
+                                <Check className="w-3 h-3 text-emerald-400" />
+                              ) : (
+                                <Copy className="w-3 h-3" />
+                              )}
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-slate-600">—</span>
+                        )}
+
+                        <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                          {tx.method && tx.method.includes("PROMO") ? (
+                            <span className="text-[10px] text-amber-300 bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.5 rounded font-bold">
+                              {tx.method}
+                            </span>
+                          ) : (
+                            <span className="text-[10px] text-slate-400 uppercase">
+                              {tx.method || "UPI"}
+                            </span>
+                          )}
+                          {tx.isLateSubmission && (
+                            <span className="px-1.5 py-0.2 rounded text-[9px] font-black bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                              Late Submission
+                            </span>
+                          )}
+                        </div>
+                      </td>
+
+                      {/* Screenshot Proof */}
+                      <td className="py-3 px-4">
+                        {tx.screenshotUrl ? (
+                          <button
+                            onClick={() => {
+                              setPreviewImage(tx.screenshotUrl);
+                              setZoomLevel(1);
+                            }}
+                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#131722] hover:bg-[#1f2538] text-cyan-300 border border-cyan-500/30 text-[11px] font-semibold transition-colors"
+                          >
+                            <Eye className="w-3 h-3" />
+                            <span>View Proof</span>
+                          </button>
+                        ) : (
+                          <span className="text-slate-600 font-mono text-[11px]">No Upload</span>
+                        )}
+                      </td>
+
+                      {/* Status */}
+                      <td className="py-3 px-4">
                         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">
                           <Clock className="w-3 h-3" />
-                          Pending
+                          Pending Review
                         </span>
-                      )}
-                      {tx.status === "APPROVED" && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-                          <CheckCircle className="w-3 h-3" />
-                          Approved
-                        </span>
-                      )}
-                      {tx.status === "REJECTED" && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-500/15 text-rose-300 border border-rose-500/30">
-                          <XCircle className="w-3 h-3" />
-                          Rejected
-                        </span>
-                      )}
-                    </td>
+                      </td>
 
-                    {/* 7. Action Buttons */}
-                    <td className="py-3.5 px-4 text-right">
-                      {tx.status === "PENDING" ? (
+                      {/* Actions: 1-Click Approve & Reject */}
+                      <td className="py-3 px-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
                           <button
                             onClick={() => setConfirmApproveTx(tx)}
-                            className="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-[11px] font-bold transition-all active:scale-95 shadow-sm"
+                            className="px-3 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-[11px] transition-all active:scale-95 shadow-sm shadow-emerald-500/20"
                           >
                             Approve
                           </button>
@@ -516,22 +537,197 @@ export default function AdminTransactionsPage() {
                               setRejectTx(tx);
                               setRejectReason("");
                             }}
-                            className="px-2.5 py-1 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 text-[11px] font-bold transition-all active:scale-95 shadow-sm"
+                            className="px-2.5 py-1 rounded-lg bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 text-[11px] font-bold transition-all active:scale-95"
                           >
                             Reject
                           </button>
                         </div>
-                      ) : (
-                        <span className="text-[11px] font-mono text-slate-500">
-                          Resolved
-                        </span>
-                      )}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      {/* ========================================================
+          2. BOTTOM CONTAINER: SEPARATED "TRANSACTION HISTORY" BOX
+          (Approved / Rejected logs with user, amount, status badge)
+          ======================================================== */}
+      <div className="bg-[#131722] border border-[#1e2433] rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
+        <div className="flex items-center justify-between border-b border-[#1e2433] pb-3">
+          <div className="flex items-center gap-2">
+            <History className="w-4 h-4 text-cyan-400" />
+            <h2 className="text-sm font-bold text-white uppercase tracking-wider font-mono">
+              Transaction History & Audit Log
+            </h2>
+            <span className="px-2 py-0.5 text-[10px] font-mono text-slate-400 bg-[#0e1017] rounded-md border border-[#1e2433]">
+              {historyLogs.length} Settled
+            </span>
+          </div>
+          <span className="text-xs text-slate-500 font-mono">
+            Approved & Rejected records
+          </span>
+        </div>
+
+        <div className="border border-[#1e2433] rounded-xl overflow-hidden bg-[#0e1017]">
+          <div className="overflow-x-auto custom-scrollbar">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="bg-[#131722] border-b border-[#1e2433] text-slate-400 font-mono uppercase text-[10px]">
+                  <th className="py-3 px-4">TX ID & Date</th>
+                  <th className="py-3 px-4">Player</th>
+                  <th className="py-3 px-4">Amount & Type</th>
+                  <th className="py-3 px-4">UTR / Method</th>
+                  <th className="py-3 px-4">Receipt Proof</th>
+                  <th className="py-3 px-4">Settlement Status</th>
+                  <th className="py-3 px-4 text-right">Settled By</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#1e2433]">
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={7} className="py-8 text-center text-slate-400 font-mono text-xs">
+                      Loading history...
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : historyLogs.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="py-10 text-center text-slate-500 font-mono">
+                      No settled transaction history found.
+                    </td>
+                  </tr>
+                ) : (
+                  historyLogs.slice(0, 50).map((tx) => (
+                    <tr key={tx.id} className="hover:bg-[#161a27] transition-colors">
+                      {/* TX ID & Date */}
+                      <td className="py-3 px-4 font-mono">
+                        <div className="flex items-center gap-1.5 font-bold text-slate-300">
+                          <span>#{tx.id.slice(-8)}</span>
+                          <button
+                            onClick={() => handleCopy(tx.id, `hist-${tx.id}`)}
+                            className="text-slate-500 hover:text-slate-300"
+                          >
+                            {copiedId === `hist-${tx.id}` ? (
+                              <Check className="w-3 h-3 text-emerald-400" />
+                            ) : (
+                              <Copy className="w-3 h-3" />
+                            )}
+                          </button>
+                        </div>
+                        <div className="text-[10px] text-slate-500 mt-0.5">
+                          {new Date(tx.createdAt).toLocaleDateString("en-IN", {
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </div>
+                      </td>
+
+                      {/* Player */}
+                      <td className="py-3 px-4">
+                        <div className="font-bold text-white">
+                          @{tx.user?.username || "Player"}
+                        </div>
+                        <div className="text-[10px] text-slate-400 font-mono">
+                          {tx.user?.phone || tx.user?.email || "No contact"}
+                        </div>
+                      </td>
+
+                      {/* Amount & Type */}
+                      <td className="py-3 px-4 font-mono">
+                        <div className="text-xs font-bold text-white">
+                          ₹{Number(tx.amount).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                        </div>
+                        <span
+                          className={`inline-block px-1.5 py-0.2 rounded text-[9px] font-bold mt-0.5 ${
+                            tx.type === "DEPOSIT"
+                              ? "bg-violet-500/20 text-violet-300 border border-violet-500/30"
+                              : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                          }`}
+                        >
+                          {tx.type}
+                        </span>
+                      </td>
+
+                      {/* UTR / Method */}
+                      <td className="py-3 px-4 font-mono">
+                        {tx.utrNumber ? (
+                          <span className="font-bold text-slate-300 bg-[#131722] px-1.5 py-0.5 rounded border border-[#1e2433]">
+                            {tx.utrNumber}
+                          </span>
+                        ) : (
+                          <span className="text-slate-600">—</span>
+                        )}
+                        <div className="text-[10px] text-slate-500 uppercase mt-0.5">
+                          {tx.method || "UPI"}
+                        </div>
+                      </td>
+
+                      {/* Receipt Proof */}
+                      <td className="py-3 px-4">
+                        {tx.screenshotUrl ? (
+                          <button
+                            onClick={() => {
+                              setPreviewImage(tx.screenshotUrl);
+                              setZoomLevel(1);
+                            }}
+                            className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-[#131722] hover:bg-[#1f2538] text-cyan-300 border border-cyan-500/30 text-[10px] font-semibold transition-colors"
+                          >
+                            <Eye className="w-3 h-3" />
+                            <span>Proof</span>
+                          </button>
+                        ) : (
+                          <span className="text-slate-600 font-mono text-[10px]">—</span>
+                        )}
+                      </td>
+
+                      {/* Settlement Status */}
+                      <td className="py-3 px-4">
+                        {tx.status === "APPROVED" && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                            <CheckCircle className="w-3 h-3" />
+                            Approved
+                          </span>
+                        )}
+                        {tx.status === "REJECTED" && (
+                          <div>
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/15 text-rose-300 border border-rose-500/30">
+                              <XCircle className="w-3 h-3" />
+                              Rejected
+                            </span>
+                            {tx.rejectionReason && (
+                              <p className="text-[10px] text-rose-400 font-mono mt-0.5 max-w-xs truncate" title={tx.rejectionReason}>
+                                {tx.rejectionReason}
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </td>
+
+                      {/* Settled By / Date */}
+                      <td className="py-3 px-4 text-right font-mono text-[10px] text-slate-400">
+                        <div>{tx.approvedBy ? `@${tx.approvedBy}` : "System / Admin"}</div>
+                        {tx.approvedAt && (
+                          <div className="text-slate-500">
+                            {new Date(tx.approvedAt).toLocaleDateString("en-IN", {
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 

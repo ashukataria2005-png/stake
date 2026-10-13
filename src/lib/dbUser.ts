@@ -141,8 +141,8 @@ export async function getOrCreateUser(
       create: {
         userId: user.id,
         currency: "INR",
-        balance: 10000.0,
-        totalDeposited: 10000.0,
+        balance: 0.00,
+        totalDeposited: 0.00,
       },
     });
 
@@ -158,8 +158,8 @@ export async function getOrCreateUser(
       create: {
         userId: user.id,
         currency: "USD",
-        balance: 115.6,
-        totalDeposited: 115.6,
+        balance: 0.00,
+        totalDeposited: 0.00,
       },
     });
 

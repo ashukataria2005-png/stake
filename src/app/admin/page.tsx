@@ -150,8 +150,8 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Exactly 6 Compact Boxes in 2-Row x 3-Column Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {/* Strictly 2 Rows x 3 Columns (6 Compact Boxes) */}
+        <div className="grid grid-cols-3 grid-rows-2 gap-3">
           {/* Box 1: Today's Revenue (₹) */}
           <div className="bg-[#0f212e] border border-[#213743] hover:border-amber-500/40 rounded-xl p-3 sm:p-3.5 transition-colors shadow-sm flex flex-col justify-between">
             <div className="flex items-center justify-between mb-1">
@@ -463,8 +463,8 @@ export default function AdminDashboardPage() {
           </h2>
         </div>
 
-        {/* Exactly 6 Compact Boxes in 2-Row x 3-Column Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {/* Strictly 2 Rows x 3 Columns (6 Compact Boxes) */}
+        <div className="grid grid-cols-3 grid-rows-2 gap-3">
           {/* Box 1: Total Revenue (₹) */}
           <div className="bg-[#0f212e] border border-[#213743] hover:border-amber-500/40 rounded-xl p-3 sm:p-3.5 transition-colors shadow-sm flex flex-col justify-between">
             <div className="flex items-center justify-between mb-1">
