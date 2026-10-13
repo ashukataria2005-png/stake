@@ -12,3 +12,4 @@ export * from "./smartsoft";
 export * from "./hp100";
 export * from "./jili";
 export * from "./evoplay";
+export * from "./chicken";

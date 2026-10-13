@@ -93,56 +93,66 @@ export default function AdminFinancePage() {
         </button>
       </div>
 
-      {/* 4 Core Financial Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* 4 Core Financial Metric Cards (Compact Dashboard Standard Scale) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Total Platform Revenue */}
-        <div className="bg-[#131722] border border-[#1e2433] rounded-2xl p-5 shadow-lg">
-          <div className="text-[11px] font-mono text-slate-400 uppercase">Total Platform Revenue</div>
-          <div className="text-xl sm:text-2xl font-bold font-mono text-white mt-2">
+        <div className="bg-[#131722] border border-[#1e2433] hover:border-amber-500/40 rounded-xl px-4 py-3.5 shadow-md flex flex-col justify-between min-h-[96px] transition-colors">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] sm:text-[11px] font-mono text-slate-400 uppercase font-bold">Total Revenue</span>
+            <div className="w-5 h-5 rounded-md bg-amber-500/15 text-amber-400 flex items-center justify-center">
+              <DollarSign className="w-3 h-3" />
+            </div>
+          </div>
+          <div className="text-base sm:text-lg font-black font-mono text-white tracking-tight mt-1">
             ₹{totalGrossDeposits.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
           </div>
-          <div className="text-[11px] text-slate-500 mt-1">Gross Inflows Settled</div>
+          <div className="text-[10px] text-slate-500 font-mono">Gross Inflows</div>
         </div>
 
         {/* Gross Deposits */}
-        <div className="bg-[#131722] border border-emerald-500/25 rounded-2xl p-5 shadow-lg">
-          <div className="text-[11px] font-mono text-emerald-400 uppercase font-semibold">Gross Deposits</div>
-          <div className="text-xl sm:text-2xl font-bold font-mono text-emerald-400 mt-2">
+        <div className="bg-[#131722] border border-emerald-500/25 hover:border-emerald-500/40 rounded-xl px-4 py-3.5 shadow-md flex flex-col justify-between min-h-[96px] transition-colors">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] sm:text-[11px] font-mono text-emerald-400 uppercase font-bold">Gross Deposits</span>
+            <div className="w-5 h-5 rounded-md bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
+              <ArrowDownRight className="w-3 h-3" />
+            </div>
+          </div>
+          <div className="text-base sm:text-lg font-black font-mono text-emerald-400 tracking-tight mt-1">
             ₹{totalGrossDeposits.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
           </div>
-          <div className="text-[11px] text-emerald-500/80 mt-1 flex items-center gap-1">
-            <ArrowDownRight className="w-3.5 h-3.5" />
-            <span>Verified UPI / Crypto In</span>
-          </div>
+          <div className="text-[10px] text-emerald-500/80 font-mono">Verified Inflows</div>
         </div>
 
         {/* Gross Withdrawals */}
-        <div className="bg-[#131722] border border-rose-500/25 rounded-2xl p-5 shadow-lg">
-          <div className="text-[11px] font-mono text-rose-400 uppercase font-semibold">Gross Withdrawals</div>
-          <div className="text-xl sm:text-2xl font-bold font-mono text-rose-400 mt-2">
+        <div className="bg-[#131722] border border-rose-500/25 hover:border-rose-500/40 rounded-xl px-4 py-3.5 shadow-md flex flex-col justify-between min-h-[96px] transition-colors">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] sm:text-[11px] font-mono text-rose-400 uppercase font-bold">Gross Withdrawals</span>
+            <div className="w-5 h-5 rounded-md bg-rose-500/15 text-rose-400 flex items-center justify-center">
+              <ArrowUpRight className="w-3 h-3" />
+            </div>
+          </div>
+          <div className="text-base sm:text-lg font-black font-mono text-rose-400 tracking-tight mt-1">
             ₹{totalGrossWithdrawals.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
           </div>
-          <div className="text-[11px] text-rose-500/80 mt-1 flex items-center gap-1">
-            <ArrowUpRight className="w-3.5 h-3.5" />
-            <span>Dispatched Payouts Out</span>
-          </div>
+          <div className="text-[10px] text-rose-500/80 font-mono">Dispatched Out</div>
         </div>
 
         {/* Net Platform Profit / Margin */}
-        <div className={`bg-[#131722] border rounded-2xl p-5 shadow-lg ${
-          netPlatformProfit >= 0 ? "border-cyan-500/30" : "border-rose-500/40"
+        <div className={`bg-[#131722] border rounded-xl px-4 py-3.5 shadow-md flex flex-col justify-between min-h-[96px] transition-colors ${
+          netPlatformProfit >= 0 ? "border-cyan-500/30 hover:border-cyan-500/50" : "border-rose-500/40 hover:border-rose-500/60"
         }`}>
-          <div className="text-[11px] font-mono text-cyan-400 uppercase font-semibold">
-            Net Profit & Margin
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] sm:text-[11px] font-mono text-cyan-400 uppercase font-bold">Net Profit</span>
+            <div className="w-5 h-5 rounded-md bg-cyan-500/15 text-cyan-400 flex items-center justify-center">
+              <TrendingUp className="w-3 h-3" />
+            </div>
           </div>
-          <div className={`text-xl sm:text-2xl font-bold font-mono mt-2 ${
+          <div className={`text-base sm:text-lg font-black font-mono tracking-tight mt-1 ${
             netPlatformProfit >= 0 ? "text-cyan-400" : "text-rose-400"
           }`}>
             ₹{netPlatformProfit.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
           </div>
-          <div className="text-[11px] text-slate-400 mt-1 font-mono">
-            Platform Margin: <span className="font-bold text-white">{netProfitMargin}%</span>
-          </div>
+          <div className="text-[10px] text-slate-400 font-mono">Margin: <span className="font-bold text-white">{netProfitMargin}%</span></div>
         </div>
       </div>
 

@@ -51,12 +51,12 @@ export default function CasinoCategoryPills({
       icon: <Heart className="w-4 h-4 shrink-0" />,
     },
     {
-      id: "only-on-stake",
-      label: "Only on Stake",
+      id: "chicken-games",
+      label: "Chicken Games",
       icon: (
-        <div className="w-3.5 h-3.5 rounded bg-emerald-500 text-[#0f212e] font-black flex items-center justify-center text-[9px] leading-none shrink-0">
-          S
-        </div>
+        <span className="text-base leading-none shrink-0">
+          🐔
+        </span>
       ),
     },
     {

@@ -308,27 +308,41 @@ export default function CategoryGroupView({ slug }: CategoryGroupViewProps) {
           bannerBg: "from-blue-950/70 via-[#1a2c38] to-[#0f212e]",
           icon: <Sparkles className="w-6 h-6 text-blue-400" />,
         };
+      case "chicken-games":
       case "only-on-stake":
         return {
-          title: "Only on Stake",
-          badge: "STAKE EXCLUSIVES",
+          title: "Chicken Games",
+          badge: "CHICKEN & CROSSING",
           playersCount: "52,400",
-          stats: "Exclusive Originals • Enhanced RTP • 2x VIP Points",
+          stats: "Chicken Crossing • Multiplier Hops • Safe Cloche Uncover",
           description:
-            "Games exclusively available on Stake, featuring proprietary mechanics, provably fair algorithms, and custom high-multiplier modes.",
-          initialGames: STAKE_ORIGINALS,
+            "Popular chicken, froggy, and road-crossing games. Hop across roads and dodge bones to multiply your cashout!",
+          initialGames: [
+            ...INOUT_GAMES.filter((g) => g.title?.toLowerCase().includes("chicken") || g.slug?.includes("chicken")),
+            ...HP100_GAMES.filter((g) => g.title?.toLowerCase().includes("chicken")),
+            ...EVOPLAY_GAMES.filter((g) => g.title?.toLowerCase().includes("uncrossable")),
+            ...TURBOGAMES_GAMES.filter((g) => g.title?.toLowerCase().includes("chicken")),
+            ...STAKE_ORIGINALS.filter((g) => g.slug === "chicken"),
+          ],
           bannerBg: "from-amber-950/70 via-[#1a2c38] to-[#0f212e]",
           icon: <Flame className="w-6 h-6 text-amber-400" />,
         };
       case "burst-games":
         return {
           title: "Burst Games",
-          badge: "FAST CRASH SERIES",
-          playersCount: "44,150",
-          stats: "Crash & Instant Win • Multipliers up to 10,000x • High-Speed Action",
+          badge: "CURVE MULTIPLIER CRASH",
+          playersCount: "48,150",
+          stats: "Aviator & JetX • Curve Multipliers up to 10,000x • Instant Cashouts",
           description:
-            "Adrenaline-pumping crash and burst games where the multiplier climbs exponentially before bursting. Cash out before the crash!",
-          initialGames: [...TURBOGAMES_GAMES, ...SPRIBE_GAMES],
+            "Adrenaline-pumping crash and burst games where the multiplier climbs exponentially into the sky. Cash out before it flies away!",
+          initialGames: [
+            ...SPRIBE_GAMES.filter((g) => g.slug === "spribe-aviator"),
+            ...SMARTSOFT_GAMES.filter((g) => g.slug === "jetx" || g.slug === "smartsoft-balloon" || g.slug === "smartsoft-propel-x" || g.slug === "helicopter-x"),
+            ...INOUT_GAMES.filter((g) => g.slug?.includes("aviafly")),
+            ...TURBOGAMES_GAMES.filter((g) => g.slug?.includes("vortex") || g.slug?.includes("crash")),
+            ...STAKE_ORIGINALS.filter((g) => g.slug === "crash"),
+            ...PRAGMATIC_GAMES.filter((g) => g.slug === "spaceman"),
+          ],
           bannerBg: "from-orange-950/70 via-[#1a2c38] to-[#0f212e]",
           icon: <Activity className="w-6 h-6 text-orange-400" />,
         };
@@ -336,11 +350,15 @@ export default function CategoryGroupView({ slug }: CategoryGroupViewProps) {
         return {
           title: "New Releases",
           badge: "FRESH DROPS",
-          playersCount: "38,200",
-          stats: "Latest Slot Additions • Fresh Mechanics • Provider Premieres",
+          playersCount: "42,200",
+          stats: "Fresh Additions • High Production Visuals • Curated Premieres",
           description:
-            "The newest casino slots, table games, and live studios added to our ever-expanding game library.",
-          initialGames: [...PRAGMATIC_GAMES.slice(0, 12), ...HACKSAW_GAMES.slice(0, 10)],
+            "Fresh releases with guaranteed verified artwork, featuring top hits from Evolution, Pragmatic Play, and Hacksaw Gaming.",
+          initialGames: [
+            ...EVOLUTION_GAMES.filter((g) => g.slug === "stock-market" || g.slug === "bac-bo" || g.slug === "super-sic-bo"),
+            ...PRAGMATIC_GAMES.slice(0, 15),
+            ...HACKSAW_GAMES.slice(0, 15),
+          ],
           bannerBg: "from-purple-950/70 via-[#1a2c38] to-[#0f212e]",
           icon: <Sparkles className="w-6 h-6 text-purple-400" />,
         };

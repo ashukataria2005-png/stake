@@ -176,31 +176,30 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user]);
 
-  // Route Changes / Game Navigation: instant background sync when pathname changes
+  // Route Changes / Game Navigation: sync luck settings on route navigation
   useEffect(() => {
     refreshLuckMode();
-    syncWalletBalance();
   }, [pathname, refreshLuckMode]);
 
-  // Silent real-time auto-polling (every 3.5 seconds) for latest Luck/RTP rules and balance
+  // Real-time sync for luck rules (every 5 seconds)
   useEffect(() => {
     refreshLuckMode();
     const luckInterval = setInterval(() => {
       refreshLuckMode();
-    }, 3500);
+    }, 5000);
 
     return () => {
       clearInterval(luckInterval);
     };
   }, [refreshLuckMode]);
 
-  // Timestamp to protect optimistic gameplay deductions/wins from being rolled back by background polling
+  // Timestamp to protect optimistic gameplay deductions/wins from being rolled back by background balance sync
   const lastGameActionRef = useRef<number>(0);
 
   const syncWalletBalance = useCallback(async (force: boolean = false) => {
     try {
-      // If user performed a game action within last 5 seconds and not forced, let optimistic balance stay active
-      if (!force && Date.now() - lastGameActionRef.current < 5000) {
+      // If user performed a game action within last 15 seconds and not explicitly forced, keep optimistic balance intact
+      if (!force && Date.now() - lastGameActionRef.current < 15000) {
         return;
       }
 
@@ -237,12 +236,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user]);
 
-  // Periodic polling & event-driven live balance sync (every 3.5 seconds)
+  // Initial mount & event-driven live balance sync (deposits, approval events, window focus)
   useEffect(() => {
     syncWalletBalance();
-    const interval = setInterval(() => {
-      syncWalletBalance();
-    }, 3500);
 
     const handleRefresh = () => {
       syncWalletBalance(true);
@@ -253,7 +249,6 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     window.addEventListener("focus", handleRefresh);
 
     return () => {
-      clearInterval(interval);
       window.removeEventListener("stake_wallet_refresh", handleRefresh);
       window.removeEventListener("stake_deposit_orders_updated", handleRefresh);
       window.removeEventListener("focus", handleRefresh);

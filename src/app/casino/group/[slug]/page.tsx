@@ -23,6 +23,7 @@ export function generateStaticParams() {
     { slug: "hacksaw" },
     { slug: "hacksaw-gaming" },
     { slug: "only-on-stake" },
+    { slug: "chicken-games" },
     { slug: "new-releases" },
     { slug: "burst-games" },
   ];
