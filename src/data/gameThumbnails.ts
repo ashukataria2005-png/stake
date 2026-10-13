@@ -518,6 +518,7 @@ export const HACKSAW_THUMBNAILS: Record<string, string> = {
   "chaos-crew-2": "/games/hacksaw/chaos-crew-2.webp",
   "rip-city": "/games/hacksaw/rip-city.webp",
   "dork-unit": "/games/hacksaw/dork-unit.webp",
+  "dork-show": "/games/hacksaw/dork-show.webp",
   "rotten": "/games/hacksaw/rotten.webp",
   "hand-of-anubis": "/games/hacksaw/hand-of-anubis.webp",
   "gladiator-legends": "/games/hacksaw/gladiator-legends.webp",
