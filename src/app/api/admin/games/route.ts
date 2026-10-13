@@ -69,6 +69,44 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Missing gameName" }, { status: 400 });
     }
 
+    const defaultGames = [
+      "GLOBAL",
+      "Mines",
+      "Crash",
+      "Dice",
+      "Limbo",
+      "Plinko",
+      "Roulette",
+      "Blackjack",
+      "Keno",
+      "Wheel",
+      "Dragon Tower",
+      "HiLo",
+      "Video Poker",
+    ];
+
+    if (gameName === "ALL" || gameName === "ALL_GAMES") {
+      for (const g of defaultGames) {
+        await prisma.gameControl.upsert({
+          where: { gameName: g },
+          update: {
+            mode: mode || "NORMAL",
+            isActive: true,
+          },
+          create: {
+            gameName: g,
+            mode: mode || "NORMAL",
+            houseEdgePercent: 2.5,
+            isActive: true,
+          },
+        });
+      }
+      return NextResponse.json({
+        success: true,
+        message: `Updated all games to mode: ${mode}`,
+      });
+    }
+
     const updated = await prisma.gameControl.upsert({
       where: { gameName },
       update: {

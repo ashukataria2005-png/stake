@@ -258,6 +258,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
           {/* Right: Pending Bell with ₹ Symbol + Clean Sign Out Icon Only */}
           <div className="flex items-center gap-2 sm:gap-2.5">
+            {/* Clean Refresh Metrics Icon Button */}
+            <button
+              onClick={() => {
+                window.dispatchEvent(new Event("stake_admin_refresh_metrics"));
+              }}
+              aria-label="Refresh Metrics"
+              title="Refresh Metrics"
+              className="p-2 rounded-xl bg-[#213743] hover:bg-[#2a4454] text-amber-400 hover:text-amber-300 border border-[#2f4553] transition-all active:scale-95 shadow-sm"
+            >
+              <RefreshCw className="w-4 h-4" />
+            </button>
+
             {/* PENDING REQUESTS BELL ICON WITH "₹" SYMBOL */}
             <Link
               href="/admin/transactions"

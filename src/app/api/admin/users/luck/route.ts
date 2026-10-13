@@ -10,10 +10,10 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { userId, luckMode } = body;
+    const { userId, userIds, luckMode } = body;
 
-    if (!userId || !luckMode) {
-      return NextResponse.json({ success: false, error: "Missing userId or luckMode" }, { status: 400 });
+    if ((!userId && (!userIds || !userIds.length)) || !luckMode) {
+      return NextResponse.json({ success: false, error: "Missing userId/userIds or luckMode" }, { status: 400 });
     }
 
     const validModes = ["HIGH_WIN", "MEDIUM_WIN", "LOW_WIN", "NO_CONTROL"];
@@ -21,21 +21,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Invalid luckMode value" }, { status: 400 });
     }
 
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        luckMode,
-      },
+    const targets = Array.isArray(userIds) ? userIds : [userId];
+
+    await prisma.user.updateMany({
+      where: { id: { in: targets } },
+      data: { luckMode },
     });
 
     return NextResponse.json({
       success: true,
-      message: `User @${updatedUser.username} luck mode set to ${luckMode}`,
-      user: {
-        id: updatedUser.id,
-        username: updatedUser.username,
-        luckMode: updatedUser.luckMode,
-      },
+      message: `Updated luck mode to ${luckMode} for ${targets.length} user(s)`,
     });
   } catch (err: any) {
     console.error("[Admin Luck Mode Update Error]:", err);

@@ -1,21 +1,26 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
-import Link from "next/link";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Users,
   Search,
   Wallet,
-  Coins,
-  Sliders,
   RefreshCw,
   PlusCircle,
   MinusCircle,
   X,
   Check,
   AlertCircle,
-  Sparkles,
-  ShieldAlert,
+  Sliders,
+  Trash2,
+  Eye,
+  ShieldCheck,
+  Zap,
+  TrendingUp,
+  TrendingDown,
+  Filter,
+  CheckSquare,
+  Square,
 } from "lucide-react";
 
 interface UserRow {
@@ -29,6 +34,9 @@ interface UserRow {
   currency: string;
   totalDeposited: number;
   totalWithdrawn: number;
+  netPL: number;
+  winRate: number;
+  lastActive: string;
   transactionsCount: number;
   betsCount: number;
   createdAt: string;
@@ -39,6 +47,22 @@ export default function AdminUsersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
+
+  // Dropdown 1: Category Filter
+  const [categoryFilter, setCategoryFilter] = useState<"ALL" | "ACTIVE" | "HIGH_ROLLERS" | "BANNED">("ALL");
+
+  // Dropdown 2: Luck Filter & Bulk Assign
+  const [luckFilter, setLuckFilter] = useState<"ALL" | "HIGH_WIN" | "MEDIUM_WIN" | "LOW_WIN" | "NO_CONTROL">("ALL");
+
+  // Multi-select for bulk luck assign
+  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
+
+  // Dossier Modal State
+  const [dossierUser, setDossierUser] = useState<UserRow | null>(null);
+
+  // Delete User State
+  const [userToDelete, setUserToDelete] = useState<UserRow | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Balance Update Modal State
   const [selectedUserForBalance, setSelectedUserForBalance] = useState<UserRow | null>(null);
@@ -75,7 +99,7 @@ export default function AdminUsersPage() {
     fetchUsers();
   }, [fetchUsers]);
 
-  // Handle Luck Mode Toggle
+  // Handle single Luck Mode change
   const handleLuckModeChange = async (userId: string, newMode: string) => {
     try {
       const res = await fetch("/api/admin/users/luck", {
@@ -91,10 +115,70 @@ export default function AdminUsersPage() {
       setUsers((prev) =>
         prev.map((u) => (u.id === userId ? { ...u, luckMode: newMode as any } : u))
       );
-      setToastMessage(`Luck Mode set to ${newMode} for user`);
+      if (dossierUser?.id === userId) {
+        setDossierUser((prev) => prev ? { ...prev, luckMode: newMode as any } : null);
+      }
+      setToastMessage(`Luck Mode updated to ${newMode}`);
       setTimeout(() => setToastMessage(null), 3000);
     } catch (err: any) {
       alert("Error changing luck mode: " + err.message);
+    }
+  };
+
+  // Handle Bulk Luck Mode change
+  const handleBulkLuckAssign = async (targetMode: string) => {
+    if (!selectedUserIds.length) {
+      alert("Please select at least one user from the list.");
+      return;
+    }
+    try {
+      const res = await fetch("/api/admin/users/luck", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userIds: selectedUserIds, luckMode: targetMode }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to bulk update luck mode");
+      }
+
+      setUsers((prev) =>
+        prev.map((u) => (selectedUserIds.includes(u.id) ? { ...u, luckMode: targetMode as any } : u))
+      );
+      setToastMessage(`Applied ${targetMode} to ${selectedUserIds.length} user(s)`);
+      setSelectedUserIds([]);
+      setTimeout(() => setToastMessage(null), 3500);
+    } catch (err: any) {
+      alert("Error in bulk assign: " + err.message);
+    }
+  };
+
+  // Handle Delete User
+  const handleDeleteUser = async () => {
+    if (!userToDelete) return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch("/api/admin/users/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: userToDelete.id }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to delete user");
+      }
+
+      setUsers((prev) => prev.filter((u) => u.id !== userToDelete.id));
+      if (dossierUser?.id === userToDelete.id) {
+        setDossierUser(null);
+      }
+      setUserToDelete(null);
+      setToastMessage(`User @${userToDelete.username} deleted from database.`);
+      setTimeout(() => setToastMessage(null), 3500);
+    } catch (err: any) {
+      alert("Delete failed: " + err.message);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -141,21 +225,58 @@ export default function AdminUsersPage() {
     }
   };
 
+  // Filter users based on category and luck mode
+  const filteredUsers = useMemo(() => {
+    return users.filter((u) => {
+      // Category filter
+      if (categoryFilter === "ACTIVE" && u.betsCount === 0 && u.transactionsCount === 0) return false;
+      if (categoryFilter === "HIGH_ROLLERS" && u.totalDeposited < 50000 && u.walletBalance < 25000) return false;
+      if (categoryFilter === "BANNED" && u.role !== "BANNED") return false;
+
+      // Luck mode filter
+      if (luckFilter !== "ALL" && u.luckMode !== luckFilter) return false;
+
+      return true;
+    });
+  }, [users, categoryFilter, luckFilter]);
+
+  const toggleSelectUser = (id: string) => {
+    setSelectedUserIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedUserIds.length === filteredUsers.length) {
+      setSelectedUserIds([]);
+    } else {
+      setSelectedUserIds(filteredUsers.map((u) => u.id));
+    }
+  };
+
+  const luckModeBadge = (mode: string) => {
+    switch (mode) {
+      case "HIGH_WIN":
+        return <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">User Win</span>;
+      case "LOW_WIN":
+        return <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">House Win</span>;
+      case "MEDIUM_WIN":
+        return <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">Jackpot</span>;
+      default:
+        return <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-500/15 text-cyan-400 border border-cyan-500/30">Balanced</span>;
+    }
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-black text-white tracking-wide">
-              User Directory & Wallet Desk
-            </h1>
-            <span className="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 font-mono">
-              Directory Hub
-            </span>
-          </div>
+          <h1 className="text-xl sm:text-2xl font-black text-white tracking-wide">
+            User Directory & Management
+          </h1>
           <p className="text-xs text-slate-400 mt-1">
-            Player roster, instant wallet balance adjustments (+/- INR), and per-user Luck algorithm control.
+            Comprehensive player roster, user dossiers, instant wallet edits, and real-time Luck/RTP modes.
           </p>
         </div>
 
@@ -165,21 +286,22 @@ export default function AdminUsersPage() {
           className="flex items-center gap-2 px-3.5 py-2 bg-[#131722] hover:bg-[#1c2233] text-slate-200 text-xs font-semibold rounded-xl border border-[#1e2433] transition-all shadow-sm self-start sm:self-auto"
         >
           <RefreshCw className={`w-3.5 h-3.5 text-cyan-400 ${isLoading ? "animate-spin" : ""}`} />
-          <span>Refresh Directory</span>
+          <span>Refresh</span>
         </button>
       </div>
 
       {/* Toast Alert */}
       {toastMessage && (
-        <div className="p-4 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs sm:text-sm font-semibold flex items-center gap-2.5 animate-in fade-in shadow-lg">
+        <div className="p-3.5 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs sm:text-sm font-semibold flex items-center gap-2.5 shadow-lg animate-in fade-in">
           <Check className="w-4 h-4 text-cyan-400" />
           <span>{toastMessage}</span>
         </div>
       )}
 
-      {/* Search & Filter Toolbar */}
-      <div className="bg-[#131722] border border-[#1e2433] rounded-2xl p-4 shadow-md flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div className="relative w-full sm:max-w-md">
+      {/* Search & Two Combined Organized Dropdowns */}
+      <div className="bg-[#131722] border border-[#1e2433] rounded-2xl p-4 shadow-md flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+        {/* Search Input */}
+        <div className="relative flex-1">
           <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
             <Search className="w-4 h-4" />
           </div>
@@ -188,15 +310,61 @@ export default function AdminUsersPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by Username, Phone, Email or Cust ID..."
-            className="w-full pl-10 pr-4 py-2 bg-[#0e1017] border border-[#1e2433] rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/60 font-mono"
+            className="w-full pl-10 pr-4 py-2.5 bg-[#0e1017] border border-[#1e2433] rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/60 font-mono"
           />
         </div>
 
-        <div className="flex items-center gap-2 text-xs font-mono text-slate-400">
-          <span>Total Players:</span>
-          <span className="font-bold text-white bg-[#0e1017] px-2.5 py-1 rounded-lg border border-[#1e2433]">
-            {users.length}
-          </span>
+        {/* Dropdown 1: User Details / Category Filter */}
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] font-mono text-slate-400 whitespace-nowrap">Category:</span>
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value as any)}
+            className="bg-[#0e1017] border border-[#1e2433] text-white text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-cyan-500/60 font-medium"
+          >
+            <option value="ALL">All Users</option>
+            <option value="ACTIVE">Active Players</option>
+            <option value="HIGH_ROLLERS">High Rollers (₹50k+)</option>
+            <option value="BANNED">Banned / Flagged</option>
+          </select>
+        </div>
+
+        {/* Dropdown 2: Luck / RTP Mode Filter & Bulk Assign */}
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] font-mono text-slate-400 whitespace-nowrap">Luck Filter:</span>
+          <select
+            value={luckFilter}
+            onChange={(e) => setLuckFilter(e.target.value as any)}
+            className="bg-[#0e1017] border border-[#1e2433] text-white text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:border-cyan-500/60 font-medium"
+          >
+            <option value="ALL">All Modes</option>
+            <option value="HIGH_WIN">User Win</option>
+            <option value="LOW_WIN">House Win</option>
+            <option value="NO_CONTROL">Balanced</option>
+            <option value="MEDIUM_WIN">Jackpot</option>
+          </select>
+
+          {/* Bulk Assign Menu when selected */}
+          {selectedUserIds.length > 0 && (
+            <div className="flex items-center gap-1.5 pl-2 border-l border-[#1e2433]">
+              <span className="text-[11px] font-mono text-cyan-400 font-bold whitespace-nowrap">
+                Assign ({selectedUserIds.length}):
+              </span>
+              <select
+                onChange={(e) => {
+                  if (e.target.value) handleBulkLuckAssign(e.target.value);
+                }}
+                defaultValue=""
+                className="bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 text-xs rounded-xl px-2.5 py-2 focus:outline-none font-bold"
+              >
+                <option value="" disabled>Bulk Set</option>
+                <option value="HIGH_WIN">User Win</option>
+                <option value="LOW_WIN">House Win</option>
+                <option value="NO_CONTROL">Balanced</option>
+                <option value="MEDIUM_WIN">Jackpot</option>
+              </select>
+            </div>
+          )}
         </div>
       </div>
 
@@ -206,172 +374,347 @@ export default function AdminUsersPage() {
           <table className="w-full text-left text-xs">
             <thead>
               <tr className="bg-[#0e1017] border-b border-[#1e2433] text-slate-400 font-mono uppercase text-[11px]">
+                <th className="py-3 px-3 w-8">
+                  <button
+                    onClick={toggleSelectAll}
+                    className="text-slate-400 hover:text-white"
+                  >
+                    {selectedUserIds.length > 0 && selectedUserIds.length === filteredUsers.length ? (
+                      <CheckSquare className="w-4 h-4 text-cyan-400" />
+                    ) : (
+                      <Square className="w-4 h-4" />
+                    )}
+                  </button>
+                </th>
                 <th className="py-3 px-4">Player / ID</th>
-                <th className="py-3 px-4">Contact Info</th>
-                <th className="py-3 px-4">Role & Status</th>
+                <th className="py-3 px-4">Contact</th>
                 <th className="py-3 px-4">Wallet Balance</th>
                 <th className="py-3 px-4">Deposited / Withdrawn</th>
-                <th className="py-3 px-4">Luck Mode Desk</th>
-                <th className="py-3 px-4 text-right">Balance Edit</th>
+                <th className="py-3 px-4">Net P/L</th>
+                <th className="py-3 px-4">Assigned Mode</th>
+                <th className="py-3 px-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1e2433]">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-400">
+                  <td colSpan={8} className="py-12 text-center text-slate-400">
                     <RefreshCw className="w-6 h-6 animate-spin text-cyan-400 mx-auto mb-2" />
                     <p className="font-mono text-xs">Loading player roster...</p>
                   </td>
                 </tr>
-              ) : users.length === 0 ? (
+              ) : filteredUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-slate-400 font-mono">
+                  <td colSpan={8} className="py-12 text-center text-slate-400 font-mono">
                     No users matching criteria.
                   </td>
                 </tr>
               ) : (
-                users.map((u) => (
-                  <tr key={u.id} className="hover:bg-[#181d2b]/60 transition-colors">
-                    {/* Player / ID */}
-                    <td className="py-3.5 px-4 font-mono">
-                      <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-lg bg-[#0e1017] border border-[#1e2433] flex items-center justify-center text-slate-300 font-bold text-xs uppercase">
-                          {u.username.slice(0, 2)}
-                        </div>
-                        <div>
-                          <div className="font-bold text-white text-xs">{u.username}</div>
-                          <div className="text-[10px] text-slate-500">#{u.id.slice(-6)}</div>
-                        </div>
-                      </div>
-                    </td>
-
-                    {/* Contact Info */}
-                    <td className="py-3.5 px-4 font-mono">
-                      <div className="text-slate-200">{u.phone || "No Mobile"}</div>
-                      <div className="text-[10px] text-slate-500">{u.email || "No Email"}</div>
-                    </td>
-
-                    {/* Role & Status */}
-                    <td className="py-3.5 px-4">
-                      <div className="flex items-center gap-1.5">
-                        <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                        <span
-                          className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider ${
-                            u.role === "SUPER_ADMIN" || u.role === "ADMIN"
-                              ? "bg-amber-500/15 text-amber-300 border border-amber-500/30"
-                              : "bg-slate-700/30 text-slate-300 border border-slate-600/30"
-                          }`}
+                filteredUsers.map((u) => {
+                  const isSelected = selectedUserIds.includes(u.id);
+                  return (
+                    <tr
+                      key={u.id}
+                      className={`hover:bg-[#181d2b]/60 transition-colors ${
+                        isSelected ? "bg-[#182033]/50" : ""
+                      }`}
+                    >
+                      <td className="py-3.5 px-3">
+                        <button
+                          onClick={() => toggleSelectUser(u.id)}
+                          className="text-slate-400 hover:text-white"
                         >
-                          {u.role}
+                          {isSelected ? (
+                            <CheckSquare className="w-4 h-4 text-cyan-400" />
+                          ) : (
+                            <Square className="w-4 h-4" />
+                          )}
+                        </button>
+                      </td>
+
+                      {/* Player Profile Clickable for Dossier */}
+                      <td className="py-3.5 px-4 font-mono">
+                        <button
+                          onClick={() => setDossierUser(u)}
+                          className="flex items-center gap-2 text-left group"
+                        >
+                          <div className="w-7 h-7 rounded-lg bg-[#0e1017] border border-[#1e2433] flex items-center justify-center text-slate-300 font-bold text-xs uppercase group-hover:border-cyan-500/50 transition-colors">
+                            {u.username.slice(0, 2)}
+                          </div>
+                          <div>
+                            <div className="font-bold text-white text-xs group-hover:text-cyan-400 transition-colors flex items-center gap-1">
+                              <span>{u.username}</span>
+                              <Eye className="w-3 h-3 text-slate-500 group-hover:text-cyan-400" />
+                            </div>
+                            <div className="text-[10px] text-slate-500">#{u.id.slice(-6)}</div>
+                          </div>
+                        </button>
+                      </td>
+
+                      {/* Contact Info */}
+                      <td className="py-3.5 px-4 font-mono">
+                        <div className="text-slate-200">{u.phone || "No Phone"}</div>
+                        <div className="text-[10px] text-slate-500 truncate max-w-[140px]">
+                          {u.email || "No Email"}
+                        </div>
+                      </td>
+
+                      {/* Wallet Balance */}
+                      <td className="py-3.5 px-4 font-mono">
+                        <div className="text-white font-bold text-xs">
+                          ₹{u.walletBalance.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                        </div>
+                      </td>
+
+                      {/* Deposited / Withdrawn */}
+                      <td className="py-3.5 px-4 font-mono text-[11px]">
+                        <div className="text-emerald-400">
+                          +₹{u.totalDeposited.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                        </div>
+                        <div className="text-rose-400">
+                          -₹{u.totalWithdrawn.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                        </div>
+                      </td>
+
+                      {/* Net P/L */}
+                      <td className="py-3.5 px-4 font-mono text-xs font-bold">
+                        <span className={u.netPL >= 0 ? "text-emerald-400" : "text-rose-400"}>
+                          {u.netPL >= 0 ? "+" : ""}₹{u.netPL.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                         </span>
-                      </div>
-                      <div className="text-[10px] text-slate-500 mt-1 font-mono">
-                        Joined {new Date(u.createdAt).toLocaleDateString("en-IN", { month: "short", day: "numeric" })}
-                      </div>
-                    </td>
+                      </td>
 
-                    {/* Wallet Balance */}
-                    <td className="py-3.5 px-4 font-mono">
-                      <div className="text-sm font-black text-white">
-                        ₹{Number(u.walletBalance).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-                      </div>
-                      <div className="text-[10px] text-slate-500">
-                        {u.betsCount} bets placed
-                      </div>
-                    </td>
+                      {/* Luck Mode Selector */}
+                      <td className="py-3.5 px-4">
+                        <select
+                          value={u.luckMode}
+                          onChange={(e) => handleLuckModeChange(u.id, e.target.value)}
+                          className="bg-[#0e1017] border border-[#1e2433] text-white text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-cyan-500/60 font-medium"
+                        >
+                          <option value="HIGH_WIN">User Win</option>
+                          <option value="LOW_WIN">House Win</option>
+                          <option value="NO_CONTROL">Balanced</option>
+                          <option value="MEDIUM_WIN">Jackpot</option>
+                        </select>
+                      </td>
 
-                    {/* Deposited / Withdrawn */}
-                    <td className="py-3.5 px-4 font-mono text-[11px]">
-                      <div className="text-emerald-400">
-                        +₹{Number(u.totalDeposited).toLocaleString("en-IN")}
-                      </div>
-                      <div className="text-rose-400">
-                        -₹{Number(u.totalWithdrawn).toLocaleString("en-IN")}
-                      </div>
-                    </td>
+                      {/* Actions */}
+                      <td className="py-3.5 px-4 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={() => {
+                              setSelectedUserForBalance(u);
+                              setBalanceAmount("1000");
+                              setBalanceMode("ADD");
+                            }}
+                            className="p-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 transition-all text-xs flex items-center gap-1"
+                            title="Adjust Wallet Balance"
+                          >
+                            <Wallet className="w-3.5 h-3.5" />
+                            <span className="hidden sm:inline text-[11px] font-semibold">Adjust</span>
+                          </button>
 
-                    {/* Luck Mode */}
-                    <td className="py-3.5 px-4">
-                      <select
-                        value={u.luckMode}
-                        onChange={(e) => handleLuckModeChange(u.id, e.target.value)}
-                        className={`text-xs font-bold rounded-lg px-2.5 py-1.5 border transition-all cursor-pointer font-mono ${
-                          u.luckMode === "HIGH_WIN"
-                            ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-300"
-                            : u.luckMode === "MEDIUM_WIN"
-                            ? "bg-amber-500/15 border-amber-500/30 text-amber-300"
-                            : u.luckMode === "LOW_WIN"
-                            ? "bg-rose-500/15 border-rose-500/30 text-rose-300"
-                            : "bg-[#0e1017] border-[#1e2433] text-slate-400"
-                        }`}
-                      >
-                        <option value="HIGH_WIN" className="bg-[#131722] text-emerald-400">
-                          🟢 USER WIN (High Win)
-                        </option>
-                        <option value="LOW_WIN" className="bg-[#131722] text-rose-400">
-                          🔴 HOUSE WIN (Low Win)
-                        </option>
-                        <option value="NO_CONTROL" className="bg-[#131722] text-slate-300">
-                          ⚖️ BALANCED (Fair Play / Default)
-                        </option>
-                        <option value="MEDIUM_WIN" className="bg-[#131722] text-amber-400">
-                          ⭐ JACKPOT MODE (Super User Win)
-                        </option>
-                      </select>
-                    </td>
-
-                    {/* Balance Edit Button */}
-                    <td className="py-3.5 px-4 text-right">
-                      <button
-                        onClick={() => setSelectedUserForBalance(u)}
-                        className="px-3 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs font-bold transition-all active:scale-95 shadow-sm"
-                      >
-                        Adjust Balance
-                      </button>
-                    </td>
-                  </tr>
-                ))
+                          <button
+                            onClick={() => setUserToDelete(u)}
+                            className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 transition-all text-xs"
+                            title="Delete User"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* ========================================================
-          MODAL: BALANCE ADJUSTMENT (+/- INR WITH REMARKS)
-          ======================================================== */}
-      {selectedUserForBalance && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-          <div className="relative max-w-md w-full bg-[#131722] border border-cyan-500/30 rounded-2xl p-6 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between pb-3 border-b border-[#1e2433]">
-              <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-xl bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 flex items-center justify-center">
-                  <Wallet className="w-5 h-5" />
+      {/* COMPREHENSIVE USER DOSSIER MODAL */}
+      {dossierUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-[#131722] border border-[#1e2433] rounded-2xl w-full max-w-xl p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-[#1e2433] pb-3.5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#0e1017] border border-[#1e2433] flex items-center justify-center text-cyan-400 font-bold text-sm uppercase">
+                  {dossierUser.username.slice(0, 2)}
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white">Adjust Player Wallet</h3>
-                  <p className="text-xs text-slate-400 font-mono">
-                    User: @{selectedUserForBalance.username}
-                  </p>
+                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                    <span>{dossierUser.username}</span>
+                    <span className="text-xs text-slate-500 font-mono">#{dossierUser.id.slice(-8)}</span>
+                  </h3>
+                  <div className="text-xs text-slate-400">A-to-Z Complete Player Dossier</div>
                 </div>
               </div>
               <button
-                onClick={() => setSelectedUserForBalance(null)}
-                className="text-slate-500 hover:text-white"
+                onClick={() => setDossierUser(null)}
+                className="text-slate-400 hover:text-white transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="bg-[#0e1017] p-3.5 rounded-xl border border-[#1e2433] flex justify-between items-center text-xs font-mono">
-              <span className="text-slate-400">Current Balance:</span>
-              <span className="font-black text-white text-sm">
-                ₹{Number(selectedUserForBalance.walletBalance).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
-              </span>
+            <div className="grid grid-cols-2 gap-3 font-mono text-xs">
+              <div className="bg-[#0e1017] p-3 rounded-xl border border-[#1e2433]">
+                <div className="text-slate-500 text-[10px] uppercase">User ID</div>
+                <div className="text-white font-bold truncate mt-0.5">{dossierUser.id}</div>
+              </div>
+              <div className="bg-[#0e1017] p-3 rounded-xl border border-[#1e2433]">
+                <div className="text-slate-500 text-[10px] uppercase">Assigned Luck Mode</div>
+                <div className="mt-1">{luckModeBadge(dossierUser.luckMode)}</div>
+              </div>
+              <div className="bg-[#0e1017] p-3 rounded-xl border border-[#1e2433]">
+                <div className="text-slate-500 text-[10px] uppercase">Email</div>
+                <div className="text-white truncate mt-0.5">{dossierUser.email || "N/A"}</div>
+              </div>
+              <div className="bg-[#0e1017] p-3 rounded-xl border border-[#1e2433]">
+                <div className="text-slate-500 text-[10px] uppercase">Phone</div>
+                <div className="text-white truncate mt-0.5">{dossierUser.phone || "N/A"}</div>
+              </div>
+              <div className="bg-[#0e1017] p-3 rounded-xl border border-[#1e2433]">
+                <div className="text-slate-500 text-[10px] uppercase">Registered Date</div>
+                <div className="text-slate-300 mt-0.5">{new Date(dossierUser.createdAt).toLocaleDateString()}</div>
+              </div>
+              <div className="bg-[#0e1017] p-3 rounded-xl border border-[#1e2433]">
+                <div className="text-slate-500 text-[10px] uppercase">Last Active</div>
+                <div className="text-slate-300 mt-0.5">{new Date(dossierUser.lastActive).toLocaleDateString()}</div>
+              </div>
+              <div className="bg-[#0e1017] p-3 rounded-xl border border-[#1e2433]">
+                <div className="text-slate-500 text-[10px] uppercase">Current Balance</div>
+                <div className="text-cyan-400 font-bold text-sm mt-0.5">₹{dossierUser.walletBalance.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</div>
+              </div>
+              <div className="bg-[#0e1017] p-3 rounded-xl border border-[#1e2433]">
+                <div className="text-slate-500 text-[10px] uppercase">Net Player P/L</div>
+                <div className={`font-bold text-sm mt-0.5 ${dossierUser.netPL >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
+                  {dossierUser.netPL >= 0 ? "+" : ""}₹{dossierUser.netPL.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                </div>
+              </div>
+              <div className="bg-[#0e1017] p-3 rounded-xl border border-[#1e2433]">
+                <div className="text-slate-500 text-[10px] uppercase">Total Deposits</div>
+                <div className="text-emerald-400 font-bold mt-0.5">₹{dossierUser.totalDeposited.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</div>
+              </div>
+              <div className="bg-[#0e1017] p-3 rounded-xl border border-[#1e2433]">
+                <div className="text-slate-500 text-[10px] uppercase">Total Withdrawals</div>
+                <div className="text-rose-400 font-bold mt-0.5">₹{dossierUser.totalWithdrawn.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</div>
+              </div>
+              <div className="bg-[#0e1017] p-3 rounded-xl border border-[#1e2433]">
+                <div className="text-slate-500 text-[10px] uppercase">Bets Played</div>
+                <div className="text-white font-bold mt-0.5">{dossierUser.betsCount}</div>
+              </div>
+              <div className="bg-[#0e1017] p-3 rounded-xl border border-[#1e2433]">
+                <div className="text-slate-500 text-[10px] uppercase">Win Rate (Recent)</div>
+                <div className="text-purple-300 font-bold mt-0.5">{dossierUser.winRate}%</div>
+              </div>
             </div>
 
-            <form onSubmit={handleBalanceSubmit} className="space-y-4">
-              {/* Mode Toggle: Add or Deduct */}
+            <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-[#1e2433]">
+              <button
+                onClick={() => {
+                  setSelectedUserForBalance(dossierUser);
+                  setDossierUser(null);
+                }}
+                className="px-4 py-2 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded-xl text-xs font-semibold"
+              >
+                Adjust Balance
+              </button>
+              <button
+                onClick={() => {
+                  setUserToDelete(dossierUser);
+                  setDossierUser(null);
+                }}
+                className="px-4 py-2 bg-rose-500/20 hover:bg-rose-500/30 text-rose-400 border border-rose-500/40 rounded-xl text-xs font-semibold"
+              >
+                Delete User
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* DELETE CONFIRMATION MODAL */}
+      {userToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-[#131722] border border-rose-500/40 rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-4">
+            <div className="flex items-center gap-3 text-rose-400">
+              <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-white">Delete User Permanently?</h3>
+                <p className="text-xs text-slate-400">Cascade delete from database</p>
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Are you sure you want to permanently delete player <strong className="text-white">@{userToDelete.username}</strong> ({userToDelete.id})? All wallets, bets, and transaction histories will be completely purged.
+            </p>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                onClick={() => setUserToDelete(null)}
+                disabled={isDeleting}
+                className="px-4 py-2 bg-[#0e1017] hover:bg-[#1a2030] text-slate-300 border border-[#1e2433] rounded-xl text-xs font-semibold"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteUser}
+                disabled={isDeleting}
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold shadow-lg shadow-rose-600/30 flex items-center gap-1.5"
+              >
+                {isDeleting ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  <span>Delete User</span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* BALANCE ADJUSTMENT MODAL */}
+      {selectedUserForBalance && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-[#131722] border border-[#1e2433] rounded-2xl w-full max-w-md p-6 shadow-2xl">
+            <div className="flex items-center justify-between pb-4 border-b border-[#1e2433]">
+              <div className="flex items-center gap-2">
+                <Wallet className="w-5 h-5 text-cyan-400" />
+                <h3 className="text-base font-bold text-white">
+                  Wallet Adjustment
+                </h3>
+              </div>
+              <button
+                onClick={() => setSelectedUserForBalance(null)}
+                className="text-slate-400 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleBalanceSubmit} className="space-y-4 pt-4">
+              <div className="p-3 bg-[#0e1017] border border-[#1e2433] rounded-xl text-xs font-mono">
+                <span className="text-slate-400">Target User:</span>{" "}
+                <span className="text-white font-bold">
+                  @{selectedUserForBalance.username}
+                </span>{" "}
+                <span className="text-slate-500 text-[10px]">
+                  ({selectedUserForBalance.id.slice(-6)})
+                </span>
+                <div className="mt-1 flex items-center justify-between text-slate-300">
+                  <span>Current Balance:</span>
+                  <span className="font-bold text-white">
+                    ₹{selectedUserForBalance.walletBalance.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+              </div>
+
+              {/* Add vs Deduct Toggle */}
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"

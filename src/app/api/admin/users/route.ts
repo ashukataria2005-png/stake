@@ -28,6 +28,22 @@ export async function GET(req: NextRequest) {
       where: whereClause,
       include: {
         wallets: true,
+        bets: {
+          select: {
+            amount: true,
+            payout: true,
+            createdAt: true,
+          },
+          orderBy: { createdAt: "desc" },
+          take: 200,
+        },
+        transactions: {
+          select: {
+            createdAt: true,
+          },
+          orderBy: { createdAt: "desc" },
+          take: 1,
+        },
         _count: {
           select: {
             transactions: true,
@@ -36,11 +52,28 @@ export async function GET(req: NextRequest) {
         },
       },
       orderBy: { createdAt: "desc" },
-      take: 100,
+      take: 150,
     });
 
     const formatted = users.map((u) => {
       const primaryWallet = u.wallets[0] || null;
+      const totalDep = primaryWallet ? Number(primaryWallet.totalDeposited) : 0;
+      const totalWdr = primaryWallet ? Number(primaryWallet.totalWithdrawn) : 0;
+      const netPL = totalWdr - totalDep; // From user perspective: positive means net won from casino
+
+      let winCount = 0;
+      u.bets.forEach((b) => {
+        if (Number(b.payout) > Number(b.amount)) {
+          winCount++;
+        }
+      });
+      const winRate = u.bets.length > 0 ? Math.round((winCount / u.bets.length) * 100) : 0;
+
+      // Last active date from latest bet or transaction or updatedAt
+      const lastBetDate = u.bets[0]?.createdAt;
+      const lastTxDate = u.transactions[0]?.createdAt;
+      const lastActive = lastBetDate || lastTxDate || u.updatedAt || u.createdAt;
+
       return {
         id: u.id,
         username: u.username,
@@ -50,8 +83,11 @@ export async function GET(req: NextRequest) {
         luckMode: u.luckMode,
         walletBalance: primaryWallet ? Number(primaryWallet.balance) : 0,
         currency: primaryWallet ? primaryWallet.currency : "INR",
-        totalDeposited: primaryWallet ? Number(primaryWallet.totalDeposited) : 0,
-        totalWithdrawn: primaryWallet ? Number(primaryWallet.totalWithdrawn) : 0,
+        totalDeposited: totalDep,
+        totalWithdrawn: totalWdr,
+        netPL,
+        winRate,
+        lastActive: new Date(lastActive).toISOString(),
         transactionsCount: u._count.transactions,
         betsCount: u._count.bets,
         createdAt: u.createdAt.toISOString(),

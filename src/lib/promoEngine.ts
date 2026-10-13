@@ -150,6 +150,39 @@ export function togglePromoStatus(id: string): PromoCode | null {
   return target;
 }
 
+export function updatePromo(id: string, updates: Partial<PromoCode>): PromoCode | null {
+  const promos = loadPromos();
+  const index = promos.findIndex((p) => p.id === id);
+  if (index === -1) return null;
+
+  promos[index] = {
+    ...promos[index],
+    ...updates,
+    discountPercent: updates.discountPercent !== undefined ? updates.discountPercent : promos[index].discountPercent,
+    bonusValue: updates.discountPercent !== undefined ? updates.discountPercent : (updates.bonusValue !== undefined ? updates.bonusValue : promos[index].bonusValue),
+    maxDepositLimit: updates.maxDepositLimit !== undefined ? updates.maxDepositLimit : promos[index].maxDepositLimit,
+    maxUses: updates.maxUses !== undefined ? updates.maxUses : promos[index].maxUses,
+  };
+  savePromos(promos);
+  return promos[index];
+}
+
+export function deletePromo(id: string): boolean {
+  const promos = loadPromos();
+  const filtered = promos.filter((p) => p.id !== id);
+  if (filtered.length === promos.length) return false;
+  savePromos(filtered);
+  return true;
+}
+
+export function deletePromos(ids: string[]): number {
+  const promos = loadPromos();
+  const filtered = promos.filter((p) => !ids.includes(p.id));
+  const deletedCount = promos.length - filtered.length;
+  savePromos(filtered);
+  return deletedCount;
+}
+
 export interface PromoValidationResult {
   valid: boolean;
   error?: string;

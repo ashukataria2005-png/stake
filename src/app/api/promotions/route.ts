@@ -3,6 +3,9 @@ import {
   loadPromos,
   createPromo,
   togglePromoStatus,
+  updatePromo,
+  deletePromo,
+  deletePromos,
   validateAndCalculatePromo,
 } from "@/lib/promoEngine";
 
@@ -81,10 +84,10 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function PATCH(req: NextRequest) {
+export async function PUT(req: NextRequest) {
   try {
     const body = await req.json();
-    const { id } = body;
+    const { id, discountPercent, maxDepositLimit, maxUses, status } = body;
 
     if (!id) {
       return NextResponse.json(
@@ -93,7 +96,13 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    const updated = togglePromoStatus(id);
+    const updated = updatePromo(id, {
+      discountPercent: discountPercent !== undefined ? parseFloat(discountPercent) : undefined,
+      maxDepositLimit: maxDepositLimit !== undefined ? parseFloat(maxDepositLimit) : undefined,
+      maxUses: maxUses !== undefined ? parseInt(maxUses) : undefined,
+      status: status !== undefined ? status : undefined,
+    });
+
     if (!updated) {
       return NextResponse.json(
         { success: false, error: "Promo not found" },
@@ -103,9 +112,37 @@ export async function PATCH(req: NextRequest) {
 
     return NextResponse.json({ success: true, promo: updated });
   } catch (err: any) {
-    console.error("[Promotions API] PATCH Error:", err);
+    console.error("[Promotions API] PUT Error:", err);
     return NextResponse.json(
       { success: false, error: err?.message || "Failed to update promo" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { id, ids } = body;
+
+    if (!id && (!ids || !ids.length)) {
+      return NextResponse.json(
+        { success: false, error: "Missing promo id or ids array" },
+        { status: 400 }
+      );
+    }
+
+    if (Array.isArray(ids) && ids.length > 0) {
+      const deletedCount = deletePromos(ids);
+      return NextResponse.json({ success: true, deletedCount });
+    }
+
+    const success = deletePromo(id);
+    return NextResponse.json({ success });
+  } catch (err: any) {
+    console.error("[Promotions API] DELETE Error:", err);
+    return NextResponse.json(
+      { success: false, error: err?.message || "Failed to delete promo" },
       { status: 500 }
     );
   }

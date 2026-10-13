@@ -89,6 +89,12 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     fetchMetrics();
+
+    const handleRefresh = () => fetchMetrics();
+    window.addEventListener("stake_admin_refresh_metrics", handleRefresh);
+    return () => {
+      window.removeEventListener("stake_admin_refresh_metrics", handleRefresh);
+    };
   }, []);
 
   const todayFormattedDate = new Date().toLocaleDateString("en-US", {
@@ -100,37 +106,12 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="space-y-6 sm:space-y-7 max-w-6xl mx-auto">
-      {/* Top Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[#213743]">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-black text-white tracking-wide">
-            Stake Administration
-          </h1>
-          <p className="text-xs text-[#b1bad3] mt-0.5">
-            Mission Control performance metrics and operational hub.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2.5">
-          <button
-            onClick={fetchMetrics}
-            disabled={isLoading}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-[#213743] hover:bg-[#2a4454] text-white text-xs font-semibold rounded-xl border border-[#2f4553] transition-all active:scale-95 shadow-sm"
-          >
-            <RefreshCw
-              className={`w-3.5 h-3.5 text-amber-400 ${isLoading ? "animate-spin" : ""}`}
-            />
-            <span>Refresh Metrics</span>
-          </button>
-        </div>
-      </div>
-
       {/* ========================================================
           PART A: TOP CONTAINER (Today's Performance)
-          Unified outer container with 2 Rows x 3 Columns Grid (6 boxes)
+          Unified outer container with 2 Columns x 3 Rows Grid (6 boxes)
           ======================================================== */}
-      <div className="bg-[#1a2c38] border border-[#213743] rounded-2xl p-3.5 sm:p-4 shadow-lg space-y-3">
-        <div className="flex items-center justify-between pb-2 border-b border-[#213743]">
+      <div className="bg-[#1a2c38] border border-[#213743] rounded-2xl p-4 sm:p-5 shadow-lg space-y-3.5">
+        <div className="flex items-center justify-between pb-2.5 border-b border-[#213743]">
           <div className="flex items-center gap-2">
             <Radio className="w-3.5 h-3.5 text-[#00e701] animate-pulse" />
             <h2 className="text-sm sm:text-base font-bold text-white tracking-wide">
@@ -150,93 +131,93 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Strictly 2 Rows x 3 Columns (6 Compact Boxes) */}
-        <div className="grid grid-cols-3 grid-rows-2 gap-3">
+        {/* Exactly 2 Columns x 3 Rows (6 Balanced Boxes) */}
+        <div className="grid grid-cols-2 grid-rows-3 gap-3 sm:gap-4">
           {/* Box 1: Today's Revenue (₹) */}
-          <div className="bg-[#0f212e] border border-[#213743] hover:border-amber-500/40 rounded-xl p-3 sm:p-3.5 transition-colors shadow-sm flex flex-col justify-between">
+          <div className="bg-[#0f212e] border border-[#213743] hover:border-amber-500/40 rounded-xl p-4 transition-colors shadow-sm flex flex-col justify-between min-h-[96px]">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400 font-mono">
+              <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-amber-400 font-mono">
                 Today's Revenue
               </span>
               <div className="w-6 h-6 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center">
                 <TrendingUp className="w-3.5 h-3.5" />
               </div>
             </div>
-            <div className="text-lg sm:text-xl font-black text-white font-mono tracking-tight">
+            <div className="text-base sm:text-lg font-black text-white font-mono tracking-tight">
               ₹{(metrics?.todayDepositsVolume ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
             </div>
           </div>
 
           {/* Box 2: Today's Profit (₹) */}
-          <div className="bg-[#0f212e] border border-[#213743] hover:border-emerald-500/40 rounded-xl p-3 sm:p-3.5 transition-colors shadow-sm flex flex-col justify-between">
+          <div className="bg-[#0f212e] border border-[#213743] hover:border-emerald-500/40 rounded-xl p-4 transition-colors shadow-sm flex flex-col justify-between min-h-[96px]">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 font-mono">
+              <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-emerald-400 font-mono">
                 Today's Profit
               </span>
               <div className="w-6 h-6 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
                 <DollarSign className="w-3.5 h-3.5" />
               </div>
             </div>
-            <div className="text-lg sm:text-xl font-black text-emerald-400 font-mono tracking-tight">
+            <div className="text-base sm:text-lg font-black text-emerald-400 font-mono tracking-tight">
               ₹{(metrics?.todayRevenue ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
             </div>
           </div>
 
           {/* Box 3: Today's New Members (Count) */}
-          <div className="bg-[#0f212e] border border-[#213743] hover:border-cyan-500/40 rounded-xl p-3 sm:p-3.5 transition-colors shadow-sm flex flex-col justify-between">
+          <div className="bg-[#0f212e] border border-[#213743] hover:border-cyan-500/40 rounded-xl p-4 transition-colors shadow-sm flex flex-col justify-between min-h-[96px]">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-cyan-400 font-mono">
+              <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-cyan-400 font-mono">
                 Today's New Members
               </span>
               <div className="w-6 h-6 rounded-lg bg-cyan-500/15 text-cyan-400 flex items-center justify-center">
                 <UserPlus className="w-3.5 h-3.5" />
               </div>
             </div>
-            <div className="text-lg sm:text-xl font-black text-white font-mono tracking-tight">
+            <div className="text-base sm:text-lg font-black text-white font-mono tracking-tight">
               +{metrics?.todayUsers ?? 0}
             </div>
           </div>
 
           {/* Box 4: Today's Deposit (₹) */}
-          <div className="bg-[#0f212e] border border-[#213743] hover:border-violet-500/40 rounded-xl p-3 sm:p-3.5 transition-colors shadow-sm flex flex-col justify-between">
+          <div className="bg-[#0f212e] border border-[#213743] hover:border-violet-500/40 rounded-xl p-4 transition-colors shadow-sm flex flex-col justify-between min-h-[96px]">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-violet-400 font-mono">
+              <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-violet-400 font-mono">
                 Today's Deposit
               </span>
               <div className="w-6 h-6 rounded-lg bg-violet-500/15 text-violet-400 flex items-center justify-center">
                 <ArrowDownCircle className="w-3.5 h-3.5" />
               </div>
             </div>
-            <div className="text-lg sm:text-xl font-black text-white font-mono tracking-tight">
+            <div className="text-base sm:text-lg font-black text-white font-mono tracking-tight">
               ₹{(metrics?.todayDepositsVolume ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
             </div>
-            <p className="text-[10px] text-amber-400 font-mono mt-1">
+            <p className="text-[9px] sm:text-[10px] text-amber-400 font-mono mt-1">
               {metrics?.pendingDepositsCount ?? 0} Pending approvals
             </p>
           </div>
 
           {/* Box 5: Today's Withdrawals (₹) */}
-          <div className="bg-[#0f212e] border border-[#213743] hover:border-rose-500/40 rounded-xl p-3 sm:p-3.5 transition-colors shadow-sm flex flex-col justify-between">
+          <div className="bg-[#0f212e] border border-[#213743] hover:border-rose-500/40 rounded-xl p-4 transition-colors shadow-sm flex flex-col justify-between min-h-[96px]">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-rose-400 font-mono">
+              <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-rose-400 font-mono">
                 Today's Withdrawals
               </span>
               <div className="w-6 h-6 rounded-lg bg-rose-500/15 text-rose-400 flex items-center justify-center">
                 <ArrowUpRight className="w-3.5 h-3.5" />
               </div>
             </div>
-            <div className="text-lg sm:text-xl font-black text-white font-mono tracking-tight">
+            <div className="text-base sm:text-lg font-black text-white font-mono tracking-tight">
               ₹{(metrics?.todayWithdrawalsVolume ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
             </div>
-            <p className="text-[10px] text-amber-400 font-mono mt-1">
+            <p className="text-[9px] sm:text-[10px] text-amber-400 font-mono mt-1">
               {metrics?.pendingWithdrawalsCount ?? 0} Awaiting dispatch
             </p>
           </div>
 
           {/* Box 6: Empty Placeholder Box */}
-          <div className="border border-dashed border-[#2f4553] bg-[#0f212e]/50 rounded-xl flex flex-col items-center justify-center p-3 text-center transition-colors">
+          <div className="border border-dashed border-[#2f4553] bg-[#0f212e]/50 rounded-xl flex flex-col items-center justify-center p-4 text-center transition-colors min-h-[96px]">
             <Plus className="w-5 h-5 text-[#2f4553] mb-1" />
-            <span className="text-[11px] font-mono text-[#b1bad3]/60">
+            <span className="text-[10px] sm:text-[11px] font-mono text-[#b1bad3]/60">
               — Reserved Metric Slot —
             </span>
           </div>
@@ -456,94 +437,94 @@ export default function AdminDashboardPage() {
           PART C: BOTTOM CONTAINER (Total / Overall Overview)
           Unified outer container with 2 Rows x 3 Columns Grid (6 boxes)
           ======================================================== */}
-      <div className="bg-[#1a2c38] border border-[#213743] rounded-2xl p-3.5 sm:p-4 shadow-lg space-y-3">
-        <div className="pb-2 border-b border-[#213743]">
+      <div className="bg-[#1a2c38] border border-[#213743] rounded-2xl p-4 sm:p-5 shadow-lg space-y-3.5">
+        <div className="pb-2.5 border-b border-[#213743]">
           <h2 className="text-sm sm:text-base font-bold text-white tracking-wide">
             Overall Platform Overview
           </h2>
         </div>
 
-        {/* Strictly 2 Rows x 3 Columns (6 Compact Boxes) */}
-        <div className="grid grid-cols-3 grid-rows-2 gap-3">
+        {/* Exactly 2 Columns x 3 Rows (6 Balanced Boxes) */}
+        <div className="grid grid-cols-2 grid-rows-3 gap-3 sm:gap-4">
           {/* Box 1: Total Revenue (₹) */}
-          <div className="bg-[#0f212e] border border-[#213743] hover:border-amber-500/40 rounded-xl p-3 sm:p-3.5 transition-colors shadow-sm flex flex-col justify-between">
+          <div className="bg-[#0f212e] border border-[#213743] hover:border-amber-500/40 rounded-xl p-4 transition-colors shadow-sm flex flex-col justify-between min-h-[96px]">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400 font-mono">
+              <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-amber-400 font-mono">
                 Total Revenue
               </span>
               <div className="w-6 h-6 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center">
                 <TrendingUp className="w-3.5 h-3.5" />
               </div>
             </div>
-            <div className="text-lg sm:text-xl font-black text-white font-mono tracking-tight">
+            <div className="text-base sm:text-lg font-black text-white font-mono tracking-tight">
               ₹{(metrics?.totalDepositsVolume ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
             </div>
           </div>
 
           {/* Box 2: Total Profit (₹) */}
-          <div className="bg-[#0f212e] border border-[#213743] hover:border-emerald-500/40 rounded-xl p-3 sm:p-3.5 transition-colors shadow-sm flex flex-col justify-between">
+          <div className="bg-[#0f212e] border border-[#213743] hover:border-emerald-500/40 rounded-xl p-4 transition-colors shadow-sm flex flex-col justify-between min-h-[96px]">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400 font-mono">
+              <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-emerald-400 font-mono">
                 Total Profit
               </span>
               <div className="w-6 h-6 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
                 <DollarSign className="w-3.5 h-3.5" />
               </div>
             </div>
-            <div className="text-lg sm:text-xl font-black text-emerald-400 font-mono tracking-tight">
+            <div className="text-base sm:text-lg font-black text-emerald-400 font-mono tracking-tight">
               ₹{(metrics?.totalRevenue ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
             </div>
           </div>
 
           {/* Box 3: Total Members (Count) */}
-          <div className="bg-[#0f212e] border border-[#213743] hover:border-cyan-500/40 rounded-xl p-3 sm:p-3.5 transition-colors shadow-sm flex flex-col justify-between">
+          <div className="bg-[#0f212e] border border-[#213743] hover:border-cyan-500/40 rounded-xl p-4 transition-colors shadow-sm flex flex-col justify-between min-h-[96px]">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-cyan-400 font-mono">
+              <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-cyan-400 font-mono">
                 Total Members
               </span>
               <div className="w-6 h-6 rounded-lg bg-cyan-500/15 text-cyan-400 flex items-center justify-center">
                 <Users className="w-3.5 h-3.5" />
               </div>
             </div>
-            <div className="text-lg sm:text-xl font-black text-white font-mono tracking-tight">
+            <div className="text-base sm:text-lg font-black text-white font-mono tracking-tight">
               {metrics?.totalUsers ?? 0}
             </div>
           </div>
 
           {/* Box 4: Total Deposit (₹) */}
-          <div className="bg-[#0f212e] border border-[#213743] hover:border-violet-500/40 rounded-xl p-3 sm:p-3.5 transition-colors shadow-sm flex flex-col justify-between">
+          <div className="bg-[#0f212e] border border-[#213743] hover:border-violet-500/40 rounded-xl p-4 transition-colors shadow-sm flex flex-col justify-between min-h-[96px]">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-violet-400 font-mono">
+              <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-violet-400 font-mono">
                 Total Deposit
               </span>
               <div className="w-6 h-6 rounded-lg bg-violet-500/15 text-violet-400 flex items-center justify-center">
                 <ArrowDownCircle className="w-3.5 h-3.5" />
               </div>
             </div>
-            <div className="text-lg sm:text-xl font-black text-white font-mono tracking-tight">
+            <div className="text-base sm:text-lg font-black text-white font-mono tracking-tight">
               ₹{(metrics?.totalDepositsVolume ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
             </div>
           </div>
 
           {/* Box 5: Total Withdrawals (₹) */}
-          <div className="bg-[#0f212e] border border-[#213743] hover:border-rose-500/40 rounded-xl p-3 sm:p-3.5 transition-colors shadow-sm flex flex-col justify-between">
+          <div className="bg-[#0f212e] border border-[#213743] hover:border-rose-500/40 rounded-xl p-4 transition-colors shadow-sm flex flex-col justify-between min-h-[96px]">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-rose-400 font-mono">
+              <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-rose-400 font-mono">
                 Total Withdrawals
               </span>
               <div className="w-6 h-6 rounded-lg bg-rose-500/15 text-rose-400 flex items-center justify-center">
                 <ArrowUpRight className="w-3.5 h-3.5" />
               </div>
             </div>
-            <div className="text-lg sm:text-xl font-black text-white font-mono tracking-tight">
+            <div className="text-base sm:text-lg font-black text-white font-mono tracking-tight">
               ₹{(metrics?.totalWithdrawalsVolume ?? 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
             </div>
           </div>
 
           {/* Box 6: Empty Placeholder Box */}
-          <div className="border border-dashed border-[#2f4553] bg-[#0f212e]/50 rounded-xl flex flex-col items-center justify-center p-3 text-center transition-colors">
+          <div className="border border-dashed border-[#2f4553] bg-[#0f212e]/50 rounded-xl flex flex-col items-center justify-center p-4 text-center transition-colors min-h-[96px]">
             <Plus className="w-5 h-5 text-[#2f4553] mb-1" />
-            <span className="text-[11px] font-mono text-[#b1bad3]/60">
+            <span className="text-[10px] sm:text-[11px] font-mono text-[#b1bad3]/60">
               — Reserved Metric Slot —
             </span>
           </div>

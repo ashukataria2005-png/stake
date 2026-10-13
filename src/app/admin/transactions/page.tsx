@@ -215,15 +215,9 @@ export default function AdminTransactionsPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#131722] border border-[#1e2433] rounded-2xl p-4 sm:p-5 shadow-lg">
         <div>
-          <div className="flex items-center gap-2">
-            <CreditCard className="w-5 h-5 text-amber-400" />
-            <h1 className="text-lg sm:text-xl font-black text-white tracking-wide">
-              Deposit & Withdrawal Desk
-            </h1>
-            <span className="px-2 py-0.5 text-[10px] font-black uppercase tracking-wider bg-amber-500/15 text-amber-300 border border-amber-500/30 rounded-md">
-              Live Gateway
-            </span>
-          </div>
+          <h1 className="text-lg sm:text-xl font-black text-white tracking-wide">
+            Deposit & Withdrawal Desk
+          </h1>
           <p className="text-xs text-slate-400 mt-1">
             Real-time deposit queues, late UTR proofs, instant wallet credits and settlement ledger.
           </p>

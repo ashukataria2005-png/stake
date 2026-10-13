@@ -54,8 +54,21 @@ function DepositPayContent() {
   const walletCreditAmount = appliedPromo ? appliedPromo.creditedAmount : baseAmount;
 
   // Merchant details (Amount payable via UPI)
-  const merchantUpi = "stakeofficial@upi";
-  const merchantName = "StakeGaming";
+  const [merchantUpi, setMerchantUpi] = useState<string>("stakeofficial@upi");
+  const [merchantName, setMerchantName] = useState<string>("StakeGaming");
+
+  useEffect(() => {
+    fetch("/api/admin/settings")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.success && data?.settings?.upiId) {
+          setMerchantUpi(data.settings.upiId);
+          if (data.settings.upiName) setMerchantName(data.settings.upiName);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const upiUrl = `upi://pay?pa=${merchantUpi}&pn=${encodeURIComponent(
     merchantName
   )}&am=${payableAmount.toFixed(2)}&cu=INR&tn=${encodeURIComponent(rawOrderId)}`;

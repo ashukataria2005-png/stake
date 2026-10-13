@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
+import { usePathname } from "next/navigation";
 import { CRYPTO_CURRENCIES, ALL_FIAT_CURRENCIES } from "@/data/currencies";
 
 export interface UserProfile {
@@ -149,9 +150,22 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [previewGame, setPreviewGame] = useState<any | null>(null);
   const [userLuckMode, setUserLuckMode] = useState<"HIGH_WIN" | "MEDIUM_WIN" | "LOW_WIN" | "NO_CONTROL">("NO_CONTROL");
 
+  const pathname = usePathname();
+
   const refreshLuckMode = useCallback(async () => {
     try {
-      const activeId = user?.id || user?.username || user?.name || "demo_player";
+      const activeUser = user || (typeof window !== "undefined" ? (() => {
+        try {
+          const authRaw = localStorage.getItem(AUTH_STORAGE_KEY);
+          if (authRaw) {
+            const parsed = JSON.parse(authRaw);
+            if (parsed?.user) return parsed.user;
+          }
+        } catch {}
+        return null;
+      })() : null);
+
+      const activeId = activeUser?.id || activeUser?.username || activeUser?.name || "demo_player";
       const res = await fetch(`/api/games/luck-settings?userId=${encodeURIComponent(activeId)}`);
       const data = await res.json();
       if (data?.success && data?.effectiveMode) {
@@ -162,8 +176,22 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user]);
 
+  // Route Changes / Game Navigation: instant background sync when pathname changes
   useEffect(() => {
     refreshLuckMode();
+    syncWalletBalance();
+  }, [pathname, refreshLuckMode]);
+
+  // Silent real-time auto-polling (every 3.5 seconds) for latest Luck/RTP rules and balance
+  useEffect(() => {
+    refreshLuckMode();
+    const luckInterval = setInterval(() => {
+      refreshLuckMode();
+    }, 3500);
+
+    return () => {
+      clearInterval(luckInterval);
+    };
   }, [refreshLuckMode]);
 
   // Timestamp to protect optimistic gameplay deductions/wins from being rolled back by background polling
@@ -209,14 +237,17 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user]);
 
-  // Periodic polling & event-driven live balance sync
+  // Periodic polling & event-driven live balance sync (every 3.5 seconds)
   useEffect(() => {
     syncWalletBalance();
     const interval = setInterval(() => {
       syncWalletBalance();
-    }, 4000);
+    }, 3500);
 
-    const handleRefresh = () => syncWalletBalance();
+    const handleRefresh = () => {
+      syncWalletBalance(true);
+      refreshLuckMode();
+    };
     window.addEventListener("stake_wallet_refresh", handleRefresh);
     window.addEventListener("stake_deposit_orders_updated", handleRefresh);
     window.addEventListener("focus", handleRefresh);
@@ -227,7 +258,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       window.removeEventListener("stake_deposit_orders_updated", handleRefresh);
       window.removeEventListener("focus", handleRefresh);
     };
-  }, [syncWalletBalance]);
+  }, [syncWalletBalance, refreshLuckMode]);
 
   const openGamePreview = useCallback((game: any) => {
     setPreviewGame(game);

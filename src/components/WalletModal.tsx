@@ -198,9 +198,21 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
     setMounted(true);
   }, []);
 
+  const [receiverUpi, setReceiverUpi] = useState<string>("stakeofficial@upi");
+  const [receiverName, setReceiverName] = useState<string>("Stake Casino");
+
   useEffect(() => {
     if (isOpen) {
       loadLedgers();
+      fetch("/api/admin/settings")
+        .then((r) => r.json())
+        .then((data) => {
+          if (data?.success && data?.settings?.upiId) {
+            setReceiverUpi(data.settings.upiId);
+            if (data.settings.upiName) setReceiverName(data.settings.upiName);
+          }
+        })
+        .catch(() => {});
     } else {
       setDepositStep("amount");
       setUtrInput("");
@@ -280,7 +292,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
   };
 
   const handleCopyUpi = () => {
-    navigator.clipboard.writeText("stakeofficial@upi");
+    navigator.clipboard.writeText(receiverUpi);
     setCopiedUpi(true);
     sounds.playClick();
     setTimeout(() => setCopiedUpi(false), 2000);
@@ -887,7 +899,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
-                            `upi://pay?pa=stakeofficial@upi&pn=Stake%20Casino&am=${finalPayableAmount.toFixed(2)}&cu=INR&tn=${currentOrderId}`
+                            `upi://pay?pa=${receiverUpi}&pn=${encodeURIComponent(receiverName)}&am=${finalPayableAmount.toFixed(2)}&cu=INR&tn=${currentOrderId}`
                           )}`}
                           alt="Deposit UPI QR Code"
                           className="w-36 h-36 sm:w-44 sm:h-44 object-contain"
@@ -902,7 +914,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                     <div className="flex items-center justify-between p-3 rounded-xl bg-[#0f212e] border border-[#213743]">
                       <div className="flex flex-col">
                         <span className="text-[10px] uppercase font-bold text-[#7a889b]">UPI ID (VPA)</span>
-                        <span className="font-mono text-xs font-bold text-white">stakeofficial@upi</span>
+                        <span className="font-mono text-xs font-bold text-white">{receiverUpi}</span>
                       </div>
                       <button
                         type="button"

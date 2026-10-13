@@ -77,14 +77,14 @@ export default function CasinoHomePage() {
   const isSearching = searchQuery.trim().length > 0;
   const searchResults: GameItem[] = isSearching
     ? ALL_GAMES.filter((g) => {
-        const q = searchQuery.trim().toLowerCase();
-        return (
-          g.title.toLowerCase().includes(q) ||
-          (g.name && g.name.toLowerCase().includes(q)) ||
-          g.slug.toLowerCase().includes(q) ||
-          (g.provider && g.provider.toLowerCase().includes(q))
-        );
-      })
+      const q = searchQuery.trim().toLowerCase();
+      return (
+        g.title.toLowerCase().includes(q) ||
+        (g.name && g.name.toLowerCase().includes(q)) ||
+        g.slug.toLowerCase().includes(q) ||
+        (g.provider && g.provider.toLowerCase().includes(q))
+      );
+    })
     : [];
 
   // Slot Demo Player Modal State
@@ -702,7 +702,7 @@ export default function CasinoHomePage() {
     bgGradient: game.bgGradient || "from-red-950/80 via-[#1a2c38] to-[#0f212e]",
   }));
 
-    // 4.61. Pragmatic Play Games (32 Games)
+  // 4.61. Pragmatic Play Games (32 Games)
   const pragmaticGames: CasinoCardData[] = PRAGMATIC_GAMES.map((game) => ({
     id: game.id,
     title: game.title,
@@ -728,7 +728,7 @@ export default function CasinoHomePage() {
     bgGradient: "from-blue-950/80 via-[#1a2c38] to-[#0f212e]",
   }));
 
-  
+
   // Task 31 & 37 Card Mappings
   const ezugiGames: CasinoCardData[] = EZUGI_GAMES.map((game) => ({
     id: game.id,
@@ -1049,6 +1049,36 @@ export default function CasinoHomePage() {
   // 7. Only on Stake with '2x VIP' badge (9 Games)
   const onlyOnStakeGames: CasinoCardData[] = [
     {
+      id: "hp100-chicken-tour",
+      title: "Chicken Tour",
+      provider: "HP100",
+      playersCount: 1190,
+      badge: "2X VIP",
+      badgeColor: "bg-cyan-500/20 text-cyan-300 border-cyan-400/40",
+      graphic: <span className="text-3xl">🦈🌊</span>,
+      bgGradient: "from-cyan-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "evoplay-uncrossable-rush",
+      title: "Uncrossable Rush",
+      provider: "EVOPLAY",
+      playersCount: 1840,
+      badge: "2X VIP",
+      badgeColor: "bg-cyan-500/20 text-cyan-300 border-cyan-400/40",
+      graphic: <span className="text-3xl">🦈🌊</span>,
+      bgGradient: "from-cyan-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "chicken-banana",
+      title: "Chicken Banana",
+      provider: "INOUT",
+      playersCount: 1840,
+      badge: "2X VIP",
+      badgeColor: "bg-cyan-500/20 text-cyan-300 border-cyan-400/40",
+      graphic: <span className="text-3xl">🦈🌊</span>,
+      bgGradient: "from-cyan-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
       id: "sharks",
       title: "Sharks!",
       provider: "Push Gaming",
@@ -1246,6 +1276,36 @@ export default function CasinoHomePage() {
   // 9. New Releases (9 Games)
   const newReleasesGames: CasinoCardData[] = [
     {
+      id: "stock-market",
+      title: "Stock Market",
+      provider: "Evolution",
+      playersCount: 891,
+      badge: "NEW",
+      badgeColor: "bg-purple-500/20 text-purple-300 border-purple-500/30",
+      graphic: <span className="text-3xl">🧟‍♂️🏫</span>,
+      bgGradient: "from-purple-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "bac-bo",
+      title: "Bac Bo",
+      provider: "Evolution",
+      playersCount: 1380,
+      badge: "NEW",
+      badgeColor: "bg-purple-500/20 text-purple-300 border-purple-500/30",
+      graphic: <span className="text-3xl">🧟♂️🏫</span>,
+      bgGradient: "from-purple-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
+      id: "ezugi-auto-roulette",
+      title: "Auto Roulette",
+      provider: "Ezugi",
+      playersCount: 787,
+      badge: "NEW",
+      badgeColor: "bg-purple-500/20 text-purple-300 border-purple-500/30",
+      graphic: <span className="text-3xl">🧟‍♂️🏫</span>,
+      bgGradient: "from-purple-950/80 via-[#1a2c38] to-[#0f212e]",
+    },
+    {
       id: "gates-olympus-2500",
       title: "Gates of Olympus 2500",
       provider: "Pragmatic Play",
@@ -1255,6 +1315,7 @@ export default function CasinoHomePage() {
       graphic: <span className="text-3xl">⚡🏺</span>,
       bgGradient: "from-amber-950/80 via-[#1a2c38] to-[#0f212e]",
     },
+
     {
       id: "zombie-academy",
       title: "Zombie Academy Megaways",
@@ -1380,7 +1441,7 @@ export default function CasinoHomePage() {
           if (mult >= 5) {
             try {
               confetti({ particleCount: 60, spread: 60, origin: { y: 0.6 } });
-            } catch {}
+            } catch { }
           }
         } else {
           setSlotLastWin(0);
@@ -1509,62 +1570,62 @@ export default function CasinoHomePage() {
             onSelectCategory={setActiveCategory}
           />
 
-      {/* Dynamic Category Rows from layoutConfig */}
-      {CASINO_LOBBY_CATEGORIES.filter((cat) => cat.enabled).map((cat) => {
-        let cards: CasinoCardData[] = [];
+          {/* Dynamic Category Rows from layoutConfig */}
+          {CASINO_LOBBY_CATEGORIES.filter((cat) => cat.enabled).map((cat) => {
+            let cards: CasinoCardData[] = [];
 
-        if (cat.id === "publishers") {
-          cards = publishers;
-        } else if (cat.id === "featured-publishers") {
-          cards = featuredPublishers;
-        } else if (cat.id === "only-on-stake") {
-          cards = onlyOnStakeGames;
-        } else if (cat.id === "burst-games") {
-          cards = burstGames;
-        } else if (cat.id === "new-releases") {
-          cards = newReleasesGames;
-        } else if (cat.id === "pragmatic-play") {
-          cards = pragmaticGames;
-        } else if (cat.id === "hacksaw-gaming") {
-          cards = hacksawGames;
-        } else if (cat.id === "turbogames") {
-          cards = turboGames;
-        } else {
-          for (const slug of cat.orderedGameSlugs) {
-            const game = masterGameMap.get(slug) || getGameItem(slug);
-            if (game) {
-              cards.push({
-                id: game.slug || game.id,
-                title: game.title || (game as any).name || slug,
-                provider: game.provider,
-                playersCount: game.playersCount,
-                badge: game.badge,
-                badgeColor: game.badgeColor,
-                href: game.href || `/casino/games/${game.slug || game.id}`,
-                image: getGameThumbnail(game.slug || game.id, game.image),
-                bgGradient: game.bgGradient,
-              });
+            if (cat.id === "publishers") {
+              cards = publishers;
+            } else if (cat.id === "featured-publishers") {
+              cards = featuredPublishers;
+            } else if (cat.id === "only-on-stake") {
+              cards = onlyOnStakeGames;
+            } else if (cat.id === "burst-games") {
+              cards = burstGames;
+            } else if (cat.id === "new-releases") {
+              cards = newReleasesGames;
+            } else if (cat.id === "pragmatic-play") {
+              cards = pragmaticGames;
+            } else if (cat.id === "hacksaw-gaming") {
+              cards = hacksawGames;
+            } else if (cat.id === "turbogames") {
+              cards = turboGames;
+            } else {
+              for (const slug of cat.orderedGameSlugs) {
+                const game = masterGameMap.get(slug) || getGameItem(slug);
+                if (game) {
+                  cards.push({
+                    id: game.slug || game.id,
+                    title: game.title || (game as any).name || slug,
+                    provider: game.provider,
+                    playersCount: game.playersCount,
+                    badge: game.badge,
+                    badgeColor: game.badgeColor,
+                    href: game.href || `/casino/games/${game.slug || game.id}`,
+                    image: getGameThumbnail(game.slug || game.id, game.image),
+                    bgGradient: game.bgGradient,
+                  });
+                }
+              }
             }
-          }
-        }
 
-        return (
-          <CasinoGameRow
-            key={cat.id}
-            title={cat.title}
-            rowBadge={cat.rowBadge}
-            linkHref={cat.viewAllLink || `/casino/group/${cat.id}`}
-            cards={cards}
-            onCardClick={handleCardClick}
-            sectionId={cat.id}
-            showGameTitle={cat.showGameTitle ?? true}
-            showProviderName={cat.showProviderName ?? true}
-          />
-        );
-      })}
+            return (
+              <CasinoGameRow
+                key={cat.id}
+                title={cat.title}
+                rowBadge={cat.rowBadge}
+                linkHref={cat.viewAllLink || `/casino/group/${cat.id}`}
+                cards={cards}
+                onCardClick={handleCardClick}
+                sectionId={cat.id}
+                showGameTitle={cat.showGameTitle ?? true}
+                showProviderName={cat.showProviderName ?? true}
+              />
+            );
+          })}
 
-      {/* 13. BETS FEED TICKER: Tabs for [ My Bets | All Bets | High Rollers ] + Live Table (Game | Payout) */}
-      <CasinoLiveBets />
+          {/* 13. BETS FEED TICKER: Tabs for [ My Bets | All Bets | High Rollers ] + Live Table (Game | Payout) */}
+          <CasinoLiveBets />
         </>
       )}
 
@@ -1601,9 +1662,8 @@ export default function CasinoHomePage() {
                     {row.map((sym, cIdx) => (
                       <div
                         key={cIdx}
-                        className={`h-12 sm:h-14 rounded-lg bg-[#1a2c38] border border-[#213743] flex items-center justify-center text-2xl shadow-sm transition-all ${
-                          isSpinningSlot ? "animate-pulse" : ""
-                        }`}
+                        className={`h-12 sm:h-14 rounded-lg bg-[#1a2c38] border border-[#213743] flex items-center justify-center text-2xl shadow-sm transition-all ${isSpinningSlot ? "animate-pulse" : ""
+                          }`}
                       >
                         {sym}
                       </div>

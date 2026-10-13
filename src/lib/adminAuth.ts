@@ -2,6 +2,7 @@ import crypto from "crypto";
 import { cookies } from "next/headers";
 import prisma from "@/lib/prisma";
 import { hashPassword, verifyPassword } from "@/lib/auth";
+export { hashPassword, verifyPassword };
 
 export const ADMIN_COOKIE_NAME = "stake_admin_token";
 const ADMIN_SECRET = process.env.ADMIN_JWT_SECRET || "stake_super_admin_secret_key_2026_!@#";

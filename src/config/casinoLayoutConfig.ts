@@ -141,6 +141,29 @@ export const CASINO_LAYOUT_CATEGORIES: CategoryLayoutItem[] = [
     orderedGameSlugs: SMARTSOFT_SLUGS,
   },
   {
+    id: "featured-publishers",
+    title: "Featured Publishers",
+    enabled: true,
+    viewAllLink: "/casino/collection/providers",
+    showGameTitle: true,
+    showProviderName: true,
+    orderedGameSlugs: [
+      "fpub-evoslot",
+      "fpub-no2ap",
+      "fpub-ovryx",
+      "fpub-titan",
+      "fpub-apex",
+      "fpub-spinpulse",
+      "fpub-volt",
+      "fpub-quant",
+      "fpub-hyper",
+      "fpub-octoplay",
+      "fpub-print",
+      "fpub-slotmill",
+      "fpub-avatarux",
+    ],
+  },
+  {
     id: "hacksaw-gaming",
     title: "Hacksaw Gaming",
     enabled: true,
@@ -183,8 +206,8 @@ export const CASINO_LAYOUT_CATEGORIES: CategoryLayoutItem[] = [
     title: "Pragmatic Play",
     enabled: true,
     viewAllLink: "/casino/group/pragmatic-play",
-    showGameTitle: true,
-    showProviderName: true,
+    showGameTitle: false,
+    showProviderName: false,
     orderedGameSlugs: [
       "wild-wild-riches",
       "gems-bonanza",
@@ -248,29 +271,7 @@ export const CASINO_LAYOUT_CATEGORIES: CategoryLayoutItem[] = [
 
 
 
-  {
-    id: "featured-publishers",
-    title: "Featured Publishers",
-    enabled: true,
-    viewAllLink: "/casino/collection/providers",
-    showGameTitle: true,
-    showProviderName: true,
-    orderedGameSlugs: [
-      "fpub-evoslot",
-      "fpub-no2ap",
-      "fpub-ovryx",
-      "fpub-titan",
-      "fpub-apex",
-      "fpub-spinpulse",
-      "fpub-volt",
-      "fpub-quant",
-      "fpub-hyper",
-      "fpub-octoplay",
-      "fpub-print",
-      "fpub-slotmill",
-      "fpub-avatarux",
-    ],
-  },
+  
   {
     id: "only-on-stake",
     title: "Only on Stake",
@@ -297,7 +298,7 @@ export const CASINO_LAYOUT_CATEGORIES: CategoryLayoutItem[] = [
     enabled: true,
     viewAllLink: "/casino/group/burst-games",
     showGameTitle: false,
-    showProviderName: true,
+    showProviderName: false,
     orderedGameSlugs: [
       "spribe-aviator",
       "crash-x",
@@ -322,6 +323,9 @@ export const CASINO_LAYOUT_CATEGORIES: CategoryLayoutItem[] = [
     showGameTitle: false,
     showProviderName: true,
     orderedGameSlugs: [
+      "super-sic-bo",
+      "stock-market",
+      "ezugi-diamond-roulette",
       "gates-olympus-2500",
       "zombie-academy",
       "dork-show",
