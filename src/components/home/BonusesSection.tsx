@@ -27,7 +27,7 @@ export const WELCOME_BONUSES: BonusOffer[] = [
     depositTier: "1st deposit",
     bonusPercent: "100%",
     freeSpins: "70FS",
-    image: "/bonus/1stdeposit.png",
+    image: "/bonus/1stdeposit.jpg",
     isUnlocked: true,
   },
   {
@@ -35,7 +35,7 @@ export const WELCOME_BONUSES: BonusOffer[] = [
     depositTier: "2nd deposit",
     bonusPercent: "120%",
     freeSpins: "100FS",
-    image: "/bonus/2nddeposit.png",
+    image: "/bonus/2nddeposit.jpg",
     isUnlocked: false,
   },
   {
@@ -43,7 +43,7 @@ export const WELCOME_BONUSES: BonusOffer[] = [
     depositTier: "3rd deposit",
     bonusPercent: "130%",
     freeSpins: "150FS",
-    image: "/bonus/3rddeposit.png",
+    image: "/bonus/3rddeposit.jpg",
     isUnlocked: false,
   },
   {
@@ -51,7 +51,7 @@ export const WELCOME_BONUSES: BonusOffer[] = [
     depositTier: "4th deposit",
     bonusPercent: "150%",
     freeSpins: "180FS",
-    image: "/bonus/4thdeposit.png",
+    image: "/bonus/4thdeposit.jpg",
     isUnlocked: false,
   },
 ];
@@ -274,30 +274,30 @@ export default function BonusesSection() {
           <img
             src="/bonus/100casinobonus.png"
             alt="100% casino bonus"
-          className="w-full h-auto object-cover pointer-events-none select-none block"
-          onError={(e) => {
-            if (e.currentTarget.src.endsWith(".png")) {
-              e.currentTarget.src = "/bonus/100casinobonus.jpg";
-            }
-          }}
-        />
+            className="w-full h-auto object-cover pointer-events-none select-none block"
+            onError={(e) => {
+              if (e.currentTarget.src.endsWith(".png")) {
+                e.currentTarget.src = "/bonus/100casinobonus.jpg";
+              }
+            }}
+          />
 
-        {/* Overlay Live Countdown Timer (Bottom-Left) */}
-        <div className="absolute bottom-[10%] left-[5%] w-[38%] max-w-[150px] flex items-center justify-center pointer-events-none">
-          <div className="w-full bg-[#2b3d54]/95 backdrop-blur-md py-1 px-2.5 rounded-full border border-white/10 shadow-inner text-white font-mono text-[10px] sm:text-xs font-bold tracking-widest text-center whitespace-nowrap">
-            {formattedTimer}
+          {/* Overlay Live Countdown Timer (Bottom-Left) */}
+          <div className="absolute bottom-[10%] left-[5%] w-[38%] max-w-[150px] flex items-center justify-center pointer-events-none">
+            <div className="w-full bg-[#2b3d54]/95 backdrop-blur-md py-1 px-2.5 rounded-full border border-white/10 shadow-inner text-white font-mono text-[10px] sm:text-xs font-bold tracking-widest text-center whitespace-nowrap">
+              {formattedTimer}
+            </div>
           </div>
-        </div>
 
-        {/* Overlay Receive Button Hit-Box (Bottom-Right) */}
-        <button
-          onClick={() => handleReceiveBonus()}
-          className="absolute bottom-[8%] right-[5%] w-[38%] max-w-[155px] h-[36px] sm:h-[42px] cursor-pointer rounded-xl active:scale-95 transition-transform bg-transparent hover:bg-white/5 focus:outline-none"
-          aria-label="Receive 100% Casino Bonus"
-          title="Receive 100% Casino Bonus"
-        />
+          {/* Overlay Receive Button Hit-Box (Bottom-Right) */}
+          <button
+            onClick={() => handleReceiveBonus()}
+            className="absolute bottom-[8%] right-[5%] w-[38%] max-w-[155px] h-[36px] sm:h-[42px] cursor-pointer rounded-xl active:scale-95 transition-transform bg-transparent hover:bg-white/5 focus:outline-none"
+            aria-label="Receive 100% Casino Bonus"
+            title="Receive 100% Casino Bonus"
+          />
+        </div>
       </div>
-    </div>
 
       {/* ------------------------------------------------------------- */}
       {/* 4. COMPLETE 8 FAQ ACCORDION AT BOTTOM */}
