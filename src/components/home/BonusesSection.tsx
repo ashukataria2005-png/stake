@@ -4,12 +4,10 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   Gift,
   Clock,
-  Lock,
   ChevronDown,
   ChevronUp,
   ChevronLeft,
   ChevronRight,
-  Info,
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
@@ -30,321 +28,232 @@ export const WELCOME_BONUSES: BonusOffer[] = [
     id: "bonus-1",
     depositTier: "1st deposit",
     bonusPercent: "100%",
-    freeSpins: "+ 70FS",
+    freeSpins: "70FS",
     theme: "gold",
     isUnlocked: true,
-    bgGradient: "from-[#8f6d3f] to-[#5a4427]",
+    bgGradient: "from-[#84633d] via-[#735533] to-[#594025]",
   },
   {
     id: "bonus-2",
     depositTier: "2nd deposit",
     bonusPercent: "120%",
-    freeSpins: "+ 100FS",
+    freeSpins: "100FS",
     theme: "teal",
     isUnlocked: false,
-    bgGradient: "from-[#215a72] to-[#123645]",
+    bgGradient: "from-[#235d75] via-[#1c4d62] to-[#133543]",
   },
   {
     id: "bonus-3",
     depositTier: "3rd deposit",
     bonusPercent: "130%",
-    freeSpins: "+ 150FS",
+    freeSpins: "150FS",
     theme: "blue",
     isUnlocked: false,
-    bgGradient: "from-[#2a4d7d] to-[#172d4b]",
+    bgGradient: "from-[#2a5187] via-[#21406c] to-[#172d4c]",
   },
   {
     id: "bonus-4",
     depositTier: "4th deposit",
     bonusPercent: "150%",
-    freeSpins: "+ 180FS",
+    freeSpins: "180FS",
     theme: "purple",
     isUnlocked: false,
-    bgGradient: "from-[#69427b] to-[#422550]",
+    bgGradient: "from-[#633e75] via-[#50305f] to-[#3a2146]",
   },
 ];
 
 // ============================================================================
-// 1. SILVER METALLIC 3D GIFT BOX WITH COLOR-CODED ACCENT RIBBON & % TAG
+// 1. FLOATING 3D SILVER CHROME GIFT BOX WITH COLOR-CODED SATIN RIBBON
 // ============================================================================
 function GiftBox3D({ theme }: { theme: "gold" | "teal" | "blue" | "purple" }) {
-  const ribbonDefs = {
+  const ribbonStyles = {
     gold: {
-      ribbonGrad: "url(#ribbon-gold)",
-      shine: "#fef08a",
-      tagGrad: "url(#tag-gold)",
-      tagBorder: "#fde047",
-      tagText: "#451a03",
+      gradId: "ribbon-grad-gold",
+      tagGradId: "tag-grad-gold",
+      from: "#e8c878",
+      mid: "#cfa24d",
+      to: "#b08a38",
+      shine: "#fff9db",
+      accent: "#fde047",
     },
     teal: {
-      ribbonGrad: "url(#ribbon-teal)",
-      shine: "#a5f3fc",
-      tagGrad: "url(#tag-teal)",
-      tagBorder: "#5eead4",
-      tagText: "#042f2e",
+      gradId: "ribbon-grad-teal",
+      tagGradId: "tag-grad-teal",
+      from: "#4dd0e1",
+      mid: "#00acc1",
+      to: "#00838f",
+      shine: "#e0f7fa",
+      accent: "#4dd0e1",
     },
     blue: {
-      ribbonGrad: "url(#ribbon-blue)",
-      shine: "#bfdbfe",
-      tagGrad: "url(#tag-blue)",
-      tagBorder: "#93c5fd",
-      tagText: "#172554",
+      gradId: "ribbon-grad-blue",
+      tagGradId: "tag-grad-blue",
+      from: "#42a5f5",
+      mid: "#1e88e5",
+      to: "#1565c0",
+      shine: "#e3f2fd",
+      accent: "#64b5f6",
     },
     purple: {
-      ribbonGrad: "url(#ribbon-purple)",
-      shine: "#f3e8ff",
-      tagGrad: "url(#tag-purple)",
-      tagBorder: "#d8b4fe",
-      tagText: "#3b0764",
+      gradId: "ribbon-grad-purple",
+      tagGradId: "tag-grad-purple",
+      from: "#ba68c8",
+      mid: "#8e24aa",
+      to: "#6a1b9a",
+      shine: "#f3e5f5",
+      accent: "#ce93d8",
     },
   }[theme];
 
   return (
-    <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-36 h-36 z-20 pointer-events-none select-none filter drop-shadow-[0_16px_24px_rgba(0,0,0,0.6)] transition-transform duration-300 group-hover:scale-105">
+    <div className="absolute -top-9 left-1/2 -translate-x-1/2 w-28 h-28 pointer-events-none z-20 flex flex-col items-center justify-center select-none">
+      {/* Ambient radial floor shadow on card roof */}
+      <div className="absolute bottom-1 w-20 h-4 bg-black/50 blur-[6px] rounded-full" />
+
+      {/* 3D Chrome Cube & Satin Bow Render */}
       <svg
-        viewBox="0 0 120 120"
+        viewBox="0 0 100 100"
         className="w-full h-full overflow-visible"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
-          {/* Silver Metallic Box Gradients */}
-          <linearGradient id="silver-lid-top" x1="60" y1="20" x2="60" y2="58" gradientUnits="userSpaceOnUse">
+          {/* Chrome Cube Gradients */}
+          <linearGradient id="chrome-top" x1="50" y1="18" x2="50" y2="48" gradientUnits="userSpaceOnUse">
             <stop offset="0%" stopColor="#ffffff" />
-            <stop offset="45%" stopColor="#e2e8f0" />
+            <stop offset="40%" stopColor="#e2e8f0" />
             <stop offset="100%" stopColor="#cbd5e1" />
           </linearGradient>
-          <linearGradient id="silver-lid-left" x1="16" y1="41" x2="60" y2="66" gradientUnits="userSpaceOnUse">
+          <linearGradient id="chrome-left" x1="16" y1="35" x2="50" y2="82" gradientUnits="userSpaceOnUse">
             <stop offset="0%" stopColor="#94a3b8" />
-            <stop offset="100%" stopColor="#64748b" />
-          </linearGradient>
-          <linearGradient id="silver-lid-right" x1="60" y1="41" x2="104" y2="66" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#cbd5e1" />
-            <stop offset="100%" stopColor="#94a3b8" />
-          </linearGradient>
-          <linearGradient id="silver-box-left" x1="20" y1="45" x2="60" y2="94" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#94a3b8" />
-            <stop offset="60%" stopColor="#64748b" />
+            <stop offset="50%" stopColor="#64748b" />
             <stop offset="100%" stopColor="#475569" />
           </linearGradient>
-          <linearGradient id="silver-box-right" x1="60" y1="45" x2="100" y2="94" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#f1f5f9" />
-            <stop offset="60%" stopColor="#cbd5e1" />
+          <linearGradient id="chrome-right" x1="50" y1="35" x2="84" y2="82" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#f8fafc" />
+            <stop offset="50%" stopColor="#cbd5e1" />
             <stop offset="100%" stopColor="#94a3b8" />
           </linearGradient>
 
-          {/* Gold Satin Ribbon */}
-          <linearGradient id="ribbon-gold" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#fef08a" />
-            <stop offset="50%" stopColor="#f59e0b" />
-            <stop offset="100%" stopColor="#b45309" />
+          {/* Ribbon Gradients */}
+          <linearGradient id={ribbonStyles.gradId} x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor={ribbonStyles.from} />
+            <stop offset="50%" stopColor={ribbonStyles.mid} />
+            <stop offset="100%" stopColor={ribbonStyles.to} />
           </linearGradient>
-          <linearGradient id="tag-gold" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#fef9c3" />
-            <stop offset="100%" stopColor="#eab308" />
-          </linearGradient>
-
-          {/* Teal Satin Ribbon */}
-          <linearGradient id="ribbon-teal" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#a5f3fc" />
-            <stop offset="50%" stopColor="#06b6d4" />
-            <stop offset="100%" stopColor="#0f766e" />
-          </linearGradient>
-          <linearGradient id="tag-teal" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#ccfbf1" />
-            <stop offset="100%" stopColor="#14b8a6" />
-          </linearGradient>
-
-          {/* Royal Blue Satin Ribbon */}
-          <linearGradient id="ribbon-blue" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#bfdbfe" />
-            <stop offset="50%" stopColor="#3b82f6" />
-            <stop offset="100%" stopColor="#1d4ed8" />
-          </linearGradient>
-          <linearGradient id="tag-blue" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#dbeafe" />
-            <stop offset="100%" stopColor="#3b82f6" />
-          </linearGradient>
-
-          {/* Purple Satin Ribbon */}
-          <linearGradient id="ribbon-purple" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#f3e8ff" />
-            <stop offset="50%" stopColor="#a855f7" />
-            <stop offset="100%" stopColor="#6b21a8" />
-          </linearGradient>
-          <linearGradient id="tag-purple" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#faf5ff" />
-            <stop offset="100%" stopColor="#a855f7" />
+          <linearGradient id={ribbonStyles.tagGradId} x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor={ribbonStyles.from} />
+            <stop offset="100%" stopColor={ribbonStyles.to} />
           </linearGradient>
         </defs>
 
-        {/* Ambient Ground Shadow */}
-        <ellipse cx="60" cy="99" rx="36" ry="9" fill="#000000" opacity="0.65" />
+        {/* 1. Base Cube (Left & Right Faces) */}
+        <path d="M 16 35 L 50 50 L 50 82 L 16 67 Z" fill="url(#chrome-left)" />
+        <path d="M 50 50 L 84 35 L 84 67 L 50 82 Z" fill="url(#chrome-right)" />
 
-        {/* Silver Metallic Base (Left & Right Faces) */}
-        <path d="M 20 45 L 60 62 L 60 94 L 20 77 Z" fill="url(#silver-box-left)" />
-        <path d="M 60 62 L 100 45 L 100 77 L 60 94 Z" fill="url(#silver-box-right)" />
+        {/* 2. Vertical Ribbons on Base */}
+        <path d="M 30 41 L 37 44 L 37 76 L 30 73 Z" fill={`url(#${ribbonStyles.gradId})`} />
+        <path d="M 63 44 L 70 41 L 70 73 L 63 76 Z" fill={`url(#${ribbonStyles.gradId})`} />
 
-        {/* Vertical Base Ribbons */}
-        <path d="M 36 52 L 44 55 L 44 87 L 36 84 Z" fill={ribbonDefs.ribbonGrad} />
-        <path d="M 76 55 L 84 52 L 84 84 L 76 87 Z" fill={ribbonDefs.ribbonGrad} />
-        {/* Horizontal Base Ribbon */}
-        <path d="M 20 59 L 60 76 L 100 59 L 100 66 L 60 83 L 20 66 Z" fill={ribbonDefs.ribbonGrad} opacity="0.95" />
+        {/* 3. Horizontal Ribbons Across Base */}
+        <path d="M 16 52 L 50 67 L 84 52 L 84 57 L 50 72 L 16 57 Z" fill={`url(#${ribbonStyles.gradId})`} opacity="0.95" />
 
-        {/* Silver Lid (3D Overhang) */}
-        <path d="M 16 41 L 60 59 L 60 66 L 16 48 Z" fill="url(#silver-lid-left)" />
-        <path d="M 60 59 L 104 41 L 104 48 L 60 66 Z" fill="url(#silver-lid-right)" />
-        <path d="M 60 23 L 104 41 L 60 59 L 16 41 Z" fill="url(#silver-lid-top)" />
+        {/* 4. Chrome Lid (3D Overhang) */}
+        <path d="M 13 32 L 50 48 L 50 53 L 13 37 Z" fill="#64748b" />
+        <path d="M 50 48 L 87 32 L 87 37 L 50 53 Z" fill="#94a3b8" />
+        <path d="M 50 18 L 87 32 L 50 48 L 13 32 Z" fill="url(#chrome-top)" />
 
-        {/* Crossing Ribbons on Lid */}
-        <path d="M 34 30 L 42 34 L 86 52 L 78 48 Z" fill={ribbonDefs.ribbonGrad} />
-        <path d="M 34 50 L 42 46 L 86 28 L 78 32 Z" fill={ribbonDefs.ribbonGrad} />
+        {/* 5. Crossing Ribbons on Lid */}
+        <path d="M 28 24 L 35 27 L 72 42 L 65 39 Z" fill={`url(#${ribbonStyles.gradId})`} />
+        <path d="M 28 40 L 35 37 L 72 22 L 65 25 Z" fill={`url(#${ribbonStyles.gradId})`} />
 
-        {/* Satin Ribbon Bow on Top */}
+        {/* 6. Realistic 3D Silk Ribbon Bow on Top */}
         <path
-          d="M 60 38 C 45 15, 26 22, 42 36 C 50 43, 56 40, 60 38 Z"
-          fill={ribbonDefs.ribbonGrad}
-          stroke={ribbonDefs.shine}
+          d="M 50 32 C 38 12, 22 17, 35 29 C 42 35, 47 33, 50 32 Z"
+          fill={`url(#${ribbonStyles.gradId})`}
+          stroke={ribbonStyles.shine}
           strokeWidth="0.8"
         />
         <path
-          d="M 60 38 C 75 15, 94 22, 78 36 C 70 43, 64 40, 60 38 Z"
-          fill={ribbonDefs.ribbonGrad}
-          stroke={ribbonDefs.shine}
+          d="M 50 32 C 62 12, 78 17, 65 29 C 58 35, 53 33, 50 32 Z"
+          fill={`url(#${ribbonStyles.gradId})`}
+          stroke={ribbonStyles.shine}
           strokeWidth="0.8"
         />
-        <ellipse cx="60" cy="38" rx="6.5" ry="5.5" fill={ribbonDefs.shine} />
-        <ellipse cx="60" cy="38" rx="5" ry="4" fill={ribbonDefs.ribbonGrad} />
+        <ellipse cx="50" cy="32" rx="5.5" ry="4.5" fill={ribbonStyles.shine} />
+        <ellipse cx="50" cy="32" rx="4.2" ry="3.5" fill={`url(#${ribbonStyles.gradId})`} />
 
-        {/* Floating 3D '%' Tag / Medallion in Front */}
-        <g transform="translate(60, 72)">
-          <circle cx="0" cy="2" r="14" fill="#000000" opacity="0.5" />
-          <circle cx="0" cy="0" r="13" fill={ribbonDefs.tagGrad} stroke={ribbonDefs.tagBorder} strokeWidth="1.5" />
-          <circle cx="0" cy="0" r="10.5" fill="#0f212e" opacity="0.9" />
+        {/* 7. Embossed '%' Emblem on Front Face */}
+        <g transform="translate(50, 62)">
+          <circle cx="0" cy="1" r="11" fill="#000000" opacity="0.45" />
+          <circle cx="0" cy="0" r="10" fill={`url(#${ribbonStyles.tagGradId})`} stroke={ribbonStyles.shine} strokeWidth="1" />
+          <circle cx="0" cy="0" r="8" fill="#0f212e" opacity="0.9" />
           <text
             x="0"
-            y="4.5"
+            y="3.5"
             textAnchor="middle"
-            fill={ribbonDefs.tagBorder}
-            fontSize="12"
+            fill={ribbonStyles.accent}
+            fontSize="9.5"
             fontWeight="900"
             fontFamily="system-ui, -apple-system, sans-serif"
           >
             %
           </text>
         </g>
-
-        {/* Sparkle Glint */}
-        <path
-          d="M 92 24 L 94 18 L 96 24 L 102 26 L 96 28 L 94 34 L 92 28 L 86 26 Z"
-          fill="#ffffff"
-          opacity="0.9"
-        />
       </svg>
     </div>
   );
 }
 
 // ============================================================================
-// 2. POP-OUT PLAYING CARDS (ACE OF CLUBS & ACE OF HEARTS) + RUBY GEM
+// 2. AVAILABLE BONUSES POP-OUT CARDS & RUBY GRAPHIC (SCREENSHOT 26)
 // ============================================================================
-function PopOutCardsAndRuby() {
+function AvailableBonusesGraphic() {
   return (
-    <div className="absolute -top-6 right-3 sm:right-6 w-32 h-36 sm:w-40 sm:h-44 pointer-events-none select-none overflow-visible">
+    <div className="absolute -top-5 right-2 sm:right-4 w-32 sm:w-36 pointer-events-none select-none overflow-visible">
       <svg
-        viewBox="0 0 140 140"
+        viewBox="0 0 130 110"
         className="w-full h-full overflow-visible"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
-          <filter id="pop-card-shadow" x="-30%" y="-30%" width="160%" height="160%">
-            <feDropShadow dx="0" dy="10" stdDeviation="8" floodColor="#000000" floodOpacity="0.75" />
+          <filter id="banner-card-shadow" x="-30%" y="-30%" width="160%" height="160%">
+            <feDropShadow dx="0" dy="8" stdDeviation="6" floodColor="#000000" floodOpacity="0.7" />
           </filter>
-          <linearGradient id="pop-ruby-grad" x1="0" y1="0" x2="1" y2="1">
+          <linearGradient id="ruby-crimson" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stopColor="#ff4d6d" />
             <stop offset="40%" stopColor="#e60039" />
             <stop offset="100%" stopColor="#800020" />
           </linearGradient>
-          <linearGradient id="pop-ruby-facet" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#ff758f" />
-            <stop offset="100%" stopColor="#c9184a" />
-          </linearGradient>
         </defs>
 
-        {/* Ambient Ground Shadow */}
-        <ellipse cx="70" cy="120" rx="50" ry="10" fill="#000000" opacity="0.6" />
+        {/* Ambient Floor Shadow */}
+        <ellipse cx="65" cy="95" rx="42" ry="8" fill="#000000" opacity="0.5" />
 
-        {/* 1. Card 1 (Ace of Clubs ♣) - Tilted Left */}
-        <g transform="translate(50, 60) rotate(-14) translate(-32, -48)" filter="url(#pop-card-shadow)">
-          <rect
-            x="0"
-            y="0"
-            width="54"
-            height="76"
-            rx="7"
-            fill="#f8fafc"
-            stroke="#cbd5e1"
-            strokeWidth="1.2"
-          />
-          {/* Top-left corner */}
-          <text x="6" y="14" fill="#0f172a" fontSize="11" fontWeight="900" fontFamily="sans-serif">
-            A
-          </text>
-          <text x="6" y="24" fill="#0f172a" fontSize="10" fontFamily="sans-serif">
-            ♣
-          </text>
-          {/* Big Center Club ♣ */}
-          <text x="27" y="50" textAnchor="middle" fill="#0f172a" fontSize="26" fontFamily="sans-serif">
-            ♣
-          </text>
+        {/* Card 1: Ace of Clubs (Tilted Left) */}
+        <g transform="translate(45, 52) rotate(-14) translate(-25, -36)" filter="url(#banner-card-shadow)">
+          <rect x="0" y="0" width="46" height="64" rx="5" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="1" />
+          <text x="5" y="12" fill="#0f172a" fontSize="9" fontWeight="900">A</text>
+          <text x="5" y="20" fill="#0f172a" fontSize="8">♣</text>
+          <text x="23" y="42" textAnchor="middle" fill="#0f172a" fontSize="20">♣</text>
         </g>
 
-        {/* 2. Card 2 (Ace of Hearts ♥) - Tilted Right & Popping Outside Top Rim */}
-        <g transform="translate(85, 54) rotate(14) translate(-30, -48)" filter="url(#pop-card-shadow)">
-          <rect
-            x="0"
-            y="0"
-            width="54"
-            height="76"
-            rx="7"
-            fill="#ffffff"
-            stroke="#e2e8f0"
-            strokeWidth="1.2"
-          />
-          {/* Top-left corner */}
-          <text x="6" y="14" fill="#dc2626" fontSize="11" fontWeight="900" fontFamily="sans-serif">
-            A
-          </text>
-          <text x="6" y="24" fill="#dc2626" fontSize="10" fontFamily="sans-serif">
-            ♥
-          </text>
-          {/* Big Center Heart ♥ */}
-          <text x="27" y="50" textAnchor="middle" fill="#dc2626" fontSize="26" fontFamily="sans-serif">
-            ♥
-          </text>
+        {/* Card 2: Ace of Hearts (Tilted Right & Physically Popping Above Top Edge) */}
+        <g transform="translate(76, 44) rotate(14) translate(-25, -36)" filter="url(#banner-card-shadow)">
+          <rect x="0" y="0" width="46" height="64" rx="5" fill="#ffffff" stroke="#e2e8f0" strokeWidth="1" />
+          <text x="5" y="12" fill="#dc2626" fontSize="9" fontWeight="900">A</text>
+          <text x="5" y="20" fill="#dc2626" fontSize="8">♥</text>
+          <text x="23" y="42" textAnchor="middle" fill="#dc2626" fontSize="20">♥</text>
         </g>
 
-        {/* 3. 3D Faceted Ruby Gem in Foreground */}
-        <g transform="translate(70, 94) scale(1.15)" filter="url(#pop-card-shadow)">
-          <ellipse cx="0" cy="18" rx="20" ry="5" fill="#000000" opacity="0.6" />
-
-          {/* Faceted Ruby Contour */}
-          <polygon points="-12,-8 12,-8 18,2 -18,2" fill="url(#pop-ruby-facet)" />
-          <polygon points="-18,2 -12,-8 -6,-8" fill="#ff758f" opacity="0.8" />
-          <polygon points="18,2 12,-8 6,-8" fill="#a4133c" opacity="0.9" />
-          <polygon points="-18,2 0,16 18,2" fill="url(#pop-ruby-grad)" />
-          <polygon points="-8,2 0,16 8,2" fill="#ff4d6d" opacity="0.9" />
-          <polygon points="-18,2 -8,2 0,16" fill="#800f2f" />
-          <polygon points="18,2 8,2 0,16" fill="#c9184a" />
-
-          {/* Sparkle Glint */}
-          <circle cx="-5" cy="0" r="1.5" fill="#ffffff" />
-          <path
-            d="M 10 -4 L 11.5 -8 L 13 -4 L 17 -2.5 L 13 -1 L 11.5 3 L 10 -1 L 6 -2.5 Z"
-            fill="#ffffff"
-            opacity="0.9"
-          />
+        {/* Sparkling Ruby Gem In Foreground */}
+        <g transform="translate(64, 76) scale(0.95)" filter="url(#banner-card-shadow)">
+          <polygon points="-12,-6 12,-6 16,2 -16,2" fill="#ff758f" />
+          <polygon points="-16,2 0,14 16,2" fill="url(#ruby-crimson)" />
+          <polygon points="-7,2 0,14 7,2" fill="#ff4d6d" opacity="0.9" />
+          <circle cx="-3" cy="0" r="1.2" fill="#ffffff" />
+          <path d="M 8 -3 L 9 -6 L 10 -3 L 13 -2 L 10 -1 L 9 2 L 8 -1 L 5 -2 Z" fill="#ffffff" opacity="0.95" />
         </g>
       </svg>
     </div>
@@ -453,7 +362,7 @@ export default function BonusesSection() {
     if (!scrollContainerRef.current) return;
     const container = scrollContainerRef.current;
     const scrollLeft = container.scrollLeft;
-    const cardWidth = 276; // 260px card + 16px gap
+    const cardWidth = 240; // ~230px card + gap
     const newIndex = Math.min(
       WELCOME_BONUSES.length - 1,
       Math.max(0, Math.round(scrollLeft / cardWidth))
@@ -462,7 +371,7 @@ export default function BonusesSection() {
   };
 
   return (
-    <section className="space-y-6 pt-2 pb-8 overflow-visible">
+    <section className="space-y-5 pt-2 pb-8 overflow-visible">
       {/* ------------------------------------------------------------- */}
       {/* HEADER WITH CONTROLS */}
       {/* ------------------------------------------------------------- */}
@@ -501,56 +410,57 @@ export default function BonusesSection() {
       </div>
 
       {/* ------------------------------------------------------------- */}
-      {/* 1. 4 MAIN BONUS CARDS (FIXED DIMS, EXACT GRADIENTS & 3D GIFT BOXES) */}
+      {/* 1. COMPACT 4 MAIN BONUS CARDS (ZERO EMPTY SPACE, EXACT GRADIENTS) */}
       {/* ------------------------------------------------------------- */}
       <div className="relative overflow-visible">
         <div
           ref={scrollContainerRef}
           onScroll={handleScroll}
-          className="flex overflow-x-auto snap-x snap-mandatory gap-4 px-3 sm:px-6 pt-16 pb-6 items-center overflow-y-visible select-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+          className="flex overflow-x-auto snap-x snap-mandatory gap-3 sm:gap-4 px-2 sm:px-4 pt-12 pb-5 items-center overflow-y-visible select-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
         >
-          {WELCOME_BONUSES.map((bonus, idx) => (
+          {WELCOME_BONUSES.map((bonus) => (
             <div
               key={bonus.id}
               data-bonus-card
-              className={`group w-[260px] min-h-[340px] shrink-0 snap-center rounded-[28px] relative pt-20 pb-5 px-4 flex flex-col items-center justify-between overflow-visible shadow-2xl transition-transform duration-300 hover:-translate-y-1 bg-gradient-to-b ${bonus.bgGradient}`}
+              className={`w-[215px] sm:w-[230px] h-[275px] sm:h-[285px] shrink-0 snap-center rounded-[24px] relative overflow-visible pt-[82px] pb-4 px-4 flex flex-col items-center justify-start gap-1.5 border border-white/10 shadow-xl transition-transform duration-200 hover:-translate-y-1 bg-gradient-to-b ${bonus.bgGradient}`}
             >
-              {/* Silver Metallic 3D Floating Gift Box with Accent Ribbon */}
+              {/* Floating 3D Silver Chrome Gift Box */}
               <GiftBox3D theme={bonus.theme} />
 
-              {/* Text Typography & Timer (Exact scale per screenshot) */}
-              <div className="w-full flex flex-col items-center text-center mt-2 z-10">
-                {/* Main Offer Text */}
-                <div className="text-2xl font-black text-white tracking-tight flex items-center justify-center gap-1.5">
-                  <span>
-                    {bonus.bonusPercent} {bonus.freeSpins}
-                  </span>
-                  <Info className="w-3.5 h-3.5 text-white/60 hover:text-white cursor-pointer transition-colors" />
-                </div>
-
-                {/* Deposit Subtitle */}
-                <div className="text-xs font-semibold text-white/70 mt-1 mb-3">
-                  {bonus.depositTier}
-                </div>
-
-                {/* Countdown Timer Badge */}
-                <div className="rounded-full bg-black/25 px-3 py-1 text-xs font-bold text-white tracking-widest font-mono shadow-inner">
-                  {formattedTimer}
-                </div>
+              {/* 1. Main Offer Text */}
+              <div className="flex items-center justify-center gap-1 mt-1">
+                <span className="text-[21px] font-black text-white tracking-tight">
+                  {bonus.bonusPercent} + {bonus.freeSpins}
+                </span>
+                <span className="text-white/60 text-xs cursor-pointer hover:text-white" title="Bonus info">
+                  ⓘ
+                </span>
               </div>
 
-              {/* Action Buttons */}
-              <div className="w-full z-10 mt-4">
+              {/* 2. Subtitle */}
+              <p className="text-[11px] font-medium text-white/65 -mt-0.5 mb-1">
+                {bonus.depositTier}
+              </p>
+
+              {/* 3. Countdown Timer Pill */}
+              <div className="bg-black/25 backdrop-blur-sm px-3 py-1 rounded-full text-[11px] font-bold text-white tracking-wider font-mono border border-white/5 mb-3.5">
+                {formattedTimer}
+              </div>
+
+              {/* 4. Action Button (Centered & Immediate) */}
+              <div className="w-full mt-auto">
                 {bonus.isUnlocked ? (
                   <button
                     onClick={() => handleReceiveBonus(bonus)}
-                    className="w-full bg-white text-black font-extrabold py-3 rounded-2xl text-sm shadow-md active:scale-95 hover:bg-neutral-100 transition-all cursor-pointer"
+                    className="w-full bg-white text-black font-extrabold py-2.5 rounded-xl text-sm shadow-md hover:bg-neutral-100 active:scale-95 transition-transform cursor-pointer"
                   >
                     Receive
                   </button>
                 ) : (
-                  <div className="w-full bg-white/10 text-white/40 py-3 rounded-2xl flex items-center justify-center cursor-not-allowed select-none">
-                    <Lock className="w-4 h-4" />
+                  <div className="w-full bg-white/10 backdrop-blur-xs py-2.5 rounded-xl flex items-center justify-center text-white/40 cursor-not-allowed">
+                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                      <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
+                    </svg>
                   </div>
                 )}
               </div>
@@ -559,7 +469,7 @@ export default function BonusesSection() {
         </div>
 
         {/* Carousel Pagination Dots Indicator */}
-        <div className="flex items-center justify-center gap-2 pt-1 pb-2">
+        <div className="flex items-center justify-center gap-2 pt-1 pb-1">
           {WELCOME_BONUSES.map((_, i) => (
             <button
               key={i}
@@ -576,40 +486,38 @@ export default function BonusesSection() {
       </div>
 
       {/* ------------------------------------------------------------- */}
-      {/* 2. "AVAILABLE BONUSES" CARD & POP-OUT PLAYING CARDS */}
+      {/* 2. AVAILABLE BONUSES 100% BANNER (SCREENSHOT 26) */}
       {/* ------------------------------------------------------------- */}
-      <div className="relative mt-8 pt-4 overflow-visible">
-        <div className="bg-gradient-to-r from-[#2c4b70] to-[#1c324e] rounded-2xl p-5 sm:p-6 relative overflow-visible shadow-xl border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-          {/* Pop-Out Playing Cards & Ruby Graphic */}
-          <PopOutCardsAndRuby />
+      <div className="bg-gradient-to-r from-[#28496e] to-[#1a324d] rounded-2xl p-4 sm:p-5 relative overflow-visible shadow-lg border border-white/5 mt-6">
+        {/* Pop-Out Playing Cards & Ruby Graphic */}
+        <AvailableBonusesGraphic />
 
-          {/* Left Text Block */}
-          <div className="space-y-2 text-left z-10 max-w-[calc(100%-120px)] sm:max-w-md">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 z-10 relative max-w-[calc(100%-110px)] sm:max-w-none">
+          <div className="space-y-1.5 text-left">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1 text-[11px] font-black uppercase tracking-wider text-white bg-white/15 px-2.5 py-0.5 rounded-full border border-white/20">
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-white/90 bg-white/10 px-2.5 py-0.5 rounded-full border border-white/15">
                 <span>To be claimed</span>
-                <Info className="w-3 h-3 text-white/80" />
+                <span className="text-[10px]">ⓘ</span>
               </span>
 
-              <span className="inline-flex items-center gap-1 text-xs font-mono font-bold text-white bg-black/30 px-3 py-0.5 rounded-full border border-white/10 tracking-widest">
+              <span className="inline-flex items-center gap-1 text-[11px] font-mono font-bold text-white bg-black/30 px-2.5 py-0.5 rounded-full border border-white/5 tracking-wider">
                 <Clock className="w-3 h-3 text-[#fbbf24]" />
                 <span>{formattedTimer}</span>
               </span>
             </div>
 
-            <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+            <h3 className="text-lg sm:text-xl font-black text-white tracking-tight">
               100% casino bonus
             </h3>
-            <p className="text-xs sm:text-sm text-white/80 leading-relaxed">
+            <p className="text-xs sm:text-sm text-white/80 max-w-[280px] sm:max-w-md leading-relaxed">
               Deposit from ₹300 &amp; get a bonus + 70 FS as a gift
             </p>
           </div>
 
-          {/* White Action Button aligned to right */}
-          <div className="z-10 sm:self-end">
+          <div className="sm:self-end shrink-0">
             <button
               onClick={() => handleReceiveBonus()}
-              className="w-full sm:w-auto bg-white hover:bg-neutral-100 text-black font-extrabold px-7 py-2.5 rounded-2xl text-sm shadow-md active:scale-95 transition-all cursor-pointer"
+              className="bg-white hover:bg-neutral-100 text-black font-extrabold px-6 py-2.5 rounded-xl text-sm shadow-md active:scale-95 transition-transform cursor-pointer"
             >
               Receive
             </button>
