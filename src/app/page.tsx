@@ -22,6 +22,7 @@ import GamesForYou from "@/components/GamesForYou";
 import TrendingSports from "@/components/TrendingSports";
 import RacesAndRafflesWidget from "@/components/RacesAndRafflesWidget";
 import LiveBetsFeed from "@/components/LiveBetsFeed";
+import BonusesSection from "@/components/home/BonusesSection";
 import StakeGameArtwork from "@/components/casino/StakeGameArtwork";
 import LiveCasinoGateModal from "@/components/casino/LiveCasinoGateModal";
 import CasinoGameRow, { CasinoCardData } from "@/components/casino/CasinoGameRow";
@@ -629,6 +630,9 @@ export default function HomePage() {
 
       {/* 11. LIVE BETS FEED (Casino Bets, Sports Bets, Race Leaderboard tabs with auto-streaming bets) */}
       <LiveBetsFeed />
+
+      {/* 12. WELCOME BONUSES SHOWCASE & FAQ */}
+      <BonusesSection />
 
       {/* Stake Authentic Partnerships & Accepted Cryptos Banner */}
       <section className="border-t border-[#213743] pt-8 pb-4 space-y-6 text-xs text-[#b1bad3]">

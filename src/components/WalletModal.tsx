@@ -27,6 +27,7 @@ import {
   Sparkles,
   AlertTriangle,
   Loader2,
+  Gift,
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
@@ -94,6 +95,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
   const [promoInput, setPromoInput] = useState<string>("");
   const [promoError, setPromoError] = useState<string>("");
   const [isApplyingPromo, setIsApplyingPromo] = useState<boolean>(false);
+  const [selectedBonusOffer, setSelectedBonusOffer] = useState<string>("none");
 
   const baseDepositNum = Math.max(300, parseFloat(depositAmount || "300") || 300);
   const finalPayableAmount = appliedPromo ? appliedPromo.payableAmount : baseDepositNum;
@@ -728,6 +730,44 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                           );
                         })}
                       </div>
+                    </div>
+
+                    {/* ========================================================
+                        SELECT A BONUS OFFER DROPDOWN / DRAWER
+                        ======================================================== */}
+                    <div className="rounded-xl border border-[#213743] bg-[#0f212e] p-3 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 text-xs font-bold text-white">
+                          <Gift className="w-3.5 h-3.5 text-amber-400" />
+                          <span>Select a Deposit Bonus</span>
+                        </div>
+                        <span className="text-[10px] text-[#00e701] font-bold">
+                          Up to 500% + Free Spins
+                        </span>
+                      </div>
+                      <div className="relative">
+                        <select
+                          value={selectedBonusOffer}
+                          onChange={(e) => {
+                            setSelectedBonusOffer(e.target.value);
+                            sounds.playClick();
+                          }}
+                          className="w-full bg-[#1a2c38] border border-[#213743] focus:border-amber-400 rounded-xl px-3 py-2.5 text-white text-xs font-bold outline-none cursor-pointer appearance-none"
+                        >
+                          <option value="none">No Bonus (Standard Deposit)</option>
+                          <option value="bonus-1">🎁 1st Deposit: 100% Bonus + 70 Free Spins</option>
+                          <option value="bonus-2">🎁 2nd Deposit: 120% Bonus + 100 Free Spins</option>
+                          <option value="bonus-3">🎁 3rd Deposit: 130% Bonus + 150 Free Spins</option>
+                          <option value="bonus-4">🎁 4th Deposit: 150% Bonus + 180 Free Spins</option>
+                        </select>
+                        <ChevronRight className="w-4 h-4 text-[#557086] absolute right-3 top-1/2 -translate-y-1/2 rotate-90 pointer-events-none" />
+                      </div>
+                      {selectedBonusOffer !== "none" && (
+                        <div className="text-[11px] font-semibold text-[#00e701] bg-[#00e701]/10 border border-[#00e701]/20 rounded-lg p-2 flex items-center gap-1.5 animate-in fade-in">
+                          <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                          <span>Bonus active! Bonus credits and Free Spins will be allocated upon approval.</span>
+                        </div>
+                      )}
                     </div>
 
                     {/* ========================================================
