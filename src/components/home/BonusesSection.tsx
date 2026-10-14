@@ -155,11 +155,18 @@ export default function BonusesSection() {
     }
   };
 
+  const TIMER_TINTS = [
+    "bg-[#453118]/80", // Card 1 (Gold): Warm caramel translucent tint
+    "bg-[#0b2430]/80", // Card 2 (Teal): Deep petrol teal translucent tint
+    "bg-[#0d1c32]/80", // Card 3 (Blue): Cobalt royal blue translucent tint
+    "bg-[#2a1334]/80", // Card 4 (Violet): Plum purple translucent tint
+  ];
+
   const handleScroll = () => {
     if (!scrollContainerRef.current) return;
     const container = scrollContainerRef.current;
     const scrollLeft = container.scrollLeft;
-    const cardWidth = 240;
+    const cardWidth = 265;
     const newIndex = Math.min(
       WELCOME_BONUSES.length - 1,
       Math.max(0, Math.round(scrollLeft / cardWidth))
@@ -217,28 +224,33 @@ export default function BonusesSection() {
           onScroll={handleScroll}
           className="flex overflow-x-auto gap-3.5 py-2 px-1 select-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden items-center touch-pan-x"
         >
-          {WELCOME_BONUSES.map((bonus) => (
+          {WELCOME_BONUSES.map((bonus, idx) => (
             <div
               key={bonus.id}
               data-bonus-card
-              className="relative shrink-0 snap-center w-[220px] sm:w-[240px] aspect-[1/1.28] overflow-visible"
+              className="relative shrink-0 snap-center w-[245px] sm:w-[265px] aspect-[1/1.28] rounded-[14px] overflow-visible"
             >
               {/* Base High-Resolution Image */}
               <img
                 src={bonus.image}
                 alt={bonus.depositTier}
-                className="w-full h-full object-contain pointer-events-none select-none block"
+                className="w-full h-full object-contain rounded-[14px] pointer-events-none select-none block"
                 onError={(e) => {
-                  // Fallback to .jpg if .png fails
                   if (e.currentTarget.src.endsWith(".png")) {
                     e.currentTarget.src = bonus.image.replace(/\.png$/, ".jpg");
+                  } else if (e.currentTarget.src.endsWith(".jpg")) {
+                    e.currentTarget.src = bonus.image.replace(/\.jpg$/, ".png");
                   }
                 }}
               />
 
-              {/* Overlay Live Countdown Timer (Directly covering the printed timer) */}
+              {/* Overlay Color-Matched Borderless Live Countdown Timer */}
               <div className="absolute bottom-[24%] left-1/2 -translate-x-1/2 w-[82%] flex items-center justify-center pointer-events-none">
-                <div className="bg-[#24211b]/95 sm:bg-[#201d18]/90 backdrop-blur-md py-1 px-3 rounded-full border border-white/10 shadow-inner text-white font-mono text-[11px] sm:text-xs font-bold tracking-widest text-center whitespace-nowrap">
+                <div
+                  className={`${
+                    TIMER_TINTS[idx % TIMER_TINTS.length]
+                  } backdrop-blur-md py-1 px-3 rounded-full border-none shadow-sm text-white font-mono text-[11px] sm:text-xs font-bold tracking-widest text-center whitespace-nowrap`}
+                >
                   {formattedTimer}
                 </div>
               </div>
@@ -269,22 +281,24 @@ export default function BonusesSection() {
         <h3 className="font-bold text-lg sm:text-xl text-white mb-2">
           Available bonuses
         </h3>
-        <div className="relative w-full max-w-[560px] mx-auto mt-6 overflow-visible">
+        <div className="relative w-full max-w-[840px] mx-auto mt-4 rounded-[16px] overflow-hidden shadow-2xl border border-white/5 bg-[#121d25]">
           {/* Base High-Resolution Banner Image */}
           <img
             src="/bonus/100casinobonus.png"
             alt="100% casino bonus"
-            className="w-full h-auto object-cover pointer-events-none select-none block"
+            className="w-full h-auto object-cover rounded-[16px] pointer-events-none select-none block"
             onError={(e) => {
               if (e.currentTarget.src.endsWith(".png")) {
                 e.currentTarget.src = "/bonus/100casinobonus.jpg";
+              } else if (e.currentTarget.src.endsWith(".jpg")) {
+                e.currentTarget.src = "/bonus/100casinobonus.png";
               }
             }}
           />
 
           {/* Overlay Live Countdown Timer (Bottom-Left) */}
-          <div className="absolute bottom-[10%] left-[5%] w-[38%] max-w-[150px] flex items-center justify-center pointer-events-none">
-            <div className="w-full bg-[#2b3d54]/95 backdrop-blur-md py-1 px-2.5 rounded-full border border-white/10 shadow-inner text-white font-mono text-[10px] sm:text-xs font-bold tracking-widest text-center whitespace-nowrap">
+          <div className="absolute bottom-[10%] left-[5%] w-[38%] max-w-[210px] flex items-center justify-center pointer-events-none">
+            <div className="w-full bg-[#1c2d42]/80 backdrop-blur-md py-1.5 px-3 rounded-full border-none shadow-sm text-white font-mono text-xs sm:text-sm font-bold tracking-widest text-center whitespace-nowrap">
               {formattedTimer}
             </div>
           </div>
@@ -292,7 +306,7 @@ export default function BonusesSection() {
           {/* Overlay Receive Button Hit-Box (Bottom-Right) */}
           <button
             onClick={() => handleReceiveBonus()}
-            className="absolute bottom-[8%] right-[5%] w-[38%] max-w-[155px] h-[36px] sm:h-[42px] cursor-pointer rounded-xl active:scale-95 transition-transform bg-transparent hover:bg-white/5 focus:outline-none"
+            className="absolute bottom-[8%] right-[5%] w-[38%] max-w-[210px] h-[40px] sm:h-[48px] cursor-pointer rounded-xl active:scale-95 transition-transform bg-transparent hover:bg-white/5 focus:outline-none"
             aria-label="Receive 100% Casino Bonus"
             title="Receive 100% Casino Bonus"
           />
