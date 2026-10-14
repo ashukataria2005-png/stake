@@ -168,8 +168,8 @@ export const CASINO_LAYOUT_CATEGORIES: CategoryLayoutItem[] = [
     title: "Hacksaw Gaming",
     enabled: true,
     viewAllLink: "/casino/group/hacksaw-gaming",
-    showGameTitle: true,
-    showProviderName: true,
+    showGameTitle: false,
+    showProviderName: false,
     orderedGameSlugs: [
       "wanted-dead-or-a-wild",
       "chaos-crew",
@@ -335,6 +335,7 @@ export const CASINO_LAYOUT_CATEGORIES: CategoryLayoutItem[] = [
     orderedGameSlugs: [
       "stock-market",
       "bac-bo",
+      "big-bass-splash",
       "gates-of-olympus",
       "sweet-bonanza-1000",
       "le-bandit",

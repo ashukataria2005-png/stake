@@ -78,7 +78,7 @@ export default function GamesForYou() {
       href: "/games/plinko",
     },
     {
-      id: "tombstone-rip",
+      id: "nolimitcity-tomb-stone",
       title: "Tombstone RIP",
       provider: "Nolimit City",
       playersCount: 2340,

@@ -1,8 +1,8 @@
 import { CategoryModule } from "./types";
 
 export const HP100_SLUGS: string[] = [
-  "hp100-astronaut",
   "hp100-tappy-bird",
+  "hp100-astronaut",
   "hp100-chicken-tour",
   "hp100-starx",
   "hp100-chicken-vs-train",
