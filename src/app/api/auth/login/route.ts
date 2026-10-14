@@ -21,12 +21,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "Password is required." }, { status: 400 });
     }
 
-    // 1. Look up the user strictly by Username in Neon PostgreSQL (case-insensitive search supported)
+    // 1. Look up user by Username OR Email (case-insensitive)
     const user = await prisma.user.findFirst({
       where: {
         OR: [
           { username: cleanUsername },
           { username: { equals: cleanUsername, mode: "insensitive" } },
+          { email: cleanUsername.toLowerCase() },
+          { email: { equals: cleanUsername, mode: "insensitive" } },
         ],
       },
       include: {
