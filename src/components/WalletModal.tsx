@@ -692,8 +692,8 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
               setActiveTab("deposit");
             }}
             className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer ${activeTab === "deposit"
-                ? "bg-[#1475e1] text-white shadow-lg shadow-[#1475e1]/20 border border-[#1475e1]"
-                : "text-[#b1bad3] hover:text-white hover:bg-[#213743]/50"
+              ? "bg-[#1475e1] text-white shadow-lg shadow-[#1475e1]/20 border border-[#1475e1]"
+              : "text-[#b1bad3] hover:text-white hover:bg-[#213743]/50"
               }`}
           >
             <ArrowDownLeft className="h-4 w-4" />
@@ -705,8 +705,8 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
               setActiveTab("withdraw");
             }}
             className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer ${activeTab === "withdraw"
-                ? "bg-[#213743] text-[#00e701] shadow-sm border border-[#00e701]/30"
-                : "text-[#b1bad3] hover:text-white hover:bg-[#213743]/50"
+              ? "bg-[#213743] text-[#00e701] shadow-sm border border-[#00e701]/30"
+              : "text-[#b1bad3] hover:text-white hover:bg-[#213743]/50"
               }`}
           >
             <ArrowUpRight className="h-4 w-4" />
@@ -733,7 +733,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-[#b1bad3] uppercase tracking-wider flex justify-between">
                       <span>Enter Deposit Amount</span>
-                      <span className="text-white font-mono">Min: ₹300</span>
+                      <span className="text-white font-mono">Min: ₹3</span>
                     </label>
                     <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] px-3.5 py-3 focus-within:border-[#1475e1] transition-colors shadow-inner">
                       {/* Left Rupee Coin Badge */}
@@ -747,11 +747,11 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                         step="1"
                         value={depositAmount}
                         onChange={(e) => handleAmountChange(e.target.value)}
-                        placeholder="Enter amount (Min ₹300)"
+                        placeholder="Enter amount (Min ₹3)"
                         className="w-full bg-transparent text-base sm:text-lg font-black text-white placeholder-[#7a889b] focus:outline-none font-mono"
                         required
                       />
-                      {parseFloat(depositAmount) >= 300 && (
+                      {parseFloat(depositAmount) >= 3 && (
                         <span className="text-xs font-bold text-[#00e701] shrink-0 font-mono">
                           ₹{parseFloat(depositAmount || "0").toLocaleString("en-IN")}
                         </span>
@@ -773,8 +773,8 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                             key={amt}
                             onClick={() => handleChipClick(amt)}
                             className={`py-2 px-1 rounded-xl text-xs font-extrabold font-mono transition-all cursor-pointer border ${isSelected
-                                ? "bg-[#1475e1] text-white border-[#1475e1] shadow-md shadow-[#1475e1]/30 scale-[1.02]"
-                                : "bg-[#0f212e] text-[#b1bad3] border-[#213743] hover:border-[#2f4553] hover:text-white"
+                              ? "bg-[#1475e1] text-white border-[#1475e1] shadow-md shadow-[#1475e1]/30 scale-[1.02]"
+                              : "bg-[#0f212e] text-[#b1bad3] border-[#213743] hover:border-[#2f4553] hover:text-white"
                               }`}
                           >
                             ₹{amt.toLocaleString("en-IN")}
@@ -1252,8 +1252,8 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                       type="button"
                       onClick={() => setWithdrawMethod("upi")}
                       className={`flex items-center justify-center gap-2 py-2.5 rounded-xl border text-xs font-extrabold transition-all cursor-pointer ${withdrawMethod === "upi"
-                          ? "bg-[#1475e1] border-[#1475e1] text-white shadow-md"
-                          : "bg-[#0f212e] border-[#213743] text-[#b1bad3] hover:text-white"
+                        ? "bg-[#1475e1] border-[#1475e1] text-white shadow-md"
+                        : "bg-[#0f212e] border-[#213743] text-[#b1bad3] hover:text-white"
                         }`}
                     >
                       <Smartphone className="h-4 w-4" />
@@ -1263,8 +1263,8 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                       type="button"
                       onClick={() => setWithdrawMethod("bank")}
                       className={`flex items-center justify-center gap-2 py-2.5 rounded-xl border text-xs font-extrabold transition-all cursor-pointer ${withdrawMethod === "bank"
-                          ? "bg-[#1475e1] border-[#1475e1] text-white shadow-md"
-                          : "bg-[#0f212e] border-[#213743] text-[#b1bad3] hover:text-white"
+                        ? "bg-[#1475e1] border-[#1475e1] text-white shadow-md"
+                        : "bg-[#0f212e] border-[#213743] text-[#b1bad3] hover:text-white"
                         }`}
                     >
                       <Building className="h-4 w-4" />

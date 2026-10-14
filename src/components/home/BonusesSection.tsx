@@ -88,7 +88,7 @@ export default function BonusesSection() {
     sounds.playSuccessChime();
     try {
       confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
-    } catch {}
+    } catch { }
     // Opens deposit modal directly
     openWalletModal();
   };

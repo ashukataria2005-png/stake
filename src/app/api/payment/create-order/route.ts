@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     const { amount, userId, customerName, customerEmail, customerMobile, mobile } = body;
 
     const numAmount = parseFloat(amount);
-    if (!amount || isNaN(numAmount) || numAmount < 300) {
+    if (!amount || isNaN(numAmount) || numAmount < 3) {
       return NextResponse.json(
         { success: false, error: "Minimum payment order amount is ₹3" },
         { status: 400 }
