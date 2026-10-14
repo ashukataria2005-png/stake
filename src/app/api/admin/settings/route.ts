@@ -25,7 +25,7 @@ const DEFAULT_SETTINGS: PlatformSettings = {
   gatewayMode: "MANUAL",
   lgpayMerchantId: "stake_lgpay_merchant",
   lgpayApiKey: "lgpay_secret_key_prod_8829",
-  lgpayBaseUrl: "https://api.lgpay.internal",
+  lgpayBaseUrl: "https://www.lg-pay.com",
 };
 
 export function getPlatformSettings(): PlatformSettings {
@@ -71,7 +71,7 @@ export async function GET(req: NextRequest) {
     let gatewayMode = fileSettings.gatewayMode || "MANUAL";
     let lgpayMerchantId = fileSettings.lgpayMerchantId || "stake_lgpay_merchant";
     let lgpayApiKey = fileSettings.lgpayApiKey || "lgpay_secret_key_prod_8829";
-    let lgpayBaseUrl = fileSettings.lgpayBaseUrl || "https://api.lgpay.internal";
+    let lgpayBaseUrl = fileSettings.lgpayBaseUrl || "https://www.lg-pay.com";
 
     if (dbSetting && dbSetting.mode) {
       try {

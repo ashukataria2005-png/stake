@@ -1,96 +1,125 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { getOrCreateUser } from "@/lib/dbUser";
-import { verifyLGPayWebhook, WebhookPayload } from "@/lib/payment/lgpay";
+import { verifyLGPayWebhook } from "@/lib/payment/lgpay";
 import { getPlatformSettings } from "@/app/api/admin/settings/route";
+
+export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {
-    let payload: WebhookPayload;
+    // 1. Parse both application/x-www-form-urlencoded and json payloads
+    const rawBody = await req.text();
+    let params: Record<string, any> = {};
+
     try {
-      payload = await req.json();
+      params = JSON.parse(rawBody);
     } catch {
-      return NextResponse.json({ success: false, error: "Invalid JSON payload" }, { status: 400 });
+      params = Object.fromEntries(new URLSearchParams(rawBody));
     }
 
-    const { orderId, amount, status, utr, signature } = payload;
+    const order_sn = String(params.order_sn || params.orderId || params.out_trade_no || "").trim();
+    const status = String(params.status ?? "").trim();
+    const rawMoney = params.money !== undefined ? parseFloat(String(params.money)) : NaN;
+    const sign = params.sign || params.signature;
 
-    if (!orderId || !amount || !status) {
-      return NextResponse.json(
-        { success: false, error: "Missing required webhook parameters" },
-        { status: 400 }
-      );
+    if (!order_sn) {
+      console.warn("[LGPay Webhook] Missing order_sn identifier");
+      return new NextResponse("fail", { status: 400, headers: { "Content-Type": "text/plain" } });
     }
 
+    // 2. Fetch secret key
     const settings = (getPlatformSettings() as any) || {};
-    const apiKey = settings.lgpayApiKey || process.env.LGPAY_API_KEY || "lgpay_secret_key_prod_8829";
+    let apiKey = settings.lgpayApiKey || process.env.LGPAY_API_KEY || "lgpay_secret_key_prod_8829";
 
-    // 1. Verify IPN Signature
-    if (process.env.NODE_ENV === "production" && signature) {
-      const isValid = verifyLGPayWebhook(payload, apiKey);
-      if (!isValid) {
-        console.warn("[LGPay Webhook] Invalid signature received for order:", orderId);
-        return NextResponse.json({ success: false, error: "Invalid signature" }, { status: 403 });
+    try {
+      const dbSetting = await prisma.gameControl.findUnique({
+        where: { gameName: "SYSTEM_UPI" },
+      });
+      if (dbSetting && dbSetting.mode) {
+        const parsed = JSON.parse(dbSetting.mode);
+        if (parsed.lgpayApiKey) apiKey = parsed.lgpayApiKey;
       }
+    } catch {}
+
+    // 3. Verify signature
+    const isValidSign = verifyLGPayWebhook(params, apiKey);
+    if (!isValidSign && process.env.NODE_ENV === "production") {
+      console.warn("[LGPay Webhook] Invalid signature received for order:", { order_sn, sign });
+      return new NextResponse("sign error", { status: 400, headers: { "Content-Type": "text/plain" } });
     }
 
-    // 2. Only process SUCCESS status
-    if (status !== "SUCCESS") {
-      console.log(`[LGPay Webhook] Order ${orderId} status is ${status}, no wallet credit required.`);
-      return NextResponse.json({ success: true, message: `Status ${status} acknowledged` });
+    // 4. Check payment status (1, "1", or "SUCCESS" indicate paid)
+    const isSuccess = status === "1" || status.toUpperCase() === "SUCCESS";
+    if (!isSuccess) {
+      console.log(`[LGPay Webhook] Order ${order_sn} status is '${status}', not crediting wallet.`);
+      return new NextResponse("ok", { status: 200, headers: { "Content-Type": "text/plain" } });
     }
 
-    const numAmount = parseFloat(amount.toString());
-
-    // 3. Atomically credit user's Neon PostgreSQL wallet
-    // Look up or link to user through order or default
+    // 5. Query matching transaction
     const existingTx = await prisma.transaction.findFirst({
-      where: { txHash: orderId },
-    });
-
-    let targetUserId = existingTx?.userId || "ashuk";
-    const { user, wallet } = await getOrCreateUser(targetUserId);
-
-    const updatedWallet = await prisma.wallet.update({
-      where: { id: wallet.id },
-      data: {
-        balance: { increment: numAmount },
-        totalDeposited: { increment: numAmount },
+      where: {
+        OR: [{ txHash: order_sn }, { id: order_sn }],
       },
     });
 
-    // 4. Record Deposit Transaction
-    await prisma.transaction.create({
-      data: {
-        userId: user.id,
-        type: "DEPOSIT",
-        amount: numAmount,
-        currency: "INR",
-        status: "APPROVED",
-        method: "LGPAY_AUTO",
-        txHash: utr ? `UTR:${utr}|ORDER:${orderId}` : orderId,
-        approvedBy: "LGPAY_GATEWAY",
-      },
-    });
+    if (!existingTx) {
+      console.warn(`[LGPay Webhook] No matching transaction found for order_sn: ${order_sn}`);
+      return new NextResponse("ok", { status: 200, headers: { "Content-Type": "text/plain" } });
+    }
 
-    console.log("[LGPay Webhook] Successfully auto-credited deposit:", {
-      orderId,
-      amount: numAmount,
-      userId: user.id,
-      newBalance: Number(updatedWallet.balance),
-    });
+    // 6. Atomically credit user's wallet if still PENDING
+    if (existingTx.status === "PENDING") {
+      let depositAmount = Number(existingTx.amount);
+      if (!isNaN(rawMoney) && rawMoney > 0) {
+        // LG-Pay money is in paise (cents). If rawMoney > depositAmount * 50, convert from paise to INR
+        depositAmount = rawMoney >= depositAmount * 50 ? rawMoney / 100 : rawMoney;
+      }
 
-    return NextResponse.json({
-      success: true,
-      orderId,
-      credited: numAmount,
-      balance: Number(updatedWallet.balance),
+      await prisma.$transaction(async (tx) => {
+        // Update transaction status
+        await tx.transaction.update({
+          where: { id: existingTx.id },
+          data: {
+            status: "APPROVED",
+            approvedBy: "LGPAY_GATEWAY",
+            approvedAt: new Date(),
+            utrNumber: params.pay_time ? `LGPAY_${params.pay_time}` : existingTx.utrNumber || `LGPAY_${Date.now()}`,
+          },
+        });
+
+        // Increment wallet balance and totalDeposited
+        const wallet = await tx.wallet.findFirst({
+          where: { userId: existingTx.userId, currency: "INR" },
+        });
+
+        if (wallet) {
+          await tx.wallet.update({
+            where: { id: wallet.id },
+            data: {
+              balance: { increment: depositAmount },
+              totalDeposited: { increment: depositAmount },
+            },
+          });
+        }
+      });
+
+      console.log(
+        `[LGPay Webhook] Successfully credited ₹${depositAmount} for order ${order_sn} to user ${existingTx.userId}`
+      );
+    } else {
+      console.log(`[LGPay Webhook] Order ${order_sn} was already processed (status: ${existingTx.status}).`);
+    }
+
+    // 7. Return exact string response 'ok' (HTTP 200) required by LG-Pay
+    return new NextResponse("ok", {
+      status: 200,
+      headers: { "Content-Type": "text/plain" },
     });
   } catch (err: any) {
     console.error("[LGPay Webhook Error]:", err);
-    return NextResponse.json(
-      { success: false, error: err?.message || "Webhook handling error" },
-      { status: 500 }
-    );
+    return new NextResponse("ok", {
+      status: 200,
+      headers: { "Content-Type": "text/plain" },
+    });
   }
 }

@@ -47,7 +47,7 @@ export default function AdminSettingsPage() {
         setGatewayMode(data.settings.gatewayMode || "MANUAL");
         setLgpayMerchantId(data.settings.lgpayMerchantId || "stake_lgpay_merchant");
         setLgpayApiKey(data.settings.lgpayApiKey || "lgpay_secret_key_prod_8829");
-        setLgpayBaseUrl(data.settings.lgpayBaseUrl || "https://api.lgpay.internal");
+        setLgpayBaseUrl(data.settings.lgpayBaseUrl || "https://www.lg-pay.com");
       }
     } catch (err) {
       console.error("Failed to fetch platform settings:", err);

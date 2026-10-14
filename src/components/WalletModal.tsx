@@ -202,6 +202,8 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
 
   const [receiverUpi, setReceiverUpi] = useState<string>("stakeofficial@upi");
   const [receiverName, setReceiverName] = useState<string>("Stake Casino");
+  const [gatewayMode, setGatewayMode] = useState<"MANUAL" | "LGPAY_AUTO">("MANUAL");
+  const [isRedirectingToGateway, setIsRedirectingToGateway] = useState<boolean>(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -209,9 +211,10 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
       fetch("/api/admin/settings")
         .then((r) => r.json())
         .then((data) => {
-          if (data?.success && data?.settings?.upiId) {
-            setReceiverUpi(data.settings.upiId);
+          if (data?.success && data?.settings) {
+            if (data.settings.upiId) setReceiverUpi(data.settings.upiId);
             if (data.settings.upiName) setReceiverName(data.settings.upiName);
+            if (data.settings.gatewayMode) setGatewayMode(data.settings.gatewayMode);
           }
         })
         .catch(() => {});
@@ -220,6 +223,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
       setUtrInput("");
       setUtrError("");
       setDepositSuccessMsg("");
+      setIsRedirectingToGateway(false);
       setScreenshotPreview(null);
       setScreenshotFeedback("");
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -258,12 +262,57 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
     }
   };
 
-  const handleDepositSubmit = (e: React.FormEvent) => {
+  const handleDepositSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const num = parseFloat(depositAmount);
     if (isNaN(num) || num < 300) {
       alert("Minimum deposit amount is ₹300. Please enter a valid amount.");
       return;
+    }
+
+    // Automatic Gateway (LG-Pay) mode
+    if (gatewayMode === "LGPAY_AUTO") {
+      sounds.playClick();
+      setIsRedirectingToGateway(true);
+      try {
+        const res = await fetch("/api/payment/create-order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            amount: finalPayableAmount,
+            userId: user?.username || user?.id || "ashuk",
+          }),
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.success || !data.payUrl) {
+          throw new Error(data.error || "Payment gateway failed to initialize order.");
+        }
+
+        const newOrder: DepositOrder = {
+          orderId: data.orderId || `LGPAY-${Date.now()}`,
+          amountINR: finalPayableAmount,
+          amountUSD: parseFloat((finalPayableAmount / 86.5).toFixed(2)),
+          date: new Date().toLocaleString(),
+          status: "Pending",
+          utr: null,
+        };
+
+        try {
+          const updated = [newOrder, ...depositOrders];
+          setDepositOrders(updated);
+          localStorage.setItem("stake_deposit_orders", JSON.stringify(updated));
+          window.dispatchEvent(new Event("stake_deposit_orders_updated"));
+        } catch {}
+
+        // Redirect user to LG-Pay checkout URL
+        window.location.href = data.payUrl;
+        return;
+      } catch (err: any) {
+        console.error("[LG-Pay Order Flow Error]:", err);
+        alert(err.message || "Failed to connect to LG-Pay Automatic Gateway. Switching to Manual UPI payment.");
+        setIsRedirectingToGateway(false);
+      }
     }
 
     sounds.playClick();
@@ -868,16 +917,32 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                       </div>
                     </div>
 
-                    {/* Action Button: Continue to QR */}
+                    {/* Action Button: Continue to QR or Instant Gateway */}
                     <button
                       type="submit"
-                      className="w-full rounded-xl bg-[#1475e1] hover:bg-[#1268c7] py-3.5 text-sm sm:text-base font-extrabold text-white shadow-xl shadow-[#1475e1]/25 transition-all active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer"
+                      disabled={isRedirectingToGateway}
+                      className="w-full rounded-xl bg-[#1475e1] hover:bg-[#1268c7] py-3.5 text-sm sm:text-base font-extrabold text-white shadow-xl shadow-[#1475e1]/25 transition-all active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                     >
-                      <span>Continue to QR & UPI Payment</span>
-                      <span className="font-mono">
-                        (Pay ₹{finalPayableAmount.toLocaleString("en-IN")}{appliedPromo ? ` • Get ₹${finalCreditAmount.toLocaleString("en-IN")}` : ""})
-                      </span>
-                      <ChevronRight className="h-4 w-4" />
+                      {isRedirectingToGateway ? (
+                        <>
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                          <span>Connecting to Instant Payment Gateway...</span>
+                        </>
+                      ) : gatewayMode === "LGPAY_AUTO" ? (
+                        <>
+                          <Zap className="h-4 w-4 text-amber-300 fill-amber-300" />
+                          <span>Pay ₹{finalPayableAmount.toLocaleString("en-IN")} via Instant UPI (LG-Pay)</span>
+                          <ChevronRight className="h-4 w-4" />
+                        </>
+                      ) : (
+                        <>
+                          <span>Continue to QR & UPI Payment</span>
+                          <span className="font-mono">
+                            (Pay ₹{finalPayableAmount.toLocaleString("en-IN")}{appliedPromo ? ` • Get ₹${finalCreditAmount.toLocaleString("en-IN")}` : ""})
+                          </span>
+                          <ChevronRight className="h-4 w-4" />
+                        </>
+                      )}
                     </button>
 
                     <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#7a889b]">
