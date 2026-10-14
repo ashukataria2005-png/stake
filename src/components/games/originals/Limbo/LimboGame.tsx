@@ -24,6 +24,10 @@ import { sounds } from "@/utils/audio";
 import { resolveLimboMultiplier } from "@/lib/luckEngine";
 import confetti from "canvas-confetti";
 import StakeGameFooterCard from "@/components/games/originals/common/StakeGameFooterCard";
+import {
+  LIMBO_CONFIG,
+  calculateLimboWinChance,
+} from "@/config/stakeMultipliers";
 
 interface LimboHistoryItem {
   id: string;
@@ -137,17 +141,17 @@ export default function LimboGame() {
 
   // Sync Input Handlers with Real-Time Math
   const updateFromTarget = (val: number) => {
-    const clampedTarget = Math.max(1.01, Math.min(1000000.0, val));
+    const clampedTarget = Math.max(LIMBO_CONFIG.MIN_TARGET_MULTIPLIER, Math.min(LIMBO_CONFIG.MAX_TARGET_MULTIPLIER, val));
     setTargetMultiplier(clampedTarget);
-    const calculatedChance = parseFloat((99.0 / clampedTarget).toFixed(4));
+    const calculatedChance = calculateLimboWinChance(clampedTarget);
     setWinChance(Math.max(0.0001, Math.min(98.0, calculatedChance)));
   };
 
   const updateFromWinChance = (val: number) => {
     const clampedChance = Math.max(0.0001, Math.min(98.0, val));
     setWinChance(clampedChance);
-    const calculatedTarget = parseFloat((99.0 / clampedChance).toFixed(2));
-    setTargetMultiplier(Math.max(1.01, Math.min(1000000.0, calculatedTarget)));
+    const calculatedTarget = parseFloat((LIMBO_CONFIG.BASE_RTP_PERCENT / clampedChance).toFixed(2));
+    setTargetMultiplier(Math.max(LIMBO_CONFIG.MIN_TARGET_MULTIPLIER, Math.min(LIMBO_CONFIG.MAX_TARGET_MULTIPLIER, calculatedTarget)));
   };
 
   // Quick Bet Modifiers

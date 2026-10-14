@@ -18,6 +18,12 @@ import { resolveDiceRoll } from "@/lib/luckEngine";
 import confetti from "canvas-confetti";
 import StakeGameFooterCard from "@/components/games/originals/common/StakeGameFooterCard";
 
+import {
+  calculateDiceMultiplier,
+  calculateDiceWinChance,
+  DICE_CONFIG,
+} from "@/config/stakeMultipliers";
+
 interface RollHistoryItem {
   id: string;
   roll: number;
@@ -35,16 +41,13 @@ export default function DiceGame() {
   const [isRollOver, setIsRollOver] = useState<boolean>(true);
   const [target, setTarget] = useState<number>(50.5);
 
-  // Derived 99% RTP Math State (House edge = 1%)
+  // Derived 99% RTP Math State (House edge = 1% from centralized config)
   const winChance = useMemo(() => {
-    return isRollOver
-      ? parseFloat((100.0 - target).toFixed(4))
-      : parseFloat(target.toFixed(4));
+    return calculateDiceWinChance(target, isRollOver);
   }, [isRollOver, target]);
 
   const multiplier = useMemo(() => {
-    if (winChance <= 0) return 99.0;
-    return parseFloat((99.0 / winChance).toFixed(4));
+    return calculateDiceMultiplier(winChance);
   }, [winChance]);
 
   // Roll Execution State

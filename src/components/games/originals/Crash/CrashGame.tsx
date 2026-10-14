@@ -25,6 +25,7 @@ import { sounds } from "@/utils/audio";
 import { resolveCrashPoint } from "@/lib/luckEngine";
 import confetti from "canvas-confetti";
 import StakeGameFooterCard from "@/components/games/originals/common/StakeGameFooterCard";
+import { CRASH_CONFIG } from "@/config/stakeMultipliers";
 
 interface HistoryItem {
   id: string;
@@ -547,8 +548,8 @@ export default function CrashGame() {
       // 3. Dynamic Progress / Multiplier Math during Flight
       if (phase === "flying") {
         const elapsedSec = (time - flightStartTimeRef.current) / 1000;
-        // Stake exponential curve: M(t) = e^(0.065 * t)
-        const mult = parseFloat(Math.exp(0.065 * elapsedSec).toFixed(2));
+        // Stake exponential curve from centralized config: M(t) = e^(CURVE_EXPONENT * t)
+        const mult = parseFloat(Math.exp(CRASH_CONFIG.CURVE_EXPONENT * elapsedSec).toFixed(2));
 
         if (mult >= crashPoint) {
           // Crash trigger!
@@ -576,7 +577,7 @@ export default function CrashGame() {
       const maxY = 45;
 
       if (phase === "flying" || phase === "crashed") {
-        const durationEst = Math.log(Math.max(crashPoint, 2.0)) / 0.065;
+        const durationEst = Math.log(Math.max(crashPoint, 2.0)) / CRASH_CONFIG.CURVE_EXPONENT;
         const currentElapsed =
           phase === "crashed"
             ? durationEst
