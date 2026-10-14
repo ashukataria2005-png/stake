@@ -27,7 +27,7 @@ export const WELCOME_BONUSES: BonusOffer[] = [
     depositTier: "1st deposit",
     bonusPercent: "100%",
     freeSpins: "70FS",
-    image: "/bonus/1stdeposit.png",
+    image: "/bonus/1stdeposit.jpg",
     isUnlocked: true,
   },
   {
@@ -35,7 +35,7 @@ export const WELCOME_BONUSES: BonusOffer[] = [
     depositTier: "2nd deposit",
     bonusPercent: "120%",
     freeSpins: "100FS",
-    image: "/bonus/2nddeposit.png",
+    image: "/bonus/2nddeposit.jpg",
     isUnlocked: false,
   },
   {
@@ -43,7 +43,7 @@ export const WELCOME_BONUSES: BonusOffer[] = [
     depositTier: "3rd deposit",
     bonusPercent: "130%",
     freeSpins: "150FS",
-    image: "/bonus/3rddeposit.png",
+    image: "/bonus/3rddeposit.jpg",
     isUnlocked: false,
   },
   {
@@ -51,11 +51,14 @@ export const WELCOME_BONUSES: BonusOffer[] = [
     depositTier: "4th deposit",
     bonusPercent: "150%",
     freeSpins: "180FS",
-    image: "/bonus/4thdeposit.png",
+    image: "/bonus/4thdeposit.jpg",
     isUnlocked: false,
   },
 ];
 
+// ============================================================================
+// COMPLETE 8 FAQ QUESTIONS (SCREENSHOT 27)
+// ============================================================================
 const FAQ_QUESTIONS = [
   {
     q: "What are bonuses?",
@@ -91,12 +94,16 @@ const FAQ_QUESTIONS = [
   },
 ];
 
+// ============================================================================
+// MAIN BONUSES SECTION COMPONENT
+// ============================================================================
 export default function BonusesSection() {
   const { openWalletModal } = useGame();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [activeCardIndex, setActiveCardIndex] = useState<number>(0);
 
+  // Live countdown timer state (Days : Hours : Mins : Secs)
   const [countdown, setCountdown] = useState({
     days: 29,
     hours: 23,
@@ -149,10 +156,10 @@ export default function BonusesSection() {
   };
 
   const TIMER_TINTS = [
-    "bg-[#453118]/80", // Card 1 (Gold)
-    "bg-[#0b2430]/80", // Card 2 (Teal)
-    "bg-[#0d1c32]/80", // Card 3 (Blue)
-    "bg-[#2a1334]/80", // Card 4 (Violet)
+    "bg-[#453118]/80", // Card 1 (Gold): Warm caramel translucent tint
+    "bg-[#0b2430]/80", // Card 2 (Teal): Deep petrol teal translucent tint
+    "bg-[#0d1c32]/80", // Card 3 (Blue): Cobalt royal blue translucent tint
+    "bg-[#2a1334]/80", // Card 4 (Violet): Plum purple translucent tint
   ];
 
   const handleScroll = () => {
@@ -171,7 +178,9 @@ export default function BonusesSection() {
 
   return (
     <section className="space-y-6 pt-2 pb-6 select-none">
+      {/* ------------------------------------------------------------- */}
       {/* 1. HEADER */}
+      {/* ------------------------------------------------------------- */}
       <div className="flex items-center justify-between gap-4 border-b border-[#213743] pb-2.5 px-1 mb-2">
         <div>
           <div className="flex items-center gap-2">
@@ -184,6 +193,8 @@ export default function BonusesSection() {
             Welcome deposit bonuses
           </p>
         </div>
+
+        {/* Carousel Desktop Navigation Arrows */}
         <div className="hidden sm:flex items-center gap-2">
           <button
             onClick={() => scrollToCard(Math.max(0, activeCardIndex - 1))}
@@ -204,12 +215,14 @@ export default function BonusesSection() {
         </div>
       </div>
 
-      {/* 2. 4 HORIZONTAL BONUS CARDS */}
+      {/* ------------------------------------------------------------- */}
+      {/* 2. 4 HORIZONTAL BONUS CARDS WITH OVERLAID LIVE TIMERS */}
+      {/* ------------------------------------------------------------- */}
       <div className="relative">
         <div
           ref={scrollContainerRef}
           onScroll={handleScroll}
-          className="flex overflow-x-auto gap-3.5 py-2 px-1 select-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden items-center touch-pan-x"
+          className="flex overflow-x-auto gap-3.5 py-2 px-1 select-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden items-center touch-action: pan-x pan-y"
         >
           {WELCOME_BONUSES.map((bonus, idx) => (
             <div
@@ -217,6 +230,7 @@ export default function BonusesSection() {
               data-bonus-card
               className="relative shrink-0 snap-center w-[245px] sm:w-[265px] aspect-[1/1.28] rounded-[14px] overflow-visible"
             >
+              {/* Base High-Resolution Image */}
               <img
                 src={bonus.image}
                 alt={bonus.depositTier}
@@ -230,15 +244,17 @@ export default function BonusesSection() {
                 }}
               />
 
-              {/* Timer shifted higher to bottom-[36%], borderless */}
-              <div className="absolute bottom-[36%] left-1/2 -translate-x-1/2 w-[82%] flex items-center justify-center pointer-events-none">
+              {/* Overlay Color-Matched Borderless Live Countdown Timer */}
+              <div className="absolute bottom-[28%] left-1/2 -translate-x-1/2 w-[82%] flex items-center justify-center pointer-events-none">
                 <div
-                  className={`${TIMER_TINTS[idx % TIMER_TINTS.length]} backdrop-blur-md py-1 px-3 rounded-full border-none shadow-sm text-white font-mono text-[11px] sm:text-xs font-bold tracking-widest text-center whitespace-nowrap`}
+                  className={`${TIMER_TINTS[idx % TIMER_TINTS.length]
+                    } backdrop-blur-md py-1 px-3 rounded-full border-none shadow-sm text-white font-mono text-[11px] sm:text-xs font-bold tracking-widest text-center whitespace-nowrap`}
                 >
                   {formattedTimer}
                 </div>
               </div>
 
+              {/* Clickable Action Area */}
               {bonus.isUnlocked ? (
                 <button
                   onClick={() => handleReceiveBonus(bonus)}
@@ -257,16 +273,19 @@ export default function BonusesSection() {
         </div>
       </div>
 
-      {/* 3. AVAILABLE BONUSES BANNER (Completely transparent background, no box) */}
+      {/* ------------------------------------------------------------- */}
+      {/* 3. "AVAILABLE BONUSES" & 100% CASINO BONUS BANNER */}
+      {/* ------------------------------------------------------------- */}
       <div className="pt-2">
         <h3 className="font-bold text-lg sm:text-xl text-white mb-2">
           Available bonuses
         </h3>
-        <div className="relative w-full max-w-[840px] mx-auto mt-6 overflow-visible bg-transparent border-none shadow-none">
+        <div className="relative w-full max-w-full overflow-visible">
+          {/* Base High-Resolution Banner Image */}
           <img
             src="/bonus/100casinobonus.png"
             alt="100% casino bonus"
-            className="w-full h-auto object-cover rounded-[16px] pointer-events-none select-none block bg-transparent"
+            className="w-full h-auto object-cover rounded-[16px] pointer-events-none select-none block"
             onError={(e) => {
               if (e.currentTarget.src.endsWith(".png")) {
                 e.currentTarget.src = "/bonus/100casinobonus.jpg";
@@ -276,22 +295,26 @@ export default function BonusesSection() {
             }}
           />
 
+          {/* Overlay Live Countdown Timer (Bottom-Left) */}
           <div className="absolute bottom-[10%] left-[5%] w-[38%] max-w-[210px] flex items-center justify-center pointer-events-none">
             <div className="w-full bg-[#1c2d42]/80 backdrop-blur-md py-1.5 px-3 rounded-full border-none shadow-sm text-white font-mono text-xs sm:text-sm font-bold tracking-widest text-center whitespace-nowrap">
               {formattedTimer}
             </div>
           </div>
 
+          {/* Overlay Receive Button Hit-Box (Bottom-Right) */}
           <button
             onClick={() => handleReceiveBonus()}
-            className="absolute bottom-[8%] right-[5%] w-[38%] max-w-[210px] h-[40px] sm:h-[42px] cursor-pointer rounded-xl active:scale-95 transition-transform bg-transparent hover:bg-white/5 focus:outline-none"
+            className="absolute bottom-[8%] right-[5%] w-[38%] max-w-[210px] h-[40px] sm:h-[48px] cursor-pointer rounded-xl active:scale-95 transition-transform bg-transparent hover:bg-white/5 focus:outline-none"
             aria-label="Receive 100% Casino Bonus"
             title="Receive 100% Casino Bonus"
           />
         </div>
       </div>
 
-      {/* 4. FAQ ACCORDION */}
+      {/* ------------------------------------------------------------- */}
+      {/* 4. COMPLETE 8 FAQ ACCORDION AT BOTTOM */}
+      {/* ------------------------------------------------------------- */}
       <div className="mt-8 rounded-2xl border border-[#213743] bg-[#1a2c38] p-4 sm:p-6 space-y-2.5">
         <h4 className="text-xs font-extrabold uppercase tracking-wider text-[#b1bad3] mb-3 px-1">
           Frequently Asked Questions
