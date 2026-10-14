@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const txAmount = targetTx.amount;
+    const txAmount = Number(targetTx.amount);
     const txCurrency = targetTx.currency || "INR";
     const rejectionNote = reason?.trim() || "Rejected by administrator";
 
@@ -63,21 +63,26 @@ export async function POST(req: NextRequest) {
       // Step B: If WITHDRAWAL, refund amount back to user's wallet
       let updatedWallet = null;
       if (targetTx.type === "WITHDRAWAL") {
-        const existingWallet = await tx.wallet.findUnique({
+        let existingWallet = await tx.wallet.findFirst({
           where: {
-            userId_currency: {
-              userId: targetTx.userId,
-              currency: txCurrency,
-            },
+            userId: targetTx.userId,
+            OR: [
+              { currency: txCurrency },
+              { currency: txCurrency.toUpperCase() },
+              { currency: txCurrency.toLowerCase() },
+              { currency: "INR" },
+            ],
           },
         });
 
         if (existingWallet) {
+          const currentBal = Math.max(0, Number(existingWallet.balance));
+          const currentWithdrawn = Math.max(0, Number(existingWallet.totalWithdrawn));
           updatedWallet = await tx.wallet.update({
             where: { id: existingWallet.id },
             data: {
-              balance: { increment: txAmount },
-              totalWithdrawn: { decrement: txAmount },
+              balance: currentBal + txAmount,
+              totalWithdrawn: Math.max(0, currentWithdrawn - txAmount),
             },
           });
         }

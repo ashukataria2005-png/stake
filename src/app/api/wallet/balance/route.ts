@@ -18,6 +18,17 @@ export async function GET(req: NextRequest) {
       take: 20,
     });
 
+    let safeBalance = Math.max(0, Number(wallet.balance));
+    if (Number(wallet.balance) < 0) {
+      try {
+        await prisma.wallet.update({
+          where: { id: wallet.id },
+          data: { balance: 0 },
+        });
+        safeBalance = 0;
+      } catch {}
+    }
+
     return NextResponse.json({
       success: true,
       user: {
@@ -28,10 +39,10 @@ export async function GET(req: NextRequest) {
       wallet: {
         id: wallet.id,
         currency: wallet.currency,
-        balance: Number(wallet.balance),
-        totalDeposited: Number(wallet.totalDeposited),
-        totalWithdrawn: Number(wallet.totalWithdrawn),
-        totalWagered: Number(wallet.totalWagered),
+        balance: safeBalance,
+        totalDeposited: Math.max(0, Number(wallet.totalDeposited)),
+        totalWithdrawn: Math.max(0, Number(wallet.totalWithdrawn)),
+        totalWagered: Math.max(0, Number(wallet.totalWagered)),
       },
       transactions,
     });

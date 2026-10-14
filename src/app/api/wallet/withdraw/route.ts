@@ -44,11 +44,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 1. Deduct balance and record in Neon Wallet table
+    // 1. Deduct balance safely and record in Neon Wallet table
+    const safeNewBalance = Math.max(0, parseFloat((currentBalance - numericAmount).toFixed(2)));
     const updatedWallet = await prisma.wallet.update({
       where: { id: wallet.id },
       data: {
-        balance: { decrement: numericAmount },
+        balance: safeNewBalance,
         totalWithdrawn: { increment: numericAmount },
       },
     });

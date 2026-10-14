@@ -167,11 +167,11 @@ export default function BonusesSection() {
   };
 
   return (
-    <section className="bg-[#0a1015] border border-[#1b2732] rounded-[32px] p-4 sm:p-7 my-6 shadow-2xl select-none">
+    <section className="space-y-6 pt-2 pb-6 select-none">
       {/* ------------------------------------------------------------- */}
-      {/* 1. HEADER (EXTRA DARK GREY THEME) */}
+      {/* 1. HEADER */}
       {/* ------------------------------------------------------------- */}
-      <div className="flex items-center justify-between gap-4 border-b border-[#1b2732] pb-4 px-1">
+      <div className="flex items-center justify-between gap-4 border-b border-[#213743] pb-4 px-1">
         <div>
           <div className="flex items-center gap-2">
             <Gift className="w-5 h-5 text-[#fbbf24]" />
@@ -189,7 +189,7 @@ export default function BonusesSection() {
           <button
             onClick={() => scrollToCard(Math.max(0, activeCardIndex - 1))}
             disabled={activeCardIndex === 0}
-            className="p-2 rounded-xl bg-[#121c24] hover:bg-[#1a2732] border border-[#1b2732] text-[#b1bad3] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer shadow-md"
+            className="p-2 rounded-xl bg-[#1a2c38] hover:bg-[#213743] border border-[#213743] text-[#b1bad3] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer shadow-md"
             title="Previous Bonus"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -197,7 +197,7 @@ export default function BonusesSection() {
           <button
             onClick={() => scrollToCard(Math.min(WELCOME_BONUSES.length - 1, activeCardIndex + 1))}
             disabled={activeCardIndex === WELCOME_BONUSES.length - 1}
-            className="p-2 rounded-xl bg-[#121c24] hover:bg-[#1a2732] border border-[#1b2732] text-[#b1bad3] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer shadow-md"
+            className="p-2 rounded-xl bg-[#1a2c38] hover:bg-[#213743] border border-[#213743] text-[#b1bad3] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer shadow-md"
             title="Next Bonus"
           >
             <ChevronRight className="w-4 h-4" />
@@ -267,7 +267,7 @@ export default function BonusesSection() {
               className={`transition-all duration-300 rounded-full cursor-pointer ${
                 activeCardIndex === i
                   ? "w-6 h-1.5 bg-[#00e701]"
-                  : "w-1.5 h-1.5 bg-[#1b2732] hover:bg-[#557086]"
+                  : "w-1.5 h-1.5 bg-[#213743] hover:bg-[#557086]"
               }`}
               title={`Go to bonus ${i + 1}`}
             />
@@ -310,7 +310,7 @@ export default function BonusesSection() {
       {/* ------------------------------------------------------------- */}
       {/* 4. COMPLETE 8 FAQ ACCORDION AT BOTTOM */}
       {/* ------------------------------------------------------------- */}
-      <div className="mt-8 rounded-2xl border border-[#1b2732] bg-[#0e1720] p-4 sm:p-6 space-y-2.5">
+      <div className="mt-8 rounded-2xl border border-[#213743] bg-[#1a2c38] p-4 sm:p-6 space-y-2.5">
         <h4 className="text-xs font-extrabold uppercase tracking-wider text-[#b1bad3] mb-3 px-1">
           Frequently Asked Questions
         </h4>
@@ -320,11 +320,11 @@ export default function BonusesSection() {
           return (
             <div
               key={index}
-              className="border border-[#1b2732] rounded-xl overflow-hidden bg-[#0a1015] transition-colors"
+              className="border border-[#213743] rounded-xl overflow-hidden bg-[#0f212e] transition-colors"
             >
               <button
                 onClick={() => toggleFaq(index)}
-                className="w-full p-3.5 sm:p-4 flex items-center justify-between text-left text-xs sm:text-sm font-bold text-white hover:bg-[#121c24] transition-colors cursor-pointer"
+                className="w-full p-3.5 sm:p-4 flex items-center justify-between text-left text-xs sm:text-sm font-bold text-white hover:bg-[#213743]/50 transition-colors cursor-pointer"
               >
                 <span>{faq.q}</span>
                 {isOpen ? (
@@ -335,7 +335,7 @@ export default function BonusesSection() {
               </button>
 
               {isOpen && (
-                <div className="px-3.5 sm:px-4 pb-3.5 sm:pb-4 text-xs text-[#b1bad3] leading-relaxed border-t border-[#1b2732] pt-2.5 animate-in fade-in duration-150">
+                <div className="px-3.5 sm:px-4 pb-3.5 sm:pb-4 text-xs text-[#b1bad3] leading-relaxed border-t border-[#213743] pt-2.5 animate-in fade-in duration-150">
                   {faq.a}
                 </div>
               )}

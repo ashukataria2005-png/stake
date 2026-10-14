@@ -223,9 +223,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       const data = await res.json();
 
       if (data?.success && data?.wallet) {
-        const dbInrBalance = Number(data.wallet.balance || 0);
+        const dbInrBalance = Math.max(0, Number(data.wallet.balance || 0));
         // Underlying rate 86.5 INR per USD
-        const inUsd = parseFloat((dbInrBalance / 86.5).toFixed(4));
+        const inUsd = Math.max(0, parseFloat((dbInrBalance / 86.5).toFixed(4)));
         setRealBalance(inUsd);
         try {
           localStorage.setItem(BALANCE_STORAGE_KEY, inUsd.toString());
@@ -491,13 +491,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     : (currentCryptoObj?.rateUsd || 1.0);
 
   // Active user balance in units of the currently active currency
-  const activeBalance = displayCryptoInFiat
+  const activeBalance = Math.max(0, displayCryptoInFiat
     ? parseFloat((realBalance * activeCurrencyRate).toFixed(2))
     : (currency === "USDT"
         ? parseFloat(realBalance.toFixed(2))
         : (cryptoBalances[currency] !== undefined
             ? cryptoBalances[currency]
-            : parseFloat((realBalance / activeCurrencyRate).toFixed(6))));
+            : parseFloat((realBalance / activeCurrencyRate).toFixed(6)))));
 
   const updateBalance = (amount: number, inUsd: boolean = false): boolean => {
     lastGameActionRef.current = Date.now();
@@ -606,7 +606,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const formatBalance = (val?: number): string => {
-    const target = val !== undefined ? val : activeBalance;
+    const target = Math.max(0, val !== undefined ? val : activeBalance);
     return target.toLocaleString("en-US", {
       minimumFractionDigits: 2,
       maximumFractionDigits: displayCryptoInFiat ? 2 : (currentCryptoObj?.decimals || 2),
@@ -615,7 +615,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
   // Formats display balance based on user fiat settings or crypto
   const formatDisplayBalance = (valUsd?: number): DisplayBalanceInfo => {
-    const usdAmount = valUsd !== undefined ? valUsd : realBalance;
+    const usdAmount = Math.max(0, valUsd !== undefined ? valUsd : realBalance);
 
     if (displayCryptoInFiat) {
       const fiatObj = ALL_FIAT_CURRENCIES.find((f) => f.code === selectedFiat);

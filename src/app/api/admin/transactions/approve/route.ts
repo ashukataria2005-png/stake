@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
         console.log(`[Approve API] Deposit approved for user ${targetTx.userId}. Credited: ₹${Number(txAmount)}. New balance: ₹${Number(updatedWallet.balance)}`);
       } else {
         // For WITHDRAWALS: Balance was already decremented upon withdrawal request.
-        // Retrieve latest wallet to return accurate balance.
+        // Retrieve latest wallet and guarantee non-negative balance.
         updatedWallet = await tx.wallet.findFirst({
           where: {
             userId: targetTx.userId,
@@ -116,6 +116,13 @@ export async function POST(req: NextRequest) {
             ],
           },
         });
+
+        if (updatedWallet && Number(updatedWallet.balance) < 0) {
+          updatedWallet = await tx.wallet.update({
+            where: { id: updatedWallet.id },
+            data: { balance: 0 },
+          });
+        }
       }
 
       return {

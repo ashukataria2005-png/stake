@@ -62,7 +62,7 @@ const QUICK_AMOUNTS = [300, 500, 1000, 5000, 10000, 25000];
 
 export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
   const router = useRouter();
-  const { balance, realBalance, updateBalance, currency, formatDisplayBalance, user } = useGame();
+  const { balance, realBalance, updateBalance, syncWalletBalance, currency, formatDisplayBalance, user } = useGame();
 
   const [activeTab, setActiveTab] = useState<"deposit" | "withdraw">("deposit");
 
@@ -511,78 +511,86 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
     setIsSubmittingWithdraw(true);
     sounds.playClick();
 
-    setTimeout(() => {
-      // Deduct balance in USD equivalent
-      const deductionUsd = num / 86.5;
-      updateBalance(-deductionUsd, true);
-      sounds.playCashout();
-      setIsSubmittingWithdraw(false);
-
-      // Persist to Neon PostgreSQL Transaction and Wallet tables
-      const targetUserId = user?.id || user?.username || "guest_player";
-      fetch("/api/wallet/withdraw", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: targetUserId,
-          amount: num,
-          currency: "INR",
-          method: withdrawMethod,
-          details: {
-            upiId: withdrawMethod === "upi" ? upiId : undefined,
-            bankAccount: withdrawMethod === "bank" ? bankAccount : undefined,
-            ifscCode: withdrawMethod === "bank" ? ifscCode : undefined,
-            accountHolder: withdrawMethod === "bank" ? accountHolder : undefined,
-          },
-        }),
-      }).catch((err) => console.error("Withdraw DB sync error:", err));
-
-      const destination =
-        withdrawMethod === "upi"
-          ? `UPI (${upiId})`
-          : `Bank (${bankAccount.slice(-4)}) - ${ifscCode}`;
-
-      // Save to withdrawals ledger (stake_withdrawals)
-      const newWithdrawal: WithdrawalOrder = {
-        id: `STK-WD-${Date.now()}`,
-        amountINR: num,
-        destination,
+    const targetUserId = user?.id || user?.username || "guest_player";
+    fetch("/api/wallet/withdraw", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: targetUserId,
+        amount: num,
+        currency: "INR",
         method: withdrawMethod,
-        date: new Date().toLocaleString(),
-        status: "Processing",
-      };
+        details: {
+          upiId: withdrawMethod === "upi" ? upiId : undefined,
+          bankAccount: withdrawMethod === "bank" ? bankAccount : undefined,
+          ifscCode: withdrawMethod === "bank" ? ifscCode : undefined,
+          accountHolder: withdrawMethod === "bank" ? accountHolder : undefined,
+        },
+      }),
+    })
+      .then(async (res) => {
+        setIsSubmittingWithdraw(false);
+        const data = await res.json();
+        if (!res.ok || data.error) {
+          alert(data.error || "Failed to process withdrawal request.");
+          return;
+        }
 
-      try {
-        const updatedWd = [newWithdrawal, ...withdrawalOrders];
-        setWithdrawalOrders(updatedWd);
-        localStorage.setItem("stake_withdrawals", JSON.stringify(updatedWd));
-      } catch { }
+        sounds.playCashout();
+        // Live sync wallet balance safely from the server without double-deduction
+        syncWalletBalance();
 
-      // Save to notification drawer
-      try {
-        const savedNotifs = localStorage.getItem("stake_notifications");
-        const existing = savedNotifs ? JSON.parse(savedNotifs) : [];
-        const newNotif = {
-          id: `notif-wd-${Date.now()}`,
-          type: "Transactions",
-          title: "Withdrawal Processed",
-          description: `Your withdrawal of ₹${num.toLocaleString("en-IN")} via ${destination} has been submitted.`,
-          time: "Just now",
-          isRead: false,
-          iconType: "withdrawal",
+        const destination =
+          withdrawMethod === "upi"
+            ? `UPI (${upiId})`
+            : `Bank (${bankAccount.slice(-4)}) - ${ifscCode}`;
+
+        // Save to withdrawals ledger (stake_withdrawals)
+        const newWithdrawal: WithdrawalOrder = {
+          id: data.transaction?.id || `STK-WD-${Date.now()}`,
+          amountINR: num,
+          destination,
+          method: withdrawMethod,
+          date: new Date().toLocaleString(),
+          status: "Processing",
         };
-        localStorage.setItem("stake_notifications", JSON.stringify([newNotif, ...existing]));
-        window.dispatchEvent(new Event("stake_notifications_updated"));
-      } catch { }
 
-      setWithdrawSuccessMsg(
-        `Withdrawal of ₹${num.toLocaleString("en-IN")} submitted successfully! Funds will reflect in your account shortly.`
-      );
+        try {
+          const updatedWd = [newWithdrawal, ...withdrawalOrders];
+          setWithdrawalOrders(updatedWd);
+          localStorage.setItem("stake_withdrawals", JSON.stringify(updatedWd));
+        } catch { }
 
-      setTimeout(() => {
-        setWithdrawSuccessMsg("");
-      }, 5000);
-    }, 1200);
+        // Save to notification drawer
+        try {
+          const savedNotifs = localStorage.getItem("stake_notifications");
+          const existing = savedNotifs ? JSON.parse(savedNotifs) : [];
+          const newNotif = {
+            id: `notif-wd-${Date.now()}`,
+            type: "Transactions",
+            title: "Withdrawal Processed",
+            description: `Your withdrawal of ₹${num.toLocaleString("en-IN")} via ${destination} has been submitted.`,
+            time: "Just now",
+            isRead: false,
+            iconType: "withdrawal",
+          };
+          localStorage.setItem("stake_notifications", JSON.stringify([newNotif, ...existing]));
+          window.dispatchEvent(new Event("stake_notifications_updated"));
+        } catch { }
+
+        setWithdrawSuccessMsg(
+          `Withdrawal of ₹${num.toLocaleString("en-IN")} submitted successfully! Funds will reflect in your account shortly.`
+        );
+
+        setTimeout(() => {
+          setWithdrawSuccessMsg("");
+        }, 5000);
+      })
+      .catch((err) => {
+        setIsSubmittingWithdraw(false);
+        console.error("Withdraw DB sync error:", err);
+        alert("Failed to submit withdrawal request. Please check your connection.");
+      });
   };
 
   // Re-verify pending UTR directly inside history modal
