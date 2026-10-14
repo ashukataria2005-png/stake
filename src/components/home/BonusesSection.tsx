@@ -230,8 +230,8 @@ export default function BonusesSection() {
                 }}
               />
 
-              {/* Timer shifted slightly higher to bottom-[32%], borderless */}
-              <div className="absolute bottom-[32%] left-1/2 -translate-x-1/2 w-[82%] flex items-center justify-center pointer-events-none">
+              {/* Timer shifted higher to bottom-[36%], borderless */}
+              <div className="absolute bottom-[36%] left-1/2 -translate-x-1/2 w-[82%] flex items-center justify-center pointer-events-none">
                 <div
                   className={`${TIMER_TINTS[idx % TIMER_TINTS.length]} backdrop-blur-md py-1 px-3 rounded-full border-none shadow-sm text-white font-mono text-[11px] sm:text-xs font-bold tracking-widest text-center whitespace-nowrap`}
                 >
@@ -257,7 +257,7 @@ export default function BonusesSection() {
         </div>
       </div>
 
-      {/* 3. AVAILABLE BONUSES BANNER (Pure transparent container, no background box) */}
+      {/* 3. AVAILABLE BONUSES BANNER (Completely transparent background, no box) */}
       <div className="pt-2">
         <h3 className="font-bold text-lg sm:text-xl text-white mb-2">
           Available bonuses
