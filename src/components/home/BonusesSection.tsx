@@ -280,7 +280,7 @@ export default function BonusesSection() {
         <h3 className="font-bold text-lg sm:text-xl text-white mb-2">
           Available bonuses
         </h3>
-        <div className="relative w-full overflow-visible bg-transparent border-none shadow-none" style={{ maxWidth: "900px", margin: "0 auto" }}>
+        <div className="relative w-full overflow-visible bg-transparent border-none shadow-none" style={{ maxWidth: "1000px", margin: "0 auto" }}>
           {/* Base High-Resolution Banner Image */}
           <img
             src="/bonus/100casinobonus.png"
