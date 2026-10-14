@@ -458,10 +458,12 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
       setIsSubmittingWithdraw(false);
 
       // Persist to Neon PostgreSQL Transaction and Wallet tables
+      const targetUserId = user?.id || user?.username || "guest_player";
       fetch("/api/wallet/withdraw", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          userId: targetUserId,
           amount: num,
           currency: "INR",
           method: withdrawMethod,
