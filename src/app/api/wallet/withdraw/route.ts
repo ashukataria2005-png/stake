@@ -13,10 +13,23 @@ export async function POST(req: NextRequest) {
       details,
     } = body;
 
+    let minWithdrawalAmount = 500;
+    try {
+      const dbSetting = await prisma.gameControl.findUnique({
+        where: { gameName: "SYSTEM_UPI" },
+      });
+      if (dbSetting?.mode) {
+        const parsed = JSON.parse(dbSetting.mode);
+        if (parsed.minWithdrawalAmount !== undefined && !isNaN(Number(parsed.minWithdrawalAmount))) {
+          minWithdrawalAmount = Math.max(1, Number(parsed.minWithdrawalAmount));
+        }
+      }
+    } catch {}
+
     const numericAmount = parseFloat(amount);
-    if (!amount || isNaN(numericAmount) || numericAmount < 500) {
+    if (!amount || isNaN(numericAmount) || numericAmount < minWithdrawalAmount) {
       return NextResponse.json(
-        { error: "Minimum withdrawal amount is ₹500" },
+        { error: `Minimum withdrawal amount is ₹${minWithdrawalAmount}` },
         { status: 400 }
       );
     }

@@ -24,6 +24,8 @@ export default function AdminSettingsPage() {
   const [lgpayBaseUrl, setLgpayBaseUrl] = useState("");
   const [tradeType, setTradeType] = useState("INRUPI");
   const [amountUnit, setAmountUnit] = useState<"PAISE" | "RUPEES">("PAISE");
+  const [minDepositAmount, setMinDepositAmount] = useState<string>("100");
+  const [minWithdrawalAmount, setMinWithdrawalAmount] = useState<string>("500");
   const [isLoadingSettings, setIsLoadingSettings] = useState(true);
   const [isSavingUPI, setIsSavingUPI] = useState(false);
   const [isSavingGateway, setIsSavingGateway] = useState(false);
@@ -54,6 +56,8 @@ export default function AdminSettingsPage() {
         setLgpayBaseUrl(data.settings.lgpayBaseUrl || "https://www.lg-pay.com");
         setTradeType(data.settings.tradeType || "INRUPI");
         setAmountUnit(data.settings.amountUnit || "PAISE");
+        if (data.settings.minDepositAmount !== undefined) setMinDepositAmount(String(data.settings.minDepositAmount));
+        if (data.settings.minWithdrawalAmount !== undefined) setMinWithdrawalAmount(String(data.settings.minWithdrawalAmount));
       }
     } catch (err) {
       console.error("Failed to fetch platform settings:", err);
@@ -114,6 +118,8 @@ export default function AdminSettingsPage() {
           lgpayBaseUrl: lgpayBaseUrl.trim(),
           tradeType: tradeType.trim(),
           amountUnit,
+          minDepositAmount: parseFloat(minDepositAmount) || 1,
+          minWithdrawalAmount: parseFloat(minWithdrawalAmount) || 1,
         }),
       });
 
@@ -382,6 +388,38 @@ export default function AdminSettingsPage() {
                 ✓ Manual QR Mode Active: Users will be shown your Merchant UPI ID and QR code to upload UTR proofs for Admin verification.
               </div>
             )}
+
+            {/* Dynamic Minimum Deposit & Withdrawal Limits */}
+            <div className="grid grid-cols-2 gap-3 pt-2 border-t border-[#1e2433]">
+              <div className="space-y-1">
+                <label className="text-slate-300 font-medium">Minimum Deposit Amount (₹)</label>
+                <input
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={minDepositAmount}
+                  onChange={(e) => setMinDepositAmount(e.target.value)}
+                  placeholder="e.g. 100"
+                  required
+                  className="w-full px-3.5 py-2.5 bg-[#0e1017] border border-[#1e2433] rounded-xl text-white font-mono placeholder-slate-600 focus:outline-none focus:border-purple-500/60"
+                />
+                <p className="text-[10px] text-slate-500">Live platform deposit floor limit.</p>
+              </div>
+              <div className="space-y-1">
+                <label className="text-slate-300 font-medium">Minimum Withdrawal Amount (₹)</label>
+                <input
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={minWithdrawalAmount}
+                  onChange={(e) => setMinWithdrawalAmount(e.target.value)}
+                  placeholder="e.g. 500"
+                  required
+                  className="w-full px-3.5 py-2.5 bg-[#0e1017] border border-[#1e2433] rounded-xl text-white font-mono placeholder-slate-600 focus:outline-none focus:border-purple-500/60"
+                />
+                <p className="text-[10px] text-slate-500">Player withdrawal floor limit.</p>
+              </div>
+            </div>
 
             <div className="pt-2 flex justify-end">
               <button

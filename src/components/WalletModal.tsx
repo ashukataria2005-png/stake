@@ -73,6 +73,8 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
   const [depositStep, setDepositStep] = useState<"amount" | "qr">("amount");
   const [depositAmount, setDepositAmount] = useState<string>("500");
   const [selectedQuickChip, setSelectedQuickChip] = useState<number>(500);
+  const [minDepositAmount, setMinDepositAmount] = useState<number>(100);
+  const [minWithdrawalAmount, setMinWithdrawalAmount] = useState<number>(500);
   const [currentOrderId, setCurrentOrderId] = useState<string>("");
   const [utrInput, setUtrInput] = useState<string>("");
   const [utrError, setUtrError] = useState<string>("");
@@ -97,7 +99,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
   const [isApplyingPromo, setIsApplyingPromo] = useState<boolean>(false);
   const [selectedBonusOffer, setSelectedBonusOffer] = useState<string>("none");
 
-  const baseDepositNum = Math.max(3, parseFloat(depositAmount || "3") || 3);
+  const baseDepositNum = Math.max(minDepositAmount, parseFloat(depositAmount || String(minDepositAmount)) || minDepositAmount);
   const finalPayableAmount = appliedPromo ? appliedPromo.payableAmount : baseDepositNum;
   const finalCreditAmount = appliedPromo ? appliedPromo.creditedAmount : baseDepositNum;
 
@@ -105,7 +107,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
     if (!promoInput.trim()) return;
     setIsApplyingPromo(true);
     setPromoError("");
-    const num = Math.max(3, parseFloat(depositAmount || "3") || 3);
+    const num = Math.max(minDepositAmount, parseFloat(depositAmount || String(minDepositAmount)) || minDepositAmount);
 
     try {
       const res = await fetch(
@@ -217,6 +219,8 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
             if (data.settings.upiId) setReceiverUpi(data.settings.upiId);
             if (data.settings.upiName) setReceiverName(data.settings.upiName);
             if (data.settings.gatewayMode) setGatewayMode(data.settings.gatewayMode);
+            if (data.settings.minDepositAmount !== undefined) setMinDepositAmount(Number(data.settings.minDepositAmount));
+            if (data.settings.minWithdrawalAmount !== undefined) setMinWithdrawalAmount(Number(data.settings.minWithdrawalAmount));
           }
         })
         .catch(() => { });
@@ -269,8 +273,8 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
   const handleDepositSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const num = parseFloat(depositAmount);
-    if (isNaN(num) || num < 3) {
-      setGatewayError("Minimum deposit amount is ₹3. Please enter a valid amount.");
+    if (isNaN(num) || num < minDepositAmount) {
+      setGatewayError(`Minimum deposit amount is ₹${minDepositAmount}. Please enter a valid amount.`);
       return;
     }
 
@@ -482,8 +486,8 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
   const handleWithdrawSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const num = parseFloat(withdrawAmount);
-    if (isNaN(num) || num < 500) {
-      alert("Minimum withdrawal amount is ₹500.");
+    if (isNaN(num) || num < minWithdrawalAmount) {
+      alert(`Minimum withdrawal amount is ₹${minWithdrawalAmount}.`);
       return;
     }
 
@@ -656,23 +660,18 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
         className="w-full max-w-lg rounded-2xl border border-[#213743] bg-[#1a2c38] shadow-2xl overflow-hidden flex flex-col max-h-[94vh]"
       >
         {/* Modal Top Header */}
-        <div className="flex items-center justify-between border-b border-[#213743] px-5 py-4 bg-[#14232f]">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1475e1]/15 text-[#1475e1] border border-[#1475e1]/30">
-              <Wallet className="h-5 w-5" />
+        <div className="flex items-center justify-between border-b border-[#213743] px-4 py-3 bg-[#14232f]">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#1475e1]/15 text-[#1475e1] border border-[#1475e1]/30">
+              <Wallet className="h-4.5 w-4.5" />
             </div>
             <div>
-              <h3 className="text-base font-black text-white">Wallet & Recharge Gateway</h3>
+              <h3 className="text-sm sm:text-base font-black text-white">Wallet</h3>
               <div className="flex items-center gap-1.5 text-xs text-[#b1bad3]">
                 <span>Active Balance:</span>
                 <span className="font-mono text-[#00e701] font-bold">
                   {displayInfo.symbol}{displayInfo.amount} {displayInfo.code}
                 </span>
-                {displayInfo.code !== "USD" && (
-                  <span className="text-[10px] text-[#7a889b]">
-                    (${realBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD)
-                  </span>
-                )}
               </div>
             </div>
           </div>
@@ -685,26 +684,26 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
         </div>
 
         {/* Primary Navigation Tabs: Deposit vs Withdrawal */}
-        <div className="flex border-b border-[#213743] bg-[#14232f]/60 p-2 gap-2">
+        <div className="flex border-b border-[#213743] bg-[#14232f]/60 p-1.5 gap-1.5">
           <button
             onClick={() => {
               sounds.playClick();
               setActiveTab("deposit");
             }}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer ${activeTab === "deposit"
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer ${activeTab === "deposit"
               ? "bg-[#1475e1] text-white shadow-lg shadow-[#1475e1]/20 border border-[#1475e1]"
               : "text-[#b1bad3] hover:text-white hover:bg-[#213743]/50"
               }`}
           >
             <ArrowDownLeft className="h-4 w-4" />
-            <span>Deposit (UPI & QR)</span>
+            <span>Deposit</span>
           </button>
           <button
             onClick={() => {
               sounds.playClick();
               setActiveTab("withdraw");
             }}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer ${activeTab === "withdraw"
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold transition-all cursor-pointer ${activeTab === "withdraw"
               ? "bg-[#213743] text-[#00e701] shadow-sm border border-[#00e701]/30"
               : "text-[#b1bad3] hover:text-white hover:bg-[#213743]/50"
               }`}
@@ -715,43 +714,38 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
         </div>
 
         {/* Modal Body */}
-        <div className="p-4 sm:p-6 overflow-y-auto space-y-4">
+        <div className="p-3.5 sm:p-5 overflow-y-auto space-y-3">
           {/* ============================================================== */}
           {/* TAB 1: DEPOSIT */}
           {/* ============================================================== */}
           {activeTab === "deposit" && (
-            <div className="space-y-4 animate-in fade-in duration-150">
+            <div className="space-y-3 animate-in fade-in duration-150">
               {depositStep === "amount" ? (
-                <form onSubmit={handleDepositSubmit} className="space-y-4">
-                  {/* Header Note Banner */}
-                  <div className="flex items-center gap-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs text-emerald-400">
-                    <Zap className="h-4 w-4 shrink-0 fill-current" />
-                    <span className="font-bold">Instant UPI & QR Code Deposit (0% Fee)</span>
-                  </div>
+                <form onSubmit={handleDepositSubmit} className="space-y-3">
 
                   {/* Amount Input with Currency Badge */}
-                  <div className="space-y-1.5">
+                  <div className="space-y-1">
                     <label className="text-xs font-bold text-[#b1bad3] uppercase tracking-wider flex justify-between">
                       <span>Enter Deposit Amount</span>
-                      <span className="text-white font-mono">Min: ₹3</span>
+                      <span className="text-white font-mono">Min: ₹{minDepositAmount}</span>
                     </label>
-                    <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] px-3.5 py-3 focus-within:border-[#1475e1] transition-colors shadow-inner">
+                    <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] px-3.5 py-2.5 focus-within:border-[#1475e1] transition-colors shadow-inner">
                       {/* Left Rupee Coin Badge */}
                       <div className="flex items-center gap-1.5 mr-2.5 shrink-0">
-                        <FiatCoinIcon currency="INR" size={24} className="w-6 h-6" />
+                        <FiatCoinIcon currency="INR" size={22} className="w-5.5 h-5.5" />
                         <span className="text-base font-extrabold text-white">₹</span>
                       </div>
                       <input
                         type="number"
-                        min="3"
+                        min={minDepositAmount}
                         step="1"
                         value={depositAmount}
                         onChange={(e) => handleAmountChange(e.target.value)}
-                        placeholder="Enter amount (Min ₹3)"
+                        placeholder={`Enter amount (Min ₹${minDepositAmount})`}
                         className="w-full bg-transparent text-base sm:text-lg font-black text-white placeholder-[#7a889b] focus:outline-none font-mono"
                         required
                       />
-                      {parseFloat(depositAmount) >= 3 && (
+                      {parseFloat(depositAmount) >= minDepositAmount && (
                         <span className="text-xs font-bold text-[#00e701] shrink-0 font-mono">
                           ₹{parseFloat(depositAmount || "0").toLocaleString("en-IN")}
                         </span>
@@ -897,32 +891,9 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                     )}
                   </div>
 
-                  {/* Supported Payment Methods Badge Row */}
-                  <div className="rounded-xl border border-[#213743] bg-[#0f212e] p-3 space-y-2">
-                    <div className="text-[11px] font-bold text-[#7a889b] uppercase tracking-wider">
-                      Supported Instant Payment Apps
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      {[
-                        { name: "Google Pay", color: "bg-blue-500/10 text-blue-400 border-blue-500/20" },
-                        { name: "PhonePe", color: "bg-purple-500/10 text-purple-400 border-purple-500/20" },
-                        { name: "Paytm", color: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20" },
-                        { name: "BHIM UPI", color: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" },
-                        { name: "CRED UPI", color: "bg-amber-500/10 text-amber-400 border-amber-500/20" },
-                      ].map((app) => (
-                        <span
-                          key={app.name}
-                          className={`rounded-lg border px-2.5 py-1 text-[11px] font-bold ${app.color}`}
-                        >
-                          {app.name}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
                   {/* In-Modal Gateway Error Banner */}
                   {gatewayError && (
-                    <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-3.5 text-xs text-rose-300 flex items-start gap-2.5">
+                    <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-xs text-rose-300 flex items-start gap-2.5">
                       <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
                       <div className="flex-1 space-y-1">
                         <p className="font-semibold">{gatewayError}</p>
@@ -940,38 +911,21 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                     </div>
                   )}
 
-                  {/* Action Button: Continue to QR or Instant Gateway */}
+                  {/* Action Button: Clean simple Pay ₹{amount} > */}
                   <button
                     type="submit"
                     disabled={isRedirectingToGateway}
-                    className="w-full rounded-xl bg-[#1475e1] hover:bg-[#1268c7] py-3.5 text-sm sm:text-base font-extrabold text-white shadow-xl shadow-[#1475e1]/25 transition-all active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                    className="w-full rounded-xl bg-[#1475e1] hover:bg-[#1268c7] py-3 text-sm sm:text-base font-extrabold text-white shadow-xl shadow-[#1475e1]/25 transition-all active:scale-[0.99] flex items-center justify-center gap-1 cursor-pointer disabled:opacity-50"
                   >
                     {isRedirectingToGateway ? (
                       <>
-                        <Loader2 className="h-5 w-5 animate-spin" />
-                        <span>Connecting to Instant Payment Gateway...</span>
-                      </>
-                    ) : gatewayMode === "LGPAY_AUTO" ? (
-                      <>
-                        <Zap className="h-4 w-4 text-amber-300 fill-amber-300" />
-                        <span>Pay ₹{finalPayableAmount.toLocaleString("en-IN")} via Instant UPI (LG-Pay)</span>
-                        <ChevronRight className="h-4 w-4" />
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>Connecting to Payment Gateway...</span>
                       </>
                     ) : (
-                      <>
-                        <span>Continue to QR & UPI Payment</span>
-                        <span className="font-mono">
-                          (Pay ₹{finalPayableAmount.toLocaleString("en-IN")}{appliedPromo ? ` • Get ₹${finalCreditAmount.toLocaleString("en-IN")}` : ""})
-                        </span>
-                        <ChevronRight className="h-4 w-4" />
-                      </>
+                      <span>Pay ₹{finalPayableAmount.toLocaleString("en-IN")} &gt;</span>
                     )}
                   </button>
-
-                  <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#7a889b]">
-                    <ShieldCheck className="h-3.5 w-3.5 text-[#00e701]" />
-                    <span>256-Bit Encrypted Payment Node • Instant Automated Crediting</span>
-                  </div>
                 </form>
               ) : (
                 /* QR CODE & UTR FORM (depositStep === "qr") */
@@ -1277,17 +1231,17 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-[#b1bad3] uppercase tracking-wider flex justify-between">
                     <span>Withdrawal Amount</span>
-                    <span className="text-white font-mono">Min: ₹500</span>
+                    <span className="text-white font-mono">Min: ₹{minWithdrawalAmount}</span>
                   </label>
                   <div className="flex items-center rounded-xl border border-[#213743] bg-[#0f212e] px-3.5 py-3 focus-within:border-[#1475e1] transition-colors">
                     <span className="text-base font-extrabold text-[#00e701] mr-2">₹</span>
                     <input
                       type="number"
-                      min="500"
+                      min={minWithdrawalAmount}
                       max={inrBalance}
                       value={withdrawAmount}
                       onChange={(e) => setWithdrawAmount(e.target.value)}
-                      placeholder="Enter amount (Min ₹500)"
+                      placeholder={`Enter amount (Min ₹${minWithdrawalAmount})`}
                       className="w-full bg-transparent text-base font-bold text-white placeholder-[#7a889b] focus:outline-none font-mono"
                       required
                     />

@@ -21,6 +21,8 @@ export interface PlatformSettings {
   lgpayBaseUrl?: string;
   tradeType?: string;
   amountUnit?: "PAISE" | "RUPEES";
+  minDepositAmount?: number;
+  minWithdrawalAmount?: number;
   updatedAt?: string;
 }
 
@@ -34,6 +36,8 @@ const DEFAULT_SETTINGS: PlatformSettings = {
   lgpayBaseUrl: "https://www.lg-pay.com",
   tradeType: "INRUPI",
   amountUnit: "PAISE",
+  minDepositAmount: 100,
+  minWithdrawalAmount: 500,
 };
 
 export function getPlatformSettings(): PlatformSettings {
@@ -83,6 +87,8 @@ export async function GET(req: NextRequest) {
     let lgpayBaseUrl = sanitizeGatewayBaseUrl(fileSettings.lgpayBaseUrl || "https://www.lg-pay.com");
     let tradeType = fileSettings.tradeType || "INRUPI";
     let amountUnit = fileSettings.amountUnit || "PAISE";
+    let minDepositAmount = fileSettings.minDepositAmount ?? 100;
+    let minWithdrawalAmount = fileSettings.minWithdrawalAmount ?? 500;
 
     if (dbSetting && dbSetting.mode) {
       try {
@@ -96,6 +102,8 @@ export async function GET(req: NextRequest) {
         if (parsed.lgpayBaseUrl) lgpayBaseUrl = sanitizeGatewayBaseUrl(parsed.lgpayBaseUrl);
         if (parsed.tradeType) tradeType = parsed.tradeType;
         if (parsed.amountUnit) amountUnit = parsed.amountUnit;
+        if (parsed.minDepositAmount !== undefined) minDepositAmount = Number(parsed.minDepositAmount);
+        if (parsed.minWithdrawalAmount !== undefined) minWithdrawalAmount = Number(parsed.minWithdrawalAmount);
       } catch {}
     }
 
@@ -111,6 +119,8 @@ export async function GET(req: NextRequest) {
         lgpayBaseUrl,
         tradeType,
         amountUnit,
+        minDepositAmount,
+        minWithdrawalAmount,
       },
     });
   } catch (err: any) {
@@ -173,7 +183,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Action 1B: Update Universal Payment Gateway parameters
-    if (action === "UPDATE_GATEWAY") {
+    if (action === "UPDATE_GATEWAY" || action === "UPDATE_LIMITS") {
       const current = getPlatformSettings();
       const chosenChannel = body.paymentChannel || (body.gatewayMode === "LGPAY_AUTO" ? "LGPAY_STANDARD" : "MANUAL_QR");
       const chosenGatewayMode: "MANUAL" | "LGPAY_AUTO" = chosenChannel === "MANUAL_QR" ? "MANUAL" : "LGPAY_AUTO";
@@ -187,6 +197,8 @@ export async function POST(req: NextRequest) {
         lgpayBaseUrl: sanitizeGatewayBaseUrl(body.lgpayBaseUrl || current.lgpayBaseUrl, chosenChannel),
         tradeType: body.tradeType !== undefined ? String(body.tradeType).trim() : current.tradeType || "INRUPI",
         amountUnit: body.amountUnit || (chosenChannel === "RUPAYEX" ? "RUPEES" : current.amountUnit || "PAISE"),
+        minDepositAmount: body.minDepositAmount !== undefined ? Math.max(1, parseFloat(body.minDepositAmount) || 1) : (current.minDepositAmount ?? 100),
+        minWithdrawalAmount: body.minWithdrawalAmount !== undefined ? Math.max(1, parseFloat(body.minWithdrawalAmount) || 1) : (current.minWithdrawalAmount ?? 500),
         updatedAt: new Date().toISOString(),
       };
 

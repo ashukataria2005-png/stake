@@ -11,15 +11,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json().catch(() => ({}));
     const { amount, userId, customerName, customerEmail, customerMobile, mobile } = body;
 
-    const numAmount = parseFloat(amount);
-    if (!amount || isNaN(numAmount) || numAmount < 3) {
-      return NextResponse.json(
-        { success: false, error: "Minimum payment order amount is ₹3" },
-        { status: 400 }
-      );
-    }
-
-    // 1. Fetch merchant configuration from DB/Platform Settings
+    // 1. Fetch merchant configuration & limits from DB/Platform Settings
     const settings = (getPlatformSettings() as any) || {};
     let merchantId = settings.lgpayMerchantId || process.env.LGPAY_MERCHANT_ID || "stake_lgpay_merchant";
     let apiKey = settings.lgpayApiKey || process.env.LGPAY_API_KEY || "lgpay_secret_key_prod_8829";
@@ -27,6 +19,7 @@ export async function POST(req: NextRequest) {
     let channel: GatewayChannel = settings.paymentChannel || (settings.gatewayMode === "LGPAY_AUTO" ? "LGPAY_STANDARD" : "MANUAL_QR");
     let tradeType = settings.tradeType || "INRUPI";
     let amountUnit: AmountUnit = settings.amountUnit || "PAISE";
+    let minDepositAmount = Number(settings.minDepositAmount) || 1;
 
     try {
       const dbSetting = await prisma.gameControl.findUnique({
@@ -40,9 +33,20 @@ export async function POST(req: NextRequest) {
         if (parsed.paymentChannel) channel = parsed.paymentChannel;
         if (parsed.tradeType) tradeType = parsed.tradeType;
         if (parsed.amountUnit) amountUnit = parsed.amountUnit;
+        if (parsed.minDepositAmount !== undefined && !isNaN(Number(parsed.minDepositAmount))) {
+          minDepositAmount = Math.max(1, Number(parsed.minDepositAmount));
+        }
       }
     } catch (e) {
       console.warn("Failed reading DB gateway setting:", e);
+    }
+
+    const numAmount = parseFloat(amount);
+    if (!amount || isNaN(numAmount) || numAmount < minDepositAmount) {
+      return NextResponse.json(
+        { success: false, error: `Minimum payment order amount is ₹${minDepositAmount}` },
+        { status: 400 }
+      );
     }
 
     baseUrl = sanitizeGatewayBaseUrl(baseUrl, channel);

@@ -430,11 +430,11 @@ export default function TransactionsModal({
       />
 
       {/* Modal / Drawer Card */}
-      <div className="relative w-full sm:max-w-md md:max-w-lg h-full sm:h-auto sm:max-h-[92vh] flex flex-col bg-[#1a2c38] sm:border sm:border-[#213743] sm:rounded-2xl shadow-2xl overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-150">
+      <div className="relative w-full sm:max-w-md md:max-w-lg h-full sm:h-auto sm:max-h-[92vh] flex flex-col bg-[#0f212e] sm:border sm:border-[#213743] sm:rounded-2xl shadow-2xl overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-150">
         {/* ========================================================= */}
         {/* TOP HEADER */}
         {/* ========================================================= */}
-        <div className="flex items-center justify-between px-4 py-3.5 border-b border-[#213743] bg-[#14232d] shrink-0">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-[#213743] bg-[#0f212e] shrink-0">
           {currentView === "CATEGORIES" ? (
             <div className="flex items-center gap-2.5">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#213743] text-white">
@@ -513,12 +513,12 @@ export default function TransactionsModal({
         {/* ========================================================= */}
         {/* BODY CONTAINER */}
         {/* ========================================================= */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="flex-1 overflow-y-auto p-3.5 space-y-3">
           {/* ------------------------------------------------------- */}
           {/* 1. MAIN CATEGORIES NAVIGATION LIST (Screenshot 178) */}
           {/* ------------------------------------------------------- */}
           {currentView === "CATEGORIES" && (
-            <div className="space-y-2 py-1">
+            <div className="space-y-1.5 py-0.5">
               {categories.map((cat) => {
                 const Icon = cat.icon;
                 return (
@@ -529,7 +529,7 @@ export default function TransactionsModal({
                       setCurrentView(cat.id);
                       setCurrentPage(1);
                     }}
-                    className="w-full flex items-center justify-between p-3.5 rounded-xl bg-[#213743]/60 hover:bg-[#213743] border border-[#284252]/60 hover:border-[#2f4553] transition-all cursor-pointer group text-left"
+                    className="w-full flex items-center justify-between p-2.5 rounded-xl bg-[#1a2c38] hover:bg-[#213743] border border-[#213743] hover:border-[#2f4553] transition-all cursor-pointer group text-left"
                   >
                     <div className="flex items-center gap-3">
                       <div
@@ -607,9 +607,9 @@ export default function TransactionsModal({
               </div>
 
               {/* Deposits Table */}
-              <div className="rounded-xl bg-[#14232d] border border-[#213743] overflow-hidden">
+              <div className="rounded-xl bg-[#0f212e] border border-[#213743] overflow-hidden">
                 {/* Table Header */}
-                <div className="grid grid-cols-4 px-3.5 py-2.5 bg-[#172733] border-b border-[#213743] text-[10px] font-black uppercase tracking-wider text-[#879097]">
+                <div className="grid grid-cols-4 px-3 py-2 bg-[#1a2c38] border-b border-[#213743] text-[10px] font-black uppercase tracking-wider text-[#879097]">
                   <div>Date</div>
                   <div>Amount</div>
                   <div>Status</div>
@@ -648,7 +648,7 @@ export default function TransactionsModal({
                             setEnquiryError("");
                             setEnquirySuccess("");
                           }}
-                          className="grid grid-cols-4 px-3.5 py-3 items-center text-xs hover:bg-[#1a2c38] transition-colors cursor-pointer group"
+                          className="grid grid-cols-4 px-3 py-2 items-center text-xs hover:bg-[#1a2c38] transition-colors cursor-pointer group"
                         >
                           {/* Date */}
                           <div className="text-[#b1bad3] font-medium truncate">
@@ -815,8 +815,8 @@ export default function TransactionsModal({
               ) : (
                 /* Table of Withdrawals */
                 <>
-                  <div className="rounded-xl bg-[#14232d] border border-[#213743] overflow-hidden">
-                    <div className="grid grid-cols-5 px-3 py-2.5 bg-[#172733] border-b border-[#213743] text-[10px] font-black uppercase tracking-wider text-[#879097]">
+                  <div className="rounded-xl bg-[#0f212e] border border-[#213743] overflow-hidden">
+                    <div className="grid grid-cols-5 px-3 py-2 bg-[#1a2c38] border-b border-[#213743] text-[10px] font-black uppercase tracking-wider text-[#879097]">
                       <div>Date</div>
                       <div>Amount</div>
                       <div>Type</div>
@@ -832,7 +832,7 @@ export default function TransactionsModal({
                             sounds.playClick();
                             setSelectedTx(tx);
                           }}
-                          className="grid grid-cols-5 px-3 py-3 items-center text-xs hover:bg-[#1a2c38] transition-colors cursor-pointer"
+                          className="grid grid-cols-5 px-3 py-2 items-center text-xs hover:bg-[#1a2c38] transition-colors cursor-pointer"
                         >
                           <div className="text-[#b1bad3]">
                             {new Date(tx.createdAt).toLocaleDateString("en-US", {

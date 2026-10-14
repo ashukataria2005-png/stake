@@ -27,7 +27,7 @@ export default function CurrencyDropdown({ isOpen, onClose }: CurrencyDropdownPr
   } = useGame();
 
   const [activeTab, setActiveTab] = useState<"crypto" | "fiat">(
-    displayCryptoInFiat ? "fiat" : "crypto"
+    displayCryptoInFiat || currency === "INR" ? "fiat" : "fiat"
   );
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -106,7 +106,6 @@ export default function CurrencyDropdown({ isOpen, onClose }: CurrencyDropdownPr
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={activeTab === "crypto" ? "Search Crypto" : "Search Fiat (INR, USD...)"}
             className="w-full bg-[#0f212e] border border-[#213743] hover:border-[#2f4553] focus:border-[#1475e1] text-white text-xs rounded-lg pl-9 pr-7 py-2.5 outline-none transition-colors placeholder-[#7a889b]"
-            autoFocus
           />
           {searchQuery && (
             <button

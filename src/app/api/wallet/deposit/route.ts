@@ -51,10 +51,23 @@ export async function POST(req: NextRequest) {
       isLateSubmission,
     });
 
-    if (!amount || isNaN(parseFloat(amount)) || parseFloat(amount) < 3) {
+    let minDepositAmount = 1;
+    try {
+      const dbSetting = await prisma.gameControl.findUnique({
+        where: { gameName: "SYSTEM_UPI" },
+      });
+      if (dbSetting?.mode) {
+        const parsed = JSON.parse(dbSetting.mode);
+        if (parsed.minDepositAmount !== undefined && !isNaN(Number(parsed.minDepositAmount))) {
+          minDepositAmount = Math.max(1, Number(parsed.minDepositAmount));
+        }
+      }
+    } catch {}
+
+    if (!amount || isNaN(parseFloat(amount)) || parseFloat(amount) < minDepositAmount) {
       console.error("[Deposit API] Rejected invalid amount:", amount);
       return NextResponse.json(
-        { success: false, error: "Minimum deposit amount is ₹3" },
+        { success: false, error: `Minimum deposit amount is ₹${minDepositAmount}` },
         { status: 400 }
       );
     }
