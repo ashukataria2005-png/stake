@@ -625,14 +625,14 @@ export default function HomePage() {
       {/* 9. TRENDING SPORTS > (Soccer, Tennis, American Football cards with "Load More" button) */}
       <TrendingSports />
 
-      {/* 10. RACES AND RAFFLES WIDGET ($100k Race, countdown, Leaderboard button, Not entered yet) */}
+      {/* 10. WELCOME BONUSES SHOWCASE & FAQ */}
+      <BonusesSection />
+
+      {/* 11. RACES AND RAFFLES WIDGET ($100k Race, countdown, Leaderboard button, Not entered yet) */}
       <RacesAndRafflesWidget />
 
-      {/* 11. LIVE BETS FEED (Casino Bets, Sports Bets, Race Leaderboard tabs with auto-streaming bets) */}
+      {/* 12. LIVE BETS FEED (Casino Bets, Sports Bets, Race Leaderboard tabs with auto-streaming bets) */}
       <LiveBetsFeed />
-
-      {/* 12. WELCOME BONUSES SHOWCASE & FAQ */}
-      <BonusesSection />
 
       {/* Stake Authentic Partnerships & Accepted Cryptos Banner */}
       <section className="border-t border-[#213743] pt-8 pb-4 space-y-6 text-xs text-[#b1bad3]">
