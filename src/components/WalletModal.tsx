@@ -270,7 +270,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
     e.preventDefault();
     const num = parseFloat(depositAmount);
     if (isNaN(num) || num < 300) {
-      setGatewayError("Minimum deposit amount is ₹300. Please enter a valid amount.");
+      setGatewayError("Minimum deposit amount is ₹2. Please enter a valid amount.");
       return;
     }
 
