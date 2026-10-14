@@ -280,12 +280,13 @@ export default function BonusesSection() {
         <h3 className="font-bold text-lg sm:text-xl text-white mb-2">
           Available bonuses
         </h3>
-        <div className="relative w-full mt-6 overflow-visible bg-transparent border-none shadow-none">
+        <div className="relative w-full overflow-visible bg-transparent border-none shadow-none" style={{ maxWidth: "900px", margin: "0 auto" }}>
           {/* Base High-Resolution Banner Image */}
           <img
             src="/bonus/100casinobonus.png"
             alt="100% casino bonus"
-            className="w-full h-auto object-cover rounded-[16px] pointer-events-none select-none block"
+            className="w-full h-auto object-cover rounded-[16px] pointer-events-none select-none block bg-transparent border-none"
+            style={{ width: "100%" }}
             onError={(e) => {
               if (e.currentTarget.src.endsWith(".png")) {
                 e.currentTarget.src = "/bonus/100casinobonus.jpg";
