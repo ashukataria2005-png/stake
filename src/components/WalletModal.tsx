@@ -97,7 +97,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
   const [isApplyingPromo, setIsApplyingPromo] = useState<boolean>(false);
   const [selectedBonusOffer, setSelectedBonusOffer] = useState<string>("none");
 
-  const baseDepositNum = Math.max(300, parseFloat(depositAmount || "300") || 300);
+  const baseDepositNum = Math.max(3, parseFloat(depositAmount || "3") || 3);
   const finalPayableAmount = appliedPromo ? appliedPromo.payableAmount : baseDepositNum;
   const finalCreditAmount = appliedPromo ? appliedPromo.creditedAmount : baseDepositNum;
 
@@ -105,7 +105,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
     if (!promoInput.trim()) return;
     setIsApplyingPromo(true);
     setPromoError("");
-    const num = Math.max(300, parseFloat(depositAmount || "300") || 300);
+    const num = Math.max(3, parseFloat(depositAmount || "3") || 3);
 
     try {
       const res = await fetch(
@@ -269,7 +269,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
   const handleDepositSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const num = parseFloat(depositAmount);
-    if (isNaN(num) || num < 300) {
+    if (isNaN(num) || num < 3) {
       setGatewayError("Minimum deposit amount is ₹3. Please enter a valid amount.");
       return;
     }
@@ -743,7 +743,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                       </div>
                       <input
                         type="number"
-                        min="300"
+                        min="3"
                         step="1"
                         value={depositAmount}
                         onChange={(e) => handleAmountChange(e.target.value)}
@@ -1178,7 +1178,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                         <>
                           <Check className="w-4 h-4" />
                           <span>
-                            Verify & Credit ₹{parseFloat(depositAmount || "300").toLocaleString("en-IN")}
+                            Verify & Credit ₹{parseFloat(depositAmount || "3").toLocaleString("en-IN")}
                           </span>
                         </>
                       )}

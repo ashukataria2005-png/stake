@@ -34,7 +34,7 @@ function DepositPayContent() {
 
   const rawOrderId = searchParams.get("orderId") || `STK-DEP-${Date.now()}`;
   const rawAmount = searchParams.get("amount") || "500";
-  const baseAmount = Math.max(300, parseFloat(rawAmount) || 500);
+  const baseAmount = Math.max(3, parseFloat(rawAmount) || 500);
 
   // Promo Code States
   const [promoInput, setPromoInput] = useState<string>("");

@@ -51,10 +51,10 @@ export async function POST(req: NextRequest) {
       isLateSubmission,
     });
 
-    if (!amount || isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) {
+    if (!amount || isNaN(parseFloat(amount)) || parseFloat(amount) < 3) {
       console.error("[Deposit API] Rejected invalid amount:", amount);
       return NextResponse.json(
-        { success: false, error: "Invalid deposit amount: must be greater than 0" },
+        { success: false, error: "Minimum deposit amount is ₹3" },
         { status: 400 }
       );
     }
