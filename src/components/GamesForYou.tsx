@@ -19,33 +19,27 @@ export default function GamesForYou() {
   const { addRecentlyPlayedGame, openGamePreview } = useGame();
 
   const games: GameItem[] = [
-    {
-      id: "dracs-stacks",
-      title: "Drac's Stacks",
-      provider: "Hacksaw Gaming",
-      playersCount: 1420,
-      href: "/games/mines",
-    },
-    {
-      id: "skyscraper-crash",
-      title: "Skyscraper Crash",
-      provider: "Stake Originals",
-      playersCount: 2890,
-      href: "/games/crash",
-    },
-    {
-      id: "nuukd",
-      title: "Nuukd",
-      provider: "Pragmatic Play",
-      playersCount: 980,
-      href: "/games/plinko",
-    },
+
     {
       id: "wanted-dead-or-a-wild",
       title: "Wanted Dead or a Wild",
       provider: "Hacksaw Gaming",
       playersCount: 3980,
       href: "/games/limbo",
+    },
+    {
+      id: "rip-city",
+      title: "RIP City",
+      provider: "Hacksaw Gaming",
+      playersCount: 2150,
+      href: "/games/keno",
+    },
+    {
+      id: "san-quentin",
+      title: "San Quentin xWays",
+      provider: "Nolimit City",
+      playersCount: 3120,
+      href: "/games/dice",
     },
     {
       id: "sweet-bonanza-1000",
@@ -68,13 +62,7 @@ export default function GamesForYou() {
       playersCount: 3210,
       href: "/games/wheel",
     },
-    {
-      id: "rip-city",
-      title: "RIP City",
-      provider: "Hacksaw Gaming",
-      playersCount: 2150,
-      href: "/games/keno",
-    },
+
     {
       id: "chaos-crew-2",
       title: "Chaos Crew 2",
@@ -96,13 +84,7 @@ export default function GamesForYou() {
       playersCount: 2340,
       href: "/games/crash",
     },
-    {
-      id: "san-quentin",
-      title: "San Quentin xWays",
-      provider: "Nolimit City",
-      playersCount: 3120,
-      href: "/games/dice",
-    },
+
   ];
 
   const handleGameClick = (game: GameItem) => {

@@ -315,29 +315,34 @@ export default function AdminSettingsPage() {
                     type="text"
                     value={lgpayBaseUrl}
                     onChange={(e) => setLgpayBaseUrl(e.target.value)}
-                    placeholder="https://www.lg-pay.com"
+                    placeholder={paymentChannel === "RUPAYEX" ? "https://rupayex.net/api" : "https://www.lg-pay.com"}
                     required
                     className="w-full px-3.5 py-2.5 bg-[#0e1017] border border-[#1e2433] rounded-xl text-white font-mono placeholder-slate-600 focus:outline-none focus:border-purple-500/60"
                   />
                   <p className="text-[10px] text-slate-500">
-                    Endpoint `/api/order/create` is automatically normalized and appended.
+                    {paymentChannel === "RUPAYEX"
+                      ? "Official endpoint /create-order is automatically resolved."
+                      : "Endpoint /api/order/create is automatically normalized and appended."}
                   </p>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-slate-300 font-medium">Merchant App ID / Member ID</label>
+                  <label className="text-slate-300 font-medium">
+                    {paymentChannel === "RUPAYEX" ? "Member ID / Account ID (Optional)" : "Merchant App ID / Member ID"}
+                  </label>
                   <input
                     type="text"
                     value={lgpayMerchantId}
                     onChange={(e) => setLgpayMerchantId(e.target.value)}
-                    placeholder="e.g. 1008829"
-                    required
+                    placeholder={paymentChannel === "RUPAYEX" ? "e.g. member_1002" : "e.g. 1008829"}
                     className="w-full px-3.5 py-2.5 bg-[#0e1017] border border-[#1e2433] rounded-xl text-white font-mono placeholder-slate-600 focus:outline-none focus:border-purple-500/60"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-slate-300 font-medium">API Secret Key</label>
+                  <label className="text-slate-300 font-medium">
+                    {paymentChannel === "RUPAYEX" ? "RupayEx User Token (X-Api-Token)" : "API Secret Key"}
+                  </label>
                   <input
                     type="password"
                     value={lgpayApiKey}

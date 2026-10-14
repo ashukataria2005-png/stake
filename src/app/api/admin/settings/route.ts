@@ -184,9 +184,9 @@ export async function POST(req: NextRequest) {
         gatewayMode: chosenGatewayMode,
         lgpayMerchantId: body.lgpayMerchantId !== undefined ? String(body.lgpayMerchantId).trim() : current.lgpayMerchantId,
         lgpayApiKey: body.lgpayApiKey !== undefined ? String(body.lgpayApiKey).trim() : current.lgpayApiKey,
-        lgpayBaseUrl: sanitizeGatewayBaseUrl(body.lgpayBaseUrl || current.lgpayBaseUrl),
+        lgpayBaseUrl: sanitizeGatewayBaseUrl(body.lgpayBaseUrl || current.lgpayBaseUrl, chosenChannel),
         tradeType: body.tradeType !== undefined ? String(body.tradeType).trim() : current.tradeType || "INRUPI",
-        amountUnit: body.amountUnit || current.amountUnit || "PAISE",
+        amountUnit: body.amountUnit || (chosenChannel === "RUPAYEX" ? "RUPEES" : current.amountUnit || "PAISE"),
         updatedAt: new Date().toISOString(),
       };
 

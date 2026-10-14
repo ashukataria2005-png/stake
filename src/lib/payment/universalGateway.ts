@@ -1,4 +1,19 @@
 import crypto from "crypto";
+import {
+  createRupayExOrder,
+  checkRupayExOrderStatus,
+  sanitizeRupayExBaseUrl,
+  RupayExOrderParams,
+  RupayExOrderResponse,
+  RupayExStatusResponse,
+} from "./rupayex";
+
+export {
+  createRupayExOrder,
+  checkRupayExOrderStatus,
+  sanitizeRupayExBaseUrl,
+};
+export type { RupayExOrderParams, RupayExOrderResponse, RupayExStatusResponse };
 
 export type GatewayChannel = "MANUAL_QR" | "LGPAY_STANDARD" | "RUPAYEX" | "CUSTOM_API";
 export type AmountUnit = "PAISE" | "RUPEES";
@@ -22,6 +37,7 @@ export interface UniversalOrderRequest {
   clientIp?: string;
   customerName?: string;
   customerEmail?: string;
+  customerMobile?: string;
   notifyUrl?: string;
   returnUrl?: string;
 }
@@ -40,7 +56,11 @@ export interface UniversalOrderResponse {
  * Automatically cleans trailing slashes and redundant endpoint tails like '/api/order/create'
  * so requests always resolve cleanly to `${sanitizedBaseUrl}/api/order/create` without 404s.
  */
-export function sanitizeGatewayBaseUrl(inputUrl?: string): string {
+export function sanitizeGatewayBaseUrl(inputUrl?: string, channel?: GatewayChannel): string {
+  if (channel === "RUPAYEX" || (typeof inputUrl === "string" && inputUrl.includes("rupayex"))) {
+    return sanitizeRupayExBaseUrl(inputUrl);
+  }
+
   if (!inputUrl || typeof inputUrl !== "string") {
     return "https://www.lg-pay.com";
   }
@@ -118,16 +138,16 @@ export class UniversalGatewayAdapter {
   constructor(config: Partial<UniversalGatewayConfig>) {
     this.config = {
       channel: config.channel || "LGPAY_STANDARD",
-      baseUrl: sanitizeGatewayBaseUrl(config.baseUrl),
+      baseUrl: sanitizeGatewayBaseUrl(config.baseUrl, config.channel),
       appId: config.appId || process.env.LGPAY_MERCHANT_ID || "stake_lgpay_merchant",
       secretKey: config.secretKey || process.env.LGPAY_API_KEY || "lgpay_secret_key_prod_8829",
       tradeType: config.tradeType || "INRUPI",
-      amountUnit: config.amountUnit || "PAISE",
+      amountUnit: config.amountUnit || (config.channel === "RUPAYEX" ? "RUPEES" : "PAISE"),
       notifyUrl: config.notifyUrl,
       returnUrl: config.returnUrl,
       customParams: config.customParams || {},
     };
-    this.baseUrl = sanitizeGatewayBaseUrl(this.config.baseUrl);
+    this.baseUrl = sanitizeGatewayBaseUrl(this.config.baseUrl, this.config.channel);
   }
 
   /**
@@ -135,12 +155,6 @@ export class UniversalGatewayAdapter {
    */
   public async createOrder(req: UniversalOrderRequest): Promise<UniversalOrderResponse> {
     const order_sn = req.orderSn || `${Date.now()}${Math.floor(100000 + Math.random() * 900000)}`;
-
-    // Calculate money based on amount unit (Paise vs normal Rupees)
-    const money =
-      this.config.amountUnit === "PAISE"
-        ? Math.round(req.amount * 100) // 500 INR -> 50000 paise
-        : req.amount;
 
     const notify_url =
       req.notifyUrl ||
@@ -151,6 +165,28 @@ export class UniversalGatewayAdapter {
       req.returnUrl ||
       this.config.returnUrl ||
       `${process.env.NEXT_PUBLIC_APP_URL || "https://stake.internal"}/casino/home`;
+
+    // Specialized RupayEx Official Dispatch (Amount in INR, NOT paise, X-Api-Token)
+    if (this.config.channel === "RUPAYEX") {
+      const rupayExToken = this.config.secretKey || this.config.appId;
+      return await createRupayExOrder({
+        userToken: rupayExToken,
+        amount: req.amount,
+        orderId: order_sn,
+        redirectUrl: notify_url,
+        customerMobile: req.customerMobile,
+        customerName: req.customerName,
+        customerEmail: req.customerEmail,
+        remark1: "stake deposit",
+        baseUrl: this.baseUrl,
+      });
+    }
+
+    // Calculate money based on amount unit (Paise vs normal Rupees)
+    const money =
+      this.config.amountUnit === "PAISE"
+        ? Math.round(req.amount * 100) // 500 INR -> 50000 paise
+        : req.amount;
 
     const ip = req.clientIp || "127.0.0.1";
 

@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
-    const { amount, userId, customerName, customerEmail } = body;
+    const { amount, userId, customerName, customerEmail, customerMobile, mobile } = body;
 
     const numAmount = parseFloat(amount);
     if (!amount || isNaN(numAmount) || numAmount < 300) {
@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
       console.warn("Failed reading DB gateway setting:", e);
     }
 
-    baseUrl = sanitizeGatewayBaseUrl(baseUrl);
+    baseUrl = sanitizeGatewayBaseUrl(baseUrl, channel);
 
     // 2. Resolve user in Neon PostgreSQL
     const { user } = await getOrCreateUser(userId || "ashuk");
@@ -54,6 +54,13 @@ export async function POST(req: NextRequest) {
     const order_sn = `${Date.now()}${Math.floor(100000 + Math.random() * 900000)}`;
 
     // 4. Record PENDING deposit transaction in Neon PostgreSQL
+    const txMethod =
+      channel === "RUPAYEX"
+        ? "RUPAYEX"
+        : channel === "MANUAL_QR"
+        ? "MANUAL_UPI"
+        : "LGPAY_AUTO";
+
     try {
       await prisma.transaction.create({
         data: {
@@ -62,7 +69,7 @@ export async function POST(req: NextRequest) {
           amount: numAmount,
           currency: "INR",
           status: "PENDING",
-          method: channel === "MANUAL_QR" ? "MANUAL_UPI" : "GATEWAY_AUTO",
+          method: txMethod,
           txHash: order_sn,
         },
       });
@@ -98,6 +105,7 @@ export async function POST(req: NextRequest) {
       clientIp,
       customerName,
       customerEmail,
+      customerMobile: customerMobile || mobile,
       notifyUrl,
       returnUrl,
     });
