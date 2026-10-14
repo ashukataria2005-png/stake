@@ -11,13 +11,19 @@ import {
   Lock,
   RefreshCw,
   AlertCircle,
+  Zap,
 } from "lucide-react";
 
 export default function AdminSettingsPage() {
   const [upiId, setUpiId] = useState("");
   const [merchantName, setMerchantName] = useState("");
+  const [gatewayMode, setGatewayMode] = useState<"MANUAL" | "LGPAY_AUTO">("MANUAL");
+  const [lgpayMerchantId, setLgpayMerchantId] = useState("");
+  const [lgpayApiKey, setLgpayApiKey] = useState("");
+  const [lgpayBaseUrl, setLgpayBaseUrl] = useState("");
   const [isLoadingSettings, setIsLoadingSettings] = useState(true);
   const [isSavingUPI, setIsSavingUPI] = useState(false);
+  const [isSavingGateway, setIsSavingGateway] = useState(false);
 
   // Master Admin Password Form State
   const [currentPassword, setCurrentPassword] = useState("");
@@ -38,6 +44,10 @@ export default function AdminSettingsPage() {
       if (data.success && data.settings) {
         setUpiId(data.settings.upiId || "stakeofficial@upi");
         setMerchantName(data.settings.upiName || "Stake Gaming");
+        setGatewayMode(data.settings.gatewayMode || "MANUAL");
+        setLgpayMerchantId(data.settings.lgpayMerchantId || "stake_lgpay_merchant");
+        setLgpayApiKey(data.settings.lgpayApiKey || "lgpay_secret_key_prod_8829");
+        setLgpayBaseUrl(data.settings.lgpayBaseUrl || "https://api.lgpay.internal");
       }
     } catch (err) {
       console.error("Failed to fetch platform settings:", err);
@@ -78,6 +88,37 @@ export default function AdminSettingsPage() {
       setErrorMessage(err?.message || "Failed to persist UPI settings");
     } finally {
       setIsSavingUPI(false);
+    }
+  };
+
+  const handleSaveGatewayConfig = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingGateway(true);
+    setErrorMessage(null);
+    try {
+      const res = await fetch("/api/admin/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "UPDATE_GATEWAY",
+          gatewayMode,
+          lgpayMerchantId: lgpayMerchantId.trim(),
+          lgpayApiKey: lgpayApiKey.trim(),
+          lgpayBaseUrl: lgpayBaseUrl.trim(),
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to save Gateway parameters");
+      }
+
+      setToastMessage("Gateway settings & routing mode saved successfully!");
+      setTimeout(() => setToastMessage(null), 3500);
+    } catch (err: any) {
+      setErrorMessage(err?.message || "Failed to persist Gateway settings");
+    } finally {
+      setIsSavingGateway(false);
     }
   };
 
@@ -207,6 +248,98 @@ export default function AdminSettingsPage() {
                   <Save className="w-4 h-4" />
                 )}
                 <span>Save & Persist UPI</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* LG-PAY AUTOMATIC GATEWAY CONTROL & API CREDENTIALS */}
+        <div className="bg-[#131722] border border-[#1e2433] rounded-2xl p-6 space-y-4 shadow-xl">
+          <div className="flex items-center gap-3 pb-3 border-b border-[#1e2433]">
+            <div className="w-9 h-9 rounded-xl bg-purple-500/15 border border-purple-500/30 text-purple-400 flex items-center justify-center">
+              <Zap className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-white">LG-Pay Automatic Gateway</h3>
+              <p className="text-xs text-slate-400 font-mono">Automated IPN payment processing</p>
+            </div>
+          </div>
+
+          <form onSubmit={handleSaveGatewayConfig} className="space-y-3.5 text-xs">
+            {/* Mode Toggle: Manual Approval vs LG-Pay Auto */}
+            <div className="space-y-1.5">
+              <label className="text-slate-300 font-medium">Payment Mode Routing</label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setGatewayMode("MANUAL")}
+                  className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all ${
+                    gatewayMode === "MANUAL"
+                      ? "bg-cyan-500/15 border-cyan-500 text-cyan-300 shadow-sm"
+                      : "bg-[#0e1017] border-[#1e2433] text-slate-400 hover:text-white"
+                  }`}
+                >
+                  Manual Approval
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setGatewayMode("LGPAY_AUTO")}
+                  className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all ${
+                    gatewayMode === "LGPAY_AUTO"
+                      ? "bg-purple-500/15 border-purple-500 text-purple-300 shadow-sm"
+                      : "bg-[#0e1017] border-[#1e2433] text-slate-400 hover:text-white"
+                  }`}
+                >
+                  LG-Pay Automatic
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-slate-300 font-medium">Merchant ID</label>
+              <input
+                type="text"
+                value={lgpayMerchantId}
+                onChange={(e) => setLgpayMerchantId(e.target.value)}
+                placeholder="stake_lgpay_merchant"
+                className="w-full px-3.5 py-2.5 bg-[#0e1017] border border-[#1e2433] rounded-xl text-white font-mono placeholder-slate-600 focus:outline-none focus:border-purple-500/60"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-slate-300 font-medium">API Secret Key</label>
+              <input
+                type="password"
+                value={lgpayApiKey}
+                onChange={(e) => setLgpayApiKey(e.target.value)}
+                placeholder="lgpay_secret_key_prod_••••"
+                className="w-full px-3.5 py-2.5 bg-[#0e1017] border border-[#1e2433] rounded-xl text-white font-mono placeholder-slate-600 focus:outline-none focus:border-purple-500/60"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-slate-300 font-medium">Base URL / Endpoint</label>
+              <input
+                type="text"
+                value={lgpayBaseUrl}
+                onChange={(e) => setLgpayBaseUrl(e.target.value)}
+                placeholder="https://api.lgpay.internal"
+                className="w-full px-3.5 py-2.5 bg-[#0e1017] border border-[#1e2433] rounded-xl text-white font-mono placeholder-slate-600 focus:outline-none focus:border-purple-500/60"
+              />
+            </div>
+
+            <div className="pt-1 flex justify-end">
+              <button
+                type="submit"
+                disabled={isSavingGateway}
+                className="px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-600/20 transition-all flex items-center gap-1.5 cursor-pointer"
+              >
+                {isSavingGateway ? (
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4" />
+                )}
+                <span>Save Gateway Config</span>
               </button>
             </div>
           </form>

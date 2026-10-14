@@ -12,12 +12,20 @@ const SETTINGS_FILE = path.join(DATA_DIR, "platformSettings.json");
 interface PlatformSettings {
   upiId: string;
   upiName: string;
+  gatewayMode?: "MANUAL" | "LGPAY_AUTO";
+  lgpayMerchantId?: string;
+  lgpayApiKey?: string;
+  lgpayBaseUrl?: string;
   updatedAt?: string;
 }
 
 const DEFAULT_SETTINGS: PlatformSettings = {
   upiId: "stakeofficial@upi",
   upiName: "Stake Gaming",
+  gatewayMode: "MANUAL",
+  lgpayMerchantId: "stake_lgpay_merchant",
+  lgpayApiKey: "lgpay_secret_key_prod_8829",
+  lgpayBaseUrl: "https://api.lgpay.internal",
 };
 
 export function getPlatformSettings(): PlatformSettings {
@@ -26,7 +34,7 @@ export function getPlatformSettings(): PlatformSettings {
       const raw = fs.readFileSync(SETTINGS_FILE, "utf-8");
       const parsed = JSON.parse(raw);
       if (parsed && parsed.upiId) {
-        return parsed;
+        return { ...DEFAULT_SETTINGS, ...parsed };
       }
     }
   } catch (err) {
@@ -60,12 +68,20 @@ export async function GET(req: NextRequest) {
     const fileSettings = getPlatformSettings();
     let upiId = fileSettings.upiId;
     let upiName = fileSettings.upiName;
+    let gatewayMode = fileSettings.gatewayMode || "MANUAL";
+    let lgpayMerchantId = fileSettings.lgpayMerchantId || "stake_lgpay_merchant";
+    let lgpayApiKey = fileSettings.lgpayApiKey || "lgpay_secret_key_prod_8829";
+    let lgpayBaseUrl = fileSettings.lgpayBaseUrl || "https://api.lgpay.internal";
 
     if (dbSetting && dbSetting.mode) {
       try {
         const parsed = JSON.parse(dbSetting.mode);
         if (parsed.upiId) upiId = parsed.upiId;
         if (parsed.upiName) upiName = parsed.upiName;
+        if (parsed.gatewayMode) gatewayMode = parsed.gatewayMode;
+        if (parsed.lgpayMerchantId) lgpayMerchantId = parsed.lgpayMerchantId;
+        if (parsed.lgpayApiKey) lgpayApiKey = parsed.lgpayApiKey;
+        if (parsed.lgpayBaseUrl) lgpayBaseUrl = parsed.lgpayBaseUrl;
       } catch {}
     }
 
@@ -74,6 +90,10 @@ export async function GET(req: NextRequest) {
       settings: {
         upiId,
         upiName,
+        gatewayMode,
+        lgpayMerchantId,
+        lgpayApiKey,
+        lgpayBaseUrl,
       },
     });
   } catch (err: any) {
@@ -131,6 +151,44 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         success: true,
         message: "UPI Settings saved successfully and persisted.",
+        settings: updated,
+      });
+    }
+
+    // Action 1B: Update LG-Pay Automatic Gateway parameters
+    if (action === "UPDATE_GATEWAY") {
+      const current = getPlatformSettings();
+      const updated = {
+        ...current,
+        gatewayMode: body.gatewayMode || "MANUAL",
+        lgpayMerchantId: body.lgpayMerchantId || current.lgpayMerchantId,
+        lgpayApiKey: body.lgpayApiKey || current.lgpayApiKey,
+        lgpayBaseUrl: body.lgpayBaseUrl || current.lgpayBaseUrl,
+        updatedAt: new Date().toISOString(),
+      };
+
+      savePlatformSettings(updated);
+
+      try {
+        await prisma.gameControl.upsert({
+          where: { gameName: "SYSTEM_UPI" },
+          update: {
+            mode: JSON.stringify(updated),
+            isActive: true,
+          },
+          create: {
+            gameName: "SYSTEM_UPI",
+            mode: JSON.stringify(updated),
+            isActive: true,
+          },
+        });
+      } catch (e) {
+        console.warn("DB backup for SYSTEM_UPI failed:", e);
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: "Payment Gateway settings saved and persisted.",
         settings: updated,
       });
     }
