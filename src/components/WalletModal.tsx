@@ -204,10 +204,12 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
   const [receiverName, setReceiverName] = useState<string>("Stake Casino");
   const [gatewayMode, setGatewayMode] = useState<"MANUAL" | "LGPAY_AUTO">("MANUAL");
   const [isRedirectingToGateway, setIsRedirectingToGateway] = useState<boolean>(false);
+  const [gatewayError, setGatewayError] = useState<string>("");
 
   useEffect(() => {
     if (isOpen) {
       loadLedgers();
+      setGatewayError("");
       fetch("/api/admin/settings")
         .then((r) => r.json())
         .then((data) => {
@@ -223,6 +225,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
       setUtrInput("");
       setUtrError("");
       setDepositSuccessMsg("");
+      setGatewayError("");
       setIsRedirectingToGateway(false);
       setScreenshotPreview(null);
       setScreenshotFeedback("");
@@ -241,6 +244,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
     setUtrInput("");
     setUtrError("");
     setDepositSuccessMsg("");
+    setGatewayError("");
     onClose();
   };
 
@@ -266,14 +270,15 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
     e.preventDefault();
     const num = parseFloat(depositAmount);
     if (isNaN(num) || num < 300) {
-      alert("Minimum deposit amount is ₹300. Please enter a valid amount.");
+      setGatewayError("Minimum deposit amount is ₹300. Please enter a valid amount.");
       return;
     }
 
-    // Automatic Gateway (LG-Pay) mode
-    if (gatewayMode === "LGPAY_AUTO") {
+    // Automatic Gateway mode
+    if (gatewayMode === "LGPAY_AUTO" || (gatewayMode && gatewayMode !== "MANUAL")) {
       sounds.playClick();
       setIsRedirectingToGateway(true);
+      setGatewayError("");
       try {
         const res = await fetch("/api/payment/create-order", {
           method: "POST",
@@ -286,11 +291,11 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
 
         const data = await res.json();
         if (!res.ok || !data.success || !data.payUrl) {
-          throw new Error(data.error || "Payment gateway failed to initialize order.");
+          throw new Error(data.error || "Payment gateway returned an invalid response.");
         }
 
         const newOrder: DepositOrder = {
-          orderId: data.orderId || `LGPAY-${Date.now()}`,
+          orderId: data.orderId || `GW-${Date.now()}`,
           amountINR: finalPayableAmount,
           amountUSD: parseFloat((finalPayableAmount / 86.5).toFixed(2)),
           date: new Date().toLocaleString(),
@@ -305,13 +310,14 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
           window.dispatchEvent(new Event("stake_deposit_orders_updated"));
         } catch {}
 
-        // Redirect user to LG-Pay checkout URL
+        // Immediate seamless redirect to gateway checkout
         window.location.href = data.payUrl;
         return;
       } catch (err: any) {
-        console.error("[LG-Pay Order Flow Error]:", err);
-        alert(err.message || "Failed to connect to LG-Pay Automatic Gateway. Switching to Manual UPI payment.");
+        console.error("[Universal Gateway Order Flow Error]:", err);
+        setGatewayError(err.message || "Unable to connect to instant payment gateway. You can proceed via Manual UPI.");
         setIsRedirectingToGateway(false);
+        return;
       }
     }
 
@@ -916,6 +922,26 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                         ))}
                       </div>
                     </div>
+
+                    {/* In-Modal Gateway Error Banner */}
+                    {gatewayError && (
+                      <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-3.5 text-xs text-rose-300 flex items-start gap-2.5">
+                        <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                        <div className="flex-1 space-y-1">
+                          <p className="font-semibold">{gatewayError}</p>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setGatewayError("");
+                              setDepositStep("qr");
+                            }}
+                            className="text-[11px] font-bold text-amber-300 hover:text-amber-200 underline cursor-pointer"
+                          >
+                            Proceed with Manual UPI / QR instead &rarr;
+                          </button>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Action Button: Continue to QR or Instant Gateway */}
                     <button

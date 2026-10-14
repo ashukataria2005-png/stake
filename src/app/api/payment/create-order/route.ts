@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getOrCreateUser } from "@/lib/dbUser";
-import { LGPayGateway } from "@/lib/payment/lgpay";
+import { UniversalGatewayAdapter, sanitizeGatewayBaseUrl, GatewayChannel, AmountUnit } from "@/lib/payment/universalGateway";
 import { getPlatformSettings } from "@/app/api/admin/settings/route";
 
 export const dynamic = "force-dynamic";
@@ -24,6 +24,9 @@ export async function POST(req: NextRequest) {
     let merchantId = settings.lgpayMerchantId || process.env.LGPAY_MERCHANT_ID || "stake_lgpay_merchant";
     let apiKey = settings.lgpayApiKey || process.env.LGPAY_API_KEY || "lgpay_secret_key_prod_8829";
     let baseUrl = settings.lgpayBaseUrl || process.env.LGPAY_BASE_URL || "https://www.lg-pay.com";
+    let channel: GatewayChannel = settings.paymentChannel || (settings.gatewayMode === "LGPAY_AUTO" ? "LGPAY_STANDARD" : "MANUAL_QR");
+    let tradeType = settings.tradeType || "INRUPI";
+    let amountUnit: AmountUnit = settings.amountUnit || "PAISE";
 
     try {
       const dbSetting = await prisma.gameControl.findUnique({
@@ -34,8 +37,15 @@ export async function POST(req: NextRequest) {
         if (parsed.lgpayMerchantId) merchantId = parsed.lgpayMerchantId;
         if (parsed.lgpayApiKey) apiKey = parsed.lgpayApiKey;
         if (parsed.lgpayBaseUrl) baseUrl = parsed.lgpayBaseUrl;
+        if (parsed.paymentChannel) channel = parsed.paymentChannel;
+        if (parsed.tradeType) tradeType = parsed.tradeType;
+        if (parsed.amountUnit) amountUnit = parsed.amountUnit;
       }
-    } catch {}
+    } catch (e) {
+      console.warn("Failed reading DB gateway setting:", e);
+    }
+
+    baseUrl = sanitizeGatewayBaseUrl(baseUrl);
 
     // 2. Resolve user in Neon PostgreSQL
     const { user } = await getOrCreateUser(userId || "ashuk");
@@ -52,15 +62,15 @@ export async function POST(req: NextRequest) {
           amount: numAmount,
           currency: "INR",
           status: "PENDING",
-          method: "LGPAY_AUTO",
+          method: channel === "MANUAL_QR" ? "MANUAL_UPI" : "GATEWAY_AUTO",
           txHash: order_sn,
         },
       });
     } catch (dbErr) {
-      console.error("[LGPay Create Order] Database transaction insert error:", dbErr);
+      console.error("[Universal Create Order] Database transaction insert error:", dbErr);
     }
 
-    // 5. Build URLs and Client IP
+    // 5. Build dynamic Notify/Return URLs and Client IP
     const origin = req.nextUrl?.origin || process.env.NEXT_PUBLIC_APP_URL || "https://stake.internal";
     const notifyUrl = `${origin}/api/payment/webhook`;
     const returnUrl = `${origin}/casino/home`;
@@ -69,11 +79,14 @@ export async function POST(req: NextRequest) {
       req.headers.get("x-real-ip") ||
       "127.0.0.1";
 
-    // 6. Initialize Gateway and call LG-Pay API
-    const gateway = new LGPayGateway({
+    // 6. Initialize Universal Gateway Adapter and dispatch order
+    const gateway = new UniversalGatewayAdapter({
+      channel,
       appId: merchantId,
       secretKey: apiKey,
       baseUrl,
+      tradeType,
+      amountUnit,
       notifyUrl,
       returnUrl,
     });
@@ -101,13 +114,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: orderResponse.error || "Failed to generate LG-Pay payment order",
+        error: orderResponse.error || "Failed to initialize payment gateway order",
         orderId: order_sn,
       },
       { status: 400 }
     );
   } catch (err: any) {
-    console.error("[LGPay Create Order Error]:", err);
+    console.error("[Universal Create Order Error]:", err);
     return NextResponse.json(
       { success: false, error: err?.message || "Internal payment gateway error" },
       { status: 500 }

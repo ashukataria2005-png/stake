@@ -9,13 +9,18 @@ export const dynamic = "force-dynamic";
 const DATA_DIR = path.join(process.cwd(), "src", "data");
 const SETTINGS_FILE = path.join(DATA_DIR, "platformSettings.json");
 
-interface PlatformSettings {
+import { sanitizeGatewayBaseUrl } from "@/lib/payment/universalGateway";
+
+export interface PlatformSettings {
   upiId: string;
   upiName: string;
   gatewayMode?: "MANUAL" | "LGPAY_AUTO";
+  paymentChannel?: "MANUAL_QR" | "LGPAY_STANDARD" | "RUPAYEX" | "CUSTOM_API";
   lgpayMerchantId?: string;
   lgpayApiKey?: string;
   lgpayBaseUrl?: string;
+  tradeType?: string;
+  amountUnit?: "PAISE" | "RUPEES";
   updatedAt?: string;
 }
 
@@ -23,9 +28,12 @@ const DEFAULT_SETTINGS: PlatformSettings = {
   upiId: "stakeofficial@upi",
   upiName: "Stake Gaming",
   gatewayMode: "MANUAL",
+  paymentChannel: "MANUAL_QR",
   lgpayMerchantId: "stake_lgpay_merchant",
   lgpayApiKey: "lgpay_secret_key_prod_8829",
   lgpayBaseUrl: "https://www.lg-pay.com",
+  tradeType: "INRUPI",
+  amountUnit: "PAISE",
 };
 
 export function getPlatformSettings(): PlatformSettings {
@@ -69,9 +77,12 @@ export async function GET(req: NextRequest) {
     let upiId = fileSettings.upiId;
     let upiName = fileSettings.upiName;
     let gatewayMode = fileSettings.gatewayMode || "MANUAL";
+    let paymentChannel = fileSettings.paymentChannel || (gatewayMode === "LGPAY_AUTO" ? "LGPAY_STANDARD" : "MANUAL_QR");
     let lgpayMerchantId = fileSettings.lgpayMerchantId || "stake_lgpay_merchant";
     let lgpayApiKey = fileSettings.lgpayApiKey || "lgpay_secret_key_prod_8829";
-    let lgpayBaseUrl = fileSettings.lgpayBaseUrl || "https://www.lg-pay.com";
+    let lgpayBaseUrl = sanitizeGatewayBaseUrl(fileSettings.lgpayBaseUrl || "https://www.lg-pay.com");
+    let tradeType = fileSettings.tradeType || "INRUPI";
+    let amountUnit = fileSettings.amountUnit || "PAISE";
 
     if (dbSetting && dbSetting.mode) {
       try {
@@ -79,9 +90,12 @@ export async function GET(req: NextRequest) {
         if (parsed.upiId) upiId = parsed.upiId;
         if (parsed.upiName) upiName = parsed.upiName;
         if (parsed.gatewayMode) gatewayMode = parsed.gatewayMode;
+        if (parsed.paymentChannel) paymentChannel = parsed.paymentChannel;
         if (parsed.lgpayMerchantId) lgpayMerchantId = parsed.lgpayMerchantId;
         if (parsed.lgpayApiKey) lgpayApiKey = parsed.lgpayApiKey;
-        if (parsed.lgpayBaseUrl) lgpayBaseUrl = parsed.lgpayBaseUrl;
+        if (parsed.lgpayBaseUrl) lgpayBaseUrl = sanitizeGatewayBaseUrl(parsed.lgpayBaseUrl);
+        if (parsed.tradeType) tradeType = parsed.tradeType;
+        if (parsed.amountUnit) amountUnit = parsed.amountUnit;
       } catch {}
     }
 
@@ -91,9 +105,12 @@ export async function GET(req: NextRequest) {
         upiId,
         upiName,
         gatewayMode,
+        paymentChannel,
         lgpayMerchantId,
         lgpayApiKey,
         lgpayBaseUrl,
+        tradeType,
+        amountUnit,
       },
     });
   } catch (err: any) {
@@ -155,15 +172,21 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Action 1B: Update LG-Pay Automatic Gateway parameters
+    // Action 1B: Update Universal Payment Gateway parameters
     if (action === "UPDATE_GATEWAY") {
       const current = getPlatformSettings();
+      const chosenChannel = body.paymentChannel || (body.gatewayMode === "LGPAY_AUTO" ? "LGPAY_STANDARD" : "MANUAL_QR");
+      const chosenGatewayMode: "MANUAL" | "LGPAY_AUTO" = chosenChannel === "MANUAL_QR" ? "MANUAL" : "LGPAY_AUTO";
+
       const updated = {
         ...current,
-        gatewayMode: body.gatewayMode || "MANUAL",
-        lgpayMerchantId: body.lgpayMerchantId || current.lgpayMerchantId,
-        lgpayApiKey: body.lgpayApiKey || current.lgpayApiKey,
-        lgpayBaseUrl: body.lgpayBaseUrl || current.lgpayBaseUrl,
+        paymentChannel: chosenChannel,
+        gatewayMode: chosenGatewayMode,
+        lgpayMerchantId: body.lgpayMerchantId !== undefined ? String(body.lgpayMerchantId).trim() : current.lgpayMerchantId,
+        lgpayApiKey: body.lgpayApiKey !== undefined ? String(body.lgpayApiKey).trim() : current.lgpayApiKey,
+        lgpayBaseUrl: sanitizeGatewayBaseUrl(body.lgpayBaseUrl || current.lgpayBaseUrl),
+        tradeType: body.tradeType !== undefined ? String(body.tradeType).trim() : current.tradeType || "INRUPI",
+        amountUnit: body.amountUnit || current.amountUnit || "PAISE",
         updatedAt: new Date().toISOString(),
       };
 

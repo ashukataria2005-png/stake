@@ -2,18 +2,18 @@ import { CategoryModule } from "./types";
 
 export const SPRIBE_SLUGS: string[] = [
   "spribe-aviator",
-  "spribe-plinko",
-  "spribe-goal",
   "spribe-mines",
+  "spribe-goal",
+  "spribe-plinko",
   "spribe-dice",
   "spribe-hilo",
   "spribe-hotline",
   "spribe-keno",
   "spribe-balloon",
   "spribe-mini-roulette",
-  "spribe-scratch",
-  "spribe-fortune-wheel",
-  "spribe-blackjack",
+  "spribe-gates-of-egypt",
+  "spribe-trader",
+  "spribe-juicy-bombs",
   "spribe-russian-poker",
 ];
 

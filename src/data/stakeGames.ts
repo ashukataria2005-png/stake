@@ -2825,9 +2825,9 @@ const RAW_SPRIBE_GAMES: GameItem[] = [
     bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
   },
   {
-    id: "spribe-fortune-wheel",
-    title: "Fortune Wheel",
-    slug: "spribe-fortune-wheel",
+    id: "spribe-juicy-bombs",
+    title: "Juicy Bombs",
+    slug: "spribe-juicy-bombs",
     provider: "Spribe",
     playersCount: 1980,
     livePlayerCount: 1980,
@@ -2837,9 +2837,9 @@ const RAW_SPRIBE_GAMES: GameItem[] = [
     bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
   },
   {
-    id: "spribe-blackjack",
-    title: "Blackjack",
-    slug: "spribe-blackjack",
+    id: "spribe-trader",
+    title: "Trader",
+    slug: "spribe-trader",
     provider: "Spribe",
     playersCount: 2840,
     livePlayerCount: 2840,
@@ -2850,7 +2850,7 @@ const RAW_SPRIBE_GAMES: GameItem[] = [
     isPlayable: true,
     bgGradient: "from-blue-950/90 via-[#1a2c38] to-[#0f212e]",
   },
-  {
+ /* {
     id: "spribe-russian-poker",
     title: "Russian Poker",
     slug: "spribe-russian-poker",

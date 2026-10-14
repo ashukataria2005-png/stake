@@ -81,6 +81,8 @@ export function verifyLGPayWebhook(params: Record<string, any>, secretKey: strin
 /**
  * Production LG-Pay Gateway client.
  */
+import { sanitizeGatewayBaseUrl } from "./universalGateway";
+
 export class LGPayGateway {
   private config: LGPayConfig;
   private appId: string;
@@ -91,7 +93,7 @@ export class LGPayGateway {
     this.config = config;
     this.appId = config.appId || config.merchantId || process.env.LGPAY_MERCHANT_ID || "stake_lgpay_merchant";
     this.secretKey = config.secretKey || config.apiKey || config.webhookSecret || process.env.LGPAY_API_KEY || "lgpay_secret_key_prod_8829";
-    this.baseUrl = (config.baseUrl || process.env.LGPAY_BASE_URL || "https://www.lg-pay.com").replace(/\/+$/, "");
+    this.baseUrl = sanitizeGatewayBaseUrl(config.baseUrl || process.env.LGPAY_BASE_URL || "https://www.lg-pay.com");
   }
 
   public async createOrder(req: LGPayOrderRequest): Promise<LGPayOrderResult> {
