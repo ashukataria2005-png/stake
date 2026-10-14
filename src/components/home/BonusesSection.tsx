@@ -245,11 +245,10 @@ export default function BonusesSection() {
               />
 
               {/* Overlay Color-Matched Borderless Live Countdown Timer */}
-              <div className="absolute bottom-[24%] left-1/2 -translate-x-1/2 w-[82%] flex items-center justify-center pointer-events-none">
+              <div className="absolute bottom-[28%] left-1/2 -translate-x-1/2 w-[82%] flex items-center justify-center pointer-events-none">
                 <div
-                  className={`${
-                    TIMER_TINTS[idx % TIMER_TINTS.length]
-                  } backdrop-blur-md py-1 px-3 rounded-full border-none shadow-sm text-white font-mono text-[11px] sm:text-xs font-bold tracking-widest text-center whitespace-nowrap`}
+                  className={`${TIMER_TINTS[idx % TIMER_TINTS.length]
+                    } backdrop-blur-md py-1 px-3 rounded-full border-none shadow-sm text-white font-mono text-[11px] sm:text-xs font-bold tracking-widest text-center whitespace-nowrap`}
                 >
                   {formattedTimer}
                 </div>
@@ -281,7 +280,7 @@ export default function BonusesSection() {
         <h3 className="font-bold text-lg sm:text-xl text-white mb-2">
           Available bonuses
         </h3>
-        <div className="relative w-full max-w-[840px] mx-auto mt-4 rounded-[16px] overflow-hidden shadow-2xl border border-white/5 bg-[#121d25]">
+        <div className="relative w-full max-w-[840px] mx-auto mt-6 overflow-visible">
           {/* Base High-Resolution Banner Image */}
           <img
             src="/bonus/100casinobonus.png"
