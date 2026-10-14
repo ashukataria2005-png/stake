@@ -13,11 +13,12 @@ import { StakeLogo } from "@/components/common/StakeLogo";
 export default function MobileBottomNav() {
   const router = useRouter();
   const pathname = usePathname();
-  const { toggleChat, isChatOpen, setChatOpen, toggleSidebar, isSidebarOpen } = useGame();
+  const { toggleChat, isChatOpen, setChatOpen, toggleSidebar, isSidebarOpen, syncWalletBalance } = useGame();
   const [activeTab, setActiveTab] = useState<string>("casino");
 
   const handleTabClick = (tabId: string) => {
     setActiveTab(tabId);
+    syncWalletBalance(true);
     if (tabId === "chat") {
       setChatOpen((prev) => !prev);
     } else if (tabId === "menu") {
@@ -30,8 +31,10 @@ export default function MobileBottomNav() {
     e.stopPropagation();
     handleTabClick("home");
     setChatOpen(false);
+    syncWalletBalance(true);
     if (pathname === "/" || (typeof window !== "undefined" && window.location.pathname === "/")) {
       window.scrollTo({ top: 0, behavior: "smooth" });
+      router.refresh();
     } else {
       router.push("/");
     }
@@ -42,8 +45,10 @@ export default function MobileBottomNav() {
     e.stopPropagation();
     handleTabClick("casino");
     setChatOpen(false);
+    syncWalletBalance(true);
     if (typeof window !== "undefined" && window.location.pathname === "/casino/home") {
       window.scrollTo({ top: 0, behavior: "smooth" });
+      router.refresh();
     } else {
       router.push("/casino/home");
     }
@@ -53,7 +58,7 @@ export default function MobileBottomNav() {
   const isCasinoActive = (pathname === "/casino/home" || pathname?.startsWith("/games") || pathname?.startsWith("/casino")) && !isHomeActive && !isChatOpen && !isSidebarOpen;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-[9990] md:hidden bg-[#0f212e] border-t-2 border-[#2f4553] px-2 py-1.5 pb-safe select-none shadow-2xl">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-[#0f212e] border-t-2 border-[#2f4553] px-2 py-1.5 pb-safe select-none shadow-2xl [transform:translateZ(0)] [backface-visibility:hidden] [isolation:isolate]">
       {/* Seamless Flush Arch Curve on Top Border (Zero Downward Overflow Tails) */}
       <div className="absolute -top-[24px] left-1/2 -translate-x-1/2 w-28 sm:w-32 h-[26px] pointer-events-none z-10 overflow-visible">
         <svg

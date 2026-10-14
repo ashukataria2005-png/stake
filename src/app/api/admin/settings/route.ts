@@ -23,6 +23,7 @@ export interface PlatformSettings {
   amountUnit?: "PAISE" | "RUPEES";
   minDepositAmount?: number;
   minWithdrawalAmount?: number;
+  quickAmounts?: number[];
   updatedAt?: string;
 }
 
@@ -38,6 +39,7 @@ const DEFAULT_SETTINGS: PlatformSettings = {
   amountUnit: "PAISE",
   minDepositAmount: 100,
   minWithdrawalAmount: 500,
+  quickAmounts: [300, 500, 1000, 5000, 10000, 25000],
 };
 
 export function getPlatformSettings(): PlatformSettings {
@@ -89,6 +91,7 @@ export async function GET(req: NextRequest) {
     let amountUnit = fileSettings.amountUnit || "PAISE";
     let minDepositAmount = fileSettings.minDepositAmount ?? 100;
     let minWithdrawalAmount = fileSettings.minWithdrawalAmount ?? 500;
+    let quickAmounts = fileSettings.quickAmounts || [300, 500, 1000, 5000, 10000, 25000];
 
     if (dbSetting && dbSetting.mode) {
       try {
@@ -104,6 +107,9 @@ export async function GET(req: NextRequest) {
         if (parsed.amountUnit) amountUnit = parsed.amountUnit;
         if (parsed.minDepositAmount !== undefined) minDepositAmount = Number(parsed.minDepositAmount);
         if (parsed.minWithdrawalAmount !== undefined) minWithdrawalAmount = Number(parsed.minWithdrawalAmount);
+        if (Array.isArray(parsed.quickAmounts) && parsed.quickAmounts.length > 0) {
+          quickAmounts = parsed.quickAmounts;
+        }
       } catch {}
     }
 
@@ -121,6 +127,7 @@ export async function GET(req: NextRequest) {
         amountUnit,
         minDepositAmount,
         minWithdrawalAmount,
+        quickAmounts,
       },
     });
   } catch (err: any) {
@@ -199,6 +206,7 @@ export async function POST(req: NextRequest) {
         amountUnit: body.amountUnit || (chosenChannel === "RUPAYEX" ? "RUPEES" : current.amountUnit || "PAISE"),
         minDepositAmount: body.minDepositAmount !== undefined ? Math.max(1, parseFloat(body.minDepositAmount) || 1) : (current.minDepositAmount ?? 100),
         minWithdrawalAmount: body.minWithdrawalAmount !== undefined ? Math.max(1, parseFloat(body.minWithdrawalAmount) || 1) : (current.minWithdrawalAmount ?? 500),
+        quickAmounts: Array.isArray(body.quickAmounts) && body.quickAmounts.length > 0 ? body.quickAmounts.map((n: any) => Math.max(1, parseInt(n) || 100)) : (current.quickAmounts || [300, 500, 1000, 5000, 10000, 25000]),
         updatedAt: new Date().toISOString(),
       };
 

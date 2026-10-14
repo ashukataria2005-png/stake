@@ -12,6 +12,7 @@ import {
   RefreshCw,
   AlertCircle,
   Zap,
+  Sliders,
 } from "lucide-react";
 
 export default function AdminSettingsPage() {
@@ -26,9 +27,11 @@ export default function AdminSettingsPage() {
   const [amountUnit, setAmountUnit] = useState<"PAISE" | "RUPEES">("PAISE");
   const [minDepositAmount, setMinDepositAmount] = useState<string>("100");
   const [minWithdrawalAmount, setMinWithdrawalAmount] = useState<string>("500");
+  const [quickAmounts, setQuickAmounts] = useState<string[]>(["300", "500", "1000", "5000", "10000", "25000"]);
   const [isLoadingSettings, setIsLoadingSettings] = useState(true);
   const [isSavingUPI, setIsSavingUPI] = useState(false);
   const [isSavingGateway, setIsSavingGateway] = useState(false);
+  const [isSavingLimits, setIsSavingLimits] = useState(false);
 
   // Master Admin Password Form State
   const [currentPassword, setCurrentPassword] = useState("");
@@ -58,6 +61,9 @@ export default function AdminSettingsPage() {
         setAmountUnit(data.settings.amountUnit || "PAISE");
         if (data.settings.minDepositAmount !== undefined) setMinDepositAmount(String(data.settings.minDepositAmount));
         if (data.settings.minWithdrawalAmount !== undefined) setMinWithdrawalAmount(String(data.settings.minWithdrawalAmount));
+        if (Array.isArray(data.settings.quickAmounts) && data.settings.quickAmounts.length > 0) {
+          setQuickAmounts(data.settings.quickAmounts.map(String));
+        }
       }
     } catch (err) {
       console.error("Failed to fetch platform settings:", err);
@@ -134,6 +140,36 @@ export default function AdminSettingsPage() {
       setErrorMessage(err?.message || "Failed to persist Gateway settings");
     } finally {
       setIsSavingGateway(false);
+    }
+  };
+
+  const handleSaveLimitsConfig = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingLimits(true);
+    setErrorMessage(null);
+    try {
+      const res = await fetch("/api/admin/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "UPDATE_LIMITS",
+          minDepositAmount: parseFloat(minDepositAmount) || 1,
+          minWithdrawalAmount: parseFloat(minWithdrawalAmount) || 1,
+          quickAmounts: quickAmounts.map((n) => Math.max(1, parseInt(n) || 100)),
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to save transaction limits");
+      }
+
+      setToastMessage("Transaction limits & quick amount presets updated successfully!");
+      setTimeout(() => setToastMessage(null), 3500);
+    } catch (err: any) {
+      setErrorMessage(err?.message || "Failed to save limits");
+    } finally {
+      setIsSavingLimits(false);
     }
   };
 
@@ -433,6 +469,93 @@ export default function AdminSettingsPage() {
                   <Save className="w-4 h-4" />
                 )}
                 <span>Save Gateway Configuration</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* TRANSACTION LIMITS & QUICK AMOUNTS MANAGEMENT (REQUIREMENT 12) */}
+        <div className="bg-[#131722] border border-[#1e2433] rounded-2xl p-6 space-y-4 shadow-xl lg:col-span-2">
+          <div className="flex items-center gap-3 pb-3 border-b border-[#1e2433]">
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center">
+              <Sliders className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-bold text-white">Transaction Limits & Quick Amount Selectors</h3>
+              <p className="text-xs text-slate-400 font-mono">Control deposit/withdrawal floors and the 6 player quick preset chips</p>
+            </div>
+          </div>
+
+          <form onSubmit={handleSaveLimitsConfig} className="space-y-4 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-slate-300 font-medium">Minimum Deposit Amount (₹)</label>
+                <input
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={minDepositAmount}
+                  onChange={(e) => setMinDepositAmount(e.target.value)}
+                  placeholder="100"
+                  required
+                  className="w-full px-3.5 py-2.5 bg-[#0e1017] border border-[#1e2433] rounded-xl text-white font-mono placeholder-slate-600 focus:outline-none focus:border-emerald-500/60"
+                />
+                <p className="text-[10px] text-slate-500">Live floor limit applied across all payment channels and deposit modal validation.</p>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-slate-300 font-medium">Minimum Withdrawal Amount (₹)</label>
+                <input
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={minWithdrawalAmount}
+                  onChange={(e) => setMinWithdrawalAmount(e.target.value)}
+                  placeholder="500"
+                  required
+                  className="w-full px-3.5 py-2.5 bg-[#0e1017] border border-[#1e2433] rounded-xl text-white font-mono placeholder-slate-600 focus:outline-none focus:border-emerald-500/60"
+                />
+                <p className="text-[10px] text-slate-500">Player withdrawal floor limit for UPI and Bank transfers.</p>
+              </div>
+            </div>
+
+            <div className="space-y-2 pt-2 border-t border-[#1e2433]">
+              <label className="text-slate-300 font-medium block">
+                Quick Amount Selector Options (6 Preset Chips in Deposit Modal)
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-6 gap-3">
+                {quickAmounts.map((val, idx) => (
+                  <div key={idx} className="space-y-1">
+                    <span className="text-[10px] text-slate-400 font-mono">Preset #{idx + 1} (₹)</span>
+                    <input
+                      type="number"
+                      min="1"
+                      step="1"
+                      value={val}
+                      onChange={(e) => {
+                        const updated = [...quickAmounts];
+                        updated[idx] = e.target.value;
+                        setQuickAmounts(updated);
+                      }}
+                      className="w-full px-3 py-2 bg-[#0e1017] border border-[#1e2433] rounded-xl text-white font-mono text-center focus:outline-none focus:border-emerald-500/60"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="pt-2 flex justify-end">
+              <button
+                type="submit"
+                disabled={isSavingLimits}
+                className="px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider bg-emerald-500 hover:bg-emerald-400 text-black shadow-lg shadow-emerald-500/20 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                {isSavingLimits ? (
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4" />
+                )}
+                <span>Save Limits & Quick Presets</span>
               </button>
             </div>
           </form>

@@ -108,7 +108,7 @@ const STAKE_CHAT_RULES = [
 const MAX_CHARS = 160;
 
 export default function CommunityChat() {
-  const { isChatOpen, toggleChat, setChatOpen } = useGame();
+  const { isChatOpen, toggleChat, setChatOpen, user, isAuthenticated } = useGame();
   const [selectedChannel, setSelectedChannel] = useState(CHANNELS[0]);
   const [isChannelDropdownOpen, setIsChannelDropdownOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
@@ -120,6 +120,19 @@ export default function CommunityChat() {
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const chatInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Clear stale chat messages / local cache upon new user login or session start
+  const previousUserIdRef = useRef<string | undefined>(user?.id);
+  useEffect(() => {
+    if (previousUserIdRef.current !== user?.id) {
+      previousUserIdRef.current = user?.id;
+      setMessages(initialMessages);
+      try {
+        localStorage.removeItem("stake_chat_history");
+        localStorage.removeItem("stake_community_chat");
+      } catch {}
+    }
+  }, [user?.id, isAuthenticated]);
 
   // Auto-scroll to bottom
   const scrollToBottom = () => {

@@ -141,6 +141,39 @@ export const HOME_PAGE_CATEGORIES: CategoryLayoutItem[] = [
   },
 
   {
+    id: "100hp",
+    title: "100hp Gaming",
+    enabled: true,
+    viewAllLink: "/casino/group/100hp",
+    showGameTitle: false,
+    showProviderName: false,
+    orderedGameSlugs: HP100_SLUGS,
+  },
+
+  {
+    id: "burst-games",
+    title: "Burst Games",
+    enabled: true,
+    viewAllLink: "/casino/group/burst-games",
+    showGameTitle: false,
+    showProviderName: false,
+    orderedGameSlugs: [
+      "spribe-aviator",
+      "smartsoft-jetx",
+      "aviafly",
+      "aviafly-2",
+      "spaceman",
+      "turbo-vortex-aero",
+      "crash-x",
+      "smartsoft-balloon",
+      "smartsoft-propel-x",
+      "smartsoft-helicopter-x",
+      "crash",
+      "comet-crash",
+    ],
+  },
+
+  {
     id: "smartsoft",
     title: "SmartSoft",
     enabled: true,
@@ -167,15 +200,7 @@ export const HOME_PAGE_CATEGORIES: CategoryLayoutItem[] = [
 
 
 
-  {
-    id: "100hp",
-    title: "100hp Gaming",
-    enabled: false,
-    viewAllLink: "/casino/group/100hp",
-    showGameTitle: false,
-    showProviderName: false,
-    orderedGameSlugs: HP100_SLUGS,
-  },
+
   {
     id: "jili",
     title: "Jili Games",

@@ -53,14 +53,38 @@ export default function Navbar() {
     isSettingsModalOpen,
     closeSettingsModal,
     formatDisplayBalance,
+    syncWalletBalance,
   } = useGame();
 
   const [isCurrencyDropdownOpen, setIsCurrencyDropdownOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [unreadNotifsCount, setUnreadNotifsCount] = useState(3);
+  const [unreadNotifsCount, setUnreadNotifsCount] = useState(0);
   const [showVipPopover, setShowVipPopover] = useState(false);
+
+  // Sync real unread notifications count from local storage
+  useEffect(() => {
+    const updateCount = () => {
+      try {
+        const saved = localStorage.getItem("stake_notifications");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) {
+            const unread = parsed.filter((n: any) => n.isRead === false || n.isUnread === true).length;
+            setUnreadNotifsCount(unread);
+            return;
+          }
+        }
+        setUnreadNotifsCount(0);
+      } catch {
+        setUnreadNotifsCount(0);
+      }
+    };
+    updateCount();
+    window.addEventListener("stake_notifications_updated", updateCount);
+    return () => window.removeEventListener("stake_notifications_updated", updateCount);
+  }, []);
 
   // Ref for notification bell + drawer — clicks outside close the drawer
   const notifBellRef = useRef<HTMLButtonElement>(null);
@@ -103,8 +127,10 @@ export default function Navbar() {
     setIsProfileMenuOpen(false);
     setIsCurrencyDropdownOpen(false);
     setChatOpen(false);
+    syncWalletBalance(true);
     if (pathname === "/" || (typeof window !== "undefined" && window.location.pathname === "/")) {
       window.scrollTo({ top: 0, behavior: "smooth" });
+      router.refresh();
     } else {
       router.push("/");
     }

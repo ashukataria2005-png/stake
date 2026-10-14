@@ -29,6 +29,14 @@ export async function GET(req: NextRequest) {
       } catch {}
     }
 
+    const depositCount = await prisma.transaction.count({
+      where: {
+        userId: user.id,
+        type: "DEPOSIT",
+        status: "APPROVED",
+      },
+    });
+
     return NextResponse.json({
       success: true,
       user: {
@@ -43,6 +51,7 @@ export async function GET(req: NextRequest) {
         totalDeposited: Math.max(0, Number(wallet.totalDeposited)),
         totalWithdrawn: Math.max(0, Number(wallet.totalWithdrawn)),
         totalWagered: Math.max(0, Number(wallet.totalWagered)),
+        depositCount,
       },
       transactions,
     });

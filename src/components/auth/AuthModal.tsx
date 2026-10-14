@@ -326,6 +326,25 @@ export default function AuthModal() {
         role: data.user.role,
       });
 
+      // Generate genuine welcome notification
+      if (typeof window !== "undefined") {
+        try {
+          const welcomeNotif = {
+            id: `notif-welcome-${Date.now()}`,
+            type: "Security" as const,
+            title: "Welcome to Stake! 🎉",
+            description: `Welcome aboard, ${data.user.username}! Your account is active. Complete your first deposit to unlock your exclusive deposit bonus.`,
+            time: "Just now",
+            isRead: false,
+            iconType: "security" as const,
+          };
+          const saved = localStorage.getItem("stake_notifications");
+          const existing = saved ? JSON.parse(saved) : [];
+          localStorage.setItem("stake_notifications", JSON.stringify([welcomeNotif, ...existing]));
+          window.dispatchEvent(new Event("stake_notifications_updated"));
+        } catch {}
+      }
+
       setIsLoading(false);
       closeAuthModal();
       setToastMessage(`Welcome ${data.user.username}!`);
@@ -384,16 +403,16 @@ export default function AuthModal() {
           style={{ overscrollBehavior: "contain" }}
         >
           <div
-            className="relative w-full max-w-[440px] my-auto bg-[#1a2c38] border border-[#213743] rounded-2xl shadow-2xl overflow-hidden max-h-[92vh] flex flex-col overscroll-contain animate-in zoom-in-95 duration-200"
+            className="relative w-full max-w-[440px] my-auto bg-[#1a2c38] border border-[#213743] rounded-2xl shadow-2xl overflow-hidden max-h-[85vh] flex flex-col overscroll-contain animate-in zoom-in-95 duration-200"
             style={{ overscrollBehavior: "contain" }}
             role="dialog"
             aria-modal="true"
           >
-            {/* Header with Stake Logo & Close */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-[#213743] bg-[#1a2c38] shrink-0">
-              <div className="flex items-center gap-2.5">
-                <StakeLogo className="h-6 w-auto text-white" />
-              </div>
+            {/* Clean Modal Header (Redundant floating logo removed) */}
+            <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#213743] bg-[#1a2c38] shrink-0">
+              <span className="text-xs font-bold text-[#b1bad3] uppercase tracking-wider">
+                {isSignIn ? "Sign In" : "Register"}
+              </span>
 
               <button
                 onClick={closeAuthModal}
@@ -404,9 +423,9 @@ export default function AuthModal() {
               </button>
             </div>
 
-            {/* Modal Body */}
+            {/* Modal Body: Fully scrollable with safe bottom padding for mobile navbar */}
             <div
-              className="p-5 sm:p-6 overflow-y-auto flex-1 space-y-4 overscroll-contain custom-scrollbar"
+              className="p-5 sm:p-6 pb-20 sm:pb-8 overflow-y-auto flex-1 space-y-4 overscroll-contain custom-scrollbar max-h-[calc(85vh-54px)]"
               style={{ overscrollBehavior: "contain" }}
             >
               {/* Title & Subheading */}

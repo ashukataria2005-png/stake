@@ -3,14 +3,16 @@
 import React, { useState } from "react";
 import { Trophy, Info, ChevronRight, X, Shield, Award, Sparkles, Gift } from "lucide-react";
 import { useGame } from "@/context/GameContext";
+import { calculateVIPProgress } from "@/lib/vip";
 
 export default function VIPProgressCard() {
-  const { user } = useGame();
+  const { user, totalWagered = 0 } = useGame();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // VIP Progress state
-  const username = user?.name ? `${user.name}08` : "AshuKataria08";
-  const progressPercent = "0.00%";
+  // VIP Progress state calculated dynamically from actual database totalWagered
+  const vip = calculateVIPProgress(totalWagered);
+  const username = user?.username || user?.name || "Player";
+  const progressPercent = vip.progressFormatted;
 
   return (
     <>
@@ -49,20 +51,23 @@ export default function VIPProgressCard() {
             </div>
           </div>
 
-          {/* Progress bar: dark tracking bar with subtle progress indicator */}
+          {/* Progress bar: dark tracking bar with dynamic progress indicator */}
           <div className="w-full h-2 rounded-full bg-[#1a2c38] border border-[#213743] overflow-hidden p-0.5">
             <div
               className="h-full bg-gradient-to-r from-amber-500 to-amber-400 rounded-full transition-all duration-500 shadow-sm"
-              style={{ width: "2%" }}
+              style={{ width: `${Math.max(2, Math.min(100, vip.progressPercent))}%` }}
             />
           </div>
 
-          {/* Row 2: "Unranked" on bottom-left, "Bronze" on bottom-right */}
+          {/* Row 2: Current tier on bottom-left, Next tier on bottom-right */}
           <div className="flex items-center justify-between mt-2.5 text-[11px] font-semibold text-[#b1bad3]">
-            <span className="text-[#b1bad3] font-medium">Unranked</span>
+            <span className="text-[#b1bad3] font-medium flex items-center gap-1">
+              <span>{vip.tierIcon}</span>
+              <span>{vip.currentTier}</span>
+            </span>
             <span className="text-amber-400 font-bold flex items-center gap-1">
-              <span>🥉</span>
-              <span>Bronze</span>
+              <span>{vip.nextTierIcon}</span>
+              <span>{vip.nextTier}</span>
             </span>
           </div>
         </div>
@@ -95,21 +100,34 @@ export default function VIPProgressCard() {
             <div className="rounded-xl border border-[#213743] bg-[#0f212e] p-4 space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-[#b1bad3]">Current Tier</span>
-                <span className="font-bold text-white">Unranked (0.00%)</span>
+                <span className="font-bold text-white flex items-center gap-1">
+                  <span>{vip.tierIcon}</span>
+                  <span>{vip.currentTier} ({vip.progressFormatted})</span>
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-[#b1bad3]">Total Wagered</span>
+                <span className="font-mono font-bold text-[#00e701]">₹{vip.wagered.toLocaleString("en-IN")}</span>
               </div>
               <div className="flex items-center justify-between text-xs">
                 <span className="text-[#b1bad3]">Next Target</span>
-                <span className="font-bold text-amber-400">Bronze ($10,000 Wager)</span>
+                <span className="font-bold text-amber-400 flex items-center gap-1">
+                  <span>{vip.nextTierIcon}</span>
+                  <span>{vip.nextTier} (₹{vip.nextThreshold.toLocaleString("en-IN")})</span>
+                </span>
               </div>
               <div className="w-full h-2 rounded-full bg-[#1a2c38] border border-[#213743] overflow-hidden mt-1">
-                <div className="h-full bg-amber-400 rounded-full" style={{ width: "2%" }} />
+                <div
+                  className="h-full bg-gradient-to-r from-amber-500 to-amber-400 rounded-full transition-all duration-300"
+                  style={{ width: `${Math.max(2, Math.min(100, vip.progressPercent))}%` }}
+                />
               </div>
             </div>
 
             {/* Bronze Perks Preview */}
             <div className="space-y-2">
               <div className="text-xs font-bold text-white uppercase tracking-wider">
-                Bronze Tier Unlocks
+                {vip.nextTier} Tier Unlocks
               </div>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div className="flex items-center gap-2 rounded-lg bg-[#0f212e] border border-[#213743] p-2.5 text-[#b1bad3]">

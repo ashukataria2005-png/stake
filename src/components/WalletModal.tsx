@@ -62,9 +62,20 @@ const QUICK_AMOUNTS = [300, 500, 1000, 5000, 10000, 25000];
 
 export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
   const router = useRouter();
-  const { balance, realBalance, updateBalance, syncWalletBalance, currency, formatDisplayBalance, user } = useGame();
+  const {
+    balance,
+    realBalance,
+    updateBalance,
+    syncWalletBalance,
+    currency,
+    formatDisplayBalance,
+    user,
+    walletInitialTab = "deposit",
+    preselectedBonusOffer = "none",
+  } = useGame();
 
   const [activeTab, setActiveTab] = useState<"deposit" | "withdraw">("deposit");
+  const [quickAmounts, setQuickAmounts] = useState<number[]>([300, 500, 1000, 5000, 10000, 25000]);
 
   // Client mount state for React Portal
   const [mounted, setMounted] = useState<boolean>(false);
@@ -221,9 +232,19 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
             if (data.settings.gatewayMode) setGatewayMode(data.settings.gatewayMode);
             if (data.settings.minDepositAmount !== undefined) setMinDepositAmount(Number(data.settings.minDepositAmount));
             if (data.settings.minWithdrawalAmount !== undefined) setMinWithdrawalAmount(Number(data.settings.minWithdrawalAmount));
+            if (Array.isArray(data.settings.quickAmounts) && data.settings.quickAmounts.length > 0) {
+              setQuickAmounts(data.settings.quickAmounts);
+            }
           }
         })
         .catch(() => { });
+
+      if (walletInitialTab) {
+        setActiveTab(walletInitialTab);
+      }
+      if (preselectedBonusOffer && preselectedBonusOffer !== "none") {
+        setSelectedBonusOffer(preselectedBonusOffer);
+      }
     } else {
       setDepositStep("amount");
       setUtrInput("");
@@ -767,7 +788,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                       Quick Amount Selector
                     </label>
                     <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                      {QUICK_AMOUNTS.map((amt) => {
+                      {quickAmounts.map((amt) => {
                         const isSelected = selectedQuickChip === amt;
                         return (
                           <button
@@ -833,9 +854,6 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                         <Tag className="w-3.5 h-3.5 text-amber-400" />
                         <span>Have a Promo Code?</span>
                       </div>
-                      <span className="text-[10px] text-amber-400 font-mono font-bold">
-                        e.g. WELCOME10, STAKE20
-                      </span>
                     </div>
 
                     {appliedPromo ? (
@@ -872,7 +890,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                           type="text"
                           value={promoInput}
                           onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
-                          placeholder="Enter Promo Code (e.g. WELCOME10)"
+                          placeholder="Enter promo code"
                           className="flex-1 px-3 py-2 bg-[#1a2c38] border border-[#213743] rounded-lg text-xs font-mono text-white uppercase placeholder-[#7a889b] focus:outline-none focus:border-amber-400"
                         />
                         <button

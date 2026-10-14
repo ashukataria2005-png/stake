@@ -84,8 +84,12 @@ interface GameContextType {
   openRegister: () => void;
   openOneTap: () => void;
   closeOneTap: () => void;
-  openWalletModal: () => void;
+  openWalletModal: (initialTab?: any, preselectedBonus?: string) => void;
   closeWalletModal: () => void;
+  walletInitialTab: "deposit" | "withdraw";
+  preselectedBonusOffer: string;
+  depositCount: number;
+  totalWagered: number;
   openWalletSettings: () => void;
   closeWalletSettings: () => void;
   openTransactionsModal: () => void;
@@ -97,7 +101,7 @@ interface GameContextType {
   closeGamePreview: () => void;
   userLuckMode: "HIGH_WIN" | "MEDIUM_WIN" | "LOW_WIN" | "NO_CONTROL";
   refreshLuckMode: () => Promise<void>;
-  syncWalletBalance: () => Promise<void>;
+  syncWalletBalance: (force?: boolean) => Promise<void>;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -147,6 +151,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
   const [authModalMode, setAuthModalMode] = useState<"signin" | "register">("signin");
   const [isWalletModalOpen, setIsWalletModalOpen] = useState<boolean>(false);
+  const [walletInitialTab, setWalletInitialTab] = useState<"deposit" | "withdraw">("deposit");
+  const [preselectedBonusOffer, setPreselectedBonusOffer] = useState<string>("none");
+  const [depositCount, setDepositCount] = useState<number>(0);
+  const [totalWagered, setTotalWagered] = useState<number>(0);
   const [isWalletSettingsOpen, setIsWalletSettingsOpen] = useState<boolean>(false);
   const [isTransactionsModalOpen, setIsTransactionsModalOpen] = useState<boolean>(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
@@ -233,6 +241,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
         if (Array.isArray(data.transactions) && data.transactions.some((t: any) => t.type === "DEPOSIT" && t.status === "APPROVED")) {
           setHasVerifiedDeposit(true);
+        }
+
+        if (typeof data.wallet.totalWagered === "number") {
+          setTotalWagered(Math.max(0, data.wallet.totalWagered));
+        }
+        if (typeof data.wallet.depositCount === "number") {
+          setDepositCount(Math.max(0, data.wallet.depositCount));
         }
       }
     } catch (err) {
@@ -424,7 +439,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const openOneTap = () => openAuthModal("signin");
   const closeOneTap = () => closeAuthModal();
 
-  const openWalletModal = () => setIsWalletModalOpen(true);
+  const openWalletModal = (initialTab?: any, preselectedBonus?: string) => {
+    const validTab = initialTab === "withdraw" ? "withdraw" : "deposit";
+    setWalletInitialTab(validTab);
+    if (typeof preselectedBonus === "string") {
+      setPreselectedBonusOffer(preselectedBonus);
+    }
+    setIsWalletModalOpen(true);
+  };
   const closeWalletModal = () => setIsWalletModalOpen(false);
 
   const openWalletSettings = () => setIsWalletSettingsOpen(true);
@@ -708,6 +730,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         closeOneTap,
         openWalletModal,
         closeWalletModal,
+        walletInitialTab,
+        preselectedBonusOffer,
+        depositCount,
+        totalWagered,
         openWalletSettings,
         closeWalletSettings,
         openTransactionsModal,

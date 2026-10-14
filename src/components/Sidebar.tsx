@@ -48,7 +48,7 @@ interface NavEntry {
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { isSidebarOpen, setSidebarOpen, toggleChat, openGamePreview } = useGame();
+  const { isSidebarOpen, setSidebarOpen, toggleChat, openGamePreview, syncWalletBalance } = useGame();
   const [activeDrawerTab, setActiveDrawerTab] = useState<"casino" | "sports">("casino");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -153,6 +153,7 @@ export default function Sidebar() {
 
   const handleMobileNavClick = () => {
     setSidebarOpen(false);
+    syncWalletBalance(true);
   };
 
   return (

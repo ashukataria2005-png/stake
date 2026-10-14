@@ -7,6 +7,7 @@ import {
   ChevronUp,
   ChevronLeft,
   ChevronRight,
+  Lock,
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
@@ -98,7 +99,7 @@ const FAQ_QUESTIONS = [
 // MAIN BONUSES SECTION COMPONENT
 // ============================================================================
 export default function BonusesSection() {
-  const { openWalletModal } = useGame();
+  const { openWalletModal, depositCount = 0 } = useGame();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [activeCardIndex, setActiveCardIndex] = useState<number>(0);
@@ -131,12 +132,19 @@ export default function BonusesSection() {
     setOpenFaq((prev) => (prev === index ? null : index));
   };
 
-  const handleReceiveBonus = (bonus?: BonusOffer) => {
+  const handleReceiveBonus = (targetBonusId?: string) => {
     sounds.playSuccessChime();
     try {
       confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
     } catch { }
-    openWalletModal();
+
+    // If specific bonus ID provided (e.g. bonus-1), use it.
+    // If from banner, automatically select the highest currently unlocked bonus.
+    const selectedBonus = targetBonusId || (
+      depositCount >= 3 ? "bonus-4" : depositCount >= 2 ? "bonus-3" : depositCount >= 1 ? "bonus-2" : "bonus-1"
+    );
+
+    openWalletModal("deposit", selectedBonus);
   };
 
   const scrollToCard = (index: number) => {
@@ -222,54 +230,64 @@ export default function BonusesSection() {
         <div
           ref={scrollContainerRef}
           onScroll={handleScroll}
-          className="flex overflow-x-auto gap-3.5 py-2 px-1 select-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden items-center touch-action: pan-x pan-y"
+          className="flex overflow-x-auto gap-3.5 py-2 px-1 select-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden items-center touch-pan-x touch-pan-y"
         >
-          {WELCOME_BONUSES.map((bonus, idx) => (
-            <div
-              key={bonus.id}
-              data-bonus-card
-              className="relative shrink-0 snap-center w-[245px] sm:w-[265px] aspect-[1/1.28] rounded-[14px] overflow-visible"
-            >
-              {/* Base High-Resolution Image */}
-              <img
-                src={bonus.image}
-                alt={bonus.depositTier}
-                className="w-full h-full object-contain rounded-[14px] pointer-events-none select-none block"
-                onError={(e) => {
-                  if (e.currentTarget.src.endsWith(".png")) {
-                    e.currentTarget.src = bonus.image.replace(/\.png$/, ".jpg");
-                  } else if (e.currentTarget.src.endsWith(".jpg")) {
-                    e.currentTarget.src = bonus.image.replace(/\.jpg$/, ".png");
-                  }
-                }}
-              />
+          {WELCOME_BONUSES.map((bonus, idx) => {
+            // Milestone unlocking: 1st is unlocked by default, each subsequent requires completion of previous deposit
+            const isCardUnlocked = idx === 0 || depositCount >= idx;
 
-              {/* Overlay Color-Matched Borderless Live Countdown Timer */}
-              <div className="absolute bottom-[28%] left-1/2 -translate-x-1/2 w-[82%] flex items-center justify-center pointer-events-none">
-                <div
-                  className={`${TIMER_TINTS[idx % TIMER_TINTS.length]
-                    } backdrop-blur-md py-1 px-3 rounded-full border-none shadow-sm text-white font-mono text-[11px] sm:text-xs font-bold tracking-widest text-center whitespace-nowrap`}
-                >
-                  {formattedTimer}
+            return (
+              <div
+                key={bonus.id}
+                data-bonus-card
+                className="relative shrink-0 snap-center w-[245px] sm:w-[265px] aspect-[1/1.28] rounded-[14px] overflow-visible"
+              >
+                {/* Base High-Resolution Image */}
+                <img
+                  src={bonus.image}
+                  alt={bonus.depositTier}
+                  className={`w-full h-full object-contain rounded-[14px] pointer-events-none select-none block transition-opacity ${
+                    isCardUnlocked ? "opacity-100" : "opacity-75 filter grayscale-[25%]"
+                  }`}
+                  onError={(e) => {
+                    if (e.currentTarget.src.endsWith(".png")) {
+                      e.currentTarget.src = bonus.image.replace(/\.png$/, ".jpg");
+                    } else if (e.currentTarget.src.endsWith(".jpg")) {
+                      e.currentTarget.src = bonus.image.replace(/\.jpg$/, ".png");
+                    }
+                  }}
+                />
+
+                {/* Overlay Color-Matched Borderless Live Countdown Timer */}
+                <div className="absolute bottom-[28%] left-1/2 -translate-x-1/2 w-[82%] flex items-center justify-center pointer-events-none">
+                  <div
+                    className={`${TIMER_TINTS[idx % TIMER_TINTS.length]} backdrop-blur-md py-1 px-3 rounded-full border-none shadow-sm text-white font-mono text-[11px] sm:text-xs font-bold tracking-widest text-center whitespace-nowrap`}
+                  >
+                    {formattedTimer}
+                  </div>
                 </div>
-              </div>
 
-              {/* Clickable Action Area */}
-              {bonus.isUnlocked ? (
-                <button
-                  onClick={() => handleReceiveBonus(bonus)}
-                  className="absolute bottom-2 left-3 right-3 h-11 cursor-pointer rounded-xl active:scale-95 transition-transform bg-transparent hover:bg-white/5 focus:outline-none"
-                  aria-label={`Receive ${bonus.depositTier} bonus`}
-                  title="Receive Bonus"
-                />
-              ) : (
-                <div
-                  className="absolute bottom-2 left-3 right-3 h-11 cursor-not-allowed rounded-xl"
-                  aria-label={`Locked ${bonus.depositTier} bonus`}
-                />
-              )}
-            </div>
-          ))}
+                {/* Clickable Action Area or Locked Milestone Padlock */}
+                {isCardUnlocked ? (
+                  <button
+                    onClick={() => handleReceiveBonus(bonus.id)}
+                    className="absolute bottom-2 left-3 right-3 h-11 cursor-pointer rounded-xl active:scale-95 transition-transform bg-transparent hover:bg-white/5 focus:outline-none"
+                    aria-label={`Receive ${bonus.depositTier} bonus`}
+                    title={`Receive ${bonus.depositTier} bonus`}
+                  />
+                ) : (
+                  <div
+                    className="absolute bottom-2 left-3 right-3 h-11 flex items-center justify-center gap-1.5 rounded-xl bg-black/75 backdrop-blur-md border border-white/10 text-white text-[11px] font-bold shadow-lg cursor-not-allowed select-none"
+                    aria-label={`Locked ${bonus.depositTier} bonus`}
+                    title={`Complete deposit #${idx} to unlock this bonus`}
+                  >
+                    <Lock className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Locked • Deposit #{idx} Req.</span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -307,7 +325,7 @@ export default function BonusesSection() {
             onClick={() => handleReceiveBonus()}
             className="absolute bottom-[8%] right-[5%] w-[38%] max-w-[210px] h-[40px] sm:h-[48px] cursor-pointer rounded-xl active:scale-95 transition-transform bg-transparent hover:bg-white/5 focus:outline-none"
             aria-label="Receive 100% Casino Bonus"
-            title="Receive 100% Casino Bonus"
+            title="Receive Highest Available Bonus"
           />
         </div>
       </div>

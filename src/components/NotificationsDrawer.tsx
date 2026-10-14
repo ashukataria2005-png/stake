@@ -23,54 +23,6 @@ export interface NotificationItem {
   iconType: "deposit" | "withdrawal" | "security" | "email" | "vip";
 }
 
-const INITIAL_NOTIFICATIONS: NotificationItem[] = [
-  {
-    id: "notif-1",
-    type: "Transactions",
-    title: "Deposit Confirmed",
-    description: "Your deposit of 50.00 USDT has been successfully credited to your wallet.",
-    time: "10m ago",
-    isRead: false,
-    iconType: "deposit",
-  },
-  {
-    id: "notif-2",
-    type: "Transactions",
-    title: "Withdrawal Processed",
-    description: "Your withdrawal of 120.00 USDT has been sent to your external address.",
-    time: "2h ago",
-    isRead: false,
-    iconType: "withdrawal",
-  },
-  {
-    id: "notif-3",
-    type: "Security",
-    title: "Password Changed",
-    description: "Your account password was updated successfully from Chrome on Android.",
-    time: "1d ago",
-    isRead: true,
-    iconType: "security",
-  },
-  {
-    id: "notif-4",
-    type: "Security",
-    title: "Email Verified",
-    description: "Your email address was confirmed.",
-    time: "3d ago",
-    isRead: true,
-    iconType: "email",
-  },
-  {
-    id: "notif-5",
-    type: "Promotions",
-    title: "VIP Reward",
-    description: "Congratulations! You earned a $10.00 weekly reload bonus.",
-    time: "5d ago",
-    isRead: false,
-    iconType: "vip",
-  },
-];
-
 interface NotificationsDrawerProps {
   isOpen: boolean;
   onClose: () => void;
@@ -82,7 +34,7 @@ export default function NotificationsDrawer({
   onClose,
   onUnreadCountChange,
 }: NotificationsDrawerProps) {
-  const [notifications, setNotifications] = useState<NotificationItem[]>(INITIAL_NOTIFICATIONS);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [activeTab, setActiveTab] = useState<"All" | "Transactions" | "Security" | "Promotions">("All");
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
@@ -93,11 +45,44 @@ export default function NotificationsDrawer({
         const saved = localStorage.getItem("stake_notifications");
         if (saved) {
           const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setNotifications(parsed);
+          if (Array.isArray(parsed)) {
+            // Strip out any hardcoded legacy fake spam notifications
+            const valid = parsed
+              .filter(
+                (n: any) =>
+                  n &&
+                  n.id !== "notif-1" &&
+                  n.id !== "notif-2" &&
+                  n.id !== "notif-3" &&
+                  n.id !== "notif-4" &&
+                  n.id !== "notif-5" &&
+                  !n.description?.includes("50.00 USDT") &&
+                  !n.description?.includes("120.00 USDT")
+              )
+              .map((n: any) => ({
+                id: n.id || `notif-${Date.now()}-${Math.random()}`,
+                type: (n.type as any) || "Transactions",
+                title: n.title || "Notification",
+                description: n.description || "",
+                time: n.time || n.timestamp || "Just now",
+                isRead: n.isRead !== undefined ? Boolean(n.isRead) : !Boolean(n.isUnread),
+                iconType:
+                  n.iconType ||
+                  (n.type === "Transactions"
+                    ? n.title?.toLowerCase().includes("with")
+                      ? "withdrawal"
+                      : "deposit"
+                    : "security"),
+              }));
+
+            setNotifications(valid);
+            return;
           }
         }
-      } catch {}
+        setNotifications([]);
+      } catch {
+        setNotifications([]);
+      }
     };
     loadNotifs();
 
