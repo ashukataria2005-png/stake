@@ -221,7 +221,7 @@ export default function BonusesSection() {
             <div
               key={bonus.id}
               data-bonus-card
-              className="relative shrink-0 w-[220px] sm:w-[240px] aspect-[1/1.28] rounded-[24px] overflow-hidden shadow-xl border border-white/5 transition-transform duration-200 hover:-translate-y-1 bg-[#121d25]"
+              className="relative shrink-0 snap-center w-[220px] sm:w-[240px] aspect-[1/1.28] overflow-visible"
             >
               {/* Base High-Resolution Image */}
               <img
@@ -269,7 +269,7 @@ export default function BonusesSection() {
         <h3 className="font-bold text-lg sm:text-xl text-white mb-2">
           Available bonuses
         </h3>
-        <div className="relative w-full max-w-[560px] mx-auto rounded-[24px] overflow-hidden shadow-2xl border border-white/10 bg-[#121d25]">
+        <div className="relative w-full max-w-[560px] mx-auto mt-6 overflow-visible">
           {/* Base High-Resolution Banner Image */}
           <img
             src="/bonus/100casinobonus.png"
