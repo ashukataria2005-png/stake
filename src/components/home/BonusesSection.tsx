@@ -277,16 +277,15 @@ export default function BonusesSection() {
       {/* 3. "AVAILABLE BONUSES" & 100% CASINO BONUS BANNER */}
       {/* ------------------------------------------------------------- */}
       <div className="pt-2">
-        <h3 className="font-bold text-lg sm:text-xl text-white mb-2">
+        <h3 className="font-bold text-lg sm:text-xl text-white mb-2 px-1">
           Available bonuses
         </h3>
-        <div className="relative w-full overflow-visible bg-transparent border-none shadow-none" style={{ maxWidth: "1000px", margin: "0 auto" }}>
+        <div className="relative w-full mt-4 overflow-visible bg-transparent border-none shadow-none -mx-1 sm:-mx-2">
           {/* Base High-Resolution Banner Image */}
           <img
             src="/bonus/100casinobonus.png"
             alt="100% casino bonus"
-            className="w-full h-auto object-cover rounded-[16px] pointer-events-none select-none block bg-transparent border-none"
-            style={{ width: "100%" }}
+            className="w-full h-auto object-cover rounded-[16px] pointer-events-none select-none block scale-[1.03] sm:scale-105 origin-center shadow-2xl"
             onError={(e) => {
               if (e.currentTarget.src.endsWith(".png")) {
                 e.currentTarget.src = "/bonus/100casinobonus.jpg";
