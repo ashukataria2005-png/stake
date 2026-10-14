@@ -338,26 +338,30 @@ export default function Sidebar() {
                 <div className="flex-1 px-3 py-2 space-y-3">
                   {/* Group 1: Personal (Top Section) */}
                   <div>
-                    <div className="text-[11px] font-semibold uppercase tracking-wider text-[#b1bad3]/70 px-3 pt-3 pb-1">
+                    <div className="text-xs font-bold uppercase tracking-wider text-[#b1bad3]/70 px-3 pt-3 pb-1">
                       PERSONAL
                     </div>
                     <div className="space-y-0.5">
-                      {personalLinks.map((item) => (
-                        <Link
-                          key={item.name}
-                          href={item.href}
-                          onClick={handleMobileNavClick}
-                          className="group flex items-center px-3 py-2 rounded-xl hover:bg-[#213743]/70 font-medium text-[15px] text-[#b1bad3] hover:text-white transition-colors cursor-pointer tracking-wide"
-                        >
-                          <span className="truncate">{item.name}</span>
-                        </Link>
-                      ))}
+                      {personalLinks.map((item) => {
+                        const Icon = item.icon;
+                        return (
+                          <Link
+                            key={item.name}
+                            href={item.href}
+                            onClick={handleMobileNavClick}
+                            className="group flex items-center px-3 py-2.5 rounded-xl hover:bg-[#213743]/70 font-medium text-[15px] sm:text-base text-[#b1bad3] hover:text-white transition-colors cursor-pointer tracking-wide"
+                          >
+                            <Icon className="w-5 h-5 text-[#b1bad3] group-hover:text-white shrink-0 mr-3 transition-colors" />
+                            <span className="truncate">{item.name}</span>
+                          </Link>
+                        );
+                      })}
                     </div>
                   </div>
 
                   {/* Group 2: Core Games Directory (Casino or Sports) */}
                   <div>
-                    <div className="text-[11px] font-semibold uppercase tracking-wider text-[#b1bad3]/70 px-3 pt-3 pb-1">
+                    <div className="text-xs font-bold uppercase tracking-wider text-[#b1bad3]/70 px-3 pt-3 pb-1">
                       {activeDrawerTab === "casino" ? "GAMES" : "SPORTSBOOK"}
                     </div>
                     <div className="space-y-0.5">
@@ -368,14 +372,17 @@ export default function Sidebar() {
                             key={item.name}
                             href={item.href}
                             onClick={handleMobileNavClick}
-                            className={`group flex items-center justify-between px-3 py-2 rounded-xl transition-colors cursor-pointer font-medium text-[15px] tracking-wide ${isActive
+                            className={`group flex items-center justify-between px-3 py-2.5 rounded-xl transition-colors cursor-pointer font-medium text-[15px] sm:text-base tracking-wide ${isActive
                               ? "bg-[#213743] text-white shadow-sm"
                               : "text-[#b1bad3] hover:bg-[#213743]/70 hover:text-white"
                               }`}
                           >
-                            <span className="truncate">{item.name}</span>
+                            <div className="flex items-center gap-3 min-w-0">
+                              <span className="text-base shrink-0">{item.emoji}</span>
+                              <span className="truncate">{item.name}</span>
+                            </div>
                             {item.badge && (
-                              <span className="rounded-md bg-[#213743] px-2 py-0.5 text-[10px] font-semibold text-[#00e701] border border-[#2f4553] shrink-0">
+                              <span className="rounded-md bg-[#213743] px-2 py-0.5 text-[11px] font-semibold text-[#00e701] border border-[#2f4553] shrink-0">
                                 {item.badge}
                               </span>
                             )}
@@ -395,9 +402,12 @@ export default function Sidebar() {
                       <div>
                         <button
                           onClick={() => setIsPromosOpen(!isPromosOpen)}
-                          className="w-full group flex items-center justify-between px-3 py-2 rounded-xl hover:bg-[#213743]/70 font-medium text-[15px] text-[#b1bad3] hover:text-white transition-colors cursor-pointer tracking-wide"
+                          className="w-full group flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-[#213743]/70 font-medium text-[15px] sm:text-base text-[#b1bad3] hover:text-white transition-colors cursor-pointer tracking-wide"
                         >
-                          <span>Promotions</span>
+                          <div className="flex items-center gap-3">
+                            <Gift className="w-5 h-5 text-[#b1bad3] group-hover:text-white shrink-0 transition-colors" />
+                            <span>Promotions</span>
+                          </div>
                           <ChevronDown
                             className={`w-4 h-4 transition-transform text-[#b1bad3] group-hover:text-white ${isPromosOpen ? "rotate-180 text-white" : ""
                               }`}
@@ -435,8 +445,9 @@ export default function Sidebar() {
                           key={item.name}
                           href={item.href}
                           onClick={handleMobileNavClick}
-                          className="group flex items-center px-3 py-2 rounded-xl hover:bg-[#213743]/70 font-medium text-[15px] text-[#b1bad3] hover:text-white transition-colors cursor-pointer tracking-wide"
+                          className="group flex items-center px-3 py-2.5 rounded-xl hover:bg-[#213743]/70 font-medium text-[15px] sm:text-base text-[#b1bad3] hover:text-white transition-colors cursor-pointer tracking-wide"
                         >
+                          <span className="text-base shrink-0 mr-3">{item.emoji}</span>
                           <span>{item.name}</span>
                         </a>
                       ))}
@@ -571,17 +582,17 @@ export default function Sidebar() {
                     key={item.name}
                     href={item.href}
                     title={!isSidebarOpen ? item.name : undefined}
-                    className={`group flex items-center gap-3 rounded-lg px-3 py-2 font-medium text-sm transition-all ${isActive
+                    className={`group flex items-center gap-3 rounded-lg px-3 py-2 font-medium text-[15px] transition-all ${isActive
                       ? "bg-[#213743] text-white shadow-sm"
                       : "text-[#b1bad3] hover:bg-[#213743]/70 hover:text-white"
                       } ${!isSidebarOpen ? "justify-center px-0" : ""}`}
                   >
-                    <span className="text-sm shrink-0">{item.emoji}</span>
+                    <span className="text-base shrink-0">{item.emoji}</span>
                     {isSidebarOpen && (
                       <div className="flex flex-1 items-center justify-between">
                         <span className="truncate">{item.name}</span>
                         {item.badge && (
-                          <span className="rounded bg-[#213743] px-1.5 py-0.5 text-[9px] font-semibold text-[#00e701] border border-[#2f4553]">
+                          <span className="rounded bg-[#213743] px-1.5 py-0.5 text-[10px] font-semibold text-[#00e701] border border-[#2f4553]">
                             {item.badge}
                           </span>
                         )}
@@ -599,14 +610,14 @@ export default function Sidebar() {
               <div className="flex items-center justify-between px-3 pb-1.5">
                 <Link
                   href="/casino/group/stake-originals"
-                  className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#b1bad3] hover:text-[#00e701] transition-colors"
+                  className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#b1bad3] hover:text-[#00e701] transition-colors"
                 >
                   <Flame className="h-3.5 w-3.5 text-[#00e701]" />
                   <span>Stake Originals</span>
                 </Link>
                 <Link
                   href="/casino/group/stake-originals"
-                  className="text-[10px] font-semibold text-[#00e701] hover:underline"
+                  className="text-xs font-semibold text-[#00e701] hover:underline"
                 >
                   31 &gt;
                 </Link>
@@ -629,12 +640,12 @@ export default function Sidebar() {
                     key={game.name}
                     href={game.href}
                     title={!isSidebarOpen ? game.name : undefined}
-                    className={`group flex items-center gap-3 rounded-lg px-3 py-1.5 font-medium text-sm transition-all ${isActive
+                    className={`group flex items-center gap-3 rounded-lg px-3 py-2 font-medium text-[15px] transition-all ${isActive
                       ? "bg-[#213743] text-white"
                       : "text-[#b1bad3] hover:bg-[#213743]/80 hover:text-white"
                       } ${!isSidebarOpen ? "justify-center px-0" : ""}`}
                   >
-                    <span className="text-sm shrink-0">{game.emoji}</span>
+                    <span className="text-base shrink-0">{game.emoji}</span>
                     {isSidebarOpen && (
                       <span className="font-medium text-white tracking-wide truncate">
                         {game.name}
@@ -651,16 +662,16 @@ export default function Sidebar() {
             <div className="pt-2 border-t border-[#213743] space-y-0.5">
               <button
                 onClick={toggleChat}
-                className="w-full flex items-center gap-3 rounded-lg px-3 py-2 font-medium text-sm text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer"
+                className="w-full flex items-center gap-3 rounded-lg px-3 py-2 font-medium text-[15px] text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors cursor-pointer"
               >
-                <Headphones className="w-4 h-4 text-[#1475e1]" />
+                <Headphones className="w-4.5 h-4.5 text-[#1475e1]" />
                 <span>Live Support</span>
               </button>
               <a
                 href="#responsible"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 font-medium text-sm text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors"
+                className="flex items-center gap-3 rounded-lg px-3 py-2 font-medium text-[15px] text-[#b1bad3] hover:bg-[#213743] hover:text-white transition-colors"
               >
-                <ShieldCheck className="w-4 h-4 text-[#00e701]" />
+                <ShieldCheck className="w-4.5 h-4.5 text-[#00e701]" />
                 <span>Responsible Gambling</span>
               </a>
             </div>

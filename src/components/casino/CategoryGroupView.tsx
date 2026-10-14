@@ -423,11 +423,11 @@ export default function CategoryGroupView({ slug }: CategoryGroupViewProps) {
   return (
     <div className="min-h-screen px-3 sm:px-6 py-4 max-w-7xl mx-auto space-y-6">
       {/* TASK 1: 1:1 Publisher / Provider Top Banner Card */}
-      <div className="bg-[#1a2c38] rounded-xl p-4 border border-[#213743]">
+      <div className="bg-[#0f212e] rounded-xl p-4 border border-[#213743] shadow-sm">
         <div className="flex items-center justify-between gap-3">
           {/* Left: Dark rounded square container with provider logo */}
           <div className="flex items-center gap-3.5 min-w-0">
-            <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-xl bg-[#0f212e] border border-[#213743] flex items-center justify-center shrink-0 shadow-inner p-2.5">
+            <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-xl bg-[#1a2c38] border border-[#213743] flex items-center justify-center shrink-0 shadow-inner p-2.5">
               {slug === "stake-originals" ? (
                 <span className="text-[#1475e1] font-black text-xl italic tracking-tighter select-none">
                   Stake
@@ -459,7 +459,7 @@ export default function CategoryGroupView({ slug }: CategoryGroupViewProps) {
             className={`flex items-center gap-1.5 text-xs font-semibold px-4 py-2 rounded-lg transition-all cursor-pointer shrink-0 ${
               isFollowing
                 ? "bg-[#e9113c]/20 text-[#e9113c] border border-[#e9113c]/40"
-                : "bg-[#2f4553]/70 hover:bg-[#2f4553] text-[#b1bad3] border border-transparent"
+                : "bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white border border-[#213743]"
             }`}
           >
             <Heart
@@ -473,7 +473,7 @@ export default function CategoryGroupView({ slug }: CategoryGroupViewProps) {
       </div>
 
       {/* TASK 1: 4-Column Metrics Bar (Dedicated separate card directly beneath the banner) */}
-      <div className="bg-[#1a2c38] rounded-xl p-3 border border-[#213743]">
+      <div className="bg-[#0f212e] rounded-xl p-3 border border-[#213743] shadow-sm">
         <div className="grid grid-cols-4 gap-2 text-center divide-x divide-[#213743]">
           {/* Item 1: Games */}
           <div className="flex flex-col items-center justify-center px-1">

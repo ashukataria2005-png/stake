@@ -34,7 +34,7 @@ export default function VIPProgressCard() {
         {/* Card Container */}
         <div
           onClick={() => setIsModalOpen(true)}
-          className="bg-[#1a2c38] border border-[#213743] hover:border-[#2f4553] rounded-xl p-4 transition-all duration-200 cursor-pointer shadow-sm group"
+          className="bg-[#0f212e] border border-[#213743] hover:border-[#2f4553] rounded-lg p-4 transition-all duration-200 cursor-pointer shadow-sm group"
         >
           {/* Row 1: Username on left, progress percentage on right */}
           <div className="flex items-center justify-between text-xs sm:text-sm mb-2.5">
@@ -44,22 +44,22 @@ export default function VIPProgressCard() {
             </div>
 
             <div className="flex items-center gap-1.5 font-bold text-[#b1bad3]">
-              <span className="font-mono text-white">{progressPercent}</span>
+              <span className="font-mono text-white font-bold">{progressPercent}</span>
               <Info className="h-3.5 w-3.5 text-[#b1bad3] hover:text-white" />
             </div>
           </div>
 
           {/* Progress bar: dark tracking bar with subtle progress indicator */}
-          <div className="w-full h-2 rounded-full bg-[#0f212e] border border-[#213743] overflow-hidden p-0.5">
+          <div className="w-full h-2 rounded-full bg-[#1a2c38] border border-[#213743] overflow-hidden p-0.5">
             <div
-              className="h-full bg-gradient-to-r from-slate-500 to-slate-400 rounded-full transition-all duration-500"
+              className="h-full bg-gradient-to-r from-amber-500 to-amber-400 rounded-full transition-all duration-500 shadow-sm"
               style={{ width: "2%" }}
             />
           </div>
 
           {/* Row 2: "Unranked" on bottom-left, "Bronze" on bottom-right */}
           <div className="flex items-center justify-between mt-2.5 text-[11px] font-semibold text-[#b1bad3]">
-            <span className="text-[#b1bad3]">Unranked</span>
+            <span className="text-[#b1bad3] font-medium">Unranked</span>
             <span className="text-amber-400 font-bold flex items-center gap-1">
               <span>🥉</span>
               <span>Bronze</span>
