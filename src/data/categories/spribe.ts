@@ -14,7 +14,7 @@ export const SPRIBE_SLUGS: string[] = [
   "spribe-gates-of-egypt",
   "spribe-trader",
   "spribe-juicy-bombs",
-  "spribe-russian-poker",
+  //"spribe-russian-poker",
 ];
 
 export const SPRIBE_CATEGORY: CategoryModule = {
