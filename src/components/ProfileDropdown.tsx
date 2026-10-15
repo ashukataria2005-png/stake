@@ -160,7 +160,7 @@ export default function ProfileDropdown({ isOpen, onClose }: ProfileDropdownProp
                 <button
                   key={item.id}
                   onClick={item.action}
-                  className="w-full px-3.5 py-2.5 flex items-center gap-3 text-[14px] font-semibold text-white/90 hover:text-white hover:bg-[#213743] transition-colors cursor-pointer text-left"
+                  className="w-full px-3.5 py-2.5 flex items-center gap-3 text-[16px] font-semibold text-white/90 hover:text-white hover:bg-[#213743] transition-colors cursor-pointer text-left"
                 >
                   <Icon className="w-4 h-4 text-[#879097] shrink-0" />
                   <span className="truncate">{item.label}</span>
