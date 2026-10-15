@@ -230,17 +230,14 @@ export default function GamePreviewModal() {
                 <button
                   type="button"
                   disabled
-                  className="w-full bg-[#1475e1]/20 border border-white/10 text-white font-extrabold py-3.5 rounded-lg text-center cursor-not-allowed pointer-events-none text-sm sm:text-base tracking-wider flex items-center justify-center gap-2 uppercase relative overflow-hidden select-none"
+                  className="w-full bg-[#1475e1]/15 border border-white/10 text-white font-extrabold py-3.5 rounded-lg text-center cursor-not-allowed pointer-events-none text-sm sm:text-base tracking-wider flex items-center justify-center gap-2 uppercase relative overflow-hidden select-none"
                   title="Third-party provider title is locked in this preview"
                 >
-                  <Play className="w-4 h-4 fill-current ml-0.5 opacity-40" />
-                  <span className="opacity-70">Real Play</span>
-                  {/* Sleek, clean Lock icon directly in the center */}
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/25 backdrop-blur-[0.5px]">
-                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0f212e]/90 border border-white/20 text-amber-300 shadow-md">
-                      <Lock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                      <span className="text-xs font-bold tracking-normal uppercase text-white">Locked</span>
-                    </div>
+                  <Play className="w-4 h-4 fill-current ml-0.5 opacity-30" />
+                  <span className="opacity-40">Real Play</span>
+                  {/* Perfectly centered clean, large soft light-grey lock icon */}
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                    <Lock className="w-6 h-6 sm:w-7 sm:h-7 text-neutral-300/80 drop-shadow-sm" />
                   </div>
                 </button>
               </div>

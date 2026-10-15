@@ -2151,19 +2151,7 @@ const RAW_BURST_GAMES: GameItem[] = [
     bgGradient: "from-purple-950/80 via-[#1a2c38] to-[#0f212e]",
     isPlayable: true,
   },
-  {
-    id: "comet-crash",
-    title: "Comet Crash",
-    slug: "comet-crash",
-    provider: "Stake Originals",
-    playersCount: 1540,
-    badge: "BURST",
-    badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/30",
-    href: "/games/crash",
-    category: "originals",
-    bgGradient: "from-amber-950/80 via-[#1a2c38] to-[#0f212e]",
-    isPlayable: true,
-  },
+
   {
     id: "rocket-dice",
     title: "Rocket Dice",

@@ -193,14 +193,13 @@ export default function ProfileDropdown({ isOpen, onClose }: ProfileDropdownProp
                   <button
                     key={item.id}
                     onClick={item.action}
-                    className={`w-full px-4 py-3.5 flex items-center justify-between text-base sm:text-lg font-bold transition-colors cursor-pointer select-none text-left tracking-wide group ${
-                      isLogout
-                        ? "text-red-400 hover:text-red-300 hover:bg-red-500/15"
-                        : "text-[#b1bad3] hover:text-white hover:bg-[#213743]"
-                    }`}
+                    className={`w-full px-4 py-3.5 flex items-center justify-between text-base sm:text-[16px] font-bold transition-colors cursor-pointer select-none text-left tracking-wide group ${isLogout
+                      ? "text-red-400 hover:text-red-300 hover:bg-red-500/15"
+                      : "text-[#b1bad3] hover:text-white hover:bg-[#213743]"
+                      }`}
                   >
                     <div className="flex items-center gap-3.5">
-                      <Icon className={`w-6 h-6 shrink-0 transition-colors ${isLogout ? "text-red-400" : "text-[#7a889b] group-hover:text-white"}`} />
+                      <Icon className={`w-5 h-5 shrink-0 transition-colors ${isLogout ? "text-red-400" : "text-[#7a889b] group-hover:text-white"}`} />
                       <span>{item.label}</span>
                     </div>
                     {!isLogout && (

@@ -8,7 +8,7 @@ import MobileBottomNav from "@/components/MobileBottomNav";
 import CommunityChat from "@/components/CommunityChat";
 import AuthModal from "@/components/auth/AuthModal";
 import ScrollToTop from "@/components/ScrollToTop";
-import StakeFooter from "@/components/StakeFooter";
+import Footer from "@/components/footer/Footer";
 import GamePreviewModal from "@/components/casino/GamePreviewModal";
 import { useGame } from "@/context/GameContext";
 
@@ -69,7 +69,7 @@ export default function MainLayoutShell({
             )}
           </div>
           {/* Universal Stake Footer */}
-          <StakeFooter />
+          <Footer />
         </main>
 
         {/* Community Chat Slide-over Drawer */}
