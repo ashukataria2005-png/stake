@@ -11,10 +11,16 @@ const inter = Inter({
   weight: ["400", "500", "600", "700", "800"],
 });
 
+
 export const metadata: Metadata = {
-  title: "Stake Casino | Stake Originals, Slots & Live Games",
+  title: "Stake: Online Casino & Sports Betting - Play & Bet Online",
   description:
-    "Experience the premier Stake clone with live demo balance, authentic Stake Originals like Mines, Crash, Plinko, and Dice, and real-time live bet stream.",
+    "Experience the premier Stake casino and sportsbook with live demo balance, authentic Stake Originals like Mines, Crash, Plinko, and Dice, and real-time live bet stream.",
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({

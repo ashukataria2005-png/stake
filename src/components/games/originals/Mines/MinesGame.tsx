@@ -430,7 +430,11 @@ export default function MinesGame() {
       }
       if (e.code === "Space") {
         e.preventDefault();
-        if (!isPlaying) startGame();
+        if (isPlaying && gemsOpened > 0) {
+          cashout();
+        } else if (!isPlaying) {
+          startGame();
+        }
       } else if (e.code === "KeyC") {
         e.preventDefault();
         if (isPlaying) cashout();
@@ -443,12 +447,15 @@ export default function MinesGame() {
       } else if (e.code === "KeyS") {
         e.preventDefault();
         if (!isPlaying) setBetAmount((b) => parseFloat((b * 2).toFixed(2)));
+      } else if (e.code === "KeyD" || e.code === "KeyM") {
+        e.preventDefault();
+        if (!isPlaying && balance > 0) setBetAmount(balance);
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [cashout, handleRandomPick, isPlaying, startGame]);
+  }, [balance, cashout, gemsOpened, handleRandomPick, isPlaying, startGame]);
 
   return (
     <div
@@ -512,6 +519,8 @@ export default function MinesGame() {
           setStopOnProfit={setStopOnProfit}
           stopOnLoss={stopOnLoss}
           setStopOnLoss={setStopOnLoss}
+          instantBet={instantBet}
+          setInstantBet={setInstantBet}
         />
       </div>
 

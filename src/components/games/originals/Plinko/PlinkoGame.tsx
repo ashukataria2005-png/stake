@@ -128,6 +128,14 @@ export default function PlinkoGame() {
   const [autoBetting, setAutoBetting] = useState<boolean>(false);
   const [autoBetCount, setAutoBetCount] = useState<number>(0);
   const [autoBetLimit, setAutoBetLimit] = useState<number>(0); // 0 = infinite
+  const [onWinAction, setOnWinAction] = useState<"reset" | "increase">("reset");
+  const [onWinPercent, setOnWinPercent] = useState<number>(100);
+  const [onLossAction, setOnLossAction] = useState<"reset" | "increase">("reset");
+  const [onLossPercent, setOnLossPercent] = useState<number>(100);
+  const [stopOnProfit, setStopOnProfit] = useState<number>(0);
+  const [stopOnLoss, setStopOnLoss] = useState<number>(0);
+  const initialAutoBalanceRef = useRef<number>(balance);
+  const baseBetRef = useRef<number>(betAmount);
 
   // Dropdown States
   const [isDifficultyDropdownOpen, setIsDifficultyDropdownOpen] = useState<boolean>(false);
@@ -231,6 +239,13 @@ export default function PlinkoGame() {
     setBetInput(capped.toFixed(2));
   };
 
+  const handleMaxBet = () => {
+    sounds.playClick();
+    const next = Math.max(0.01, parseFloat(balance.toFixed(2)));
+    setBetAmount(next);
+    setBetInput(next.toFixed(2));
+  };
+
   // Drop Ball Action (Drops smoothly right at the apex)
   const dropBall = useCallback(() => {
     const effectiveBet =
@@ -292,6 +307,8 @@ export default function PlinkoGame() {
       if (autoBetting) {
         setAutoBetting(false);
       } else {
+        initialAutoBalanceRef.current = balance;
+        baseBetRef.current = betAmount;
         setAutoBetCount(0);
         setAutoBetting(true);
       }
@@ -303,6 +320,16 @@ export default function PlinkoGame() {
     if (autoBetting) {
       const speed = fastDrop ? 180 : 320;
       interval = setInterval(() => {
+        const currentNet = balance - initialAutoBalanceRef.current;
+        if (stopOnProfit > 0 && currentNet >= stopOnProfit) {
+          setAutoBetting(false);
+          return;
+        }
+        if (stopOnLoss > 0 && currentNet <= -stopOnLoss) {
+          setAutoBetting(false);
+          return;
+        }
+
         setAutoBetCount((cnt) => {
           if (autoBetLimit > 0 && cnt >= autoBetLimit) {
             setAutoBetting(false);
@@ -316,24 +343,35 @@ export default function PlinkoGame() {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [autoBetting, autoBetLimit, dropBall, fastDrop]);
+  }, [autoBetting, autoBetLimit, balance, dropBall, fastDrop, stopOnLoss, stopOnProfit]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (
-        hotkeysEnabled &&
-        e.code === "Space" &&
-        e.target instanceof HTMLElement &&
-        e.target.tagName !== "INPUT" &&
-        e.target.tagName !== "SELECT"
+        !hotkeysEnabled ||
+        (e.target instanceof HTMLElement &&
+          ["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName))
       ) {
+        return;
+      }
+
+      if (e.code === "Space") {
         e.preventDefault();
         dropBall();
+      } else if (e.code === "KeyA") {
+        e.preventDefault();
+        handleHalfBet();
+      } else if (e.code === "KeyS") {
+        e.preventDefault();
+        handleDoubleBet();
+      } else if (e.code === "KeyD" || e.code === "KeyM") {
+        e.preventDefault();
+        handleMaxBet();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [dropBall, hotkeysEnabled]);
+  }, [dropBall, handleDoubleBet, handleHalfBet, handleMaxBet, hotkeysEnabled]);
 
   // Physics Canvas Engine
   useEffect(() => {
@@ -667,6 +705,53 @@ export default function PlinkoGame() {
       {/* 2. MINES HARMONIZED BETTING CONTROLS SHELL CONTAINER      */}
       {/* ========================================================= */}
       <div className="w-full border-t border-[#213743] bg-[#1a2c38] p-3 sm:p-4 flex flex-col justify-start space-y-2 sm:space-y-2.5 rounded-b-2xl select-none">
+        {/* 0. MANUAL / AUTO BET TABS & SPEED TOGGLE */}
+        <div className="flex items-center justify-between gap-2 mb-1">
+          <div className="flex flex-1 bg-[#0f212e] p-1 rounded-xl border border-[#213743]">
+            <button
+              type="button"
+              onClick={() => {
+                setMode("manual");
+                setAutoBetting(false);
+              }}
+              disabled={autoBetting}
+              className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                mode === "manual"
+                  ? "bg-[#213743] text-white shadow"
+                  : "text-[#b1bad3] hover:text-white"
+              }`}
+            >
+              Manual
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("auto")}
+              disabled={autoBetting}
+              className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                mode === "auto"
+                  ? "bg-[#213743] text-white shadow"
+                  : "text-[#b1bad3] hover:text-white"
+              }`}
+            >
+              Auto
+            </button>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setFastDrop(!fastDrop)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all text-xs font-bold cursor-pointer shrink-0 ${
+              fastDrop
+                ? "bg-[#00e701]/10 border-[#00e701]/40 text-[#00e701]"
+                : "bg-[#0f212e] border-[#213743] text-[#b1bad3] hover:text-white"
+            }`}
+            title="Instant Bet / Fast Drop Speed Toggle"
+          >
+            <Zap className={`w-3.5 h-3.5 ${fastDrop ? "fill-[#00e701]" : ""}`} />
+            <span className="text-[11px]">Fast Drop</span>
+          </button>
+        </div>
+
         {/* 1. PRIMARY BET CTA BUTTON (Directly at top of controls) */}
         <div className="w-full">
           <button
@@ -742,6 +827,14 @@ export default function PlinkoGame() {
                 className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
               >
                 2×
+              </button>
+              <button
+                type="button"
+                disabled={autoBetting}
+                onClick={handleMaxBet}
+                className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
+              >
+                Max
               </button>
             </div>
           </div>
@@ -835,32 +928,103 @@ export default function PlinkoGame() {
           )}
         </div>
 
-        {/* 5. NUMBER OF BETS (Auto Mode Only) */}
+        {/* 5. AUTO BETTING CONFIGURATION (Auto Mode Only) */}
         {mode === "auto" && (
-          <div className="space-y-1">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-bold text-[#b1bad3]">Number of Bets</span>
+          <div className="space-y-2 pt-1 border-t border-[#213743]/60 text-xs">
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-bold text-[#b1bad3]">Number of Bets</span>
+              </div>
+              <div className="flex rounded-lg bg-[#0f212e] border border-[#213743] focus-within:border-[#2f4553] p-1 items-center">
+                <div className="flex flex-1 items-center px-2.5">
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="0"
+                    value={autoBetLimit === 0 ? "" : autoBetLimit}
+                    onChange={(e) => setAutoBetLimit(parseInt(e.target.value) || 0)}
+                    className="w-full bg-transparent text-sm font-bold text-white outline-none font-mono"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setAutoBetLimit(0)}
+                  title="Infinite Bets"
+                  className="px-3 py-1 rounded-lg text-sm font-black text-[#1475e1] hover:text-white transition-colors cursor-pointer select-none"
+                >
+                  ∞
+                </button>
+              </div>
             </div>
-            <div className="flex rounded-lg bg-[#0f212e] border border-[#213743] focus-within:border-[#2f4553] p-1 items-center">
-              <div className="flex flex-1 items-center px-2.5">
+
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-[#b1bad3] uppercase">On Win</label>
+                <select
+                  value={onWinAction}
+                  onChange={(e) => setOnWinAction(e.target.value as "reset" | "increase")}
+                  className="w-full rounded-lg bg-[#0f212e] border border-[#213743] p-1.5 text-xs font-bold text-white"
+                >
+                  <option value="reset">Reset</option>
+                  <option value="increase">Increase %</option>
+                </select>
+                {onWinAction === "increase" && (
+                  <input
+                    type="number"
+                    value={onWinPercent}
+                    onChange={(e) => setOnWinPercent(Number(e.target.value) || 100)}
+                    placeholder="100%"
+                    className="w-full rounded-lg bg-[#0f212e] border border-[#213743] px-2 py-1 text-xs font-bold text-white mt-1 outline-none"
+                  />
+                )}
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-[#b1bad3] uppercase">On Loss</label>
+                <select
+                  value={onLossAction}
+                  onChange={(e) => setOnLossAction(e.target.value as "reset" | "increase")}
+                  className="w-full rounded-lg bg-[#0f212e] border border-[#213743] p-1.5 text-xs font-bold text-white"
+                >
+                  <option value="reset">Reset</option>
+                  <option value="increase">Increase %</option>
+                </select>
+                {onLossAction === "increase" && (
+                  <input
+                    type="number"
+                    value={onLossPercent}
+                    onChange={(e) => setOnLossPercent(Number(e.target.value) || 100)}
+                    placeholder="100%"
+                    className="w-full rounded-lg bg-[#0f212e] border border-[#213743] px-2 py-1 text-xs font-bold text-white mt-1 outline-none"
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Stop on Profit / Stop on Loss */}
+            <div className="grid grid-cols-2 gap-2 text-[11px]">
+              <div>
+                <label className="text-[#b1bad3] font-medium text-[10px] uppercase">Stop on Profit</label>
                 <input
                   type="number"
-                  min="0"
-                  placeholder="0"
-                  value={autoBetLimit === 0 ? "" : autoBetLimit}
-                  onChange={(e) => setAutoBetLimit(parseInt(e.target.value) || 0)}
-                  className="w-full bg-transparent text-sm font-bold text-white outline-none font-mono"
+                  placeholder="$0.00"
+                  value={stopOnProfit || ""}
+                  onChange={(e) => setStopOnProfit(Number(e.target.value) || 0)}
+                  className="w-full bg-[#0f212e] border border-[#213743] rounded-lg px-2 py-1.5 text-white font-bold text-xs outline-none"
                 />
               </div>
-              <button
-                type="button"
-                onClick={() => setAutoBetLimit(0)}
-                title="Infinite Bets"
-                className="px-3 py-1 rounded-lg text-sm font-black text-[#1475e1] hover:text-white transition-colors cursor-pointer select-none"
-              >
-                ∞
-              </button>
+              <div>
+                <label className="text-[#b1bad3] font-medium text-[10px] uppercase">Stop on Loss</label>
+                <input
+                  type="number"
+                  placeholder="$0.00"
+                  value={stopOnLoss || ""}
+                  onChange={(e) => setStopOnLoss(Number(e.target.value) || 0)}
+                  className="w-full bg-[#0f212e] border border-[#213743] rounded-lg px-2 py-1.5 text-white font-bold text-xs outline-none"
+                />
+              </div>
             </div>
+
             {autoBetting && (
               <div className="flex justify-between items-center text-[10px] text-[#b1bad3] px-1 font-mono">
                 <span>Bets Dropped:</span>
@@ -871,41 +1035,6 @@ export default function PlinkoGame() {
             )}
           </div>
         )}
-
-        {/* 6. MODE SWITCH TABS: [ Manual | Auto ] (Exact Mines Pattern) */}
-        <div className="flex rounded-lg bg-[#0f212e] p-1 border border-[#213743] mt-auto">
-          <button
-            type="button"
-            disabled={autoBetting}
-            onClick={() => {
-              sounds.playClick();
-              setMode("manual");
-              setAutoBetting(false);
-            }}
-            className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
-              mode === "manual"
-                ? "bg-[#213743] text-white shadow-sm"
-                : "text-[#b1bad3] hover:text-white"
-            }`}
-          >
-            Manual
-          </button>
-          <button
-            type="button"
-            disabled={autoBetting}
-            onClick={() => {
-              sounds.playClick();
-              setMode("auto");
-            }}
-            className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
-              mode === "auto"
-                ? "bg-[#213743] text-white shadow-sm"
-                : "text-[#b1bad3] hover:text-white"
-            }`}
-          >
-            Auto
-          </button>
-        </div>
 
         {/* 7. BOTTOM UTILITY BAR */}
         <div className="flex items-center justify-between rounded-lg bg-[#0f212e] border border-[#213743] px-3 py-2 text-xs text-[#b1bad3] mt-0.5">

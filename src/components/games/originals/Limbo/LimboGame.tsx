@@ -431,6 +431,34 @@ export default function LimboGame() {
     turboMode,
   ]);
 
+  // Keyboard hotkeys
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        e.target instanceof HTMLElement &&
+        ["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName)
+      ) {
+        return;
+      }
+
+      if (e.code === "Space") {
+        e.preventDefault();
+        if (!isRolling) executeRoll();
+      } else if (e.code === "KeyA") {
+        e.preventDefault();
+        if (!isRolling) handleHalfBet();
+      } else if (e.code === "KeyS") {
+        e.preventDefault();
+        if (!isRolling) handleDoubleBet();
+      } else if (e.code === "KeyD" || e.code === "KeyM") {
+        e.preventDefault();
+        if (!isRolling) handleMaxBet();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [executeRoll, handleDoubleBet, handleHalfBet, handleMaxBet, isRolling]);
+
   // Fullscreen Toggle
   const toggleFullscreen = () => {
     if (!gameContainerRef.current) return;
@@ -530,6 +558,50 @@ export default function LimboGame() {
       {/* 2. MINES HARMONIZED BETTING CONTROLS SHELL CONTAINER      */}
       {/* ========================================================= */}
       <div className="w-full border-t border-[#213743] bg-[#1a2c38] p-3 sm:p-4 flex flex-col justify-start space-y-2 sm:space-y-2.5 rounded-b-2xl select-none">
+        {/* 0. MANUAL / AUTO BET TABS & TURBO SPEED TOGGLE */}
+        <div className="flex items-center justify-between gap-2 mb-1">
+          <div className="flex flex-1 bg-[#0f212e] p-1 rounded-xl border border-[#213743]">
+            <button
+              type="button"
+              onClick={() => setMode("manual")}
+              disabled={isRolling || isAutoRunning}
+              className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                mode === "manual"
+                  ? "bg-[#213743] text-white shadow"
+                  : "text-[#b1bad3] hover:text-white"
+              }`}
+            >
+              Manual
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("auto")}
+              disabled={isRolling || isAutoRunning}
+              className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                mode === "auto"
+                  ? "bg-[#213743] text-white shadow"
+                  : "text-[#b1bad3] hover:text-white"
+              }`}
+            >
+              Auto
+            </button>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setTurboMode(!turboMode)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all text-xs font-bold cursor-pointer shrink-0 ${
+              turboMode
+                ? "bg-[#00e701]/10 border-[#00e701]/40 text-[#00e701]"
+                : "bg-[#0f212e] border-[#213743] text-[#b1bad3] hover:text-white"
+            }`}
+            title="Instant Bet / Turbo Mode (Skip animations)"
+          >
+            <Zap className={`w-3.5 h-3.5 ${turboMode ? "fill-[#00e701]" : ""}`} />
+            <span className="text-[11px]">Turbo</span>
+          </button>
+        </div>
+
         {/* 1. PRIMARY BET CTA BUTTON (Directly at top of controls) */}
         <div className="w-full">
           {mode === "manual" ? (
@@ -616,6 +688,14 @@ export default function LimboGame() {
                 className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
               >
                 2×
+              </button>
+              <button
+                type="button"
+                disabled={isRolling || isAutoRunning}
+                onClick={handleMaxBet}
+                className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
+              >
+                Max
               </button>
             </div>
           </div>
@@ -752,6 +832,15 @@ export default function LimboGame() {
                   <option value="reset">Reset</option>
                   <option value="increase">Increase %</option>
                 </select>
+                {onWinAction === "increase" && (
+                  <input
+                    type="number"
+                    value={onWinPercent}
+                    onChange={(e) => setOnWinPercent(Number(e.target.value) || 100)}
+                    placeholder="100%"
+                    className="w-full rounded-lg bg-[#0f212e] border border-[#213743] px-2 py-1 text-xs font-bold text-white mt-1 outline-none"
+                  />
+                )}
               </div>
 
               <div className="space-y-1">
@@ -764,6 +853,39 @@ export default function LimboGame() {
                   <option value="reset">Reset</option>
                   <option value="increase">Increase %</option>
                 </select>
+                {onLossAction === "increase" && (
+                  <input
+                    type="number"
+                    value={onLossPercent}
+                    onChange={(e) => setOnLossPercent(Number(e.target.value) || 100)}
+                    placeholder="100%"
+                    className="w-full rounded-lg bg-[#0f212e] border border-[#213743] px-2 py-1 text-xs font-bold text-white mt-1 outline-none"
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Stop on Profit / Stop on Loss */}
+            <div className="grid grid-cols-2 gap-2 text-[11px]">
+              <div>
+                <label className="text-[#b1bad3] font-medium text-[10px] uppercase">Stop on Profit</label>
+                <input
+                  type="number"
+                  placeholder="$0.00"
+                  value={stopOnProfit || ""}
+                  onChange={(e) => setStopOnProfit(Number(e.target.value) || 0)}
+                  className="w-full bg-[#0f212e] border border-[#213743] rounded-lg px-2 py-1.5 text-white font-bold text-xs outline-none"
+                />
+              </div>
+              <div>
+                <label className="text-[#b1bad3] font-medium text-[10px] uppercase">Stop on Loss</label>
+                <input
+                  type="number"
+                  placeholder="$0.00"
+                  value={stopOnLoss || ""}
+                  onChange={(e) => setStopOnLoss(Number(e.target.value) || 0)}
+                  className="w-full bg-[#0f212e] border border-[#213743] rounded-lg px-2 py-1.5 text-white font-bold text-xs outline-none"
+                />
               </div>
             </div>
 
@@ -773,40 +895,6 @@ export default function LimboGame() {
             </div>
           </div>
         )}
-
-        {/* 6. MODE SWITCH TABS: [ Manual | Auto ] (Exact Mines Pattern) */}
-        <div className="flex rounded-lg bg-[#0f212e] p-1 border border-[#213743] mt-auto">
-          <button
-            type="button"
-            disabled={isRolling || isAutoRunning}
-            onClick={() => {
-              sounds.playClick();
-              setMode("manual");
-            }}
-            className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
-              mode === "manual"
-                ? "bg-[#213743] text-white shadow-sm"
-                : "text-[#b1bad3] hover:text-white"
-            }`}
-          >
-            Manual
-          </button>
-          <button
-            type="button"
-            disabled={isRolling || isAutoRunning}
-            onClick={() => {
-              sounds.playClick();
-              setMode("auto");
-            }}
-            className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
-              mode === "auto"
-                ? "bg-[#213743] text-white shadow-sm"
-                : "text-[#b1bad3] hover:text-white"
-            }`}
-          >
-            Auto
-          </button>
-        </div>
 
         {/* 7. BOTTOM UTILITY BAR */}
         <div className="flex items-center justify-between rounded-lg bg-[#0f212e] border border-[#213743] px-3 py-2 text-xs text-[#b1bad3] mt-0.5">

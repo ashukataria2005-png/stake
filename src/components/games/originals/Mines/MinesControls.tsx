@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Sparkles, Dices, Infinity as InfinityIcon, Sliders, ChevronDown } from "lucide-react";
+import { Sparkles, Dices, Infinity as InfinityIcon, Sliders, ChevronDown, Zap } from "lucide-react";
 import { sounds } from "@/utils/audio";
 import { useGame } from "@/context/GameContext";
 
@@ -38,6 +38,8 @@ interface MinesControlsProps {
   setStopOnProfit: (p: number) => void;
   stopOnLoss: number;
   setStopOnLoss: (l: number) => void;
+  instantBet?: boolean;
+  setInstantBet?: (val: boolean) => void;
 }
 
 export default function MinesControls({
@@ -72,6 +74,8 @@ export default function MinesControls({
   setStopOnProfit,
   stopOnLoss,
   setStopOnLoss,
+  instantBet = false,
+  setInstantBet,
 }: MinesControlsProps) {
   const { currencySymbol } = useGame();
   const activeSym = currencySymbol || "$";
@@ -102,6 +106,13 @@ export default function MinesControls({
     setBetInput(next.toString());
   };
 
+  const handleMaxBet = () => {
+    sounds.playClick();
+    const next = Math.max(0.01, parseFloat((balance || 100).toFixed(2)));
+    setBetAmount(next);
+    setBetInput(next.toString());
+  };
+
   const handleBetClick = () => {
     if (betInput === "" || isNaN(parseFloat(betInput)) || parseFloat(betInput) <= 0) {
       setBetInput("1");
@@ -120,6 +131,51 @@ export default function MinesControls({
 
   return (
     <div className="w-full border-t border-[#213743] bg-[#1a2c38] p-3 sm:p-4 flex flex-col justify-start space-y-2 sm:space-y-2.5 rounded-b-2xl select-none">
+      {/* 0. MANUAL / AUTO BET TABS & INSTANT SPEED TOGGLE */}
+      <div className="flex items-center justify-between gap-2 mb-1">
+        <div className="flex flex-1 bg-[#0f212e] p-1 rounded-xl border border-[#213743]">
+          <button
+            type="button"
+            onClick={() => setMode("manual")}
+            disabled={isPlaying || isAutoRunning}
+            className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+              mode === "manual"
+                ? "bg-[#213743] text-white shadow"
+                : "text-[#b1bad3] hover:text-white"
+            }`}
+          >
+            Manual
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode("auto")}
+            disabled={isPlaying || isAutoRunning}
+            className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+              mode === "auto"
+                ? "bg-[#213743] text-white shadow"
+                : "text-[#b1bad3] hover:text-white"
+            }`}
+          >
+            Auto
+          </button>
+        </div>
+
+        {setInstantBet && (
+          <button
+            type="button"
+            onClick={() => setInstantBet(!instantBet)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all text-xs font-bold cursor-pointer shrink-0 ${
+              instantBet
+                ? "bg-[#00e701]/10 border-[#00e701]/40 text-[#00e701]"
+                : "bg-[#0f212e] border-[#213743] text-[#b1bad3] hover:text-white"
+            }`}
+            title="Instant Bet / Turbo Mode (Skip animations)"
+          >
+            <Zap className={`w-3.5 h-3.5 ${instantBet ? "fill-[#00e701]" : ""}`} />
+            <span className="text-[11px]">Instant</span>
+          </button>
+        )}
+      </div>
       {/* 1. PRIMARY ACTION BUTTON (Directly at top of controls) */}
       <div className="w-full">
         {mode === "manual" ? (
@@ -220,6 +276,14 @@ export default function MinesControls({
               className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
             >
               2×
+            </button>
+            <button
+              type="button"
+              disabled={isPlaying || isAutoRunning}
+              onClick={handleMaxBet}
+              className="rounded-lg bg-[#213743] px-2.5 py-1.5 text-xs font-bold text-[#b1bad3] hover:bg-[#2f4553] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
+            >
+              Max
             </button>
           </div>
         </div>
