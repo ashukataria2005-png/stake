@@ -78,13 +78,17 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { userId: rawUserId, balance, delta } = body;
+    const { userId: rawUserId, balance, delta, wagerAmount } = body;
 
     const userId = (rawUserId && rawUserId !== "undefined" && rawUserId !== "null" && String(rawUserId).trim().length > 0)
       ? String(rawUserId).trim()
       : "guest_player";
 
     const { wallet } = await getOrCreateUser(userId);
+
+    const numericWager = (typeof wagerAmount === "number" && wagerAmount > 0)
+      ? Math.max(0, parseFloat(wagerAmount.toFixed(2)))
+      : 0;
 
     let updatedWallet;
     if (typeof balance === "number") {
@@ -93,6 +97,7 @@ export async function POST(req: NextRequest) {
         where: { id: wallet.id },
         data: {
           balance: safeBalance,
+          ...(numericWager > 0 ? { totalWagered: { increment: numericWager } } : {}),
         },
       });
     } else if (typeof delta === "number") {
@@ -102,6 +107,14 @@ export async function POST(req: NextRequest) {
         where: { id: wallet.id },
         data: {
           balance: newBal,
+          ...(numericWager > 0 ? { totalWagered: { increment: numericWager } } : {}),
+        },
+      });
+    } else if (numericWager > 0) {
+      updatedWallet = await prisma.wallet.update({
+        where: { id: wallet.id },
+        data: {
+          totalWagered: { increment: numericWager },
         },
       });
     } else {
@@ -114,6 +127,7 @@ export async function POST(req: NextRequest) {
         id: updatedWallet.id,
         balance: Number(updatedWallet.balance),
         currency: updatedWallet.currency,
+        totalWagered: Number(updatedWallet.totalWagered),
       },
     });
   } catch (error: any) {

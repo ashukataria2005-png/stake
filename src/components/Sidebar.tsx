@@ -27,10 +27,12 @@ import {
   X,
   ShieldCheck,
   Headphones,
-  Globe,
   MessageSquare,
   Newspaper,
   Award,
+  Dice5,
+  Bomb,
+  Globe,
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import { StakeLogo } from "@/components/common/StakeLogo";
@@ -42,7 +44,6 @@ interface NavEntry {
   name: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
-  emoji?: string;
   badge?: string;
 }
 
@@ -104,51 +105,51 @@ export default function Sidebar() {
 
   // Group 1: Personal (Top Section)
   const personalLinks: NavEntry[] = [
-    { name: "Saved Games", href: "/casino/home", icon: Bookmark, emoji: "🔖" },
-    { name: "Following", href: "/casino/home", icon: Heart, emoji: "💙" },
-    { name: "Games For You", href: "/casino/home", icon: Gamepad2, emoji: "🎮" },
-    { name: "My Bets", href: "/casino/home", icon: FileText, emoji: "🧾" },
+    { name: "Saved Games", href: "/casino/home", icon: Bookmark },
+    { name: "Following", href: "/casino/home", icon: Heart },
+    { name: "Games For You", href: "/casino/home", icon: Gamepad2 },
+    { name: "My Bets", href: "/casino/home", icon: FileText },
   ];
 
   // Group 2: Core Games Directory (Casino)
   const coreGamesLinks: NavEntry[] = [
-    { name: "Only on Stake", href: "/casino/group/stake-originals", icon: Zap, emoji: "⚡", badge: "2x VIP" },
-    { name: "New Releases", href: "/casino/group/slots", icon: Sparkles, emoji: "✨", badge: "New" },
-    { name: "Slots", href: "/casino/group/slots", icon: Trophy, emoji: "🎰" },
-    { name: "Stake Originals", href: "/casino/group/stake-originals", icon: Flame, emoji: "🔥", badge: "31" },
-    { name: "Live Casino", href: "/casino/group/live-casino", icon: Users, emoji: "🤵", badge: "Live" },
-    { name: "Game Shows", href: "/casino/group/game-shows", icon: Gift, emoji: "🎁" },
-    { name: "Burst Games", href: "/casino/home", icon: TrendingUp, emoji: "💥" },
-    { name: "Enhanced RTP", href: "/casino/group/slots", icon: ArrowUpRight, emoji: "⬆️" },
-    { name: "Stake Poker", href: "/games/blackjack", icon: Layers, emoji: "♠️", badge: "Club" },
-    { name: "Bonus Buy", href: "/casino/group/slots", icon: ShoppingBag, emoji: "🎁" },
-    { name: "Blackjack", href: "/games/blackjack", icon: Layers, emoji: "🃏", badge: "21" },
-    { name: "Baccarat", href: "/games/blackjack", icon: Layers, emoji: "🎴" },
-    { name: "Roulette", href: "/games/roulette", icon: CircleDot, emoji: "🎡" },
-    { name: "Publishers", href: "/casino/collection/providers", icon: Palette, emoji: "🎨", badge: "19" },
+    { name: "Only on Stake", href: "/casino/group/stake-originals", icon: Zap, badge: "2x VIP" },
+    { name: "New Releases", href: "/casino/group/slots", icon: Sparkles, badge: "New" },
+    { name: "Slots", href: "/casino/group/slots", icon: Trophy },
+    { name: "Stake Originals", href: "/casino/group/stake-originals", icon: Flame, badge: "31" },
+    { name: "Live Casino", href: "/casino/group/live-casino", icon: Users, badge: "Live" },
+    { name: "Game Shows", href: "/casino/group/game-shows", icon: Gift },
+    { name: "Burst Games", href: "/casino/home", icon: TrendingUp },
+    { name: "Enhanced RTP", href: "/casino/group/slots", icon: ArrowUpRight },
+    { name: "Stake Poker", href: "/games/blackjack", icon: Layers, badge: "Club" },
+    { name: "Bonus Buy", href: "/casino/group/slots", icon: ShoppingBag },
+    { name: "Blackjack", href: "/games/blackjack", icon: Layers, badge: "21" },
+    { name: "Baccarat", href: "/games/blackjack", icon: Layers },
+    { name: "Roulette", href: "/games/roulette", icon: CircleDot },
+    { name: "Publishers", href: "/casino/collection/providers", icon: Palette, badge: "19" },
   ];
 
   // Sports Core Directory
   const sportsLinks: NavEntry[] = [
-    { name: "Sportsbook Home", href: "/sports", icon: Trophy, emoji: "🏆" },
-    { name: "Live Events", href: "/sports/live", icon: Zap, emoji: "🟢", badge: "Live" },
-    { name: "Soccer", href: "/sports/soccer", icon: Trophy, emoji: "⚽" },
-    { name: "Basketball", href: "/sports/basketball", icon: Trophy, emoji: "🏀" },
-    { name: "Tennis", href: "/sports/tennis", icon: Trophy, emoji: "🎾" },
-    { name: "Cricket", href: "/sports/cricket", icon: Trophy, emoji: "🏏" },
-    { name: "American Football", href: "/sports/american-football", icon: Trophy, emoji: "🏈" },
-    { name: "Baseball", href: "/sports/baseball", icon: Trophy, emoji: "⚾" },
-    { name: "MMA / UFC", href: "/sports/mma", icon: Trophy, emoji: "🥊" },
-    { name: "Esports", href: "/sports/esports", icon: Gamepad2, emoji: "🎮", badge: "Hot" },
+    { name: "Sportsbook Home", href: "/sports", icon: Trophy },
+    { name: "Live Events", href: "/sports/live", icon: Zap, badge: "Live" },
+    { name: "Soccer", href: "/sports/soccer", icon: Trophy },
+    { name: "Basketball", href: "/sports/basketball", icon: Trophy },
+    { name: "Tennis", href: "/sports/tennis", icon: Trophy },
+    { name: "Cricket", href: "/sports/cricket", icon: Trophy },
+    { name: "American Football", href: "/sports/american-football", icon: Trophy },
+    { name: "Baseball", href: "/sports/baseball", icon: Trophy },
+    { name: "MMA / UFC", href: "/sports/mma", icon: Trophy },
+    { name: "Esports", href: "/sports/esports", icon: Gamepad2, badge: "Hot" },
   ];
 
   // Group 3: Community & Promos
   const communityLinks: NavEntry[] = [
-    { name: "Challenges", href: "#challenges", icon: Trophy, emoji: "🏔️" },
-    { name: "Affiliate", href: "#affiliate", icon: Users, emoji: "👥" },
-    { name: "VIP Club", href: "#vip", icon: Award, emoji: "🏆" },
-    { name: "Blog", href: "#blog", icon: Newspaper, emoji: "📰" },
-    { name: "Forum", href: "#forum", icon: MessageSquare, emoji: "💬" },
+    { name: "Challenges", href: "#challenges", icon: Trophy },
+    { name: "Affiliate", href: "#affiliate", icon: Users },
+    { name: "VIP Club", href: "#vip", icon: Award },
+    { name: "Blog", href: "#blog", icon: Newspaper },
+    { name: "Forum", href: "#forum", icon: MessageSquare },
   ];
 
   const handleMobileNavClick = () => {
@@ -379,7 +380,7 @@ export default function Sidebar() {
                               }`}
                           >
                             <div className="flex items-center gap-3 min-w-0">
-                              <span className="text-base shrink-0">{item.emoji}</span>
+                              <item.icon className="w-5 h-5 text-[#b1bad3] group-hover:text-white shrink-0 transition-colors" />
                               <span className="truncate">{item.name}</span>
                             </div>
                             {item.badge && (
@@ -448,7 +449,7 @@ export default function Sidebar() {
                           onClick={handleMobileNavClick}
                           className="group flex items-center px-3 py-2.5 rounded-xl hover:bg-[#213743]/70 font-medium text-[15px] sm:text-base text-[#b1bad3] hover:text-white transition-colors cursor-pointer tracking-wide"
                         >
-                          <span className="text-base shrink-0 mr-3">{item.emoji}</span>
+                          <item.icon className="w-5 h-5 text-[#b1bad3] group-hover:text-white shrink-0 mr-3 transition-colors" />
                           <span>{item.name}</span>
                         </a>
                       ))}
@@ -588,7 +589,7 @@ export default function Sidebar() {
                       : "text-[#b1bad3] hover:bg-[#213743]/70 hover:text-white"
                       } ${!isSidebarOpen ? "justify-center px-0" : ""}`}
                   >
-                    <span className="text-base shrink-0">{item.emoji}</span>
+                    <item.icon className="w-5 h-5 text-[#b1bad3] group-hover:text-white shrink-0 transition-colors" />
                     {isSidebarOpen && (
                       <div className="flex flex-1 items-center justify-between">
                         <span className="truncate">{item.name}</span>
@@ -629,13 +630,14 @@ export default function Sidebar() {
 
             <div className="space-y-0.5">
               {[
-                { name: "Dice", href: "/games/dice", emoji: "🎲" },
-                { name: "Mines", href: "/games/mines", emoji: "💣" },
-                { name: "Plinko", href: "/games/plinko", emoji: "🔴" },
-                { name: "Crash", href: "/games/crash", emoji: "🚀" },
-                { name: "Limbo", href: "/games/limbo", emoji: "⚡" },
+                { name: "Dice", href: "/games/dice", icon: Dice5 },
+                { name: "Mines", href: "/games/mines", icon: Bomb },
+                { name: "Plinko", href: "/games/plinko", icon: CircleDot },
+                { name: "Crash", href: "/games/crash", icon: TrendingUp },
+                { name: "Limbo", href: "/games/limbo", icon: Zap },
               ].map((game) => {
                 const isActive = pathname === game.href;
+                const GameIcon = game.icon;
                 return (
                   <Link
                     key={game.name}
@@ -646,7 +648,7 @@ export default function Sidebar() {
                       : "text-[#b1bad3] hover:bg-[#213743]/80 hover:text-white"
                       } ${!isSidebarOpen ? "justify-center px-0" : ""}`}
                   >
-                    <span className="text-base shrink-0">{game.emoji}</span>
+                    <GameIcon className="w-5 h-5 text-[#00e701] shrink-0" />
                     {isSidebarOpen && (
                       <span className="font-medium text-white tracking-wide truncate">
                         {game.name}

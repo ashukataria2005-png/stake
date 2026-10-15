@@ -92,6 +92,7 @@ interface GameContextType {
   approvedDepositCount: number;
   unlockedBonusTier: number;
   totalWagered: number;
+  incrementTotalWagered: (amountUsd: number) => void;
   openWalletSettings: () => void;
   closeWalletSettings: () => void;
   openTransactionsModal: () => void;
@@ -247,7 +248,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         }
 
         if (typeof data.wallet.totalWagered === "number") {
-          setTotalWagered(Math.max(0, data.wallet.totalWagered));
+          const dbWagered = Math.max(0, data.wallet.totalWagered);
+          setTotalWagered(dbWagered);
+          try {
+            localStorage.setItem("stake_total_wagered", dbWagered.toString());
+          } catch {}
         }
         const approvedCount = Math.max(0, Number(data.wallet?.approvedDepositCount ?? data.wallet?.depositCount ?? data.approvedDepositCount ?? 0));
         setDepositCount(approvedCount);
@@ -317,6 +322,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         }
       } else {
         setRealBalance(0.00);
+      }
+
+      const savedWagered = localStorage.getItem("stake_total_wagered");
+      if (savedWagered !== null) {
+        const parsedWagered = parseFloat(savedWagered);
+        if (!isNaN(parsedWagered) && parsedWagered >= 0) {
+          setTotalWagered(parsedWagered);
+        }
       }
 
       // Default playMode: if realBalance > 0 default to real, otherwise fun play
@@ -561,6 +574,19 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       return next;
     });
 
+    const isWager = amount < 0;
+    const wagerUsd = isWager ? Math.abs(amountUsd) : 0;
+
+    if (isWager && wagerUsd > 0) {
+      setTotalWagered((prev) => {
+        const next = parseFloat((prev + wagerUsd).toFixed(4));
+        try {
+          localStorage.setItem("stake_total_wagered", next.toString());
+        } catch {}
+        return next;
+      });
+    }
+
     // Background sync to Neon PostgreSQL wallet immediately so fast refresh preserves exact balance
     try {
       const activeUser = user || (typeof window !== "undefined" ? (() => {
@@ -583,6 +609,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({
           userId: targetUserId,
           balance: newInrBalance,
+          ...(wagerUsd > 0 ? { wagerAmount: parseFloat((wagerUsd * 86.5).toFixed(2)) } : {}),
         }),
       }).catch((err) => {
         console.warn("[GameContext] Failed to persist gameplay balance:", err);
@@ -611,6 +638,17 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
     return success;
   };
+
+  const incrementTotalWagered = useCallback((amountUsd: number) => {
+    if (amountUsd <= 0) return;
+    setTotalWagered((prev) => {
+      const next = parseFloat((prev + amountUsd).toFixed(4));
+      try {
+        localStorage.setItem("stake_total_wagered", next.toString());
+      } catch {}
+      return next;
+    });
+  }, []);
 
   const resetBalance = () => {
     setRealBalance(DEFAULT_USD_BALANCE);
@@ -748,6 +786,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         approvedDepositCount: depositCount,
         unlockedBonusTier,
         totalWagered,
+        incrementTotalWagered,
         openWalletSettings,
         closeWalletSettings,
         openTransactionsModal,

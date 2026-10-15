@@ -157,13 +157,13 @@ export const HOME_PAGE_CATEGORIES: CategoryLayoutItem[] = [
     viewAllLink: "/casino/group/burst-games",
     showGameTitle: false,
     showProviderName: false,
-    orderedGameSlugs: [
-      "spribe-aviator",
-      "smartsoft-jetx",
-      "aviafly",
+    orderedGameSlugs: [     
       "aviafly-2",
       "spaceman",
       "turbo-vortex-aero",
+      "spribe-aviator",
+      "smartsoft-jetx",
+      "aviafly",
       "crash-x",
       "smartsoft-balloon",
       "smartsoft-propel-x",

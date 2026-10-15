@@ -19,7 +19,7 @@ import confetti from "canvas-confetti";
 import MinesGrid from "./MinesGrid";
 import MinesControls from "./MinesControls";
 import MinesSettingsPopover from "./MinesSettingsPopover";
-import { getMinesMultiplier } from "./minesMultipliers";
+import { getMinesMultiplier, STAKE_MINES_MULTIPLIERS } from "./minesMultipliers";
 import StakeGameFooterCard from "@/components/games/originals/common/StakeGameFooterCard";
 
 interface MultiplierHistoryItem {
@@ -28,14 +28,18 @@ interface MultiplierHistoryItem {
   isWin: boolean;
 }
 
-// Multiplier calculation backed by editable MINES_MULTIPLIERS_MAP registry
+// Multiplier calculation backed strictly by official STAKE_MINES_MULTIPLIERS matrix
 function calculateMultiplier(mines: number, gemsOpened: number): number {
+  if (gemsOpened <= 0) return 1.0;
+  if (STAKE_MINES_MULTIPLIERS[mines]?.[gemsOpened]) {
+    return STAKE_MINES_MULTIPLIERS[mines][gemsOpened];
+  }
   return getMinesMultiplier(mines, gemsOpened);
 }
 
 function calculateMaxMultiplier(mines: number): number {
   const totalGems = 25 - mines;
-  return getMinesMultiplier(mines, totalGems);
+  return calculateMultiplier(mines, totalGems);
 }
 
 export default function MinesGame() {
@@ -331,31 +335,27 @@ export default function MinesGame() {
         return;
       }
 
-      // Execute 1 autobet round
+      // Execute 1 authentic autobet round
       updateBalance(-betAmount);
       const allIndices = Array.from({ length: 25 }, (_, i) => i);
       const shuffled = [...allIndices].sort(() => Math.random() - 0.5);
       const mines = shuffled.slice(0, minesCount);
 
+      // Determine simulated / chosen tiles: strictly use user's selectedAutoTiles or a truly blind random pick
       const picks =
         selectedAutoTiles.length > 0
           ? selectedAutoTiles
-          : [shuffled.find((idx) => !mines.includes(idx)) || 0];
+          : [Math.floor(Math.random() * 25)];
 
-      let effectiveMines = [...mines];
-      let hitMine = picks.some((p) => effectiveMines.includes(p));
+      // Check strictly if any chosen tile hits a mine on the actual board
+      const hitMine = picks.some((p) => mines.includes(p));
 
-      // Demo High-Win Algorithm for Autobet (75%-80% Win Rate)
-      if (isDemo && hitMine && Math.random() < 0.78) {
-        const safeSlots = allIndices.filter((idx) => !picks.includes(idx));
-        if (safeSlots.length >= minesCount) {
-          effectiveMines = safeSlots.slice(0, minesCount);
-          hitMine = false;
-        }
-      }
-
-      setMineLocations(effectiveMines);
+      setMineLocations(mines);
       setRevealedTiles(picks);
+      setIsGameOver(hitMine);
+      setIsPlaying(false);
+
+      const targetUserId = user?.id || user?.username || "guest_player";
 
       if (hitMine) {
         sounds.playMine();
@@ -363,6 +363,22 @@ export default function MinesGame() {
           { id: `h-${Date.now()}`, multiplier: 0.0, isWin: false },
           ...prev.slice(0, 9),
         ]);
+
+        fetch("/api/bets/record", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: targetUserId,
+            gameName: "Mines",
+            betAmount,
+            payoutMultiplier: 0.0,
+            payoutAmount: 0.0,
+            outcome: "LOSS",
+            updateWallet: false,
+            gameData: { minesCount, revealedCount: picks.length, auto: true },
+          }),
+        }).catch((err) => console.error("Failed to record Mines auto loss:", err));
+
         if (onLossAction === "increase") {
           setBetAmount((b) => parseFloat((b * (1 + onLossPercent / 100)).toFixed(2)));
         } else {
@@ -370,13 +386,29 @@ export default function MinesGame() {
         }
       } else {
         const mult = calculateMultiplier(minesCount, picks.length);
-        const winAmt = betAmount * mult;
+        const winAmt = parseFloat((betAmount * mult).toFixed(2));
         updateBalance(winAmt);
         sounds.playCashout();
         setHistory((prev) => [
           { id: `h-${Date.now()}`, multiplier: mult, isWin: true },
           ...prev.slice(0, 9),
         ]);
+
+        fetch("/api/bets/record", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: targetUserId,
+            gameName: "Mines",
+            betAmount,
+            payoutMultiplier: mult,
+            payoutAmount: winAmt,
+            outcome: "WIN",
+            updateWallet: false,
+            gameData: { minesCount, revealedCount: picks.length, auto: true },
+          }),
+        }).catch((err) => console.error("Failed to record Mines auto win:", err));
+
         if (onWinAction === "increase") {
           setBetAmount((b) => parseFloat((b * (1 + onWinPercent / 100)).toFixed(2)));
         } else {
@@ -397,7 +429,6 @@ export default function MinesGame() {
     betAmount,
     instantBet,
     isAutoRunning,
-    isDemo,
     minesCount,
     onLossAction,
     onLossPercent,
@@ -407,6 +438,7 @@ export default function MinesGame() {
     stopOnLoss,
     stopOnProfit,
     updateBalance,
+    user,
   ]);
 
   const startAutoBet = () => {

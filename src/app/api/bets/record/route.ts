@@ -80,6 +80,7 @@ export async function POST(req: NextRequest) {
         id: updatedWallet.id,
         balance: Number(updatedWallet.balance),
         currency: updatedWallet.currency,
+        totalWagered: Number(updatedWallet.totalWagered),
       },
       betHistory: {
         id: betHistory.id,

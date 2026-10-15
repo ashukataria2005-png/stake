@@ -11,6 +11,7 @@ import {
   Bookmark,
   Play,
   Layers,
+  Lock,
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import { getGameThumbnail } from "@/data/gameThumbnails";
@@ -49,6 +50,51 @@ export default function GamePreviewModal() {
   const slug = previewGame.slug || previewGame.id || "game";
   const providerName = previewGame.provider || "Stake Originals";
   const thumbnail = previewGame.image || getGameThumbnail(slug);
+
+  const STAKE_ORIGINALS_IDENTIFIERS = new Set([
+    "mines",
+    "crash",
+    "plinko",
+    "dice",
+    "limbo",
+    "blackjack",
+    "roulette",
+    "keno",
+    "baccarat",
+    "dragon-tower",
+    "dragontower",
+    "hilo",
+    "video-poker",
+    "wheel",
+    "diamonds",
+    "slide",
+    "pump",
+    "drill",
+    "flip",
+    "moles",
+    "chicken",
+    "cases",
+    "packs",
+    "darts",
+    "scarab-spin",
+    "tomb-of-life",
+    "tome-of-life",
+    "bars",
+    "blue-samurai",
+    "snakes",
+    "tarot",
+    "rock-paper-scissors",
+    "prime-dice",
+  ]);
+
+  const cleanProvider = (providerName || "").toLowerCase().trim();
+  const isStakeOriginal =
+    cleanProvider === "stake originals" ||
+    cleanProvider === "stake" ||
+    cleanProvider.includes("stake original") ||
+    previewGame.category === "originals" ||
+    STAKE_ORIGINALS_IDENTIFIERS.has(String(slug).toLowerCase().trim()) ||
+    STAKE_ORIGINALS_IDENTIFIERS.has(String(previewGame.id || "").toLowerCase().trim());
 
   // Generate plausible, realistic player counts based on game data
   const playingCount = previewGame.playersCount
@@ -179,14 +225,35 @@ export default function GamePreviewModal() {
 
           {/* Action Row: Real Play Primary CTA & Fairness Icon */}
           <div className="flex items-center gap-2 pt-3 mt-1">
-            <button
-              type="button"
-              onClick={handleLaunchGame}
-              className="bg-[#1475e1] hover:bg-[#1164c2] text-white font-extrabold py-3.5 rounded-lg flex-1 text-center shadow-lg active:scale-[0.98] transition-all cursor-pointer text-sm sm:text-base tracking-wider flex items-center justify-center gap-2 uppercase"
-            >
-              <Play className="w-4 h-4 fill-current ml-0.5" />
-              <span>Real Play</span>
-            </button>
+            {!isStakeOriginal ? (
+              <div className="relative flex-1">
+                <button
+                  type="button"
+                  disabled
+                  className="w-full bg-[#1475e1]/20 border border-white/10 text-white font-extrabold py-3.5 rounded-lg text-center cursor-not-allowed pointer-events-none text-sm sm:text-base tracking-wider flex items-center justify-center gap-2 uppercase relative overflow-hidden select-none"
+                  title="Third-party provider title is locked in this preview"
+                >
+                  <Play className="w-4 h-4 fill-current ml-0.5 opacity-40" />
+                  <span className="opacity-70">Real Play</span>
+                  {/* Sleek, clean Lock icon directly in the center */}
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/25 backdrop-blur-[0.5px]">
+                    <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0f212e]/90 border border-white/20 text-amber-300 shadow-md">
+                      <Lock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                      <span className="text-xs font-bold tracking-normal uppercase text-white">Locked</span>
+                    </div>
+                  </div>
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={handleLaunchGame}
+                className="bg-[#1475e1] hover:bg-[#1164c2] text-white font-extrabold py-3.5 rounded-lg flex-1 text-center shadow-lg active:scale-[0.98] transition-all cursor-pointer text-sm sm:text-base tracking-wider flex items-center justify-center gap-2 uppercase"
+              >
+                <Play className="w-4 h-4 fill-current ml-0.5" />
+                <span>Real Play</span>
+              </button>
+            )}
 
             <button
               type="button"
