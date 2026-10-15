@@ -62,6 +62,15 @@ export async function POST(req: NextRequest) {
       username: user.username,
     });
 
+    const approvedDepositCount = await prisma.transaction.count({
+      where: {
+        userId: user.id,
+        type: "DEPOSIT",
+        status: "APPROVED",
+      },
+    });
+    const unlockedBonusTier = Math.min(4, approvedDepositCount + 1);
+
     return NextResponse.json({
       success: true,
       user: {
@@ -72,7 +81,12 @@ export async function POST(req: NextRequest) {
         phone: user.phone,
         role: user.role,
         avatarColor: "#00e701",
+        approvedDepositCount,
+        depositCount: approvedDepositCount,
+        unlockedBonusTier,
       },
+      approvedDepositCount,
+      unlockedBonusTier,
     });
   } catch (err: any) {
     console.error("[Auth Login API] Error authenticating user:", err);

@@ -29,13 +29,20 @@ export async function GET(req: NextRequest) {
       } catch {}
     }
 
-    const depositCount = await prisma.transaction.count({
+    const approvedDepositCount = await prisma.transaction.count({
       where: {
         userId: user.id,
         type: "DEPOSIT",
         status: "APPROVED",
       },
     });
+
+    // Progressive milestone calculation:
+    // 0 approved deposits: 1st unlocked (bonus-1).
+    // 1 approved deposit: 1st & 2nd unlocked (bonus-2).
+    // 2 approved deposits: 1st, 2nd, & 3rd unlocked (bonus-3).
+    // 3+ approved deposits: All 4 bonuses unlocked (bonus-4).
+    const unlockedBonusTier = Math.min(4, approvedDepositCount + 1);
 
     return NextResponse.json({
       success: true,
@@ -51,8 +58,12 @@ export async function GET(req: NextRequest) {
         totalDeposited: Math.max(0, Number(wallet.totalDeposited)),
         totalWithdrawn: Math.max(0, Number(wallet.totalWithdrawn)),
         totalWagered: Math.max(0, Number(wallet.totalWagered)),
-        depositCount,
+        depositCount: approvedDepositCount,
+        approvedDepositCount,
+        unlockedBonusTier,
       },
+      approvedDepositCount,
+      unlockedBonusTier,
       transactions,
     });
   } catch (error: any) {

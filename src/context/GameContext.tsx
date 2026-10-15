@@ -89,6 +89,8 @@ interface GameContextType {
   walletInitialTab: "deposit" | "withdraw";
   preselectedBonusOffer: string;
   depositCount: number;
+  approvedDepositCount: number;
+  unlockedBonusTier: number;
   totalWagered: number;
   openWalletSettings: () => void;
   closeWalletSettings: () => void;
@@ -154,6 +156,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [walletInitialTab, setWalletInitialTab] = useState<"deposit" | "withdraw">("deposit");
   const [preselectedBonusOffer, setPreselectedBonusOffer] = useState<string>("none");
   const [depositCount, setDepositCount] = useState<number>(0);
+  const [unlockedBonusTier, setUnlockedBonusTier] = useState<number>(1);
   const [totalWagered, setTotalWagered] = useState<number>(0);
   const [isWalletSettingsOpen, setIsWalletSettingsOpen] = useState<boolean>(false);
   const [isTransactionsModalOpen, setIsTransactionsModalOpen] = useState<boolean>(false);
@@ -246,9 +249,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         if (typeof data.wallet.totalWagered === "number") {
           setTotalWagered(Math.max(0, data.wallet.totalWagered));
         }
-        if (typeof data.wallet.depositCount === "number") {
-          setDepositCount(Math.max(0, data.wallet.depositCount));
-        }
+        const approvedCount = Math.max(0, Number(data.wallet?.approvedDepositCount ?? data.wallet?.depositCount ?? data.approvedDepositCount ?? 0));
+        setDepositCount(approvedCount);
+        const tier = Math.max(1, Math.min(4, Number(data.wallet?.unlockedBonusTier ?? data.unlockedBonusTier ?? (approvedCount + 1))));
+        setUnlockedBonusTier(tier);
       }
     } catch (err) {
       console.error("[GameContext] Failed to sync wallet balance:", err);
@@ -421,8 +425,16 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const logout = () => {
     setIsAuthenticated(false);
     setUser(null);
+    setRealBalance(0);
+    setDepositCount(0);
+    setUnlockedBonusTier(1);
+    setTotalWagered(0);
     try {
       localStorage.removeItem(AUTH_STORAGE_KEY);
+      localStorage.removeItem("stake_active_user");
+      localStorage.removeItem("stake_user_id");
+      localStorage.setItem(BALANCE_STORAGE_KEY, "0");
+      localStorage.setItem(CRYPTO_BALANCES_STORAGE_KEY, JSON.stringify(DEFAULT_CRYPTO_BALANCES));
     } catch {
       // ignore
     }
@@ -733,6 +745,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         walletInitialTab,
         preselectedBonusOffer,
         depositCount,
+        approvedDepositCount: depositCount,
+        unlockedBonusTier,
         totalWagered,
         openWalletSettings,
         closeWalletSettings,

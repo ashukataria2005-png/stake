@@ -103,6 +103,7 @@ export default function BonusesSection() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [activeCardIndex, setActiveCardIndex] = useState<number>(0);
+  const [warningToast, setWarningToast] = useState<string | null>(null);
 
   // Live countdown timer state (Days : Hours : Mins : Secs)
   const [countdown, setCountdown] = useState({
@@ -147,6 +148,14 @@ export default function BonusesSection() {
     openWalletModal("deposit", selectedBonus);
   };
 
+  const handleLockedCardClick = (idx: number) => {
+    sounds.playClick();
+    setWarningToast("Complete your previous deposit first to unlock this bonus!");
+    setTimeout(() => {
+      setWarningToast(null);
+    }, 3500);
+  };
+
   const scrollToCard = (index: number) => {
     sounds.playClick();
     if (!scrollContainerRef.current) return;
@@ -185,7 +194,15 @@ export default function BonusesSection() {
   };
 
   return (
-    <section className="space-y-6 pt-2 pb-6 select-none">
+    <section className="space-y-6 pt-2 pb-6 select-none relative">
+      {/* Friendly Warning Toast on Locked Bonus Click */}
+      {warningToast && (
+        <div className="fixed top-20 right-5 z-50 bg-[#14232d] border border-amber-500/40 text-amber-400 font-bold px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2.5 animate-in slide-in-from-top-4 duration-200">
+          <Lock className="w-4 h-4 text-amber-400 shrink-0" />
+          <span className="text-xs sm:text-sm">{warningToast}</span>
+        </div>
+      )}
+
       {/* ------------------------------------------------------------- */}
       {/* 1. HEADER */}
       {/* ------------------------------------------------------------- */}
@@ -276,14 +293,18 @@ export default function BonusesSection() {
                     title={`Receive ${bonus.depositTier} bonus`}
                   />
                 ) : (
-                  <div
-                    className="absolute bottom-2 left-3 right-3 h-11 flex items-center justify-center gap-1.5 rounded-xl bg-black/75 backdrop-blur-md border border-white/10 text-white text-[11px] font-bold shadow-lg cursor-not-allowed select-none"
+                  <button
+                    type="button"
+                    onClick={() => handleLockedCardClick(idx)}
+                    className="absolute inset-0 z-20 flex flex-col items-center justify-end p-2 pb-2 rounded-[14px] bg-black/40 backdrop-blur-[1.5px] hover:bg-black/50 transition-colors cursor-pointer select-none group/lock text-center"
                     aria-label={`Locked ${bonus.depositTier} bonus`}
-                    title={`Complete deposit #${idx} to unlock this bonus`}
+                    title="Click for details"
                   >
-                    <Lock className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Locked • Deposit #{idx} Req.</span>
-                  </div>
+                    <div className="w-full h-11 flex items-center justify-center gap-1.5 rounded-xl bg-black/85 backdrop-blur-md border border-white/10 text-white text-[11px] font-bold shadow-lg group-hover/lock:border-amber-400/60 transition-colors">
+                      <Lock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                      <span>Locked • Deposit #{idx} Req.</span>
+                    </div>
+                  </button>
                 )}
               </div>
             );

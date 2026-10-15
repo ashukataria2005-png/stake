@@ -70,6 +70,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
     currency,
     formatDisplayBalance,
     user,
+    depositCount = 0,
     walletInitialTab = "deposit",
     preselectedBonusOffer = "none",
   } = useGame();
@@ -243,7 +244,11 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
         setActiveTab(walletInitialTab);
       }
       if (preselectedBonusOffer && preselectedBonusOffer !== "none") {
-        setSelectedBonusOffer(preselectedBonusOffer);
+        let validOffer = preselectedBonusOffer;
+        if (validOffer === "bonus-4" && depositCount < 3) validOffer = depositCount >= 2 ? "bonus-3" : depositCount >= 1 ? "bonus-2" : "bonus-1";
+        if (validOffer === "bonus-3" && depositCount < 2) validOffer = depositCount >= 1 ? "bonus-2" : "bonus-1";
+        if (validOffer === "bonus-2" && depositCount < 1) validOffer = "bonus-1";
+        setSelectedBonusOffer(validOffer);
       }
     } else {
       setDepositStep("amount");
@@ -824,16 +829,32 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                       <select
                         value={selectedBonusOffer}
                         onChange={(e) => {
-                          setSelectedBonusOffer(e.target.value);
+                          const chosen = e.target.value;
+                          if (chosen === "bonus-2" && depositCount < 1) return;
+                          if (chosen === "bonus-3" && depositCount < 2) return;
+                          if (chosen === "bonus-4" && depositCount < 3) return;
+                          setSelectedBonusOffer(chosen);
                           sounds.playClick();
                         }}
                         className="w-full bg-[#1a2c38] border border-[#213743] focus:border-amber-400 rounded-xl px-3 py-2.5 text-white text-xs font-bold outline-none cursor-pointer appearance-none"
                       >
                         <option value="none">No Bonus (Standard Deposit)</option>
                         <option value="bonus-1">🎁 1st Deposit: 100% Bonus + 70 Free Spins</option>
-                        <option value="bonus-2">🎁 2nd Deposit: 120% Bonus + 100 Free Spins</option>
-                        <option value="bonus-3">🎁 3rd Deposit: 130% Bonus + 150 Free Spins</option>
-                        <option value="bonus-4">🎁 4th Deposit: 150% Bonus + 180 Free Spins</option>
+                        <option value="bonus-2" disabled={depositCount < 1} className={depositCount < 1 ? "text-[#557086] bg-[#0f212e]" : ""}>
+                          {depositCount >= 1
+                            ? "🎁 2nd Deposit: 120% Bonus + 100 Free Spins"
+                            : "🔒 2nd Deposit: 120% Bonus [Locked - Requires 1 deposit]"}
+                        </option>
+                        <option value="bonus-3" disabled={depositCount < 2} className={depositCount < 2 ? "text-[#557086] bg-[#0f212e]" : ""}>
+                          {depositCount >= 2
+                            ? "🎁 3rd Deposit: 130% Bonus + 150 Free Spins"
+                            : "🔒 3rd Deposit: 130% Bonus [Locked - Requires 2 deposits]"}
+                        </option>
+                        <option value="bonus-4" disabled={depositCount < 3} className={depositCount < 3 ? "text-[#557086] bg-[#0f212e]" : ""}>
+                          {depositCount >= 3
+                            ? "🎁 4th Deposit: 150% Bonus + 180 Free Spins"
+                            : "🔒 4th Deposit: 150% Bonus [Locked - Requires 3 deposits]"}
+                        </option>
                       </select>
                       <ChevronRight className="w-4 h-4 text-[#557086] absolute right-3 top-1/2 -translate-y-1/2 rotate-90 pointer-events-none" />
                     </div>
