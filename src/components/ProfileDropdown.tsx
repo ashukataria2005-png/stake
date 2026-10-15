@@ -139,11 +139,11 @@ export default function ProfileDropdown({ isOpen, onClose }: ProfileDropdownProp
           <div className="fixed inset-0 z-40" onClick={onClose} />
 
           {/* Compact Dropdown - Tight right edge and clean width matching text */}
-          <div className="fixed right-1 sm:right-2 top-14 sm:top-16 z-50 w-[2100px] sm:w-[220px] max-w-[92vw] bg-[#1a2c38] border border-[#2f4553] rounded-xl shadow-2xl overflow-hidden flex flex-col text-[#b1bad3] animate-in fade-in zoom-in-95 duration-100 select-none">
+          <div className="fixed right-1 sm:right-2 top-14 sm:top-16 z-50 w-[210px] sm:w-[220px] max-w-[92vw] bg-[#1a2c38] border border-[#2f4553] rounded-xl shadow-2xl overflow-hidden flex flex-col text-[#b1bad3] animate-in fade-in zoom-in-95 duration-100 select-none">
             {/* 1. User Profile Header */}
             <div className="p-3 border-b border-[#213743] bg-[#14232d]">
               <div className="flex items-center gap-2">
-                <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-tr from-[#00e701]/20 to-[#1475e1]/20 border border-[#2f4553] text-white font-black text-xs uppercase">
+                <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-tr from-[#00e701]/20 to-[#1475e1]/20 border border-[#2f4553] text-white font-black text-xs uppercase">
                   {username.charAt(0).toUpperCase()}
                   <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-[#00e701] rounded-full border-2 border-[#14232d]" />
                 </div>
