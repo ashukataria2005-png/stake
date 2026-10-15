@@ -12,6 +12,7 @@ import {
   Play,
   Layers,
   Lock,
+  ShieldAlert,
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import { getGameThumbnail } from "@/data/gameThumbnails";
@@ -25,6 +26,13 @@ export default function GamePreviewModal() {
   const [isSaved, setIsSaved] = useState<boolean>(false);
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
   const [showFairnessInfo, setShowFairnessInfo] = useState<boolean>(false);
+  const [showRegionNotice, setShowRegionNotice] = useState<boolean>(false);
+
+  // Reset notice and dropdown states when modal opens/closes or game changes
+  useEffect(() => {
+    setShowRegionNotice(false);
+    setShowFairnessInfo(false);
+  }, [previewGame?.id, previewGame?.slug]);
 
   // Background Scroll-Lock: prevent window from scrolling when modal is open
   useEffect(() => {
@@ -129,17 +137,23 @@ export default function GamePreviewModal() {
     router.push(targetHref);
   };
 
+  const handleClose = () => {
+    setShowRegionNotice(false);
+    setShowFairnessInfo(false);
+    closeGamePreview();
+  };
+
   return (
     <div
       onClick={(e) => {
-        if (e.target === e.currentTarget) closeGamePreview();
+        if (e.target === e.currentTarget) handleClose();
       }}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-y-auto overscroll-contain animate-in fade-in duration-200"
     >
       <div className="w-full max-w-md space-y-3 relative text-white my-auto select-none">
         {/* Floating Close Button */}
         <button
-          onClick={closeGamePreview}
+          onClick={handleClose}
           className="absolute -top-3 -right-3 z-10 w-8 h-8 rounded-full bg-[#1a2c38] border border-[#2f4553] text-[#b1bad3] hover:text-white flex items-center justify-center transition-colors shadow-lg cursor-pointer"
           title="Close"
         >
@@ -227,19 +241,32 @@ export default function GamePreviewModal() {
           <div className="flex items-center gap-2 pt-3 mt-1">
             {!isStakeOriginal ? (
               <div className="relative flex-1">
-                <button
-                  type="button"
-                  disabled
-                  className="w-full bg-[#1475e1]/15 border border-white/10 text-white font-extrabold py-3.5 rounded-lg text-center cursor-not-allowed pointer-events-none text-sm sm:text-base tracking-wider flex items-center justify-center gap-2 uppercase relative overflow-hidden select-none"
+                <div
+                  className="relative w-full flex items-center justify-between px-4 py-3 rounded-xl bg-[#1475e1]/15 border border-white/10 text-white select-none"
                   title="Third-party provider title is locked in this preview"
                 >
-                  <Play className="w-4 h-4 fill-current ml-0.5 opacity-30" />
-                  <span className="opacity-40">Real Play</span>
-                  {/* Perfectly centered clean, large soft light-grey lock icon */}
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                    <Lock className="w-6 h-6 sm:w-7 sm:h-7 text-neutral-300/80 drop-shadow-sm" />
+                  {/* Left Side: Clean lock icon followed by the play triangle/title Real Play */}
+                  <div className="flex items-center">
+                    <Lock className="w-5 h-5 text-neutral-300/80 shrink-0 mr-2" />
+                    <span className="text-sm font-bold text-white/90 flex items-center gap-2">
+                      <Play className="w-3.5 h-3.5 fill-current opacity-70" />
+                      Real Play
+                    </span>
                   </div>
-                </button>
+
+                  {/* Right Side: Simple subtle info circle icon */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowRegionNotice((prev) => !prev);
+                    }}
+                    className="w-5 h-5 rounded-full border border-white/30 flex items-center justify-center text-[11px] font-medium text-white/80 hover:bg-white/10 transition-colors shrink-0 cursor-pointer"
+                    title="Toggle security information"
+                  >
+                    i
+                  </button>
+                </div>
               </div>
             ) : (
               <button
@@ -273,6 +300,16 @@ export default function GamePreviewModal() {
             </div>
           )}
         </div>
+
+        {/* Dynamic Regional Security Notice Box */}
+        {showRegionNotice && (
+          <div className="bg-[#16222d] border border-[#273a4a] rounded-xl p-3.5 my-3 flex items-center gap-2.5 text-xs text-[#b1bad3] shadow-lg animate-in fade-in slide-in-from-top-2 duration-200">
+            <ShieldAlert className="w-4 h-4 text-neutral-400 shrink-0" />
+            <span className="font-semibold tracking-wide text-white/90">
+              DUE TO SECURITY REASONS, THIS GAME IS NOT AVAILABLE IN YOUR AREA!
+            </span>
+          </div>
+        )}
 
         {/* 2. PROVIDER & INSIGHTS CARD */}
         <div className="bg-[#1a2c38] rounded-xl p-4 border border-[#213743] shadow-2xl">
