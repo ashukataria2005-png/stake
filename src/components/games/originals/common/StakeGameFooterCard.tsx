@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { Heart, ChevronRight, Bookmark, ShieldCheck } from "lucide-react";
+import { Heart, ChevronRight, Bookmark, ShieldCheck, BarChart2 } from "lucide-react";
 import ProvablyFairModal from "./ProvablyFairModal";
+import LiveStatsModal from "./LiveStatsModal";
+import { useGame } from "@/context/GameContext";
 
 interface StakeGameFooterCardProps {
   gameTitle: string;
@@ -15,6 +17,7 @@ export default function StakeGameFooterCard({
   followers = "194.66K Followers",
   provider = "Stake Originals",
 }: StakeGameFooterCardProps) {
+  const { isLiveStatsOpen, setIsLiveStatsOpen } = useGame();
   const [isFavorited, setIsFavorited] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [isProvablyFairOpen, setIsProvablyFairOpen] = useState(false);
@@ -55,10 +58,10 @@ export default function StakeGameFooterCard({
         <div className="border-t border-[#213743] my-3" />
 
         {/* Lower Game Title Row */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             {/* Active Game Name */}
-            <span className="text-white font-bold text-sm">{gameTitle}</span>
+            <span className="text-white font-bold text-sm mr-1">{gameTitle}</span>
             {/* Save Game pill button */}
             <button
               type="button"
@@ -69,6 +72,16 @@ export default function StakeGameFooterCard({
             >
               <Bookmark className={`w-3 h-3 ${isSaved ? "fill-[#00e701]" : ""}`} />
               <span>{isSaved ? "Saved" : "Save Game"}</span>
+            </button>
+            {/* Live Stats pill button */}
+            <button
+              type="button"
+              onClick={() => setIsLiveStatsOpen(true)}
+              className="flex items-center gap-1.5 bg-[#0f212e] hover:bg-[#213743] text-cyan-400 border border-cyan-500/30 hover:border-cyan-400 text-xs font-semibold px-2.5 py-1 rounded-md transition-all cursor-pointer shadow-sm"
+              title="Live Session Stats"
+            >
+              <BarChart2 className="w-3.5 h-3.5" />
+              <span>Live Stats</span>
             </button>
             {/* Provably Fair pill button */}
             <button
@@ -85,8 +98,9 @@ export default function StakeGameFooterCard({
           {/* Right chevron arrow icon */}
           <button
             type="button"
-            onClick={() => setIsProvablyFairOpen(true)}
+            onClick={() => setIsLiveStatsOpen(true)}
             className="flex items-center gap-1 text-[#b1bad3] hover:text-white text-xs cursor-pointer"
+            title="Open Live Stats"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -97,6 +111,11 @@ export default function StakeGameFooterCard({
         isOpen={isProvablyFairOpen}
         onClose={() => setIsProvablyFairOpen(false)}
         gameTitle={gameTitle}
+      />
+
+      <LiveStatsModal
+        isOpen={isLiveStatsOpen}
+        onClose={() => setIsLiveStatsOpen(false)}
       />
     </>
   );

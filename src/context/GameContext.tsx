@@ -105,6 +105,15 @@ interface GameContextType {
   userLuckMode: "HIGH_WIN" | "MEDIUM_WIN" | "LOW_WIN" | "NO_CONTROL";
   refreshLuckMode: () => Promise<void>;
   syncWalletBalance: (force?: boolean) => Promise<void>;
+  sessionWagered: number;
+  sessionProfit: number;
+  sessionWins: number;
+  sessionLosses: number;
+  resetSessionStats: () => void;
+  recordSessionBet: (wager: number, payout: number, explicitIsWin?: boolean) => void;
+  isLiveStatsOpen: boolean;
+  setIsLiveStatsOpen: (open: boolean | ((prev: boolean) => boolean)) => void;
+  toggleLiveStats: () => void;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -165,6 +174,75 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [recentlyPlayedGames, setRecentlyPlayedGames] = useState<RecentlyPlayedGame[]>([]);
   const [previewGame, setPreviewGame] = useState<any | null>(null);
   const [userLuckMode, setUserLuckMode] = useState<"HIGH_WIN" | "MEDIUM_WIN" | "LOW_WIN" | "NO_CONTROL">("NO_CONTROL");
+  const [sessionWagered, setSessionWagered] = useState<number>(0);
+  const [sessionProfit, setSessionProfit] = useState<number>(0);
+  const [sessionWins, setSessionWins] = useState<number>(0);
+  const [sessionLosses, setSessionLosses] = useState<number>(0);
+  const [isLiveStatsOpen, setIsLiveStatsOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem("stake_live_stats");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed) {
+          setSessionWagered(Number(parsed.wagered) || 0);
+          setSessionProfit(Number(parsed.profit) || 0);
+          setSessionWins(Number(parsed.wins) || 0);
+          setSessionLosses(Number(parsed.losses) || 0);
+        }
+      }
+    } catch {}
+  }, []);
+
+  const resetSessionStats = useCallback(() => {
+    setSessionWagered(0);
+    setSessionProfit(0);
+    setSessionWins(0);
+    setSessionLosses(0);
+    try {
+      sessionStorage.removeItem("stake_live_stats");
+    } catch {}
+  }, []);
+
+  const recordSessionBet = useCallback((wager: number, payout: number, explicitIsWin?: boolean) => {
+    const w = Math.max(0, Number(wager) || 0);
+    const p = Math.max(0, Number(payout) || 0);
+    const profitDelta = p - w;
+    const isWin = explicitIsWin !== undefined ? explicitIsWin : p > w;
+
+    setSessionWagered((prev) => {
+      const nextWagered = parseFloat((prev + w).toFixed(4));
+      setSessionProfit((prevProfit) => {
+        const nextProfit = parseFloat((prevProfit + profitDelta).toFixed(4));
+        setSessionWins((prevWins) => {
+          const nextWins = isWin ? prevWins + 1 : prevWins;
+          setSessionLosses((prevLosses) => {
+            const nextLosses = !isWin ? prevLosses + 1 : prevLosses;
+            try {
+              sessionStorage.setItem(
+                "stake_live_stats",
+                JSON.stringify({
+                  wagered: nextWagered,
+                  profit: nextProfit,
+                  wins: nextWins,
+                  losses: nextLosses,
+                })
+              );
+            } catch {}
+            return nextLosses;
+          });
+          return nextWins;
+        });
+        return nextProfit;
+      });
+      return nextWagered;
+    });
+  }, []);
+
+  const toggleLiveStats = useCallback(() => {
+    setIsLiveStatsOpen((prev) => !prev);
+  }, []);
 
   const pathname = usePathname();
 
@@ -800,6 +878,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         userLuckMode,
         refreshLuckMode,
         syncWalletBalance,
+        sessionWagered,
+        sessionProfit,
+        sessionWins,
+        sessionLosses,
+        resetSessionStats,
+        recordSessionBet,
+        isLiveStatsOpen,
+        setIsLiveStatsOpen,
+        toggleLiveStats,
       }}
     >
       {children}
@@ -813,4 +900,30 @@ export function useGame(): GameContextType {
     throw new Error("useGame must be used within a GameProvider");
   }
   return context;
+}
+
+export function useLiveStats() {
+  const {
+    sessionWagered,
+    sessionProfit,
+    sessionWins,
+    sessionLosses,
+    resetSessionStats,
+    recordSessionBet,
+    isLiveStatsOpen,
+    setIsLiveStatsOpen,
+    toggleLiveStats,
+  } = useGame();
+
+  return {
+    sessionWagered,
+    sessionProfit,
+    sessionWins,
+    sessionLosses,
+    resetSessionStats,
+    recordSessionBet,
+    isLiveStatsOpen,
+    setIsLiveStatsOpen,
+    toggleLiveStats,
+  };
 }

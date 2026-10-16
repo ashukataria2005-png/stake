@@ -18,12 +18,14 @@ import {
   X,
   Copy,
   Check,
+  BarChart2,
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
 import { resolveLimboMultiplier } from "@/lib/luckEngine";
 import confetti from "canvas-confetti";
 import StakeGameFooterCard from "@/components/games/originals/common/StakeGameFooterCard";
+import LiveStatsModal from "@/components/games/originals/common/LiveStatsModal";
 import {
   LIMBO_CONFIG,
   calculateLimboWinChance,
@@ -38,7 +40,7 @@ interface LimboHistoryItem {
 }
 
 export default function LimboGame() {
-  const { balance, updateBalance, currency, formatBalance, currencySymbol, addRecentlyPlayedGame, userLuckMode } = useGame();
+  const { balance, updateBalance, currency, formatBalance, currencySymbol, addRecentlyPlayedGame, userLuckMode, recordSessionBet, toggleLiveStats } = useGame();
   const activeSym = currencySymbol || "$";
 
   // Register in Recently Played once on mount
@@ -219,8 +221,10 @@ export default function LimboGame() {
       setHasWon(won);
       setIsRolling(false);
 
+      const payout = won ? parseFloat((currentBet * targetMultiplier).toFixed(2)) : 0;
+      recordSessionBet(currentBet, payout, won);
+
       if (won) {
-        const payout = parseFloat((currentBet * targetMultiplier).toFixed(2));
         updateBalance(payout);
         sounds.playLimboWin(result);
         if (targetMultiplier >= 5) {
@@ -281,8 +285,10 @@ export default function LimboGame() {
           setHasWon(won);
           setIsRolling(false);
 
+          const payout = won ? parseFloat((currentBet * targetMultiplier).toFixed(2)) : 0;
+          recordSessionBet(currentBet, payout, won);
+
           if (won) {
-            const payout = parseFloat((currentBet * targetMultiplier).toFixed(2));
             updateBalance(payout);
             sounds.playLimboWin(result);
             if (targetMultiplier >= 5) {
@@ -923,6 +929,14 @@ export default function LimboGame() {
             >
               {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-red-400" />}
             </button>
+            <button
+              type="button"
+              onClick={toggleLiveStats}
+              className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
+              title="Live Stats"
+            >
+              <BarChart2 className="w-4 h-4 text-cyan-400" />
+            </button>
           </div>
 
           <button
@@ -938,6 +952,9 @@ export default function LimboGame() {
 
       {/* Stake Originals Game Footer Card */}
       <StakeGameFooterCard gameTitle="Limbo" />
+
+      {/* Universal Session Live Stats Modal */}
+      <LiveStatsModal />
 
       {/* ========================================================= */}
       {/* PROVABLY FAIR VERIFIER MODAL                              */}

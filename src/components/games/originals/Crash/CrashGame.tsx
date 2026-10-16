@@ -19,12 +19,14 @@ import {
   Users,
   CircleDot,
   RotateCcw,
+  BarChart2,
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
 import { resolveCrashPoint } from "@/lib/luckEngine";
 import confetti from "canvas-confetti";
 import StakeGameFooterCard from "@/components/games/originals/common/StakeGameFooterCard";
+import LiveStatsModal from "@/components/games/originals/common/LiveStatsModal";
 import { CRASH_CONFIG } from "@/config/stakeMultipliers";
 
 interface HistoryItem {
@@ -81,7 +83,7 @@ const BOT_COLORS = [
 ];
 
 export default function CrashGame() {
-  const { balance, updateBalance, currency, formatBalance, currencySymbol, user, addRecentlyPlayedGame, userLuckMode } = useGame();
+  const { balance, updateBalance, currency, formatBalance, currencySymbol, user, addRecentlyPlayedGame, userLuckMode, recordSessionBet, toggleLiveStats } = useGame();
   const activeSym = currencySymbol || "$";
 
   // Mode: Manual or Auto
@@ -297,6 +299,7 @@ export default function CrashGame() {
 
       const winPayout = parseFloat((activeBetAmount * mult).toFixed(2));
       updateBalance(winPayout);
+      recordSessionBet(activeBetAmount, winPayout, true);
 
       // Update user in live players board
       setLivePlayers((prev) =>
@@ -471,6 +474,7 @@ export default function CrashGame() {
 
       // Persist loss to Neon PostgreSQL BetHistory if player had an active bet and did not cash out
       if (!hasCashedOut && activeBetAmount > 0) {
+        recordSessionBet(activeBetAmount, 0, false);
         const targetUserId = user?.id || user?.username || "guest_player";
         fetch("/api/bets/record", {
           method: "POST",
@@ -1215,19 +1219,33 @@ export default function CrashGame() {
             </button>
             <span className="font-mono text-[11px] hidden sm:inline text-[#7a889b]">Provably Fair</span>
           </div>
-          <button
-            type="button"
-            onClick={() => setIsFairnessOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors cursor-pointer"
-          >
-            <ShieldCheck className="w-4 h-4 text-[#00e701]" />
-            <span>Fairness</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={toggleLiveStats}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors cursor-pointer"
+              title="Live Session Stats"
+            >
+              <BarChart2 className="w-4 h-4 text-cyan-400" />
+              <span>Stats</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsFairnessOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors cursor-pointer"
+            >
+              <ShieldCheck className="w-4 h-4 text-[#00e701]" />
+              <span>Fairness</span>
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Stake Originals Game Footer Card */}
       <StakeGameFooterCard gameTitle="Crash" />
+
+      {/* Universal Session Live Stats Modal */}
+      <LiveStatsModal />
 
       {/* ======================================================== */}
       {/* 3. LIVE MULTIPLAYER BETS BOARD (UNDERNEATH)              */}

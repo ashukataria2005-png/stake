@@ -21,6 +21,7 @@ import MinesControls from "./MinesControls";
 import MinesSettingsPopover from "./MinesSettingsPopover";
 import { getMinesMultiplier, STAKE_MINES_MULTIPLIERS } from "./minesMultipliers";
 import StakeGameFooterCard from "@/components/games/originals/common/StakeGameFooterCard";
+import LiveStatsModal from "@/components/games/originals/common/LiveStatsModal";
 
 interface MultiplierHistoryItem {
   id: string;
@@ -43,7 +44,7 @@ function calculateMaxMultiplier(mines: number): number {
 }
 
 export default function MinesGame() {
-  const { balance, realBalance, hasVerifiedDeposit, playMode, updateBalance, currency, addRecentlyPlayedGame, userLuckMode, user } = useGame();
+  const { balance, realBalance, hasVerifiedDeposit, playMode, updateBalance, currency, addRecentlyPlayedGame, userLuckMode, user, recordSessionBet } = useGame();
   const isDemo = playMode === "fun" || !hasVerifiedDeposit;
 
   // Mode: Manual or Auto
@@ -155,6 +156,7 @@ export default function MinesGame() {
     }
 
     updateBalance(winAmount);
+    recordSessionBet(betAmount, winAmount, true);
     setIsPlaying(false);
     setIsGameOver(true);
     setCashoutOverlay({ multiplier: currentMultiplier, payout: winAmount });
@@ -236,6 +238,7 @@ export default function MinesGame() {
         sounds.playMine();
         setIsPlaying(false);
         setIsGameOver(true);
+        recordSessionBet(betAmount, 0, false);
         setHistory((prev) => [
           { id: `h-${Date.now()}`, multiplier: 0.0, isWin: false },
           ...prev.slice(0, 9),
@@ -359,6 +362,7 @@ export default function MinesGame() {
 
       if (hitMine) {
         sounds.playMine();
+        recordSessionBet(betAmount, 0, false);
         setHistory((prev) => [
           { id: `h-${Date.now()}`, multiplier: 0.0, isWin: false },
           ...prev.slice(0, 9),
@@ -388,6 +392,7 @@ export default function MinesGame() {
         const mult = calculateMultiplier(minesCount, picks.length);
         const winAmt = parseFloat((betAmount * mult).toFixed(2));
         updateBalance(winAmt);
+        recordSessionBet(betAmount, winAmt, true);
         sounds.playCashout();
         setHistory((prev) => [
           { id: `h-${Date.now()}`, multiplier: mult, isWin: true },
@@ -705,49 +710,8 @@ export default function MinesGame() {
         </div>
       )}
 
-      {/* Session Stats Modal */}
-      {isStatsOpen && (
-        <div
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setIsStatsOpen(false);
-          }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-150"
-        >
-          <div className="w-full max-w-md rounded-2xl border border-[#2f4553] bg-[#1a2c38] p-5 shadow-2xl space-y-4 text-white">
-            <div className="flex items-center justify-between border-b border-[#213743] pb-3">
-              <h3 className="text-base font-black flex items-center gap-2">
-                <BarChart2 className="w-5 h-5 text-cyan-400" />
-                <span>Session Stats</span>
-              </h3>
-              <button onClick={() => setIsStatsOpen(false)} className="text-[#b1bad3] hover:text-white">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div className="bg-[#0f212e] p-3 rounded-xl border border-[#213743] space-y-1">
-                <span className="text-[#b1bad3]">Rounds Played</span>
-                <p className="font-mono text-base font-bold text-white">{history.length}</p>
-              </div>
-              <div className="bg-[#0f212e] p-3 rounded-xl border border-[#213743] space-y-1">
-                <span className="text-[#b1bad3]">Win Rate</span>
-                <p className="font-mono text-base font-bold text-[#00e701]">
-                  {(
-                    (history.filter((h) => h.isWin).length / Math.max(1, history.length)) *
-                    100
-                  ).toFixed(1)}
-                  %
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={() => setIsStatsOpen(false)}
-              className="w-full py-2.5 rounded-xl bg-[#1475e1] hover:bg-[#1164c2] text-white font-bold text-xs"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Universal Session Live Stats Modal */}
+      <LiveStatsModal isOpen={isStatsOpen} onClose={() => setIsStatsOpen(false)} />
     </div>
   );
 }

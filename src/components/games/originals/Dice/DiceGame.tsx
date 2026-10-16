@@ -18,6 +18,7 @@ import { sounds } from "@/utils/audio";
 import { resolveDiceRoll } from "@/lib/luckEngine";
 import confetti from "canvas-confetti";
 import StakeGameFooterCard from "@/components/games/originals/common/StakeGameFooterCard";
+import LiveStatsModal from "@/components/games/originals/common/LiveStatsModal";
 
 import {
   calculateDiceMultiplier,
@@ -32,7 +33,7 @@ interface RollHistoryItem {
 }
 
 export default function DiceGame() {
-  const { balance, updateBalance, currencySymbol, addRecentlyPlayedGame, userLuckMode } = useGame();
+  const { balance, updateBalance, currencySymbol, addRecentlyPlayedGame, userLuckMode, recordSessionBet, toggleLiveStats } = useGame();
   const activeSym = currencySymbol || "$";
 
   // Mode & Betting State
@@ -209,6 +210,8 @@ export default function DiceGame() {
 
         const won = isRollOver ? finalRoll > target : finalRoll < target;
         setHasWon(won);
+        const payout = won ? parseFloat((effectiveBet * multiplier).toFixed(2)) : 0;
+        recordSessionBet(effectiveBet, payout, won);
 
         if (won) {
           const payout = parseFloat((effectiveBet * multiplier).toFixed(2));
@@ -815,7 +818,7 @@ export default function DiceGame() {
             </button>
             <button
               type="button"
-              onClick={() => setIsStatsOpen(true)}
+              onClick={toggleLiveStats}
               className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
               title="Live Stats"
             >
@@ -836,6 +839,9 @@ export default function DiceGame() {
 
       {/* Stake Originals Game Footer Card */}
       <StakeGameFooterCard gameTitle="Dice" />
+
+      {/* Universal Session Live Stats Modal */}
+      <LiveStatsModal />
 
       {/* PROVABLY FAIR VERIFIER MODAL */}
       {isFairnessOpen && (
