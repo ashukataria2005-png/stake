@@ -18,7 +18,6 @@ import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
 import confetti from "canvas-confetti";
 import StakeGameFooterCard from "@/components/games/originals/common/StakeGameFooterCard";
-import LiveStatsModal from "@/components/games/originals/common/LiveStatsModal";
 
 import {
   PLINKO_MULTIPLIERS_MATRIX,
@@ -531,7 +530,7 @@ export default function PlinkoGame() {
 
           updateBalance(payout);
           const isWin = payout > b.betAmount;
-          recordSessionBet(b.betAmount, payout, isWin);
+          recordSessionBet(b.betAmount, payout, isWin, "plinko");
 
           setStats((prev) => ({
             ...prev,
@@ -1052,7 +1051,7 @@ export default function PlinkoGame() {
             </button>
             <button
               type="button"
-              onClick={toggleLiveStats}
+              onClick={() => toggleLiveStats("plinko")}
               className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
               title="Live Stats"
             >
@@ -1073,9 +1072,6 @@ export default function PlinkoGame() {
 
       {/* Stake Originals Game Footer Card */}
       <StakeGameFooterCard gameTitle="Plinko" />
-
-      {/* Universal Session Live Stats Modal */}
-      <LiveStatsModal />
 
       {/* PROVABLY FAIR MODAL */}
       {isFairnessOpen && (

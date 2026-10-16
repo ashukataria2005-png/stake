@@ -25,7 +25,6 @@ import { sounds } from "@/utils/audio";
 import { resolveLimboMultiplier } from "@/lib/luckEngine";
 import confetti from "canvas-confetti";
 import StakeGameFooterCard from "@/components/games/originals/common/StakeGameFooterCard";
-import LiveStatsModal from "@/components/games/originals/common/LiveStatsModal";
 import {
   LIMBO_CONFIG,
   calculateLimboWinChance,
@@ -222,7 +221,7 @@ export default function LimboGame() {
       setIsRolling(false);
 
       const payout = won ? parseFloat((currentBet * targetMultiplier).toFixed(2)) : 0;
-      recordSessionBet(currentBet, payout, won);
+      recordSessionBet(currentBet, payout, won, "limbo");
 
       if (won) {
         updateBalance(payout);
@@ -286,7 +285,7 @@ export default function LimboGame() {
           setIsRolling(false);
 
           const payout = won ? parseFloat((currentBet * targetMultiplier).toFixed(2)) : 0;
-          recordSessionBet(currentBet, payout, won);
+          recordSessionBet(currentBet, payout, won, "limbo");
 
           if (won) {
             updateBalance(payout);
@@ -931,7 +930,7 @@ export default function LimboGame() {
             </button>
             <button
               type="button"
-              onClick={toggleLiveStats}
+              onClick={() => toggleLiveStats("limbo")}
               className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
               title="Live Stats"
             >
@@ -952,9 +951,6 @@ export default function LimboGame() {
 
       {/* Stake Originals Game Footer Card */}
       <StakeGameFooterCard gameTitle="Limbo" />
-
-      {/* Universal Session Live Stats Modal */}
-      <LiveStatsModal />
 
       {/* ========================================================= */}
       {/* PROVABLY FAIR VERIFIER MODAL                              */}

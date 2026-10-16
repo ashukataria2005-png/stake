@@ -26,7 +26,6 @@ import { sounds } from "@/utils/audio";
 import { resolveCrashPoint } from "@/lib/luckEngine";
 import confetti from "canvas-confetti";
 import StakeGameFooterCard from "@/components/games/originals/common/StakeGameFooterCard";
-import LiveStatsModal from "@/components/games/originals/common/LiveStatsModal";
 import { CRASH_CONFIG } from "@/config/stakeMultipliers";
 
 interface HistoryItem {
@@ -299,7 +298,7 @@ export default function CrashGame() {
 
       const winPayout = parseFloat((activeBetAmount * mult).toFixed(2));
       updateBalance(winPayout);
-      recordSessionBet(activeBetAmount, winPayout, true);
+      recordSessionBet(activeBetAmount, winPayout, true, "crash");
 
       // Update user in live players board
       setLivePlayers((prev) =>
@@ -474,7 +473,7 @@ export default function CrashGame() {
 
       // Persist loss to Neon PostgreSQL BetHistory if player had an active bet and did not cash out
       if (!hasCashedOut && activeBetAmount > 0) {
-        recordSessionBet(activeBetAmount, 0, false);
+        recordSessionBet(activeBetAmount, 0, false, "crash");
         const targetUserId = user?.id || user?.username || "guest_player";
         fetch("/api/bets/record", {
           method: "POST",
@@ -1222,7 +1221,7 @@ export default function CrashGame() {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={toggleLiveStats}
+              onClick={() => toggleLiveStats("crash")}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors cursor-pointer"
               title="Live Session Stats"
             >
@@ -1243,9 +1242,6 @@ export default function CrashGame() {
 
       {/* Stake Originals Game Footer Card */}
       <StakeGameFooterCard gameTitle="Crash" />
-
-      {/* Universal Session Live Stats Modal */}
-      <LiveStatsModal />
 
       {/* ======================================================== */}
       {/* 3. LIVE MULTIPLAYER BETS BOARD (UNDERNEATH)              */}

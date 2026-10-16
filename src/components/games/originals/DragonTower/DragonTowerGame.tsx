@@ -18,6 +18,7 @@ import {
   Skull,
   ShieldAlert,
   ChevronUp,
+  BarChart2,
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
@@ -60,7 +61,7 @@ interface FloorData {
 }
 
 export default function DragonTowerGame() {
-  const { balance, updateBalance, currencySymbol, addRecentlyPlayedGame } = useGame();
+  const { balance, updateBalance, currencySymbol, addRecentlyPlayedGame, recordSessionBet, toggleLiveStats } = useGame();
   const activeSym = currencySymbol || "$";
 
   // Register in Recently Played
@@ -220,6 +221,7 @@ export default function DragonTowerGame() {
         setIsPlaying(false);
         setIsRevealing(false);
         if (soundEnabled) sounds.playDragonBust();
+        recordSessionBet(betAmount, 0, false, "dragontower");
 
         setStats((prev) => ({
           ...prev,
@@ -240,6 +242,7 @@ export default function DragonTowerGame() {
           setIsPlaying(false);
           setIsRevealing(false);
           if (soundEnabled) sounds.playCashout();
+          recordSessionBet(betAmount, finalPayout, true, "dragontower");
           confetti({ particleCount: 150, spread: 80, origin: { y: 0.5 } });
 
           setStats((prev) => ({
@@ -266,6 +269,7 @@ export default function DragonTowerGame() {
     setIsCashedOut(true);
     setIsPlaying(false);
     if (soundEnabled) sounds.playCashout();
+    recordSessionBet(betAmount, currentPayout, true, "dragontower");
     confetti({ particleCount: 90, spread: 70, origin: { y: 0.6 } });
 
     setStats((prev) => ({
@@ -594,6 +598,14 @@ export default function DragonTowerGame() {
               className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
             >
               {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-red-400" />}
+            </button>
+            <button
+              type="button"
+              onClick={() => toggleLiveStats("dragontower")}
+              className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
+              title="Live Stats"
+            >
+              <BarChart2 className="w-4 h-4 text-cyan-400" />
             </button>
           </div>
 

@@ -14,6 +14,7 @@ import {
   Sparkles,
   CircleDot,
   RotateCcw,
+  BarChart2,
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
@@ -77,7 +78,7 @@ export function getWheelDistribution(risk: WheelRisk, segmentsCount: SegmentCoun
 }
 
 export default function WheelGame() {
-  const { balance, updateBalance, currencySymbol, addRecentlyPlayedGame } = useGame();
+  const { balance, updateBalance, currencySymbol, addRecentlyPlayedGame, recordSessionBet, toggleLiveStats } = useGame();
   const activeSym = currencySymbol || "$";
 
   // Register in Recently Played once on mount
@@ -208,11 +209,13 @@ export default function WheelGame() {
       if (chosen.multiplier > 0) {
         updateBalance(payout);
         setLastPayout(payout);
+        recordSessionBet(betAmount, payout, chosen.multiplier >= 1.0, "wheel");
         if (soundEnabled) sounds.playCashout();
         if (chosen.multiplier >= 2.0) {
           confetti({ particleCount: 75, spread: 65, origin: { y: 0.55 } });
         }
       } else {
+        recordSessionBet(betAmount, 0, false, "wheel");
         if (soundEnabled) sounds.playDiceLoss();
       }
 
@@ -522,6 +525,14 @@ export default function WheelGame() {
               className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
             >
               {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-red-400" />}
+            </button>
+            <button
+              type="button"
+              onClick={() => toggleLiveStats("wheel")}
+              className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
+              title="Live Stats"
+            >
+              <BarChart2 className="w-4 h-4 text-cyan-400" />
             </button>
           </div>
 

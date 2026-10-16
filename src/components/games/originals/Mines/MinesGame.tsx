@@ -21,7 +21,6 @@ import MinesControls from "./MinesControls";
 import MinesSettingsPopover from "./MinesSettingsPopover";
 import { getMinesMultiplier, STAKE_MINES_MULTIPLIERS } from "./minesMultipliers";
 import StakeGameFooterCard from "@/components/games/originals/common/StakeGameFooterCard";
-import LiveStatsModal from "@/components/games/originals/common/LiveStatsModal";
 
 interface MultiplierHistoryItem {
   id: string;
@@ -44,7 +43,7 @@ function calculateMaxMultiplier(mines: number): number {
 }
 
 export default function MinesGame() {
-  const { balance, realBalance, hasVerifiedDeposit, playMode, updateBalance, currency, addRecentlyPlayedGame, userLuckMode, user, recordSessionBet } = useGame();
+  const { balance, realBalance, hasVerifiedDeposit, playMode, updateBalance, currency, addRecentlyPlayedGame, userLuckMode, user, recordSessionBet, toggleLiveStats } = useGame();
   const isDemo = playMode === "fun" || !hasVerifiedDeposit;
 
   // Mode: Manual or Auto
@@ -69,7 +68,6 @@ export default function MinesGame() {
   const [quickSelection, setQuickSelection] = useState<boolean>(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [isFairnessOpen, setIsFairnessOpen] = useState<boolean>(false);
-  const [isStatsOpen, setIsStatsOpen] = useState<boolean>(false);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
 
   // Autobet state
@@ -156,7 +154,7 @@ export default function MinesGame() {
     }
 
     updateBalance(winAmount);
-    recordSessionBet(betAmount, winAmount, true);
+    recordSessionBet(betAmount, winAmount, true, "mines");
     setIsPlaying(false);
     setIsGameOver(true);
     setCashoutOverlay({ multiplier: currentMultiplier, payout: winAmount });
@@ -238,7 +236,7 @@ export default function MinesGame() {
         sounds.playMine();
         setIsPlaying(false);
         setIsGameOver(true);
-        recordSessionBet(betAmount, 0, false);
+        recordSessionBet(betAmount, 0, false, "mines");
         setHistory((prev) => [
           { id: `h-${Date.now()}`, multiplier: 0.0, isWin: false },
           ...prev.slice(0, 9),
@@ -362,7 +360,7 @@ export default function MinesGame() {
 
       if (hitMine) {
         sounds.playMine();
-        recordSessionBet(betAmount, 0, false);
+        recordSessionBet(betAmount, 0, false, "mines");
         setHistory((prev) => [
           { id: `h-${Date.now()}`, multiplier: 0.0, isWin: false },
           ...prev.slice(0, 9),
@@ -392,7 +390,7 @@ export default function MinesGame() {
         const mult = calculateMultiplier(minesCount, picks.length);
         const winAmt = parseFloat((betAmount * mult).toFixed(2));
         updateBalance(winAmt);
-        recordSessionBet(betAmount, winAmt, true);
+        recordSessionBet(betAmount, winAmt, true, "mines");
         sounds.playCashout();
         setHistory((prev) => [
           { id: `h-${Date.now()}`, multiplier: mult, isWin: true },
@@ -595,7 +593,7 @@ export default function MinesGame() {
           {/* Stats Button */}
           <button
             type="button"
-            onClick={() => setIsStatsOpen(true)}
+            onClick={() => toggleLiveStats("mines")}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white text-xs font-bold transition-colors cursor-pointer"
             title="Session Stats"
           >
@@ -709,9 +707,6 @@ export default function MinesGame() {
           </div>
         </div>
       )}
-
-      {/* Universal Session Live Stats Modal */}
-      <LiveStatsModal isOpen={isStatsOpen} onClose={() => setIsStatsOpen(false)} />
     </div>
   );
 }

@@ -32,6 +32,13 @@ export interface RecentlyPlayedGame {
 
 export type PlayMode = "real" | "fun";
 
+export type GameStats = {
+  wagered: number;
+  profit: number;
+  wins: number;
+  losses: number;
+};
+
 interface GameContextType {
   balance: number; // Active balance depending on playMode
   realBalance: number; // Authentic wallet balance in USD
@@ -105,15 +112,19 @@ interface GameContextType {
   userLuckMode: "HIGH_WIN" | "MEDIUM_WIN" | "LOW_WIN" | "NO_CONTROL";
   refreshLuckMode: () => Promise<void>;
   syncWalletBalance: (force?: boolean) => Promise<void>;
+  gameStats: Record<string, GameStats>;
+  getGameStats: (gameId?: string) => GameStats;
   sessionWagered: number;
   sessionProfit: number;
   sessionWins: number;
   sessionLosses: number;
-  resetSessionStats: () => void;
-  recordSessionBet: (wager: number, payout: number, explicitIsWin?: boolean) => void;
+  resetSessionStats: (gameId?: string) => void;
+  recordSessionBet: (wager: number, payout: number, explicitIsWin?: boolean, gameId?: string) => void;
   isLiveStatsOpen: boolean;
   setIsLiveStatsOpen: (open: boolean | ((prev: boolean) => boolean)) => void;
-  toggleLiveStats: () => void;
+  toggleLiveStats: (gameId?: string) => void;
+  activeLiveStatsGame: string;
+  setActiveLiveStatsGame: (gameId: string) => void;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -174,77 +185,119 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [recentlyPlayedGames, setRecentlyPlayedGames] = useState<RecentlyPlayedGame[]>([]);
   const [previewGame, setPreviewGame] = useState<any | null>(null);
   const [userLuckMode, setUserLuckMode] = useState<"HIGH_WIN" | "MEDIUM_WIN" | "LOW_WIN" | "NO_CONTROL">("NO_CONTROL");
-  const [sessionWagered, setSessionWagered] = useState<number>(0);
-  const [sessionProfit, setSessionProfit] = useState<number>(0);
-  const [sessionWins, setSessionWins] = useState<number>(0);
-  const [sessionLosses, setSessionLosses] = useState<number>(0);
+  const [activeLiveStatsGame, setActiveLiveStatsGame] = useState<string>("general");
+  const [gameStats, setGameStats] = useState<Record<string, GameStats>>({});
   const [isLiveStatsOpen, setIsLiveStatsOpen] = useState<boolean>(false);
 
+  const pathname = usePathname();
+
+  // Automatically update active game tracking when navigating to an original game
+  useEffect(() => {
+    if (pathname) {
+      const match = pathname.match(/\/(?:games|casino\/games)\/([a-zA-Z0-9_-]+)/);
+      if (match && match[1]) {
+        setActiveLiveStatsGame(match[1].toLowerCase());
+      }
+    }
+  }, [pathname]);
+
+  // Load per-game session stats from storage
   useEffect(() => {
     try {
-      const saved = sessionStorage.getItem("stake_live_stats");
+      const saved = sessionStorage.getItem("stake_live_stats_per_game");
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed) {
-          setSessionWagered(Number(parsed.wagered) || 0);
-          setSessionProfit(Number(parsed.profit) || 0);
-          setSessionWins(Number(parsed.wins) || 0);
-          setSessionLosses(Number(parsed.losses) || 0);
+        if (parsed && typeof parsed === "object") {
+          setGameStats(parsed);
         }
       }
     } catch {}
   }, []);
 
-  const resetSessionStats = useCallback(() => {
-    setSessionWagered(0);
-    setSessionProfit(0);
-    setSessionWins(0);
-    setSessionLosses(0);
-    try {
-      sessionStorage.removeItem("stake_live_stats");
-    } catch {}
-  }, []);
+  const getGameStats = useCallback(
+    (gameId?: string): GameStats => {
+      const key = (gameId || activeLiveStatsGame || "general").toLowerCase();
+      return gameStats[key] || { wagered: 0, profit: 0, wins: 0, losses: 0 };
+    },
+    [gameStats, activeLiveStatsGame]
+  );
 
-  const recordSessionBet = useCallback((wager: number, payout: number, explicitIsWin?: boolean) => {
-    const w = Math.max(0, Number(wager) || 0);
-    const p = Math.max(0, Number(payout) || 0);
-    const profitDelta = p - w;
-    const isWin = explicitIsWin !== undefined ? explicitIsWin : p > w;
-
-    setSessionWagered((prev) => {
-      const nextWagered = parseFloat((prev + w).toFixed(4));
-      setSessionProfit((prevProfit) => {
-        const nextProfit = parseFloat((prevProfit + profitDelta).toFixed(4));
-        setSessionWins((prevWins) => {
-          const nextWins = isWin ? prevWins + 1 : prevWins;
-          setSessionLosses((prevLosses) => {
-            const nextLosses = !isWin ? prevLosses + 1 : prevLosses;
-            try {
-              sessionStorage.setItem(
-                "stake_live_stats",
-                JSON.stringify({
-                  wagered: nextWagered,
-                  profit: nextProfit,
-                  wins: nextWins,
-                  losses: nextLosses,
-                })
-              );
-            } catch {}
-            return nextLosses;
-          });
-          return nextWins;
-        });
-        return nextProfit;
+  const resetSessionStats = useCallback(
+    (gameId?: string) => {
+      setGameStats((prev) => {
+        let next: Record<string, GameStats>;
+        if (gameId === "all") {
+          next = {};
+        } else {
+          const target = (gameId || activeLiveStatsGame || "general").toLowerCase();
+          next = {
+            ...prev,
+            [target]: { wagered: 0, profit: 0, wins: 0, losses: 0 },
+          };
+        }
+        try {
+          sessionStorage.setItem("stake_live_stats_per_game", JSON.stringify(next));
+        } catch {}
+        return next;
       });
-      return nextWagered;
-    });
-  }, []);
+    },
+    [activeLiveStatsGame]
+  );
 
-  const toggleLiveStats = useCallback(() => {
+  const recordSessionBet = useCallback(
+    (wager: number, payout: number, explicitIsWin?: boolean, gameId?: string) => {
+      const w = Math.max(0, Number(wager) || 0);
+      const p = Math.max(0, Number(payout) || 0);
+      const profitDelta = p - w;
+      const isWin = explicitIsWin !== undefined ? explicitIsWin : p > w;
+
+      let targetKey = gameId?.toLowerCase();
+      if (!targetKey && pathname) {
+        const match = pathname.match(/\/(?:games|casino\/games)\/([a-zA-Z0-9_-]+)/);
+        if (match && match[1]) {
+          targetKey = match[1].toLowerCase();
+        }
+      }
+      if (!targetKey) {
+        targetKey = (activeLiveStatsGame || "general").toLowerCase();
+      }
+
+      setGameStats((prev) => {
+        const current = prev[targetKey] || { wagered: 0, profit: 0, wins: 0, losses: 0 };
+        const nextStats: GameStats = {
+          wagered: parseFloat((current.wagered + w).toFixed(4)),
+          profit: parseFloat((current.profit + profitDelta).toFixed(4)),
+          wins: isWin ? current.wins + 1 : current.wins,
+          losses: !isWin ? current.losses + 1 : current.losses,
+        };
+
+        const updated = {
+          ...prev,
+          [targetKey]: nextStats,
+        };
+
+        try {
+          sessionStorage.setItem("stake_live_stats_per_game", JSON.stringify(updated));
+        } catch {}
+
+        return updated;
+      });
+    },
+    [activeLiveStatsGame, pathname]
+  );
+
+  const toggleLiveStats = useCallback((gameId?: string) => {
+    if (gameId) {
+      setActiveLiveStatsGame(gameId.toLowerCase());
+    }
     setIsLiveStatsOpen((prev) => !prev);
   }, []);
 
-  const pathname = usePathname();
+  const activeStats = getGameStats(activeLiveStatsGame);
+  const sessionWagered = activeStats.wagered;
+  const sessionProfit = activeStats.profit;
+  const sessionWins = activeStats.wins;
+  const sessionLosses = activeStats.losses;
 
   const refreshLuckMode = useCallback(async () => {
     try {
@@ -878,6 +931,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         userLuckMode,
         refreshLuckMode,
         syncWalletBalance,
+        gameStats,
+        getGameStats,
         sessionWagered,
         sessionProfit,
         sessionWins,
@@ -887,6 +942,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         isLiveStatsOpen,
         setIsLiveStatsOpen,
         toggleLiveStats,
+        activeLiveStatsGame,
+        setActiveLiveStatsGame,
       }}
     >
       {children}
@@ -902,28 +959,35 @@ export function useGame(): GameContextType {
   return context;
 }
 
-export function useLiveStats() {
+export function useLiveStats(gameId?: string) {
   const {
-    sessionWagered,
-    sessionProfit,
-    sessionWins,
-    sessionLosses,
+    gameStats,
+    getGameStats,
     resetSessionStats,
     recordSessionBet,
     isLiveStatsOpen,
     setIsLiveStatsOpen,
     toggleLiveStats,
+    activeLiveStatsGame,
+    setActiveLiveStatsGame,
   } = useGame();
 
+  const currentStats = getGameStats(gameId);
+
   return {
-    sessionWagered,
-    sessionProfit,
-    sessionWins,
-    sessionLosses,
-    resetSessionStats,
-    recordSessionBet,
+    gameStats,
+    stats: currentStats,
+    sessionWagered: currentStats.wagered,
+    sessionProfit: currentStats.profit,
+    sessionWins: currentStats.wins,
+    sessionLosses: currentStats.losses,
+    resetSessionStats: () => resetSessionStats(gameId),
+    recordSessionBet: (wager: number, payout: number, explicitIsWin?: boolean) =>
+      recordSessionBet(wager, payout, explicitIsWin, gameId),
     isLiveStatsOpen,
     setIsLiveStatsOpen,
-    toggleLiveStats,
+    toggleLiveStats: () => toggleLiveStats(gameId),
+    activeLiveStatsGame,
+    setActiveLiveStatsGame,
   };
 }

@@ -17,10 +17,12 @@ export default function StakeGameFooterCard({
   followers = "194.66K Followers",
   provider = "Stake Originals",
 }: StakeGameFooterCardProps) {
-  const { isLiveStatsOpen, setIsLiveStatsOpen } = useGame();
+  const { isLiveStatsOpen, setIsLiveStatsOpen, setActiveLiveStatsGame } = useGame();
   const [isFavorited, setIsFavorited] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [isProvablyFairOpen, setIsProvablyFairOpen] = useState(false);
+
+  const cleanGameId = gameTitle.toLowerCase().replace(/[^a-z0-9_-]/g, "-");
 
   return (
     <>
@@ -76,7 +78,10 @@ export default function StakeGameFooterCard({
             {/* Live Stats pill button */}
             <button
               type="button"
-              onClick={() => setIsLiveStatsOpen(true)}
+              onClick={() => {
+                setActiveLiveStatsGame(cleanGameId);
+                setIsLiveStatsOpen(true);
+              }}
               className="flex items-center gap-1.5 bg-[#0f212e] hover:bg-[#213743] text-cyan-400 border border-cyan-500/30 hover:border-cyan-400 text-xs font-semibold px-2.5 py-1 rounded-md transition-all cursor-pointer shadow-sm"
               title="Live Session Stats"
             >
@@ -98,7 +103,10 @@ export default function StakeGameFooterCard({
           {/* Right chevron arrow icon */}
           <button
             type="button"
-            onClick={() => setIsLiveStatsOpen(true)}
+            onClick={() => {
+              setActiveLiveStatsGame(cleanGameId);
+              setIsLiveStatsOpen(true);
+            }}
             className="flex items-center gap-1 text-[#b1bad3] hover:text-white text-xs cursor-pointer"
             title="Open Live Stats"
           >
@@ -116,6 +124,8 @@ export default function StakeGameFooterCard({
       <LiveStatsModal
         isOpen={isLiveStatsOpen}
         onClose={() => setIsLiveStatsOpen(false)}
+        gameId={cleanGameId}
+        gameTitle={gameTitle}
       />
     </>
   );
