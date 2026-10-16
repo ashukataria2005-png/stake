@@ -993,7 +993,7 @@ export default function DiceGame() {
                   onClick={() => {
                     const next = !isMuted;
                     setIsMuted(next);
-                    sounds.enabled = !next;
+                    sounds.setSoundEnabled(!next);
                   }}
                   className={`w-10 h-5 rounded-full transition-colors relative cursor-pointer ${
                     !isMuted ? "bg-[#1475e1]" : "bg-[#213743]"

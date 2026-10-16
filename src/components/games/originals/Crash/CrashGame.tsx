@@ -1199,7 +1199,22 @@ export default function CrashGame() {
 
         {/* 6. BOTTOM UTILITY BAR */}
         <div className="flex items-center justify-between rounded-lg bg-[#0f212e] border border-[#213743] px-3 py-2 text-xs text-[#b1bad3] mt-0.5">
-          <span className="font-mono text-[11px]">Provably Fair</span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                const next = !isMuted;
+                setIsMuted(next);
+                sounds.setSoundEnabled(!next);
+              }}
+              className="p-1.5 rounded-lg bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white transition-colors cursor-pointer flex items-center gap-1.5"
+              title={isMuted ? "Unmute Audio" : "Mute Audio"}
+            >
+              {isMuted ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4 text-[#00e701]" />}
+              <span className="font-semibold text-[11px]">{isMuted ? "Muted" : "Audio On"}</span>
+            </button>
+            <span className="font-mono text-[11px] hidden sm:inline text-[#7a889b]">Provably Fair</span>
+          </div>
           <button
             type="button"
             onClick={() => setIsFairnessOpen(true)}

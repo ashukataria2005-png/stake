@@ -3,6 +3,48 @@
 class SoundManager {
   private ctx: AudioContext | null = null;
   public enabled: boolean = true;
+  public volume: number = 0.5;
+
+  constructor() {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("stake_sound_enabled");
+        if (stored !== null) {
+          this.enabled = stored !== "false";
+        }
+        const storedVol = localStorage.getItem("stake_sound_volume");
+        if (storedVol !== null) {
+          this.volume = parseFloat(storedVol) || 0.5;
+        }
+      } catch {}
+    }
+  }
+
+  public setSoundEnabled(enabled: boolean) {
+    this.enabled = enabled;
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("stake_sound_enabled", enabled ? "true" : "false");
+      } catch {}
+    }
+  }
+
+  public toggleSound(): boolean {
+    const next = !this.enabled;
+    this.setSoundEnabled(next);
+    return next;
+  }
+
+  public setVolume(vol: number) {
+    this.volume = Math.max(0, Math.min(1, vol));
+    this.enabled = this.volume > 0;
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("stake_sound_volume", this.volume.toString());
+        localStorage.setItem("stake_sound_enabled", this.enabled ? "true" : "false");
+      } catch {}
+    }
+  }
 
   private initCtx() {
     if (typeof window === "undefined") return null;
@@ -20,7 +62,7 @@ class SoundManager {
 
   // Crisp mechanical button click / tile tap
   playClick() {
-    if (!this.enabled) return;
+    if (!this.enabled || this.volume <= 0) return;
     try {
       const ctx = this.initCtx();
       if (!ctx) return;
@@ -30,127 +72,154 @@ class SoundManager {
       osc.frequency.setValueAtTime(800, ctx.currentTime);
       osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.04);
 
-      gain.gain.setValueAtTime(0.15, ctx.currentTime);
+      gain.gain.setValueAtTime(0.15 * this.volume, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
 
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.start();
       osc.stop(ctx.currentTime + 0.04);
-    } catch {
-      // ignore
-    }
+    } catch {}
   }
 
-  // Ascending pleasant chime sound on successive gem reveals
-  playGem(gemsCount: number) {
-    if (!this.enabled) return;
+  // Crisp high-frequency crystal bell chime with rising pitch based on current gem step count (baseFreq * Math.pow(1.08, step))
+  playGem(gemsCount: number = 1) {
+    if (!this.enabled || this.volume <= 0) return;
     try {
       const ctx = this.initCtx();
       if (!ctx) return;
-      // Base frequency 440 Hz (A4), pitch climbs with each gem found
-      const baseFreq = 440 * Math.pow(1.08, Math.min(gemsCount - 1, 20));
+      const step = Math.max(1, Math.min(gemsCount, 24));
+      // Base frequency 523.25 Hz (C5) climbing crisply by 1.08 per gem
+      const baseFreq = 523.25 * Math.pow(1.08, step - 1);
 
+      // Primary crystal fundamental
       const osc = ctx.createOscillator();
-      const overtone = ctx.createOscillator();
       const gain = ctx.createGain();
-
       osc.type = "sine";
       osc.frequency.setValueAtTime(baseFreq, ctx.currentTime);
 
-      overtone.type = "triangle";
-      overtone.frequency.setValueAtTime(baseFreq * 2, ctx.currentTime);
+      // Bell shimmer overtone (harmonic ratio ~2.756 for crystal timbre)
+      const overtone = ctx.createOscillator();
+      const overtoneGain = ctx.createGain();
+      overtone.type = "sine";
+      overtone.frequency.setValueAtTime(baseFreq * 2.756, ctx.currentTime);
 
-      gain.gain.setValueAtTime(0.2, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+      // Quick snappy bell envelope
+      gain.gain.setValueAtTime(0.22 * this.volume, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.32);
+
+      overtoneGain.gain.setValueAtTime(0.12 * this.volume, ctx.currentTime);
+      overtoneGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.18);
 
       osc.connect(gain);
-      overtone.connect(gain);
       gain.connect(ctx.destination);
+      overtone.connect(overtoneGain);
+      overtoneGain.connect(ctx.destination);
 
       osc.start();
       overtone.start();
-      osc.stop(ctx.currentTime + 0.35);
-      overtone.stop(ctx.currentTime + 0.35);
-    } catch {
-      // ignore
-    }
+      osc.stop(ctx.currentTime + 0.32);
+      overtone.stop(ctx.currentTime + 0.18);
+    } catch {}
   }
 
-  // Bass explosion rumble when hitting a mine
+  // Low-pass filtered sub-bass boom with quick decay (Bomb Explosion)
   playMine() {
-    if (!this.enabled) return;
+    if (!this.enabled || this.volume <= 0) return;
     try {
       const ctx = this.initCtx();
       if (!ctx) return;
 
-      // Low bass drop
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = "sawtooth";
-      osc.frequency.setValueAtTime(140, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 0.4);
+      // Low-pass filter for authentic heavy muffled sub-bass boom
+      const filter = ctx.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(320, ctx.currentTime);
+      filter.frequency.exponentialRampToValueAtTime(45, ctx.currentTime + 0.45);
 
-      gain.gain.setValueAtTime(0.3, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+      // Sub-bass dropping oscillator (110Hz -> 28Hz)
+      const subOsc = ctx.createOscillator();
+      const subGain = ctx.createGain();
+      subOsc.type = "sine";
+      subOsc.frequency.setValueAtTime(110, ctx.currentTime);
+      subOsc.frequency.exponentialRampToValueAtTime(28, ctx.currentTime + 0.45);
 
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.4);
+      subGain.gain.setValueAtTime(0.4 * this.volume, ctx.currentTime);
+      subGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.45);
 
-      // Noise buffer for blast crunch
-      const bufferSize = ctx.sampleRate * 0.25;
+      subOsc.connect(filter);
+
+      // Blast texture noise buffer
+      const bufferSize = Math.floor(ctx.sampleRate * 0.22);
       const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
       const data = buffer.getChannelData(0);
       for (let i = 0; i < bufferSize; i++) {
-        data[i] = Math.random() * 2 - 1;
+        data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.05));
       }
       const noise = ctx.createBufferSource();
       noise.buffer = buffer;
       const noiseGain = ctx.createGain();
-      noiseGain.gain.setValueAtTime(0.25, ctx.currentTime);
-      noiseGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
-      noise.connect(noiseGain);
-      noiseGain.connect(ctx.destination);
+      noiseGain.gain.setValueAtTime(0.28 * this.volume, ctx.currentTime);
+      noiseGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.22);
+
+      noise.connect(filter);
+      filter.connect(subGain);
+      subGain.connect(ctx.destination);
+
+      subOsc.start();
       noise.start();
-    } catch {
-      // ignore
-    }
+      subOsc.stop(ctx.currentTime + 0.45);
+      noise.stop(ctx.currentTime + 0.22);
+    } catch {}
   }
 
-  // Upbeat celebration arpeggio when cashing out
+  // Triumphant electronic double chime chord (Cashout / Big Win)
   playCashout() {
-    if (!this.enabled) return;
+    if (!this.enabled || this.volume <= 0) return;
     try {
       const ctx = this.initCtx();
       if (!ctx) return;
 
-      const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
-      notes.forEach((freq, idx) => {
-        const start = ctx.currentTime + idx * 0.07;
+      // Chord 1 (C Major: C5, E5, G5) -> Chord 2 (F Major/A5 triumphant resolution)
+      const chord1 = [523.25, 659.25, 783.99]; // C5, E5, G5
+      const chord2 = [659.25, 783.99, 1046.5]; // E5, G5, C6
+
+      // Play chord 1
+      chord1.forEach((freq) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-
         osc.type = "sine";
-        osc.frequency.setValueAtTime(freq, start);
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
 
-        gain.gain.setValueAtTime(0.18, start);
-        gain.gain.exponentialRampToValueAtTime(0.001, start + 0.25);
+        gain.gain.setValueAtTime(0.12 * this.volume, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.22);
 
         osc.connect(gain);
         gain.connect(ctx.destination);
-        osc.start(start);
-        osc.stop(start + 0.25);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.22);
       });
-    } catch {
-      // ignore
-    }
+
+      // Play chord 2 (delayed by 90ms for punchy double chime)
+      chord2.forEach((freq) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + 0.09);
+
+        gain.gain.setValueAtTime(0.16 * this.volume, ctx.currentTime + 0.09);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.42);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + 0.09);
+        osc.stop(ctx.currentTime + 0.42);
+      });
+    } catch {}
   }
 
   // Subtly rising tick / heartbeat during climbing multiplier
   playTick(multiplier: number = 1.0) {
-    if (!this.enabled) return;
+    if (!this.enabled || this.volume <= 0) return;
     try {
       const ctx = this.initCtx();
       if (!ctx) return;
@@ -159,84 +228,93 @@ class SoundManager {
       osc.type = "sine";
       const freq = Math.min(1200, 320 + multiplier * 35);
       osc.frequency.setValueAtTime(freq, ctx.currentTime);
-      gain.gain.setValueAtTime(0.05, ctx.currentTime);
+      gain.gain.setValueAtTime(0.05 * this.volume, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.025);
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.start();
       osc.stop(ctx.currentTime + 0.025);
-    } catch {
-      // ignore
-    }
+    } catch {}
   }
 
-  // Crash explosion alias
+  // Crash explosion alias (low-pass sub-bass boom)
   playCrash() {
     this.playMine();
   }
 
-  // Crisp subtle peg tap / click for Plinko peg bounce
+  // Ultra-short wooden/metallic pin click with micro pitch randomization (Plinko Peg)
   playPeg() {
-    if (!this.enabled) return;
+    if (!this.enabled || this.volume <= 0) return;
     try {
       const ctx = this.initCtx();
       if (!ctx) return;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
+      // Metallic pin overtone mixture
       osc.type = "sine";
-      const freq = 650 + Math.random() * 200;
+      const freq = 850 + (Math.random() - 0.5) * 360;
       osc.frequency.setValueAtTime(freq, ctx.currentTime);
-      gain.gain.setValueAtTime(0.04, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.02);
+      osc.frequency.exponentialRampToValueAtTime(freq * 0.4, ctx.currentTime + 0.018);
+
+      gain.gain.setValueAtTime(0.06 * this.volume, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.018);
+
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.start();
-      osc.stop(ctx.currentTime + 0.02);
-    } catch {
-      // ignore
-    }
+      osc.stop(ctx.currentTime + 0.018);
+    } catch {}
   }
 
-  // Harmonic chime when ball lands in multiplier bucket
-  playBucket(multiplier: number) {
-    if (!this.enabled) return;
+  // Bass thump tailored to bucket multiplier tier (Plinko Bucket Land)
+  playBucket(multiplier: number = 1.0) {
+    if (!this.enabled || this.volume <= 0) return;
     try {
       const ctx = this.initCtx();
       if (!ctx) return;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = "triangle";
-      const freq = Math.min(1400, 320 + Math.log2(Math.max(1, multiplier)) * 120);
-      osc.frequency.setValueAtTime(freq, ctx.currentTime);
-      gain.gain.setValueAtTime(Math.min(0.22, 0.08 + Math.log10(Math.max(1, multiplier)) * 0.06), ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.22);
-    } catch {
-      // ignore
-    }
+
+      const isHighTier = multiplier >= 10;
+      const isExtreme = multiplier >= 100;
+
+      // Heavy sub-bass thump (pitch lower for higher multiplier)
+      const baseBass = Math.max(45, 140 - Math.log2(Math.max(1, multiplier)) * 14);
+      const bassOsc = ctx.createOscillator();
+      const bassGain = ctx.createGain();
+      bassOsc.type = "sine";
+      bassOsc.frequency.setValueAtTime(baseBass, ctx.currentTime);
+      bassOsc.frequency.exponentialRampToValueAtTime(32, ctx.currentTime + 0.28);
+
+      const amp = Math.min(0.4, 0.14 + Math.log10(Math.max(1, multiplier)) * 0.12) * this.volume;
+      bassGain.gain.setValueAtTime(amp, ctx.currentTime);
+      bassGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.28);
+
+      bassOsc.connect(bassGain);
+      bassGain.connect(ctx.destination);
+      bassOsc.start();
+      bassOsc.stop(ctx.currentTime + 0.28);
+
+      // If high or extreme tier, add triumphant sparkling chord
+      if (isHighTier) {
+        const chord = isExtreme ? [659.25, 880, 1046.5, 1318.5] : [523.25, 659.25, 783.99];
+        chord.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "triangle";
+          osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.04);
+          gain.gain.setValueAtTime(0.12 * this.volume, ctx.currentTime + idx * 0.04);
+          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + idx * 0.04 + 0.35);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(ctx.currentTime + idx * 0.04);
+          osc.stop(ctx.currentTime + idx * 0.04 + 0.35);
+        });
+      }
+    } catch {}
   }
 
   // Soft disappointment chime for loss
   playLoss() {
-    if (!this.enabled) return;
-    try {
-      const ctx = this.initCtx();
-      if (!ctx) return;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = "sine";
-      osc.frequency.setValueAtTime(260, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(140, ctx.currentTime + 0.2);
-      gain.gain.setValueAtTime(0.12, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.2);
-    } catch {}
+    this.playDiceLoss();
   }
 
   // Upbeat win arpeggio alias
@@ -244,76 +322,70 @@ class SoundManager {
     this.playCashout();
   }
 
-  // Quick dice shake / roll rattle
+  // Fast mechanical spinning ticking sound (Dice / Limbo Roll)
   playDiceRoll() {
-    if (!this.enabled) return;
+    if (!this.enabled || this.volume <= 0) return;
     try {
       const ctx = this.initCtx();
       if (!ctx) return;
 
-      // 3 rapid mini-clicks simulating dice tumble
-      [0, 0.04, 0.09].forEach((offset) => {
+      // 5 rapid mechanical ticking pulses
+      [0, 0.03, 0.06, 0.09, 0.12].forEach((offset) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-        osc.type = "triangle";
-        osc.frequency.setValueAtTime(450 + Math.random() * 250, ctx.currentTime + offset);
-        gain.gain.setValueAtTime(0.08, ctx.currentTime + offset);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + offset + 0.035);
+        osc.type = "square";
+        osc.frequency.setValueAtTime(700 + Math.random() * 300, ctx.currentTime + offset);
+        gain.gain.setValueAtTime(0.05 * this.volume, ctx.currentTime + offset);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + offset + 0.022);
         osc.connect(gain);
         gain.connect(ctx.destination);
         osc.start(ctx.currentTime + offset);
-        osc.stop(ctx.currentTime + offset + 0.035);
+        osc.stop(ctx.currentTime + offset + 0.022);
       });
-    } catch {
-      // ignore
-    }
+    } catch {}
   }
 
-  // Crisp win chime on landing in win zone
+  // Instant winning resolution tone (Dice)
   playDiceWin() {
-    if (!this.enabled) return;
+    if (!this.enabled || this.volume <= 0) return;
     try {
       const ctx = this.initCtx();
       if (!ctx) return;
 
-      const notes = [587.33, 880]; // D5, A5
+      const notes = [587.33, 880]; // D5, A5 crisp double ring
       notes.forEach((freq, idx) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = "sine";
-        osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.06);
-        gain.gain.setValueAtTime(0.16, ctx.currentTime + idx * 0.06);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.06 + 0.28);
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.05);
+        gain.gain.setValueAtTime(0.18 * this.volume, ctx.currentTime + idx * 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + idx * 0.05 + 0.3);
         osc.connect(gain);
         gain.connect(ctx.destination);
-        osc.start(ctx.currentTime + idx * 0.06);
-        osc.stop(ctx.currentTime + idx * 0.06 + 0.28);
+        osc.start(ctx.currentTime + idx * 0.05);
+        osc.stop(ctx.currentTime + idx * 0.05 + 0.3);
       });
-    } catch {
-      // ignore
-    }
+    } catch {}
   }
 
-  // Subtle dull thud on loss
+  // Instant loss resolution tone (Dice / Limbo)
   playDiceLoss() {
-    if (!this.enabled) return;
+    if (!this.enabled || this.volume <= 0) return;
     try {
       const ctx = this.initCtx();
       if (!ctx) return;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = "sine";
-      osc.frequency.setValueAtTime(120, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(50, ctx.currentTime + 0.12);
-      gain.gain.setValueAtTime(0.12, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+      osc.frequency.setValueAtTime(140, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(45, ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.16 * this.volume, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.15);
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.start();
-      osc.stop(ctx.currentTime + 0.12);
-    } catch {
-      // ignore
-    }
+      osc.stop(ctx.currentTime + 0.15);
+    } catch {}
   }
 
   // Pleasant ascending harmonic success chime for authentication
@@ -340,31 +412,29 @@ class SoundManager {
     }
   }
 
-  // Limbo acceleration tick
+  // Fast mechanical spinning ticking sound (Limbo acceleration tick)
   playLimboTick(stepRatio: number = 0) {
-    if (!this.enabled) return;
+    if (!this.enabled || this.volume <= 0) return;
     try {
       const ctx = this.initCtx();
       if (!ctx) return;
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      osc.type = "sine";
-      const freq = 440 + stepRatio * 440; // rises from A4 (440Hz) to A5 (880Hz)
+      osc.type = "square";
+      const freq = 520 + stepRatio * 480; // rises from ~520Hz to ~1000Hz
       osc.frequency.setValueAtTime(freq, ctx.currentTime);
-      gain.gain.setValueAtTime(0.06, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.03);
+      gain.gain.setValueAtTime(0.06 * this.volume, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.025);
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.start();
-      osc.stop(ctx.currentTime + 0.03);
-    } catch {
-      // ignore
-    }
+      osc.stop(ctx.currentTime + 0.025);
+    } catch {}
   }
 
   // Limbo explosive win chord
   playLimboWin(multiplier: number = 2.0) {
-    if (!this.enabled) return;
+    if (!this.enabled || this.volume <= 0) return;
     try {
       const ctx = this.initCtx();
       if (!ctx) return;
@@ -373,17 +443,15 @@ class SoundManager {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = "triangle";
-        osc.frequency.setValueAtTime(freq, ctx.currentTime);
-        gain.gain.setValueAtTime(0.18, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.45);
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.03);
+        gain.gain.setValueAtTime(0.18 * this.volume, ctx.currentTime + idx * 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + idx * 0.03 + 0.4);
         osc.connect(gain);
         gain.connect(ctx.destination);
-        osc.start();
-        osc.stop(ctx.currentTime + 0.45);
+        osc.start(ctx.currentTime + idx * 0.03);
+        osc.stop(ctx.currentTime + idx * 0.03 + 0.4);
       });
-    } catch {
-      // ignore
-    }
+    } catch {}
   }
 
   // Limbo dull loss click

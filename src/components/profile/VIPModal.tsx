@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Trophy,
   X,
@@ -11,9 +11,18 @@ import {
   Check,
   ChevronRight,
   TrendingUp,
+  Coins,
+  CheckCircle2,
+  Wallet,
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
-import { calculateVIPProgress } from "@/lib/vip";
+import {
+  calculateVIPProgress,
+  calculateClaimableRakeback,
+  getTierMilestoneReward,
+} from "@/lib/vip";
+import { sounds } from "@/utils/audio";
+import confetti from "canvas-confetti";
 
 interface VIPModalProps {
   isOpen: boolean;
@@ -84,12 +93,127 @@ const VIP_TIER_DETAILS = [
 ];
 
 export default function VIPModal({ isOpen, onClose }: VIPModalProps) {
-  const { user, totalWagered = 0 } = useGame();
+  const { user, totalWagered = 0, updateBalance, currencySymbol } = useGame();
+  const activeSym = currencySymbol || "₹";
+
+  const [claimedRakeback, setClaimedRakeback] = useState<number>(0);
+  const [claimedLevelUps, setClaimedLevelUps] = useState<string[]>([]);
+  const [isClaimingRakeback, setIsClaimingRakeback] = useState<boolean>(false);
+  const [isClaimingLevelUp, setIsClaimingLevelUp] = useState<boolean>(false);
+
+  // Load persistence for claimed perks
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const storedRakeback = localStorage.getItem("stake_claimed_rakeback");
+        if (storedRakeback) {
+          setClaimedRakeback(parseFloat(storedRakeback) || 0);
+        }
+        const storedLevelUps = localStorage.getItem("stake_claimed_levelups");
+        if (storedLevelUps) {
+          setClaimedLevelUps(JSON.parse(storedLevelUps));
+        }
+      } catch {}
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   const vip = calculateVIPProgress(totalWagered);
-  const username = user?.username || user?.name || "Player";
+  const claimableRakeback = calculateClaimableRakeback(totalWagered, claimedRakeback);
+  const currentTierReward = getTierMilestoneReward(vip.currentTier);
+  const isCurrentTierClaimed = claimedLevelUps.includes(vip.currentTier);
+  const hasUnlockedMilestone = vip.currentTier !== "Unranked" && currentTierReward > 0;
+
+  // Claim Rakeback Action
+  const handleClaimRakeback = async () => {
+    if (claimableRakeback <= 0 || isClaimingRakeback) return;
+    setIsClaimingRakeback(true);
+    sounds.playClick();
+
+    try {
+      const res = await fetch("/api/wallet/claim-perks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user?.id || user?.username || "guest_player",
+          action: "rakeback",
+          amount: claimableRakeback,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        updateBalance(claimableRakeback);
+        const newClaimed = claimedRakeback + claimableRakeback;
+        setClaimedRakeback(newClaimed);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("stake_claimed_rakeback", newClaimed.toString());
+        }
+
+        sounds.playCashout();
+        try {
+          confetti({
+            particleCount: 75,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ["#00e701", "#ffffff", "#ffd700"],
+          });
+        } catch {}
+      } else {
+        alert(data.error || "Failed to claim rakeback.");
+      }
+    } catch (err) {
+      console.error("Rakeback claim error:", err);
+    } finally {
+      setIsClaimingRakeback(false);
+    }
+  };
+
+  // Claim Level Up Bonus Action
+  const handleClaimLevelUp = async () => {
+    if (!hasUnlockedMilestone || isCurrentTierClaimed || isClaimingLevelUp) return;
+    setIsClaimingLevelUp(true);
+    sounds.playClick();
+
+    try {
+      const res = await fetch("/api/wallet/claim-perks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user?.id || user?.username || "guest_player",
+          action: "levelup",
+          tier: vip.currentTier,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        updateBalance(currentTierReward);
+        const nextClaimed = [...claimedLevelUps, vip.currentTier];
+        setClaimedLevelUps(nextClaimed);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("stake_claimed_levelups", JSON.stringify(nextClaimed));
+        }
+
+        sounds.playCashout();
+        try {
+          confetti({
+            particleCount: 100,
+            spread: 80,
+            origin: { y: 0.5 },
+            colors: ["#ffd700", "#ffea00", "#00e701", "#ffffff"],
+          });
+        } catch {}
+      } else {
+        alert(data.error || "Failed to claim milestone bonus.");
+      }
+    } catch (err) {
+      console.error("Level-up claim error:", err);
+    } finally {
+      setIsClaimingLevelUp(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-3 sm:p-4 animate-in fade-in duration-200">
@@ -154,6 +278,91 @@ export default function VIPModal({ isOpen, onClose }: VIPModalProps) {
                   <span>({vip.nextTier})</span>
                 </span>
               </div>
+            </div>
+          </div>
+
+          {/* MODULE 3: RAKEBACK VAULT & LEVEL-UP REWARDS DESK */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {/* 1. Rakeback Vault Card */}
+            <div className="bg-[#0f212e] border border-[#213743] hover:border-[#2f4553] rounded-xl p-3.5 space-y-2.5 transition-all shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-[#00e701]/15 text-[#00e701] flex items-center justify-center">
+                    <Coins className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-bold text-[#b1bad3] uppercase tracking-wider block">Live Rakeback</span>
+                    <span className="text-sm font-black text-white font-mono">
+                      {activeSym}{claimableRakeback.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <p className="text-[11px] text-[#7a889b] leading-tight">
+                Calculated dynamically at 10% of house edge wagered across all games.
+              </p>
+              <button
+                type="button"
+                onClick={handleClaimRakeback}
+                disabled={claimableRakeback <= 0 || isClaimingRakeback}
+                className={`w-full py-2 rounded-lg text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  claimableRakeback > 0
+                    ? "bg-[#00e701] hover:bg-[#00c801] active:scale-95 text-[#0f212e] shadow-md"
+                    : "bg-[#213743]/50 text-[#7a889b] cursor-not-allowed"
+                }`}
+              >
+                <Wallet className="w-3.5 h-3.5" />
+                <span>{isClaimingRakeback ? "Claiming..." : claimableRakeback > 0 ? "Claim Rakeback" : "No Rakeback Yet"}</span>
+              </button>
+            </div>
+
+            {/* 2. Level-Up Milestone Cash Reward Card */}
+            <div className="bg-[#0f212e] border border-[#213743] hover:border-[#2f4553] rounded-xl p-3.5 space-y-2.5 transition-all shadow-sm">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center">
+                    <Gift className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-bold text-[#b1bad3] uppercase tracking-wider block">Level-Up Bonus</span>
+                    <span className="text-sm font-black text-white font-mono">
+                      {hasUnlockedMilestone ? `${activeSym}${currentTierReward.toLocaleString()}` : "Locked"}
+                    </span>
+                  </div>
+                </div>
+                {hasUnlockedMilestone && (
+                  <span className="text-xs">{vip.tierIcon}</span>
+                )}
+              </div>
+              <p className="text-[11px] text-[#7a889b] leading-tight">
+                {hasUnlockedMilestone
+                  ? `Instant cash milestone unlocked for reaching ${vip.currentTier} tier!`
+                  : "Advance to Bronze tier to unlock your first ₹2,000 cash reward."}
+              </p>
+              <button
+                type="button"
+                onClick={handleClaimLevelUp}
+                disabled={!hasUnlockedMilestone || isCurrentTierClaimed || isClaimingLevelUp}
+                className={`w-full py-2 rounded-lg text-xs font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  hasUnlockedMilestone && !isCurrentTierClaimed
+                    ? "bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 active:scale-95 text-[#0f212e] shadow-md"
+                    : isCurrentTierClaimed
+                    ? "bg-[#00e701]/15 text-[#00e701] border border-[#00e701]/30 cursor-default"
+                    : "bg-[#213743]/50 text-[#7a889b] cursor-not-allowed"
+                }`}
+              >
+                {isCurrentTierClaimed ? (
+                  <>
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#00e701]" />
+                    <span>Claimed ✓</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>{isClaimingLevelUp ? "Claiming..." : hasUnlockedMilestone ? "Claim Level-Up Cash" : "Locked (Unranked)"}</span>
+                  </>
+                )}
+              </button>
             </div>
           </div>
 

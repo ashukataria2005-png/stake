@@ -16,6 +16,13 @@ export const metadata: Metadata = {
   title: "Stake: Online Casino & Sports Betting - Play & Bet Online",
   description:
     "Experience the premier Stake casino and sportsbook with live demo balance, authentic Stake Originals like Mines, Crash, Plinko, and Dice, and real-time live bet stream.",
+  manifest: "/manifest.json",
+  themeColor: "#0f212e",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Stake",
+  },
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon.ico",

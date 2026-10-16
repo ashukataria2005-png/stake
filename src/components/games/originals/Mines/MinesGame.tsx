@@ -617,7 +617,7 @@ export default function MinesGame() {
             onClick={() => {
               const nextVol = volume === 0 ? 100 : 0;
               setVolume(nextVol);
-              sounds.enabled = nextVol > 0;
+              sounds.setVolume(nextVol / 100);
             }}
             className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
             title={volume === 0 ? "Unmute" : "Mute"}

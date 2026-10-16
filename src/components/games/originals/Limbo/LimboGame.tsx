@@ -917,7 +917,7 @@ export default function LimboGame() {
               onClick={() => {
                 const next = !soundEnabled;
                 setSoundEnabled(next);
-                sounds.enabled = next;
+                sounds.setSoundEnabled(next);
               }}
               className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
             >

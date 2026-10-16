@@ -10,6 +10,7 @@ import AuthModal from "@/components/auth/AuthModal";
 import ScrollToTop from "@/components/ScrollToTop";
 import Footer from "@/components/footer/Footer";
 import GamePreviewModal from "@/components/casino/GamePreviewModal";
+import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import { useGame } from "@/context/GameContext";
 
 export default function MainLayoutShell({
@@ -87,6 +88,9 @@ export default function MainLayoutShell({
 
       {/* Floating Scroll-To-Top Button */}
       <ScrollToTop />
+
+      {/* Progressive Web App Mobile Install Prompt */}
+      <PWAInstallPrompt />
     </div>
   );
 }

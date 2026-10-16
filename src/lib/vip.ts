@@ -49,3 +49,22 @@ export function calculateVIPProgress(totalWagered: number = 0): VIPTierInfo {
     currentThreshold: current.threshold,
   };
 }
+
+export const VIP_MILESTONE_REWARDS: Record<string, number> = {
+  Bronze: 2000, // ₹2,000 (~$25)
+  Silver: 4000, // ₹4,000 (~$50)
+  Gold: 8000, // ₹8,000 (~$100)
+  Platinum: 20000, // ₹20,000 (~$250)
+  Diamond: 80000, // ₹80,000 (~$1,000)
+};
+
+export const RAKEBACK_PERCENT = 0.001; // 10% of 1% House Edge = 0.1% of total wagered
+
+export function getTierMilestoneReward(tier: string): number {
+  return VIP_MILESTONE_REWARDS[tier] || 0;
+}
+
+export function calculateClaimableRakeback(totalWagered: number = 0, alreadyClaimed: number = 0): number {
+  const totalAccumulated = Math.max(0, Number(totalWagered || 0) * RAKEBACK_PERCENT);
+  return Math.max(0, parseFloat((totalAccumulated - Math.max(0, Number(alreadyClaimed || 0))).toFixed(2)));
+}
