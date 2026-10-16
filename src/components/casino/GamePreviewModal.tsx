@@ -242,30 +242,34 @@ export default function GamePreviewModal() {
             {!isStakeOriginal ? (
               <div className="relative flex-1">
                 <div
-                  className="relative w-full flex items-center justify-between px-4 py-3 rounded-xl bg-[#1475e1]/15 border border-white/10 text-white select-none"
+                  className="relative flex items-center justify-center w-full px-4 py-3 rounded-xl bg-[#1475e1]/15 border border-white/10 text-white select-none"
                   title="Third-party provider title is locked in this preview"
                 >
-                  {/* Left Side: Clean lock icon followed by the play triangle/title Real Play */}
-                  <div className="flex items-center">
-                    <Lock className="w-5 h-5 text-neutral-300/80 shrink-0 mr-2" />
-                    <span className="text-sm font-bold text-white/90 flex items-center gap-2">
-                      <Play className="w-3.5 h-3.5 fill-current opacity-70" />
-                      Real Play
-                    </span>
+                  {/* Left Side: Clean lock icon */}
+                  <div className="absolute left-4 flex items-center pointer-events-none">
+                    <Lock className="w-5 h-5 text-neutral-300/80 shrink-0" />
                   </div>
 
+                  {/* Centered label */}
+                  <span className="text-sm font-bold text-white/90 flex items-center gap-2 mx-auto">
+                    <Play className="w-3.5 h-3.5 fill-current opacity-70" />
+                    Real Play
+                  </span>
+
                   {/* Right Side: Simple subtle info circle icon */}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowRegionNotice((prev) => !prev);
-                    }}
-                    className="w-5 h-5 rounded-full border border-white/30 flex items-center justify-center text-[11px] font-medium text-white/80 hover:bg-white/10 transition-colors shrink-0 cursor-pointer"
-                    title="Toggle security information"
-                  >
-                    i
-                  </button>
+                  <div className="absolute right-4 flex items-center">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowRegionNotice((prev) => !prev);
+                      }}
+                      className="w-5 h-5 rounded-full border border-white/30 flex items-center justify-center text-[11px] font-medium text-white/80 hover:bg-white/10 transition-colors shrink-0 cursor-pointer"
+                      title="Toggle security information"
+                    >
+                      i
+                    </button>
+                  </div>
                 </div>
               </div>
             ) : (

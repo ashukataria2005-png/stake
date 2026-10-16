@@ -13,6 +13,8 @@ import {
   Volume2,
   VolumeX,
   Zap,
+  Maximize2,
+  Minimize2,
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
@@ -148,8 +150,24 @@ export default function PlinkoGame() {
 
   // Sound & Screen Settings
   const [isMuted, setIsMuted] = useState<boolean>(false);
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [fastDrop, setFastDrop] = useState<boolean>(false);
   const [hotkeysEnabled, setHotkeysEnabled] = useState<boolean>(true);
+
+  const toggleSound = () => {
+    const next = !isMuted;
+    setIsMuted(next);
+    sounds.enabled = !next;
+  };
+
+  const toggleFullscreen = () => {
+    const el = containerRef.current || document.documentElement;
+    if (!document.fullscreenElement) {
+      el.requestFullscreen().then(() => setIsFullscreen(true)).catch(() => {});
+    } else {
+      document.exitFullscreen().then(() => setIsFullscreen(false)).catch(() => {});
+    }
+  };
 
   // Stats
   const [stats, setStats] = useState({
@@ -1041,28 +1059,50 @@ export default function PlinkoGame() {
         {/* 7. BOTTOM UTILITY BAR */}
         <div className="flex items-center justify-between rounded-lg bg-[#0f212e] border border-[#213743] px-3 py-2 text-xs text-[#b1bad3] mt-0.5">
           <div className="flex items-center gap-2">
+            {/* 1. Settings */}
             <button
               type="button"
               onClick={() => setIsSettingsOpen(true)}
               className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
               title="Settings"
             >
-              <Settings className="w-5 h-5" />
+              <Settings className="w-4 h-4" />
             </button>
+            {/* 2. Theater / Fullscreen Mode */}
+            <button
+              type="button"
+              onClick={toggleFullscreen}
+              className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
+              title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+            >
+              {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+            </button>
+            {/* 3. Live Stats */}
             <button
               type="button"
               onClick={() => toggleLiveStats("plinko")}
               className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
               title="Live Stats"
             >
-              <BarChart2 className="w-5 h-5" />
+              <BarChart2 className="w-4 h-4 text-cyan-400" />
+            </button>
+            {/* 4. Sound / Audio Mute Toggle */}
+            <button
+              type="button"
+              onClick={toggleSound}
+              className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
+              title={isMuted ? "Unmute" : "Mute"}
+            >
+              {isMuted ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4" />}
             </button>
           </div>
 
+          {/* 5. Provably Fair */}
           <button
             type="button"
             onClick={() => setIsFairnessOpen(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors cursor-pointer"
+            title="Provably Fair"
           >
             <ShieldCheck className="w-4 h-4 text-[#00e701]" />
             <span>Fairness</span>

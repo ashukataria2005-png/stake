@@ -559,22 +559,21 @@ export default function MinesGame() {
         />
       </div>
 
-      {/* 3. Bottom Utility Strip (Settings ⚙️, Stats 📊, Fairness 🛡️, Audio, Fullscreen) */}
-      <div className="relative flex items-center justify-between bg-[#1a2c38] border border-[#213743] rounded-2xl px-4 py-2.5">
+      {/* 3. Bottom Utility Strip */}
+      <div className="flex items-center justify-between rounded-lg bg-[#0f212e] border border-[#213743] px-3 py-2 text-xs text-[#b1bad3] mt-0.5">
         <div className="flex items-center gap-2">
-          {/* Settings Gear Popover Trigger */}
+          {/* 1. Settings */}
           <div className="relative">
             <button
               type="button"
               onClick={() => setIsSettingsOpen(!isSettingsOpen)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white text-xs font-bold transition-colors cursor-pointer"
-              title="Game Settings"
+              className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
+              title="Settings"
             >
-              <Settings className="w-3.5 h-3.5" />
-              <span>Settings</span>
+              <Settings className="w-4 h-4" />
             </button>
 
-            {/* Popover Menu matching Screenshot 29 */}
+            {/* Popover Menu */}
             <MinesSettingsPopover
               isOpen={isSettingsOpen}
               onClose={() => setIsSettingsOpen(false)}
@@ -590,31 +589,27 @@ export default function MinesGame() {
             />
           </div>
 
-          {/* Stats Button */}
+          {/* 2. Theater / Fullscreen Mode */}
+          <button
+            type="button"
+            onClick={() => setIsFullscreen(!isFullscreen)}
+            className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
+            title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+          >
+            {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+          </button>
+
+          {/* 3. Live Stats */}
           <button
             type="button"
             onClick={() => toggleLiveStats("mines")}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white text-xs font-bold transition-colors cursor-pointer"
-            title="Session Stats"
+            className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
+            title="Live Stats"
           >
-            <BarChart2 className="w-3.5 h-3.5" />
-            <span>Stats</span>
+            <BarChart2 className="w-4 h-4 text-cyan-400" />
           </button>
 
-          {/* Fairness Modal Trigger */}
-          <button
-            type="button"
-            onClick={() => setIsFairnessOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#213743] hover:bg-[#2f4553] text-[#00e701] text-xs font-bold transition-colors cursor-pointer"
-            title="Provably Fair RNG"
-          >
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Fairness</span>
-          </button>
-        </div>
-
-        {/* Right Audio & Screen Controls */}
-        <div className="flex items-center gap-2">
+          {/* 4. Sound / Audio Mute Toggle */}
           <button
             type="button"
             onClick={() => {
@@ -622,21 +617,23 @@ export default function MinesGame() {
               setVolume(nextVol);
               sounds.setVolume(nextVol / 100);
             }}
-            className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
+            className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
             title={volume === 0 ? "Unmute" : "Mute"}
           >
-            {volume === 0 ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4 text-[#00e701]" />}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setIsFullscreen(!isFullscreen)}
-            className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
-            title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
-          >
-            {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+            {volume === 0 ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4" />}
           </button>
         </div>
+
+        {/* 5. Provably Fair */}
+        <button
+          type="button"
+          onClick={() => setIsFairnessOpen(true)}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors cursor-pointer"
+          title="Provably Fair"
+        >
+          <ShieldCheck className="w-4 h-4 text-[#00e701]" />
+          <span>Fairness</span>
+        </button>
       </div>
 
       {/* Stake Originals Game Footer Card */}

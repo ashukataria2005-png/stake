@@ -19,6 +19,7 @@ import {
   ShieldAlert,
   ChevronUp,
   BarChart2,
+  Settings,
 } from "lucide-react";
 import { useGame } from "@/context/GameContext";
 import { sounds } from "@/utils/audio";
@@ -103,7 +104,13 @@ export default function DragonTowerGame() {
   // Settings
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const gameContainerRef = useRef<HTMLDivElement>(null);
+
+  const toggleSound = () => {
+    const next = !soundEnabled;
+    setSoundEnabled(next);
+  };
 
   // Modals
   const [showFairnessModal, setShowFairnessModal] = useState<boolean>(false);
@@ -592,13 +599,25 @@ export default function DragonTowerGame() {
         {/* 5. BOTTOM UTILITY BAR */}
         <div className="flex items-center justify-between rounded-lg bg-[#0f212e] border border-[#213743] px-3 py-2 text-xs text-[#b1bad3] mt-0.5">
           <div className="flex items-center gap-2">
+            {/* 1. Settings */}
             <button
               type="button"
-              onClick={() => setSoundEnabled(!soundEnabled)}
+              onClick={() => setIsSettingsOpen(true)}
               className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
+              title="Settings"
             >
-              {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-red-400" />}
+              <Settings className="w-4 h-4" />
             </button>
+            {/* 2. Theater / Fullscreen Mode */}
+            <button
+              type="button"
+              onClick={toggleFullscreen}
+              className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
+              title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+            >
+              {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+            </button>
+            {/* 3. Live Stats */}
             <button
               type="button"
               onClick={() => toggleLiveStats("dragontower")}
@@ -607,12 +626,23 @@ export default function DragonTowerGame() {
             >
               <BarChart2 className="w-4 h-4 text-cyan-400" />
             </button>
+            {/* 4. Sound / Audio Mute Toggle */}
+            <button
+              type="button"
+              onClick={toggleSound}
+              className="p-1 rounded-md hover:bg-[#213743] text-[#b1bad3] hover:text-white transition-colors cursor-pointer"
+              title={!soundEnabled ? "Unmute" : "Mute"}
+            >
+              {!soundEnabled ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4" />}
+            </button>
           </div>
 
+          {/* 5. Provably Fair */}
           <button
             type="button"
             onClick={() => setShowFairnessModal(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#213743] hover:bg-[#2f4553] text-[#b1bad3] hover:text-white font-bold text-xs transition-colors cursor-pointer"
+            title="Provably Fair"
           >
             <ShieldCheck className="w-4 h-4 text-[#00e701]" />
             <span>Fairness</span>
@@ -722,6 +752,55 @@ export default function DragonTowerGame() {
             <button
               onClick={() => setShowLiveStats(false)}
               className="w-full py-2.5 rounded-xl bg-[#213743] text-white text-xs font-bold cursor-pointer"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* GAME SETTINGS MODAL */}
+      {isSettingsOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
+          <div className="w-full max-w-sm rounded-2xl border border-[#213743] bg-[#1a2c38] p-5 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-[#213743] pb-3">
+              <div className="flex items-center gap-2 text-sm font-bold text-white">
+                <Settings className="w-5 h-5 text-[#b1bad3]" />
+                <span>Game Settings</span>
+              </div>
+              <button
+                onClick={() => setIsSettingsOpen(false)}
+                className="p-1 text-[#b1bad3] hover:text-white rounded-lg hover:bg-[#213743]"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div className="flex items-center justify-between p-2.5 rounded-lg bg-[#0f212e] border border-[#213743]">
+                <div className="flex items-center gap-2 text-white font-bold">
+                  {!soundEnabled ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4 text-[#00e701]" />}
+                  <span>Sound Effects</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={toggleSound}
+                  className={`w-10 h-5 rounded-full transition-colors relative cursor-pointer ${
+                    soundEnabled ? "bg-[#1475e1]" : "bg-[#213743]"
+                  }`}
+                >
+                  <div
+                    className={`w-4 h-4 rounded-full bg-white absolute top-0.5 transition-transform ${
+                      soundEnabled ? "right-0.5" : "left-0.5"
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setIsSettingsOpen(false)}
+              className="w-full py-2.5 rounded-lg bg-[#213743] hover:bg-[#2f4553] text-white text-xs font-bold transition-colors cursor-pointer"
             >
               Close
             </button>
