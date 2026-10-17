@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
     });
     const unlockedBonusTier = Math.min(4, approvedDepositCount + 1);
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       user: {
         id: user.id,
@@ -88,6 +88,16 @@ export async function POST(req: NextRequest) {
       approvedDepositCount,
       unlockedBonusTier,
     });
+
+    response.cookies.set({
+      name: "stake_user_id",
+      value: user.id,
+      path: "/",
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+      sameSite: "lax",
+    });
+
+    return response;
   } catch (err: any) {
     console.error("[Auth Login API] Error authenticating user:", err);
     return NextResponse.json(

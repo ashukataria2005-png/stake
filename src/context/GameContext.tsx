@@ -42,6 +42,7 @@ export type GameStats = {
 interface GameContextType {
   balance: number; // Active balance depending on playMode
   realBalance: number; // Authentic wallet balance in USD
+  setRealBalance: React.Dispatch<React.SetStateAction<number>>;
   funBalance: number; // Isolated session demo balance (credits)
   playMode: PlayMode; // "real" | "fun"
   setPlayMode: (mode: PlayMode) => void;
@@ -362,13 +363,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       })() : null);
 
       const searchKey = activeUser?.id || activeUser?.username || activeUser?.email || "guest_player";
-      const res = await fetch(`/api/wallet/balance?userId=${encodeURIComponent(searchKey)}`);
+      const usernameParam = activeUser?.username ? `&username=${encodeURIComponent(activeUser.username)}` : "";
+      const emailParam = activeUser?.email ? `&email=${encodeURIComponent(activeUser.email)}` : "";
+      const res = await fetch(`/api/wallet/balance?userId=${encodeURIComponent(searchKey)}${usernameParam}${emailParam}`);
       const data = await res.json();
 
-      if (data?.success && data?.wallet) {
-        const dbInrBalance = Math.max(0, Number(data.wallet.balance || 0));
-        // Underlying rate 86.5 INR per USD
-        const inUsd = Math.max(0, parseFloat((dbInrBalance / 86.5).toFixed(4)));
+      if (data?.success) {
+        const rawBal = Number(data.balance !== undefined ? data.balance : (data.wallet?.balance ?? 0));
+        const isUsd = data.currency === "USD" || data.wallet?.currency === "USD";
+        const inUsd = isUsd ? rawBal : Math.max(0, parseFloat((rawBal / 86.5).toFixed(4)));
         setRealBalance(inUsd);
         try {
           localStorage.setItem(BALANCE_STORAGE_KEY, inUsd.toString());
@@ -378,8 +381,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
           setHasVerifiedDeposit(true);
         }
 
-        if (typeof data.wallet.totalWagered === "number") {
-          const dbWagered = Math.max(0, data.wallet.totalWagered);
+        if (typeof data.totalWagered === "number" || typeof data.wallet?.totalWagered === "number") {
+          const dbWagered = Math.max(0, Number(data.totalWagered ?? data.wallet?.totalWagered ?? 0));
           setTotalWagered(dbWagered);
           try {
             localStorage.setItem("stake_total_wagered", dbWagered.toString());
@@ -397,7 +400,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
   // Initial mount & event-driven live balance sync (deposits, approval events, window focus)
   useEffect(() => {
-    syncWalletBalance();
+    syncWalletBalance(true);
 
     const handleRefresh = () => {
       syncWalletBalance(true);
@@ -444,11 +447,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       const savedBalance = localStorage.getItem(BALANCE_STORAGE_KEY);
       if (savedBalance !== null) {
         const parsed = parseFloat(savedBalance);
-        // If user never deposited and has old demo 1000 balance, reset strictly to 0
-        if (!verified && (parsed === 1000 || parsed === 1000.0)) {
-          setRealBalance(0.00);
-          localStorage.setItem(BALANCE_STORAGE_KEY, "0");
-        } else if (!isNaN(parsed) && parsed >= 0) {
+        if (!isNaN(parsed) && parsed >= 0) {
           setRealBalance(parsed);
         }
       } else {
@@ -557,12 +556,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem("stake_user_id", profile.id || profile.username || "");
       localStorage.setItem(BALANCE_STORAGE_KEY, DEFAULT_USD_BALANCE.toString());
       localStorage.setItem(CRYPTO_BALANCES_STORAGE_KEY, JSON.stringify(DEFAULT_CRYPTO_BALANCES));
+      if (typeof document !== "undefined") {
+        document.cookie = `stake_user_id=${encodeURIComponent(profile.id || profile.username || "")}; path=/; max-age=2592000; SameSite=Lax`;
+      }
     } catch {
       // ignore
     }
 
     setTimeout(() => {
-      syncWalletBalance();
+      syncWalletBalance(true);
     }, 100);
   };
 
@@ -579,6 +581,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       localStorage.removeItem("stake_user_id");
       localStorage.setItem(BALANCE_STORAGE_KEY, "0");
       localStorage.setItem(CRYPTO_BALANCES_STORAGE_KEY, JSON.stringify(DEFAULT_CRYPTO_BALANCES));
+      if (typeof document !== "undefined") {
+        document.cookie = "stake_user_id=; path=/; max-age=0; SameSite=Lax";
+      }
     } catch {
       // ignore
     }
@@ -602,13 +607,20 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       setPreselectedBonusOffer(preselectedBonus);
     }
     setIsWalletModalOpen(true);
+    syncWalletBalance(true);
   };
   const closeWalletModal = () => setIsWalletModalOpen(false);
 
-  const openWalletSettings = () => setIsWalletSettingsOpen(true);
+  const openWalletSettings = () => {
+    setIsWalletSettingsOpen(true);
+    syncWalletBalance(true);
+  };
   const closeWalletSettings = () => setIsWalletSettingsOpen(false);
 
-  const openTransactionsModal = () => setIsTransactionsModalOpen(true);
+  const openTransactionsModal = () => {
+    setIsTransactionsModalOpen(true);
+    syncWalletBalance(true);
+  };
   const closeTransactionsModal = () => setIsTransactionsModalOpen(false);
 
   const openSettingsModal = () => setIsSettingsModalOpen(true);
@@ -861,6 +873,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       value={{
         balance: activeBalance,
         realBalance,
+        setRealBalance,
         funBalance,
         playMode,
         setPlayMode,

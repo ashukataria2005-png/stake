@@ -7,6 +7,8 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const {
       userId,
+      username,
+      email,
       amount,
       currency = "INR",
       method = "UPI",
@@ -34,23 +36,47 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { user, wallet } = await getOrCreateUser(userId || "demo_player");
-    const currentBalance = Number(wallet.balance);
+    const cookieUserId = req.cookies.get("stake_user_id")?.value;
+    const headerUserId = req.headers.get("x-user-id");
+    const targetUserId = userId || cookieUserId || headerUserId || "guest_player";
 
-    if (currentBalance < numericAmount) {
+    const { user } = await getOrCreateUser({
+      userId: targetUserId,
+      username: username || (targetUserId && !targetUserId.startsWith("usr_") && !targetUserId.includes("-") ? targetUserId : undefined),
+      email: email || undefined,
+    });
+
+    let userWallet = await prisma.wallet.findFirst({
+      where: { userId: user.id, currency: currency || "INR" },
+    });
+    if (!userWallet) {
+      userWallet = await prisma.wallet.findFirst({
+        where: { userId: user.id },
+      });
+    }
+
+    if (!userWallet) {
+      return NextResponse.json({ error: "Wallet not found" }, { status: 404 });
+    }
+
+    const currentBal = Number(userWallet.balance);
+    const requestedAmt = Number(numericAmount);
+
+    if (currentBal < requestedAmt) {
       return NextResponse.json(
-        { error: `Insufficient balance. Current balance: ₹${currentBalance}` },
+        { error: `Insufficient balance. Current balance: ₹${currentBal}` },
         { status: 400 }
       );
     }
 
-    // 1. Deduct balance safely and record in Neon Wallet table
-    const safeNewBalance = Math.max(0, parseFloat((currentBalance - numericAmount).toFixed(2)));
+    const remainingBal = Math.max(0, parseFloat((currentBal - requestedAmt).toFixed(2)));
+
+    // Atomically update wallet to REMAINING balance (do NOT set to 0 or requestedAmt)
     const updatedWallet = await prisma.wallet.update({
-      where: { id: wallet.id },
+      where: { id: userWallet.id },
       data: {
-        balance: safeNewBalance,
-        totalWithdrawn: { increment: numericAmount },
+        balance: remainingBal,
+        totalWithdrawn: { increment: requestedAmt },
       },
     });
 
@@ -64,7 +90,7 @@ export async function POST(req: NextRequest) {
       data: {
         userId: user.id,
         type: "WITHDRAWAL",
-        amount: numericAmount,
+        amount: requestedAmt,
         currency,
         status: "PENDING",
         method: method.toUpperCase(),
@@ -75,9 +101,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       transaction,
+      balance: remainingBal,
+      currency: updatedWallet.currency,
+      totalWithdrawn: Number(updatedWallet.totalWithdrawn),
       wallet: {
         id: updatedWallet.id,
-        balance: Number(updatedWallet.balance),
+        balance: remainingBal,
         currency: updatedWallet.currency,
         totalWithdrawn: Number(updatedWallet.totalWithdrawn),
       },

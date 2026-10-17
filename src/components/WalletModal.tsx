@@ -65,6 +65,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
   const {
     balance,
     realBalance,
+    setRealBalance,
     updateBalance,
     syncWalletBalance,
     currency,
@@ -222,6 +223,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
 
   useEffect(() => {
     if (isOpen) {
+      syncWalletBalance(true);
       loadLedgers();
       setGatewayError("");
       fetch("/api/admin/settings")
@@ -543,6 +545,8 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         userId: targetUserId,
+        username: user?.username,
+        email: user?.email,
         amount: num,
         currency: "INR",
         method: withdrawMethod,
@@ -563,8 +567,22 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
         }
 
         sounds.playCashout();
+
+        // Immediately sync the authoritative remaining balance returned from the API response
+        const returnedBalance = typeof data.balance === "number"
+          ? data.balance
+          : (typeof data.wallet?.balance === "number" ? data.wallet.balance : null);
+
+        if (returnedBalance !== null) {
+          const inUsd = Math.max(0, parseFloat((returnedBalance / 86.5).toFixed(4)));
+          setRealBalance(inUsd);
+          try {
+            localStorage.setItem("stake_clone_balance", inUsd.toString());
+          } catch {}
+        }
+
         // Live sync wallet balance safely from the server without double-deduction
-        syncWalletBalance();
+        syncWalletBalance(true);
 
         const destination =
           withdrawMethod === "upi"

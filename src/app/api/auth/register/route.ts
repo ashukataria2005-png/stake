@@ -166,7 +166,7 @@ export async function POST(req: NextRequest) {
       phone: newUser.phone,
     });
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       user: {
         id: newUser.id,
@@ -178,6 +178,16 @@ export async function POST(req: NextRequest) {
         avatarColor: "#00e701",
       },
     });
+
+    response.cookies.set({
+      name: "stake_user_id",
+      value: newUser.id,
+      path: "/",
+      maxAge: 60 * 60 * 24 * 30, // 30 days
+      sameSite: "lax",
+    });
+
+    return response;
   } catch (err: any) {
     console.error("[Auth Register API] Error registering user:", err);
     return NextResponse.json(
