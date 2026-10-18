@@ -120,7 +120,7 @@ interface GameContextType {
   sessionWins: number;
   sessionLosses: number;
   resetSessionStats: (gameId?: string) => void;
-  recordSessionBet: (wager: number, payout: number, explicitIsWin?: boolean, gameId?: string) => void;
+  recordSessionBet: (wager: number, payout: number, explicitIsWin?: boolean, gameId?: string, gameData?: any) => void;
   isLiveStatsOpen: boolean;
   setIsLiveStatsOpen: (open: boolean | ((prev: boolean) => boolean)) => void;
   toggleLiveStats: (gameId?: string) => void;
@@ -246,7 +246,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   );
 
   const recordSessionBet = useCallback(
-    (wager: number, payout: number, explicitIsWin?: boolean, gameId?: string) => {
+    (wager: number, payout: number, explicitIsWin?: boolean, gameId?: string, gameData?: any) => {
       const w = Math.max(0, Number(wager) || 0);
       const p = Math.max(0, Number(payout) || 0);
       const profitDelta = p - w;
@@ -283,8 +283,53 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
         return updated;
       });
+
+      // Asynchronously record every completed game bet permanently to database
+      if (w > 0) {
+        try {
+          const activeUser = user || (typeof window !== "undefined" ? (() => {
+            try {
+              const authRaw = localStorage.getItem(AUTH_STORAGE_KEY);
+              if (authRaw) {
+                const parsed = JSON.parse(authRaw);
+                if (parsed?.user) return parsed.user;
+              }
+            } catch {}
+            return null;
+          })() : null);
+
+          const targetUserId = activeUser?.id || activeUser?.username || "guest_player";
+          const numericWager = parseFloat(w.toFixed(4));
+          const numericPayout = parseFloat(p.toFixed(4));
+          const multiplier = numericWager > 0 ? parseFloat((numericPayout / numericWager).toFixed(2)) : 0;
+
+          fetch("/api/bets/record", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userId: targetUserId,
+              username: activeUser?.username,
+              email: activeUser?.email,
+              gameId: targetKey,
+              gameName: targetKey,
+              wager: numericWager,
+              betAmount: numericWager,
+              payout: numericPayout,
+              payoutAmount: numericPayout,
+              multiplier,
+              payoutMultiplier: multiplier,
+              isWin,
+              outcome: isWin ? "WIN" : "LOSS",
+              gameData: gameData || {},
+              updateWallet: false, // Balance already updated by updateBalance
+            }),
+          }).catch((err) => {
+            console.warn("[GameContext] Background bet recording error:", err);
+          });
+        } catch {}
+      }
     },
-    [activeLiveStatsGame, pathname]
+    [activeLiveStatsGame, pathname, user]
   );
 
   const toggleLiveStats = useCallback((gameId?: string) => {
