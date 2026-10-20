@@ -1,0 +1,22 @@
+RewriteEngine On
+
+# 1. Seamlessly route all /api/* requests directly to /api/*.php without changing client-side code
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^api/(.+)$ api/$1.php [QSA,L]
+
+# 2. Serve static frontend assets cleanly
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.html [QSA,L]
+
+# Security & CORS Headers
+<IfModule mod_headers.c>
+  Header set Access-Control-Allow-Origin "*"
+  Header set Access-Control-Allow-Headers "Content-Type, Authorization, X-User-Id"
+  Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+</IfModule>
+
+# Options
+Options -Indexes
+AddDefaultCharset UTF-8

@@ -42,3 +42,5 @@ next-env.d.ts
 .*msg
 referrenceadmin/
 referrenceadmin.zip
+cpanel_build/
+*.zip
