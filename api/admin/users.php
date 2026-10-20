@@ -66,8 +66,11 @@ if ($db) {
             $bets = intval($r['betsCount'] ?? 0);
             $txCount = intval($r['transactionsCount'] ?? 0);
 
-            $luck = $luckMap[$uid] ?? ($_SESSION["luck_{$uid}"] ?? 'NO_CONTROL');
-            if ($luck === 'FAIR' || $luck === 'NORMAL') $luck = 'NO_CONTROL';
+            $rawLuck = $luckMap[$uid] ?? ($_SESSION["luck_{$uid}"] ?? 'NO_CONTROL');
+            if ($rawLuck === 'WIN' || $rawLuck === 'HIGH_WIN') $luck = 'HIGH_WIN';
+            elseif ($rawLuck === 'MEDIUM' || $rawLuck === 'MEDIUM_WIN') $luck = 'MEDIUM_WIN';
+            elseif ($rawLuck === 'LOSE' || $rawLuck === 'LOW_WIN') $luck = 'LOW_WIN';
+            else $luck = 'NO_CONTROL';
 
             $usersList[] = [
                 'id'                => $uid,

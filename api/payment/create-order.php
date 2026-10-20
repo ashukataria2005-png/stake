@@ -42,16 +42,21 @@ $baseUrl = 'https://api.rupayex.com';
 
 if ($db) {
     try {
-        $sstmt = $db->prepare("SELECT value FROM system_settings WHERE `key` = 'SYSTEM_UPI' LIMIT 1");
+        $sstmt = $db->prepare("SELECT `key`, `value` FROM system_settings WHERE `key` IN ('SYSTEM_UPI', 'GATEWAY_RUPAYEX')");
         $sstmt->execute();
-        $rawSetting = $sstmt->fetchColumn();
-        if ($rawSetting) {
-            $parsed = json_decode($rawSetting, true);
-            if (isset($parsed['gatewayMode'])) $gatewayMode = $parsed['gatewayMode'];
-            if (isset($parsed['paymentChannel'])) $paymentChannel = $parsed['paymentChannel'];
-            if (isset($parsed['lgpayMerchantId'])) $merchantId = $parsed['lgpayMerchantId'];
-            if (isset($parsed['lgpayApiKey'])) $apiKey = $parsed['lgpayApiKey'];
-            if (isset($parsed['lgpayBaseUrl'])) $baseUrl = $parsed['lgpayBaseUrl'];
+        $settingsRows = $sstmt->fetchAll();
+        foreach ($settingsRows as $sr) {
+            $parsed = json_decode($sr['value'], true);
+            if (is_array($parsed)) {
+                if (!empty($parsed['gatewayMode'])) $gatewayMode = $parsed['gatewayMode'];
+                if (!empty($parsed['paymentChannel'])) $paymentChannel = $parsed['paymentChannel'];
+                if (!empty($parsed['lgpayMerchantId'])) $merchantId = $parsed['lgpayMerchantId'];
+                if (!empty($parsed['merchantCode'])) $merchantId = $parsed['merchantCode'];
+                if (!empty($parsed['lgpayApiKey'])) $apiKey = $parsed['lgpayApiKey'];
+                if (!empty($parsed['apiKey'])) $apiKey = $parsed['apiKey'];
+                if (!empty($parsed['lgpayBaseUrl'])) $baseUrl = $parsed['lgpayBaseUrl'];
+                if (!empty($parsed['apiUrl'])) $baseUrl = $parsed['apiUrl'];
+            }
         }
 
         // Record PENDING deposit in MySQL
@@ -75,7 +80,10 @@ $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
 $fallbackPayUrl = "{$proto}://{$host}/deposit/pay?amount={$amount}&orderId={$orderId}";
 
 // If live external API configured, call gateway via cURL
-$isLgpayOrder = ($gatewayMode === 'LGPAY_AUTO' || $gatewayMode === 'LGPAY' || ($input['provider'] ?? '') === 'LGPAY');
+$chan = strtoupper(trim($paymentChannel));
+$gmode = strtoupper(trim($gatewayMode));
+$isLgpayOrder = ($chan === 'LGPAY' || $chan === 'LGPAY_STANDARD' || $chan === 'RUPAYEX' || $chan === 'CUSTOM_API' || $gmode === 'LGPAY' || $gmode === 'LGPAY_AUTO' || ($input['provider'] ?? '') === 'LGPAY');
+
 if ($isLgpayOrder && !empty($baseUrl) && !str_contains($baseUrl, 'localhost')) {
     $postFields = [
         'merchant_id' => $merchantId,
@@ -88,7 +96,8 @@ if ($isLgpayOrder && !empty($baseUrl) && !str_contains($baseUrl, 'localhost')) {
     $signStr = http_build_query($postFields) . "&key=" . $apiKey;
     $postFields['sign'] = md5($signStr);
 
-    $ch = curl_init("{$baseUrl}/api/order/create");
+    $endpoint = str_ends_with($baseUrl, '/create') ? $baseUrl : (rtrim($baseUrl, '/') . '/api/order/create');
+    $ch = curl_init($endpoint);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_POST, true);
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postFields));
@@ -100,11 +109,13 @@ if ($isLgpayOrder && !empty($baseUrl) && !str_contains($baseUrl, 'localhost')) {
 
     if ($httpCode === 200 && $response) {
         $resJson = json_decode($response, true);
-        if (!empty($resJson['pay_url'])) {
+        $remotePayUrl = $resJson['pay_url'] ?? $resJson['paymentUrl'] ?? $resJson['data']['pay_url'] ?? $resJson['data']['paymentUrl'] ?? $resJson['payUrl'] ?? $resJson['url'] ?? null;
+        if (!empty($remotePayUrl)) {
             Response::success([
-                'payUrl'  => $resJson['pay_url'],
-                'orderId' => $orderId,
-                'amount'  => $amount
+                'paymentUrl' => $remotePayUrl,
+                'payUrl'     => $remotePayUrl,
+                'orderId'    => $orderId,
+                'amount'     => $amount
             ]);
         }
     }
@@ -112,7 +123,8 @@ if ($isLgpayOrder && !empty($baseUrl) && !str_contains($baseUrl, 'localhost')) {
 
 // Return seamless internal UPI pay URL
 Response::success([
-    'payUrl'  => $fallbackPayUrl,
-    'orderId' => $orderId,
-    'amount'  => $amount
+    'paymentUrl' => $fallbackPayUrl,
+    'payUrl'     => $fallbackPayUrl,
+    'orderId'    => $orderId,
+    'amount'     => $amount
 ]);

@@ -53,13 +53,17 @@ if ($db) {
         $totWd = floatval($db->query("SELECT COALESCE(SUM(amount), 0) FROM withdrawals WHERE status = 'APPROVED'")->fetchColumn() ?: 0.0);
         $todayWd = floatval($db->query("SELECT COALESCE(SUM(amount), 0) FROM withdrawals WHERE status = 'APPROVED' AND DATE(createdAt) = CURDATE()")->fetchColumn() ?: 0.0);
 
-        // 5. Total Wallets Balance & Total Turnover
+        // 5. Total Wallets Balance, Platform Turnover & House Net (GGR)
         $walData = $db->query("SELECT COALESCE(SUM(balance), 0) AS totalBal, COALESCE(SUM(totalWagered), 0) AS totalWag FROM wallets")->fetch();
         $totBal = floatval($walData['totalBal'] ?? 0.0);
-        $totTurnover = floatval($walData['totalWag'] ?? 0.0);
 
-        // 6. Bets count
-        $betsCount = intval($db->query("SELECT COUNT(*) FROM game_history")->fetchColumn() ?: 0);
+        // 6. Platform Turnover & GGR from game_history
+        $ghStats = $db->query("SELECT COALESCE(SUM(wager), 0) AS totalWag, COALESCE(SUM(payout), 0) AS totalPay, COUNT(*) AS betsCnt FROM game_history")->fetch();
+        $ghWagered = floatval($ghStats['totalWag'] ?? 0.0);
+        $ghPayout = floatval($ghStats['totalPay'] ?? 0.0);
+        $totTurnover = max($ghWagered, floatval($walData['totalWag'] ?? 0.0));
+        $totalGGR = round($ghWagered - $ghPayout, 2);
+        $betsCount = intval($ghStats['betsCnt'] ?? 0);
 
         $defaultMetrics = [
             'totalUsers'              => $uTotal,
@@ -75,12 +79,14 @@ if ($db) {
             'totalTurnover'           => $totTurnover,
             'totalRevenue'            => round($totDep - $totWd, 2),
             'todayRevenue'            => round($todayDep - $todayWd, 2),
+            'totalGGR'                => $totalGGR,
+            'houseNet'                => $totalGGR,
             'totalBetsCount'          => $betsCount,
             'activeGamesCount'        => 32
         ];
 
-        // 7. Recent Transactions Feed
-        $depTx = $db->query("SELECT d.id, d.userId, d.amount, d.currency, d.status, d.method, d.utr, d.createdAt, u.username, u.email FROM deposits d LEFT JOIN users u ON d.userId = u.id ORDER BY d.createdAt DESC LIMIT 5")->fetchAll();
+        // 7. Recent Transactions Feed (Top 10)
+        $depTx = $db->query("SELECT d.id, d.userId, d.amount, d.currency, d.status, d.method, d.utr, d.createdAt, u.username, u.email FROM deposits d LEFT JOIN users u ON d.userId = u.id ORDER BY d.createdAt DESC LIMIT 10")->fetchAll();
         foreach ($depTx as $tx) {
             $recentTransactions[] = [
                 'id'        => $tx['id'],
@@ -98,7 +104,7 @@ if ($db) {
             ];
         }
 
-        $wdTx = $db->query("SELECT w.id, w.userId, w.amount, w.currency, w.status, w.payoutMethod, w.createdAt, u.username, u.email FROM withdrawals w LEFT JOIN users u ON w.userId = u.id ORDER BY w.createdAt DESC LIMIT 5")->fetchAll();
+        $wdTx = $db->query("SELECT w.id, w.userId, w.amount, w.currency, w.status, w.payoutMethod, w.createdAt, u.username, u.email FROM withdrawals w LEFT JOIN users u ON w.userId = u.id ORDER BY w.createdAt DESC LIMIT 10")->fetchAll();
         foreach ($wdTx as $tx) {
             $recentTransactions[] = [
                 'id'        => $tx['id'],
@@ -119,6 +125,7 @@ if ($db) {
         usort($recentTransactions, function($a, $b) {
             return strcmp($b['createdAt'], $a['createdAt']);
         });
+        $recentTransactions = array_slice($recentTransactions, 0, 10);
     } catch (\Exception $e) {
         error_log("[Metrics Fetch Error] " . $e->getMessage());
     }

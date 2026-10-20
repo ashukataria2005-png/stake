@@ -46,7 +46,7 @@ if ($db) {
 $chan = strtoupper(trim($defaultSettings['paymentChannel'] ?? ''));
 $mode = strtoupper(trim($defaultSettings['gatewayMode'] ?? ''));
 
-$isLgpay = ($chan === 'LGPAY' || $mode === 'LGPAY' || $mode === 'LGPAY_AUTO');
+$isLgpay = ($chan === 'LGPAY' || $chan === 'LGPAY_STANDARD' || $chan === 'RUPAYEX' || $chan === 'CUSTOM_API' || $mode === 'LGPAY' || $mode === 'LGPAY_AUTO');
 $activeGateway = $isLgpay ? 'LGPAY' : 'MANUAL';
 $gatewayMode = $isLgpay ? 'LGPAY_AUTO' : 'MANUAL';
 

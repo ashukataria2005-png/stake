@@ -233,8 +233,8 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
           if (s) {
             if (s.upiId) setReceiverUpi(s.upiId);
             if (s.upiName) setReceiverName(s.upiName);
-            const activeGw = data.activeGateway || data.gatewayMode || s.activeGateway || s.gatewayMode;
-            if (activeGw === "LGPAY" || activeGw === "LGPAY_AUTO") {
+            const activeGw = data.activeGateway || data.gatewayMode || s.activeGateway || s.gatewayMode || s.paymentChannel;
+            if (activeGw === "LGPAY" || activeGw === "LGPAY_AUTO" || activeGw === "LGPAY_STANDARD" || activeGw === "RUPAYEX" || activeGw === "CUSTOM_API") {
               setGatewayMode("LGPAY_AUTO");
             } else {
               setGatewayMode("MANUAL");
@@ -254,7 +254,8 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                 const s = data.settings;
                 if (s.upiId) setReceiverUpi(s.upiId);
                 if (s.upiName) setReceiverName(s.upiName);
-                if (s.gatewayMode === "LGPAY" || s.gatewayMode === "LGPAY_AUTO" || s.activeGateway === "LGPAY") {
+                const activeGw = s.gatewayMode || s.activeGateway || s.paymentChannel;
+                if (activeGw === "LGPAY" || activeGw === "LGPAY_AUTO" || activeGw === "LGPAY_STANDARD" || activeGw === "RUPAYEX" || activeGw === "CUSTOM_API") {
                   setGatewayMode("LGPAY_AUTO");
                 }
               }
@@ -346,8 +347,9 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
         });
 
         const data = await res.json();
-        if (!res.ok || !data.success || !data.payUrl) {
-          throw new Error(data.error || "Payment gateway returned an invalid response.");
+        const checkoutUrl = data?.paymentUrl || data?.payUrl;
+        if (!res.ok || !data?.success || !checkoutUrl) {
+          throw new Error(data?.error || "Payment gateway returned an invalid response.");
         }
 
         const newOrder: DepositOrder = {
@@ -367,11 +369,11 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
         } catch { }
 
         // Immediate seamless redirect to gateway checkout
-        window.location.href = data.payUrl;
+        window.location.href = checkoutUrl;
         return;
       } catch (err: any) {
-        console.error("[Universal Gateway Order Flow Error]:", err);
-        setGatewayError(err.message || "Unable to connect to instant payment gateway. You can proceed via Manual UPI.");
+        console.error("[Gateway Order Flow Error]:", err);
+        setGatewayError(err.message || "Failed to connect to payment gateway. Please try again.");
         setIsRedirectingToGateway(false);
         return;
       }
@@ -980,52 +982,29 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                     )}
                   </div>
 
-                  {/* LGPay Active Gateway Badge */}
-                  {(gatewayMode === "LGPAY_AUTO" || (gatewayMode as string) === "LGPAY") && (
-                    <div className="flex items-center justify-between text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-2 rounded-xl">
-                      <div className="flex items-center gap-1.5">
-                        <Zap className="w-3.5 h-3.5 text-emerald-400 fill-emerald-400" />
-                        <span>Instant LGPay Gateway Active</span>
-                      </div>
-                      <span className="text-[10px] text-slate-300 font-mono">1-Click Processing</span>
-                    </div>
-                  )}
-
                   {/* In-Modal Gateway Error Banner */}
                   {gatewayError && (
                     <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-xs text-rose-300 flex items-start gap-2.5">
                       <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                      <div className="flex-1 space-y-1">
+                      <div className="flex-1">
                         <p className="font-semibold">{gatewayError}</p>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setGatewayError("");
-                            setDepositStep("qr");
-                          }}
-                          className="text-[11px] font-bold text-amber-300 hover:text-amber-200 underline cursor-pointer"
-                        >
-                          Proceed with Manual UPI / QR instead &rarr;
-                        </button>
                       </div>
                     </div>
                   )}
 
-                  {/* Action Button: Clean simple Pay / Deposit > */}
+                  {/* Primary CTA Button: Clean minimal Pay ₹{amount} */}
                   <button
                     type="submit"
                     disabled={isRedirectingToGateway}
-                    className="w-full rounded-xl bg-[#1475e1] hover:bg-[#1268c7] py-3 text-sm sm:text-base font-extrabold text-white shadow-xl shadow-[#1475e1]/25 transition-all active:scale-[0.99] flex items-center justify-center gap-1 cursor-pointer disabled:opacity-50"
+                    className="w-full rounded-xl bg-[#1475e1] hover:bg-[#1268c7] py-3 text-sm sm:text-base font-extrabold text-white shadow-xl shadow-[#1475e1]/25 transition-all active:scale-[0.99] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                   >
                     {isRedirectingToGateway ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin" />
-                        <span>Connecting to LGPay Gateway...</span>
+                        <span>Processing...</span>
                       </>
-                    ) : (gatewayMode === "LGPAY_AUTO" || (gatewayMode as string) === "LGPAY") ? (
-                      <span>Deposit ₹{finalPayableAmount.toLocaleString("en-IN")} via LGPay &gt;</span>
                     ) : (
-                      <span>Pay ₹{finalPayableAmount.toLocaleString("en-IN")} &gt;</span>
+                      <span>Pay ₹{finalPayableAmount.toLocaleString("en-IN")}</span>
                     )}
                   </button>
                 </form>

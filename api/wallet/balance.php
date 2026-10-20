@@ -96,7 +96,8 @@ if ($db) {
             $gparsed = json_decode($graw, true);
             $chan = strtoupper(trim($gparsed['paymentChannel'] ?? ''));
             $gmode = strtoupper(trim($gparsed['gatewayMode'] ?? ''));
-            if ($chan === 'LGPAY' || $gmode === 'LGPAY' || $gmode === 'LGPAY_AUTO') {
+            $isLg = ($chan === 'LGPAY' || $chan === 'LGPAY_STANDARD' || $chan === 'RUPAYEX' || $chan === 'CUSTOM_API' || $gmode === 'LGPAY' || $gmode === 'LGPAY_AUTO');
+            if ($isLg) {
                 $activeGateway = 'LGPAY';
                 $gatewayMode = 'LGPAY_AUTO';
             }

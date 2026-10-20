@@ -27,10 +27,12 @@ if ($db) {
     try {
         // Fetch deposits
         if ($type === 'ALL' || $type === 'DEPOSIT') {
-            $sql = "SELECT d.id, d.userId, d.order_sn, d.amount, d.currency, d.status, d.method, d.utr, d.remark, d.createdAt,
-                           u.username, u.email
+            $sql = "SELECT d.id, d.userId, d.order_sn, d.amount, d.currency, d.status, d.method, d.utr, d.remark, d.createdAt, d.updatedAt,
+                           u.username, u.email,
+                           COALESCE(w.balance, 0) AS userBalance
                     FROM deposits d
-                    LEFT JOIN users u ON d.userId = u.id";
+                    LEFT JOIN users u ON d.userId = u.id
+                    LEFT JOIN wallets w ON d.userId = w.userId";
             $where = [];
             $params = [];
 
@@ -51,18 +53,29 @@ if ($db) {
             $stmt->execute($params);
             foreach ($stmt->fetchAll() as $d) {
                 $transactions[] = [
-                    'id'        => $d['id'],
-                    'type'      => 'DEPOSIT',
-                    'amount'    => floatval($d['amount']),
-                    'currency'  => $d['currency'],
-                    'status'    => $d['status'],
-                    'method'    => $d['method'],
-                    'txHash'    => $d['utr'] ?: $d['order_sn'],
-                    'createdAt' => $d['createdAt'],
-                    'user'      => [
-                        'id'       => $d['userId'],
-                        'username' => $d['username'] ?: 'Unknown',
-                        'email'    => $d['email'] ?: ''
+                    'id'               => $d['id'],
+                    'userId'           => $d['userId'],
+                    'type'             => 'DEPOSIT',
+                    'amount'           => floatval($d['amount']),
+                    'currency'         => $d['currency'],
+                    'utrNumber'        => $d['utr'] ?: null,
+                    'screenshotUrl'    => null,
+                    'status'           => $d['status'],
+                    'approvedBy'       => null,
+                    'approvedAt'       => ($d['status'] === 'APPROVED' ? $d['updatedAt'] : null),
+                    'rejectionReason'  => ($d['status'] === 'REJECTED' ? ($d['remark'] ?: 'Rejected by admin') : null),
+                    'isLateSubmission' => false,
+                    'method'           => $d['method'] ?: 'UPI',
+                    'txHash'           => $d['utr'] ?: $d['order_sn'],
+                    'createdAt'        => $d['createdAt'],
+                    'updatedAt'        => $d['updatedAt'] ?? $d['createdAt'],
+                    'user'             => [
+                        'id'             => $d['userId'],
+                        'username'       => $d['username'] ?: 'Unknown',
+                        'email'          => $d['email'] ?: '',
+                        'phone'          => null,
+                        'currentBalance' => floatval($d['userBalance'] ?? 0),
+                        'currency'       => $d['currency'] ?: 'INR'
                     ]
                 ];
             }
@@ -70,10 +83,12 @@ if ($db) {
 
         // Fetch withdrawals
         if ($type === 'ALL' || $type === 'WITHDRAWAL') {
-            $sql = "SELECT w.id, w.userId, w.amount, w.currency, w.status, w.payoutMethod, w.accountDetails, w.remark, w.createdAt,
-                           u.username, u.email
+            $sql = "SELECT w.id, w.userId, w.amount, w.currency, w.status, w.payoutMethod, w.accountDetails, w.remark, w.createdAt, w.updatedAt,
+                           u.username, u.email,
+                           COALESCE(wal.balance, 0) AS userBalance
                     FROM withdrawals w
-                    LEFT JOIN users u ON w.userId = u.id";
+                    LEFT JOIN users u ON w.userId = u.id
+                    LEFT JOIN wallets wal ON w.userId = wal.userId";
             $where = [];
             $params = [];
 
@@ -94,18 +109,29 @@ if ($db) {
             $stmt->execute($params);
             foreach ($stmt->fetchAll() as $w) {
                 $transactions[] = [
-                    'id'        => $w['id'],
-                    'type'      => 'WITHDRAWAL',
-                    'amount'    => floatval($w['amount']),
-                    'currency'  => $w['currency'],
-                    'status'    => $w['status'],
-                    'method'    => $w['payoutMethod'],
-                    'txHash'    => $w['id'],
-                    'createdAt' => $w['createdAt'],
-                    'user'      => [
-                        'id'       => $w['userId'],
-                        'username' => $w['username'] ?: 'Unknown',
-                        'email'    => $w['email'] ?: ''
+                    'id'               => $w['id'],
+                    'userId'           => $w['userId'],
+                    'type'             => 'WITHDRAWAL',
+                    'amount'           => floatval($w['amount']),
+                    'currency'         => $w['currency'],
+                    'utrNumber'        => null,
+                    'screenshotUrl'    => null,
+                    'status'           => $w['status'],
+                    'approvedBy'       => null,
+                    'approvedAt'       => ($w['status'] === 'APPROVED' ? $w['updatedAt'] : null),
+                    'rejectionReason'  => ($w['status'] === 'REJECTED' ? ($w['remark'] ?: 'Rejected by admin') : null),
+                    'isLateSubmission' => false,
+                    'method'           => $w['payoutMethod'] ?: 'UPI',
+                    'txHash'           => $w['id'],
+                    'createdAt'        => $w['createdAt'],
+                    'updatedAt'        => $w['updatedAt'] ?? $w['createdAt'],
+                    'user'             => [
+                        'id'             => $w['userId'],
+                        'username'       => $w['username'] ?: 'Unknown',
+                        'email'          => $w['email'] ?: '',
+                        'phone'          => null,
+                        'currentBalance' => floatval($w['userBalance'] ?? 0),
+                        'currency'       => $w['currency'] ?: 'INR'
                     ]
                 ];
             }
@@ -119,4 +145,8 @@ if ($db) {
     }
 }
 
-Response::success(['transactions' => $transactions]);
+Response::success([
+    'transactions' => $transactions,
+    'deposits'     => array_values(array_filter($transactions, fn($t) => $t['type'] === 'DEPOSIT')),
+    'withdrawals'  => array_values(array_filter($transactions, fn($t) => $t['type'] === 'WITHDRAWAL'))
+]);

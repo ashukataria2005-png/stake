@@ -148,7 +148,7 @@ if ($method === 'POST') {
             // Normalize activeGateway and gatewayMode
             $chan = strtoupper(trim($current['paymentChannel'] ?? ''));
             $gmode = strtoupper(trim($current['gatewayMode'] ?? ''));
-            $isLgpay = ($chan === 'LGPAY' || $gmode === 'LGPAY' || $gmode === 'LGPAY_AUTO');
+            $isLgpay = ($chan === 'LGPAY' || $chan === 'LGPAY_STANDARD' || $chan === 'RUPAYEX' || $chan === 'CUSTOM_API' || $gmode === 'LGPAY' || $gmode === 'LGPAY_AUTO');
             $current['activeGateway'] = $isLgpay ? 'LGPAY' : 'MANUAL';
             $current['gatewayMode'] = $isLgpay ? 'LGPAY_AUTO' : 'MANUAL';
 
