@@ -1,11 +1,21 @@
 RewriteEngine On
 
-# 1. Seamlessly route all /api/* requests directly to /api/*.php without changing client-side code
+# 1. Route API requests cleanly to PHP backend
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^api/(.+)$ api/$1.php [QSA,L]
 
-# 2. Serve static frontend assets cleanly
+# 2. Specific route for /admin to load admin portal HTML
+RewriteRule ^admin/?$ admin.html [L]
+RewriteRule ^admin/(.*)$ admin/$1 [L]
+
+# 3. Handle HTML extension hiding (e.g. /admin -> admin.html)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.html -f
+RewriteRule ^(.*)$ $1.html [L]
+
+# 4. Fallback for SPA routing
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.html [QSA,L]
