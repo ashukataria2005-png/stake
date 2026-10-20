@@ -23,23 +23,26 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   // Check if already authenticated; if so, redirect directly to /admin
   useEffect(() => {
+    let isMounted = true;
     async function checkExistingAuth() {
       try {
         const res = await fetch("/api/admin/auth/me");
-        const data = await res.json();
-        if (data?.authenticated) {
+        const data = await res.json().catch(() => ({}));
+        if (data?.authenticated && isMounted) {
           router.replace("/admin");
           return;
         }
       } catch {}
-      setIsCheckingAuth(false);
     }
     checkExistingAuth();
+    return () => {
+      isMounted = false;
+    };
   }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -125,7 +128,7 @@ export default function AdminLoginPage() {
             {/* Username */}
             <div className="space-y-1.5">
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 font-mono">
-                ADMIN ID
+                MASTER USERNAME
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -147,7 +150,7 @@ export default function AdminLoginPage() {
             {/* Password */}
             <div className="space-y-1.5">
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-300 font-mono">
-                ADMIN PASSWORD
+                MASTER PASSWORD
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -165,7 +168,7 @@ export default function AdminLoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-200 transition-colors"
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -176,15 +179,15 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full mt-2 py-3 px-4 rounded-xl font-black text-xs uppercase tracking-wider bg-[#00e701] hover:bg-[#00c701] text-[#0f212e] hover:opacity-95 active:scale-[0.99] disabled:opacity-50 disabled:pointer-events-none transition-all shadow-lg shadow-[#00e701]/20 flex items-center justify-center gap-2"
+              className="w-full mt-2 py-3 px-4 rounded-xl font-black text-xs uppercase tracking-wider bg-[#00e701] hover:bg-[#00c701] text-[#0f212e] hover:opacity-95 active:scale-[0.99] disabled:opacity-50 disabled:pointer-events-none transition-all shadow-lg shadow-[#00e701]/20 flex items-center justify-center gap-2 cursor-pointer"
             >
               {isLoading ? (
                 <>
                   <RefreshCw className="w-4 h-4 animate-spin text-[#0f212e]" />
-                  <span>LOGGING IN...</span>
+                  <span>SIGNING IN...</span>
                 </>
               ) : (
-                <span>LOGIN</span>
+                <span>SIGN IN TO ADMIN PANEL</span>
               )}
             </button>
           </form>

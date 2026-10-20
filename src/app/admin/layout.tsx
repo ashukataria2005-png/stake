@@ -116,7 +116,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const router = useRouter();
 
-  const isLoginPage = pathname === "/admin/login";
+  const isLoginPage = Boolean(pathname && pathname.includes("/admin/login"));
 
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
   const [isLoadingAuth, setIsLoadingAuth] = useState(!isLoginPage);
@@ -135,17 +135,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     async function verifyAuth() {
       try {
         const res = await fetch("/api/admin/auth/me");
-        const data = await res.json();
-        if (!data?.authenticated) {
-          if (isMounted) router.replace("/admin/login");
+        const data = await res.json().catch(() => ({}));
+        if (data?.authenticated && data?.admin) {
+          if (isMounted) {
+            setAdminUser(data.admin);
+            setIsLoadingAuth(false);
+          }
           return;
         }
         if (isMounted) {
-          setAdminUser(data.admin);
           setIsLoadingAuth(false);
+          router.replace("/admin/login");
         }
       } catch (err) {
-        if (isMounted) router.replace("/admin/login");
+        if (isMounted) {
+          setIsLoadingAuth(false);
+          router.replace("/admin/login");
+        }
       }
     }
 

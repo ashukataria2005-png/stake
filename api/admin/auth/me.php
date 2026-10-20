@@ -19,7 +19,7 @@ $sessionAdmin = $_SESSION['stake_admin_user'] ?? null;
 if (!empty($sessionAdmin)) {
     Response::success([
         'authenticated' => true,
-        'admin' => $sessionAdmin
+        'admin'         => $sessionAdmin
     ]);
 }
 
@@ -38,7 +38,7 @@ if (!empty($token)) {
                 ];
                 Response::success([
                     'authenticated' => true,
-                    'admin' => $_SESSION['stake_admin_user']
+                    'admin'         => $_SESSION['stake_admin_user']
                 ]);
             }
         } catch (\Exception $e) {}
@@ -47,7 +47,7 @@ if (!empty($token)) {
     // Fallback if token is set
     Response::success([
         'authenticated' => true,
-        'admin' => [
+        'admin'         => [
             'id'       => 'admin_super_01',
             'username' => 'admin',
             'role'     => 'SUPER_ADMIN'
@@ -55,9 +55,9 @@ if (!empty($token)) {
     ]);
 }
 
-// If no session and no cookie, user is not authenticated
+// Return clean 200 OK with authenticated: false and admin: null to avoid loader hanging
 Response::json([
-    'success'       => false,
+    'success'       => true,
     'authenticated' => false,
-    'error'         => 'Not authenticated'
-], 401);
+    'admin'         => null
+], 200);
