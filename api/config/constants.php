@@ -3,12 +3,12 @@
  * Stake Casino - Global Platform Constants
  */
 
-// Database Connection Credentials (Override via environment or edit directly)
-if (!defined('DB_HOST')) define('DB_HOST', 'localhost');
-if (!defined('DB_PORT')) define('DB_PORT', '3306');
-if (!defined('DB_NAME')) define('DB_NAME', 'stake_casino');
-if (!defined('DB_USER')) define('DB_USER', 'root');
-if (!defined('DB_PASS')) define('DB_PASS', '');
+// Database Connection Credentials (Explicitly hardcoded for cPanel MySQL)
+define('DB_HOST', 'localhost');
+define('DB_PORT', '3306');
+define('DB_NAME', 'stak942272_stake');
+define('DB_USER', 'stak942272_stake');
+define('DB_PASS', 'stak942272_stake');
 
 // Session & Cookie Configuration
 if (!defined('AUTH_COOKIE_NAME')) define('AUTH_COOKIE_NAME', 'stake_user_id');

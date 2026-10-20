@@ -1,9 +1,10 @@
 RewriteEngine On
 
-# 1. Route API requests cleanly to PHP backend
+# 1. Direct /api/ calls to the PHP files
+RewriteRule ^api/?$ api/index.php [QSA,L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^api/(.+)$ api/$1.php [QSA,L]
+RewriteRule ^api/(.+?)/?$ api/$1.php [QSA,L]
 
 # 2. Specific routes for admin portal
 RewriteRule ^admin/login/?$ admin/login.html [L]
@@ -16,7 +17,8 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME}.html -f
 RewriteRule ^(.*)$ $1.html [L]
 
-# 4. Fallback for SPA routing
+# 4. Fallback for SPA routing (Strictly exclude /api requests from index.html fallback)
+RewriteCond %{REQUEST_URI} !^/api
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.html [QSA,L]

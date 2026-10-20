@@ -19,11 +19,11 @@ class Database {
             return self::$instance;
         }
 
-        $host = getenv('DB_HOST') ?: (defined('DB_HOST') ? DB_HOST : 'localhost');
-        $port = getenv('DB_PORT') ?: (defined('DB_PORT') ? DB_PORT : '3306');
-        $name = getenv('DB_NAME') ?: (defined('DB_NAME') ? DB_NAME : 'stake_casino');
-        $user = getenv('DB_USER') ?: (defined('DB_USER') ? DB_USER : 'root');
-        $pass = getenv('DB_PASS') ?: (defined('DB_PASS') ? DB_PASS : '');
+        $host = defined('DB_HOST') ? DB_HOST : 'localhost';
+        $port = defined('DB_PORT') ? DB_PORT : '3306';
+        $name = defined('DB_NAME') ? DB_NAME : 'stak942272_stake';
+        $user = defined('DB_USER') ? DB_USER : 'stak942272_stake';
+        $pass = defined('DB_PASS') ? DB_PASS : 'stak942272_stake';
 
         try {
             $dsn = "mysql:host={$host};port={$port};dbname={$name};charset=utf8mb4";

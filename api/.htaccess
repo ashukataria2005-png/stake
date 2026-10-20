@@ -4,13 +4,15 @@
   RewriteBase /api/
 
   # If exact file exists, serve it
-  RewriteCond %{REQUEST_FILENAME} -f [OR]
-  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteCond %{REQUEST_FILENAME} -f
   RewriteRule ^ - [L]
+
+  # If requesting /api or /api/, serve index.php
+  RewriteRule ^$ index.php [L]
 
   # Map /api/xyz to /api/xyz.php
   RewriteCond %{REQUEST_FILENAME}.php -f
-  RewriteRule ^(.+)$ $1.php [QSA,L]
+  RewriteRule ^(.+?)/?$ $1.php [QSA,L]
 </IfModule>
 
 <IfModule mod_headers.c>
