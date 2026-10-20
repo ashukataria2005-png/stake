@@ -18,7 +18,7 @@ if (!defined('JWT_SECRET')) define('JWT_SECRET', 'stake_production_jwt_secret_ke
 // Financial Constants
 if (!defined('DEFAULT_CURRENCY')) define('DEFAULT_CURRENCY', 'INR');
 if (!defined('USD_TO_INR_RATE')) define('USD_TO_INR_RATE', 86.5);
-if (!defined('DEFAULT_INITIAL_BALANCE')) define('DEFAULT_INITIAL_BALANCE', 1000.0000);
+if (!defined('DEFAULT_INITIAL_BALANCE')) define('DEFAULT_INITIAL_BALANCE', 0.0000);
 if (!defined('MIN_DEPOSIT_AMOUNT')) define('MIN_DEPOSIT_AMOUNT', 100.00);
 if (!defined('MIN_WITHDRAWAL_AMOUNT')) define('MIN_WITHDRAWAL_AMOUNT', 500.00);
 

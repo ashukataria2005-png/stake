@@ -191,13 +191,13 @@ INSERT INTO `wallets` (`id`, `userId`, `balance`, `currency`, `totalDeposited`, 
 VALUES (
   'wal_default_player',
   'usr_default_player',
-  1000.0000,
+  0.0000,
   'INR',
-  1000.0000,
   0.0000,
   0.0000,
+  0.0000,
+  0,
   1,
-  2,
   NOW(3),
   NOW(3)
 )

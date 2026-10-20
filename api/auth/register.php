@@ -63,15 +63,12 @@ if ($db) {
         ':pass'  => $passHash
     ]);
 
-    // Create companion wallet with initial ₹1,000 balance
+    // Create companion wallet with initial ₹0.00 balance
     $walId = 'wal_' . substr(md5(uniqid('', true)), 0, 14);
-    $wins = $db->prepare("INSERT INTO wallets (id, userId, balance, currency, totalDeposited, totalWithdrawn, totalWagered, approvedDepositCount, unlockedBonusTier, createdAt, updatedAt) VALUES (:wid, :uid, :bal, :curr, :dep, 0, 0, 1, 2, NOW(3), NOW(3))");
+    $wins = $db->prepare("INSERT INTO wallets (id, userId, balance, currency, totalDeposited, totalWithdrawn, totalWagered, approvedDepositCount, unlockedBonusTier, createdAt, updatedAt) VALUES (:wid, :uid, 0.0000, 'INR', 0.0000, 0.0000, 0.0000, 0, 1, NOW(3), NOW(3))");
     $wins->execute([
         ':wid'  => $walId,
-        ':uid'  => $newId,
-        ':bal'  => DEFAULT_INITIAL_BALANCE,
-        ':curr' => DEFAULT_CURRENCY,
-        ':dep'  => DEFAULT_INITIAL_BALANCE
+        ':uid'  => $newId
     ]);
 
     // Set auth cookie
@@ -83,7 +80,7 @@ if ($db) {
             'username' => $username,
             'email'    => $email,
             'role'     => 'USER',
-            'balance'  => DEFAULT_INITIAL_BALANCE,
+            'balance'  => 0.00,
             'currency' => DEFAULT_CURRENCY
         ],
         'token' => 'jwt_' . md5($newId . time())
@@ -91,6 +88,7 @@ if ($db) {
 } else {
     // Demo session mode fallback
     $demoId = 'usr_' . substr(md5(uniqid('', true)), 0, 14);
+    $_SESSION['demo_balance'] = 0.00;
     Auth::setAuthSession($demoId);
     Response::success([
         'user' => [
@@ -98,7 +96,7 @@ if ($db) {
             'username' => $username,
             'email'    => $email,
             'role'     => 'USER',
-            'balance'  => DEFAULT_INITIAL_BALANCE
+            'balance'  => 0.00
         ],
         'token' => 'jwt_demo_' . time()
     ], "Registered in demo mode", 201);

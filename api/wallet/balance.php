@@ -119,14 +119,17 @@ if ($db) {
     $totalWagered = floatval($_SESSION['demo_wagered'] ?? 0.0);
     $vip = calculateVipInfo($totalWagered);
 
+    $demoDepositCount = intval($_SESSION['demo_deposit_count'] ?? 0);
+    $demoTier = min(4, max(1, $demoDepositCount + 1));
+
     Response::success([
         'balance'              => $safeBalance,
         'currency'             => 'INR',
         'totalDeposited'       => $safeBalance,
         'totalWithdrawn'       => 0.0,
         'totalWagered'         => $totalWagered,
-        'approvedDepositCount' => 1,
-        'unlockedBonusTier'    => 2,
+        'approvedDepositCount' => $demoDepositCount,
+        'unlockedBonusTier'    => $demoTier,
         'vip'                  => $vip,
         'wallet' => [
             'id'                   => 'wal_demo',
@@ -135,9 +138,9 @@ if ($db) {
             'totalDeposited'       => $safeBalance,
             'totalWithdrawn'       => 0.0,
             'totalWagered'         => $totalWagered,
-            'depositCount'         => 1,
-            'approvedDepositCount' => 1,
-            'unlockedBonusTier'    => 2
+            'depositCount'         => $demoDepositCount,
+            'approvedDepositCount' => $demoDepositCount,
+            'unlockedBonusTier'    => $demoTier
         ],
         'user' => [
             'id'       => $user['id'],

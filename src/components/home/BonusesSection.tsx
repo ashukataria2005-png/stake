@@ -263,9 +263,7 @@ export default function BonusesSection() {
                 <img
                   src={bonus.image}
                   alt={bonus.depositTier}
-                  className={`w-full h-full object-contain rounded-[14px] pointer-events-none select-none block transition-opacity ${
-                    isCardUnlocked ? "opacity-100" : "opacity-75 filter grayscale-[25%]"
-                  }`}
+                  className="w-full h-full object-contain rounded-[14px] pointer-events-none select-none block opacity-100"
                   onError={(e) => {
                     if (e.currentTarget.src.endsWith(".png")) {
                       e.currentTarget.src = bonus.image.replace(/\.png$/, ".jpg");
@@ -284,7 +282,7 @@ export default function BonusesSection() {
                   </div>
                 </div>
 
-                {/* Clickable Action Area or Locked Milestone Padlock */}
+                {/* Clickable Action Area */}
                 {isCardUnlocked ? (
                   <button
                     onClick={() => handleReceiveBonus(bonus.id)}
@@ -296,15 +294,10 @@ export default function BonusesSection() {
                   <button
                     type="button"
                     onClick={() => handleLockedCardClick(idx)}
-                    className="absolute inset-0 z-20 flex flex-col items-center justify-end p-2 pb-2 rounded-[14px] bg-black/40 backdrop-blur-[1.5px] hover:bg-black/50 transition-colors cursor-pointer select-none group/lock text-center"
+                    className="absolute inset-0 z-20 cursor-pointer rounded-[14px] bg-transparent focus:outline-none"
                     aria-label={`Locked ${bonus.depositTier} bonus`}
-                    title="Click for details"
-                  >
-                    <div className="w-full h-11 flex items-center justify-center gap-1.5 rounded-xl bg-black/85 backdrop-blur-md border border-white/10 text-white text-[11px] font-bold shadow-lg group-hover/lock:border-amber-400/60 transition-colors">
-                      <Lock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                      <span>Locked • Deposit #{idx} Req.</span>
-                    </div>
-                  </button>
+                    title="Complete previous deposit to unlock"
+                  />
                 )}
               </div>
             );

@@ -62,8 +62,8 @@ class Auth {
                     'totalDeposited'       => $demoBalance,
                     'totalWithdrawn'       => 0.0000,
                     'totalWagered'         => $demoWagered,
-                    'approvedDepositCount' => 1,
-                    'unlockedBonusTier'    => 2
+                    'approvedDepositCount' => 0,
+                    'unlockedBonusTier'    => 1
                 ]
             ];
         }
@@ -107,13 +107,11 @@ class Auth {
 
         if (!$wallet) {
             $walId = 'wal_' . substr(md5(uniqid('', true)), 0, 14);
-            $wins = $db->prepare("INSERT INTO wallets (id, userId, balance, currency, totalDeposited, totalWithdrawn, totalWagered, approvedDepositCount, unlockedBonusTier, createdAt, updatedAt) VALUES (:wid, :uid, :bal, :curr, :dep, 0, 0, 1, 2, NOW(3), NOW(3))");
+            $wins = $db->prepare("INSERT INTO wallets (id, userId, balance, currency, totalDeposited, totalWithdrawn, totalWagered, approvedDepositCount, unlockedBonusTier, createdAt, updatedAt) VALUES (:wid, :uid, 0.0000, :curr, 0.0000, 0.0000, 0.0000, 0, 1, NOW(3), NOW(3))");
             $wins->execute([
                 ':wid'  => $walId,
                 ':uid'  => $user['id'],
-                ':bal'  => DEFAULT_INITIAL_BALANCE,
-                ':curr' => DEFAULT_CURRENCY,
-                ':dep'  => DEFAULT_INITIAL_BALANCE
+                ':curr' => DEFAULT_CURRENCY
             ]);
 
             $wstmt->execute([':uid' => $user['id']]);
