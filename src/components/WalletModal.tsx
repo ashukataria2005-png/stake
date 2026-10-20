@@ -226,21 +226,41 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
       syncWalletBalance(true);
       loadLedgers();
       setGatewayError("");
-      fetch("/api/admin/settings")
+      fetch("/api/settings")
         .then((r) => r.json())
         .then((data) => {
-          if (data?.success && data?.settings) {
-            if (data.settings.upiId) setReceiverUpi(data.settings.upiId);
-            if (data.settings.upiName) setReceiverName(data.settings.upiName);
-            if (data.settings.gatewayMode) setGatewayMode(data.settings.gatewayMode);
-            if (data.settings.minDepositAmount !== undefined) setMinDepositAmount(Number(data.settings.minDepositAmount));
-            if (data.settings.minWithdrawalAmount !== undefined) setMinWithdrawalAmount(Number(data.settings.minWithdrawalAmount));
-            if (Array.isArray(data.settings.quickAmounts) && data.settings.quickAmounts.length > 0) {
-              setQuickAmounts(data.settings.quickAmounts);
+          const s = data?.settings || data;
+          if (s) {
+            if (s.upiId) setReceiverUpi(s.upiId);
+            if (s.upiName) setReceiverName(s.upiName);
+            const activeGw = data.activeGateway || data.gatewayMode || s.activeGateway || s.gatewayMode;
+            if (activeGw === "LGPAY" || activeGw === "LGPAY_AUTO") {
+              setGatewayMode("LGPAY_AUTO");
+            } else {
+              setGatewayMode("MANUAL");
+            }
+            if (s.minDepositAmount !== undefined) setMinDepositAmount(Number(s.minDepositAmount));
+            if (s.minWithdrawalAmount !== undefined) setMinWithdrawalAmount(Number(s.minWithdrawalAmount));
+            if (Array.isArray(s.quickAmounts) && s.quickAmounts.length > 0) {
+              setQuickAmounts(s.quickAmounts);
             }
           }
         })
-        .catch(() => { });
+        .catch(() => {
+          fetch("/api/admin/settings")
+            .then((r) => r.json())
+            .then((data) => {
+              if (data?.settings) {
+                const s = data.settings;
+                if (s.upiId) setReceiverUpi(s.upiId);
+                if (s.upiName) setReceiverName(s.upiName);
+                if (s.gatewayMode === "LGPAY" || s.gatewayMode === "LGPAY_AUTO" || s.activeGateway === "LGPAY") {
+                  setGatewayMode("LGPAY_AUTO");
+                }
+              }
+            })
+            .catch(() => { });
+        });
 
       if (walletInitialTab) {
         setActiveTab(walletInitialTab);
@@ -312,12 +332,16 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
       setIsRedirectingToGateway(true);
       setGatewayError("");
       try {
+        const targetUserId = user?.id || user?.username || "guest_player";
         const res = await fetch("/api/payment/create-order", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             amount: finalPayableAmount,
-            userId: user?.username || user?.id || "ashuk",
+            userId: targetUserId,
+            username: user?.username,
+            email: user?.email,
+            provider: "LGPAY",
           }),
         });
 
@@ -956,6 +980,17 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                     )}
                   </div>
 
+                  {/* LGPay Active Gateway Badge */}
+                  {(gatewayMode === "LGPAY_AUTO" || (gatewayMode as string) === "LGPAY") && (
+                    <div className="flex items-center justify-between text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-2 rounded-xl">
+                      <div className="flex items-center gap-1.5">
+                        <Zap className="w-3.5 h-3.5 text-emerald-400 fill-emerald-400" />
+                        <span>Instant LGPay Gateway Active</span>
+                      </div>
+                      <span className="text-[10px] text-slate-300 font-mono">1-Click Processing</span>
+                    </div>
+                  )}
+
                   {/* In-Modal Gateway Error Banner */}
                   {gatewayError && (
                     <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-xs text-rose-300 flex items-start gap-2.5">
@@ -976,7 +1011,7 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                     </div>
                   )}
 
-                  {/* Action Button: Clean simple Pay ₹{amount} > */}
+                  {/* Action Button: Clean simple Pay / Deposit > */}
                   <button
                     type="submit"
                     disabled={isRedirectingToGateway}
@@ -985,8 +1020,10 @@ export default function WalletModal({ isOpen, onClose }: WalletModalProps) {
                     {isRedirectingToGateway ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin" />
-                        <span>Connecting to Payment Gateway...</span>
+                        <span>Connecting to LGPay Gateway...</span>
                       </>
+                    ) : (gatewayMode === "LGPAY_AUTO" || (gatewayMode as string) === "LGPAY") ? (
+                      <span>Deposit ₹{finalPayableAmount.toLocaleString("en-IN")} via LGPay &gt;</span>
                     ) : (
                       <span>Pay ₹{finalPayableAmount.toLocaleString("en-IN")} &gt;</span>
                     )}

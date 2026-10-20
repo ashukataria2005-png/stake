@@ -67,11 +67,28 @@ if ($db) {
         $wstmt->execute([':uid' => $user['id']]);
         $liveBal = floatval($wstmt->fetchColumn() ?: 0.0);
 
+        // Fetch active gateway from SYSTEM_UPI
+        $activeGateway = 'MANUAL';
+        try {
+            $gstmt = $db->prepare("SELECT value FROM system_settings WHERE `key` = 'SYSTEM_UPI' LIMIT 1");
+            $gstmt->execute();
+            $graw = $gstmt->fetchColumn();
+            if ($graw) {
+                $gparsed = json_decode($graw, true);
+                $chan = strtoupper(trim($gparsed['paymentChannel'] ?? ''));
+                $gmode = strtoupper(trim($gparsed['gatewayMode'] ?? ''));
+                if ($chan === 'LGPAY' || $gmode === 'LGPAY' || $gmode === 'LGPAY_AUTO') {
+                    $activeGateway = 'LGPAY';
+                }
+            }
+        } catch (\Exception $e) {}
+
         Response::success([
             'message' => $autoCredit 
                 ? "Deposit of ₹" . number_format($amount, 2) . " credited successfully!" 
                 : "Deposit request of ₹" . number_format($amount, 2) . " submitted for verification.",
-            'balance' => $liveBal,
+            'balance'       => $liveBal,
+            'activeGateway' => $activeGateway,
             'deposit' => [
                 'id'      => $depId,
                 'orderId' => $orderId,

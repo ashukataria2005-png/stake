@@ -145,9 +145,20 @@ if ($method === 'POST') {
                 $current = array_merge($current, $input);
             }
 
+            // Normalize activeGateway and gatewayMode
+            $chan = strtoupper(trim($current['paymentChannel'] ?? ''));
+            $gmode = strtoupper(trim($current['gatewayMode'] ?? ''));
+            $isLgpay = ($chan === 'LGPAY' || $gmode === 'LGPAY' || $gmode === 'LGPAY_AUTO');
+            $current['activeGateway'] = $isLgpay ? 'LGPAY' : 'MANUAL';
+            $current['gatewayMode'] = $isLgpay ? 'LGPAY_AUTO' : 'MANUAL';
+
             $jsonStr = json_encode($current, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-            $upd = $db->prepare("INSERT INTO system_settings (`id`, `key`, `value`, `description`, `updatedAt`) VALUES ('setting_system_upi', 'SYSTEM_UPI', :val, 'Platform UPI & Gateway Config', NOW(3)) ON DUPLICATE KEY UPDATE `value` = :val2, `updatedAt` = NOW(3)");
-            $upd->execute([':val' => $jsonStr, ':val2' => $jsonStr]);
+            $upd = $db->prepare("UPDATE system_settings SET `value` = :val, `updatedAt` = NOW(3) WHERE `key` = 'SYSTEM_UPI'");
+            $upd->execute([':val' => $jsonStr]);
+            if ($upd->rowCount() === 0) {
+                $ins = $db->prepare("INSERT INTO system_settings (`id`, `key`, `value`, `description`, `updatedAt`) VALUES ('setting_upi', 'SYSTEM_UPI', :val, 'Platform UPI & Gateway Config', NOW(3)) ON DUPLICATE KEY UPDATE `value` = :val2, `updatedAt` = NOW(3)");
+                $ins->execute([':val' => $jsonStr, ':val2' => $jsonStr]);
+            }
 
             Response::success(['settings' => $current], "Platform settings updated successfully");
         } catch (\Exception $e) {

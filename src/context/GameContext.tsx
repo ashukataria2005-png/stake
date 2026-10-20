@@ -534,10 +534,18 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       }
       const savedAuth = localStorage.getItem(AUTH_STORAGE_KEY);
       if (savedAuth) {
-        const authData = JSON.parse(savedAuth);
-        if (authData?.isAuthenticated) {
-          setIsAuthenticated(true);
-          setUser(authData.user || { name: "Anuj", email: "ashukataria2005@gmail.com", avatarColor: "#9333ea" });
+        try {
+          const authData = JSON.parse(savedAuth);
+          if (authData?.isAuthenticated && authData?.user?.id) {
+            setIsAuthenticated(true);
+            setUser(authData.user);
+          } else {
+            setIsAuthenticated(false);
+            setUser(null);
+          }
+        } catch {
+          setIsAuthenticated(false);
+          setUser(null);
         }
       }
       const savedRecent = localStorage.getItem("stake_clone_recently_played");

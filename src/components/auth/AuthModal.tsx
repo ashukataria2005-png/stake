@@ -157,20 +157,13 @@ export default function AuthModal() {
 
       const data = await res.json().catch(() => ({}));
 
-      if (!res.ok || !data?.success) {
-        const errorMsg =
-          data?.error ||
-          (res.status === 404
-            ? "User not found"
-            : res.status === 401
-            ? "Incorrect password"
-            : "Sign in failed");
-        setErrorMessage(errorMsg);
+      if (!res.ok || data?.success !== true || !data?.user) {
+        setErrorMessage(data?.error || "Invalid username or password");
         setIsLoading(false);
         return;
       }
 
-      // Success
+      // Success: Server explicitly verified user against MySQL database
       sounds.playSuccessChime();
       try {
         confetti({ particleCount: 40, spread: 50, origin: { y: 0.6 } });
@@ -357,25 +350,8 @@ export default function AuthModal() {
 
   // Quick social helper
   const handleQuickAuth = (providerName: string) => {
-    sounds.playSuccessChime();
-    try {
-      confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
-    } catch {}
-
-    const mockName =
-      providerName === "Google"
-        ? "GooglePlayer"
-        : providerName === "Passkey"
-        ? "PasskeyUser"
-        : `${providerName}User`;
-
-    login({
-      name: mockName,
-      username: mockName,
-      email: `${mockName.toLowerCase()}@stake.com`,
-    });
-    closeAuthModal();
-    setToastMessage(`Welcome ${mockName}!`);
+    sounds.playClick();
+    setErrorMessage(`${providerName} login is not configured on this domain. Please sign in with your Username and Password.`);
   };
 
   return (

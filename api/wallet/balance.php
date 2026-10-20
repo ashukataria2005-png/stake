@@ -85,9 +85,29 @@ if ($db) {
 
     $vip = calculateVipInfo($totalWagered);
 
+    // Fetch active gateway mode from system_settings
+    $activeGateway = 'MANUAL';
+    $gatewayMode = 'MANUAL';
+    try {
+        $gstmt = $db->prepare("SELECT value FROM system_settings WHERE `key` = 'SYSTEM_UPI' LIMIT 1");
+        $gstmt->execute();
+        $graw = $gstmt->fetchColumn();
+        if ($graw) {
+            $gparsed = json_decode($graw, true);
+            $chan = strtoupper(trim($gparsed['paymentChannel'] ?? ''));
+            $gmode = strtoupper(trim($gparsed['gatewayMode'] ?? ''));
+            if ($chan === 'LGPAY' || $gmode === 'LGPAY' || $gmode === 'LGPAY_AUTO') {
+                $activeGateway = 'LGPAY';
+                $gatewayMode = 'LGPAY_AUTO';
+            }
+        }
+    } catch (\Exception $e) {}
+
     Response::success([
         'balance'              => $safeBalance,
         'currency'             => $liveWallet['currency'] ?? 'INR',
+        'gatewayMode'          => $gatewayMode,
+        'activeGateway'        => $activeGateway,
         'totalDeposited'       => $totalDeposited,
         'totalWithdrawn'       => $totalWithdrawn,
         'totalWagered'         => $totalWagered,

@@ -75,7 +75,8 @@ $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
 $fallbackPayUrl = "{$proto}://{$host}/deposit/pay?amount={$amount}&orderId={$orderId}";
 
 // If live external API configured, call gateway via cURL
-if ($gatewayMode === 'LGPAY_AUTO' && !empty($baseUrl) && !str_contains($baseUrl, 'localhost')) {
+$isLgpayOrder = ($gatewayMode === 'LGPAY_AUTO' || $gatewayMode === 'LGPAY' || ($input['provider'] ?? '') === 'LGPAY');
+if ($isLgpayOrder && !empty($baseUrl) && !str_contains($baseUrl, 'localhost')) {
     $postFields = [
         'merchant_id' => $merchantId,
         'order_id'    => $orderId,
